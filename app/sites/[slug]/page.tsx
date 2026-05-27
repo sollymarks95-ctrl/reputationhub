@@ -84,7 +84,7 @@ export default async function SiteHomepage({
             color: '#fff', lineHeight: 1.1, letterSpacing: '-0.03em',
             marginBottom: 20
           }}>
-            {site.tagline || `The World's Most Trusted ${site.niche || 'Business'} Directory`}
+            {site.tagline || `The World&apos;s Most Trusted ${site.niche || 'Business'} Directory`}
           </h1>
           <p style={{ fontSize: 18, color: '#94a3b8', marginBottom: 40, lineHeight: 1.6 }}>
             {site.description || `Verified, reviewed, and trusted companies — all in one place. Find the right partner with confidence.`}

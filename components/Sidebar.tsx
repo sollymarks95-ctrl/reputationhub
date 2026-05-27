@@ -15,6 +15,7 @@ const nav = [
   { label: 'Content', href: '/dashboard/content', icon: FileText },
   { label: 'YouTube', href: '/dashboard/youtube', icon: Video },
   { label: 'Campaigns', href: '/dashboard/campaigns', icon: Mail },
+  { label: 'News Sites', href: '/dashboard/news', icon: Globe },
   { label: 'Rankings', href: '/dashboard/rankings', icon: TrendingUp },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
