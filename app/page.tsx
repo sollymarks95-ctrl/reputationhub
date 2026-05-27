@@ -91,7 +91,7 @@ export default function HomePage() {
               Client Login
             </Link>
             <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 20px', fontSize:14 }}>
-              Audit My Brand
+              Get My Plan
             </a>
           </div>
         </div>
@@ -110,16 +110,16 @@ export default function HomePage() {
                 <span className="tag" style={{ background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.3)', color:'#F59E0B' }}>✦ From $5,000/mo</span>
               </div>
               <h1 className="syne h1s" style={{ fontSize:56, fontWeight:900, lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:22 }}>
-                We Don&apos;t Just Build Trust.{' '}
-                <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Command Your</span>{' '}
-                <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Google Page One.</span>
+                We Bury Negative Reviews.{' '}
+                <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Build Real Authority.</span>{' '}
+                <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Own Your Brand Search.</span>
               </h1>
               <p style={{ fontSize:18, color:'#94A3B8', lineHeight:1.75, marginBottom:36, maxWidth:520 }}>
-                The ultimate authority engine for Forex, Crypto &amp; Trading brokers. Publish analysis across <strong style={{color:'#F1F5F9'}}>12 elite financial portals</strong>, dominate search intent, and launch AI-generated team podcasts — tracked in real-time.
+                We dominate your brand name across <strong style={{color:'#F1F5F9'}}>every Google search, AI assistant and review site</strong>. Negative reviews buried. Real credibility built through broker-authored articles, CEO podcasts, and video interviews — all published instantly on 12 elite financial portals.
               </p>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:44 }}>
                 <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 30px' }}>
-                  Audit My Brand&apos;s Reputation
+                  Get My Brand Domination Plan
                 </a>
                 <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ fontSize:16, padding:'15px 28px' }}>
                   ▶ Watch 2-Min Demo
@@ -174,8 +174,8 @@ export default function HomePage() {
         <div style={{ position:'absolute', left:0, top:0, bottom:0, width:180, background:'linear-gradient(90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ position:'absolute', right:0, top:0, bottom:0, width:180, background:'linear-gradient(-90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ textAlign:'center', marginBottom:26 }}>
-          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Instant Distribution Across Our <strong style={{color:'#F1F5F9'}}>Proprietary 12-Site Financial Network</strong></h2>
-          <p style={{ fontSize:13, color:'#475569', marginTop:6 }}>Your analysis published daily on our high-authority portals — generating backlinks, trust, and Page 1 rankings</p>
+          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Broker-Authored Content Published Across Our <strong style={{color:'#F1F5F9'}}>12 Elite Financial Portals</strong></h2>
+          <p style={{ fontSize:13, color:'#475569', marginTop:6 }}>Your broker's articles, CEO interviews &amp; market analysis published daily — real content that pushes negatives down and builds genuine industry authority</p>
         </div>
         <div style={{ overflow:'hidden' }}>
           <div style={{ display:'flex', animation:'ticker 30s linear infinite', whiteSpace:'nowrap' }}>
@@ -198,7 +198,7 @@ export default function HomePage() {
       <div style={{ padding:'52px 0', background:'linear-gradient(135deg,#111827,#0F172A)', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div className="sg" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
-            {[{n:'$2.4B+',l:'Client AUM Protected',c:'#38BDF8'},{n:'12',l:'Elite Portals Live',c:'#34D399'},{n:'96h',l:'Avg Time to Google P1',c:'#FCD34D'},{n:'42%',l:'Avg Conversion Increase',c:'#F97316'}].map((s,i) => (
+            {[{n:'100%',l:'Brand Name Searches Controlled',c:'#38BDF8'},{n:'12',l:'Elite Financial Portals',c:'#34D399'},{n:'96h',l:'Negatives Pushed to Page 3+',c:'#FCD34D'},{n:'42%',l:'Avg Conversion Rate Increase',c:'#F97316'}].map((s,i) => (
               <div key={s.l} style={{ textAlign:'center', padding:'18px 12px', borderRight:i<3?'1px solid rgba(255,255,255,0.06)':'none' }}>
                 <div className="syne" style={{ fontSize:46, fontWeight:900, color:s.c, lineHeight:1, marginBottom:6 }}>{s.n}</div>
                 <div style={{ fontSize:13, color:'#64748b' }}>{s.l}</div>
@@ -213,14 +213,14 @@ export default function HomePage() {
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:60 }}>
             <span className="tag" style={{ background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', color:'#0EA5E9', marginBottom:18, display:'inline-flex' }}>The Three Pillars</span>
-            <h2 className="syne h2s" style={{ fontSize:46, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>Everything You Need to <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Dominate Your</span> <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Brand Search</span></h2>
-            <p style={{ fontSize:17, color:'#64748b', maxWidth:580, margin:'0 auto' }}>A complete authority engine that runs 24/7, publishing your expertise and burying everything that threatens your reputation.</p>
+            <h2 className="syne h2s" style={{ fontSize:46, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>We Don&apos;t Do Generic SEO. <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Dominate</span> <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Your Brand Name.</span></h2>
+            <p style={{ fontSize:17, color:'#64748b', maxWidth:580, margin:'0 auto' }}>We don't do generic SEO. We dominate your exact brand name searches — and build the kind of real, verifiable credibility that turns sceptical prospects into clients.</p>
           </div>
           <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
             {[
-              { icon:'🛡', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'SEO Dominance', accent:'& Brand Shield', desc:"Own 100% of your brand's search real estate. We push down negative reviews and bad press by flooding Google Page 1 with authoritative, optimized assets. Your competitors' negative articles? Buried on page 3.", cta:'Get brand audit →' },
-              { icon:'🌐', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Authority Network', accent:'Publishing', desc:"Turn your internal team into industry celebrities. Your brokers' market analysis is pushed automatically to our portals, generating massive backlink equity and organic trust signals that Google rewards with rankings.", cta:'See our network →' },
-              { icon:'🎙', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'AI Media &', accent:'Podcast Engine', desc:"Humanize your brokerage at scale. Our AI engine generates high-fidelity professional audio/video interviews with your team — synced automatically to Spotify, YouTube & Apple Podcasts.", cta:'Hear sample →' },
+              { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'Your Broker review', 'Your Broker scam', 'Your Broker legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
+              { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 12 elite portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
+              { icon:'🎬', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'Video & Podcast', accent:'Interviews', desc:"We produce real AI-powered audio and video interviews with your CEO, analysts and trading team. Published to Spotify, YouTube, Apple Podcasts. When prospects search your brand, they find a podcast. When they ask AI — it cites your CEO interview. That's authority.", cta:'Hear a sample →' },
             ].map(f => (
               <div key={f.tag} className="fc">
                 <div style={{ fontSize:36, marginBottom:18 }}>{f.icon}</div>
@@ -251,7 +251,7 @@ export default function HomePage() {
           <div style={{ textAlign:'center', marginBottom:48 }}>
             <span className="tag" style={{ background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', color:'#10B981', marginBottom:14, display:'inline-flex' }}>Real-Time Control</span>
             <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, marginBottom:12, lineHeight:1.1 }}>Your <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Live Authority</span> Dashboard</h2>
-            <p style={{ fontSize:17, color:'#64748b' }}>Every article, ranking, and podcast — tracked in one command center at rephuby.com/portal</p>
+            <p style={{ fontSize:17, color:'#64748b' }}>Every article we publish for you, every negative result we push down, every podcast episode, every brand keyword — tracked live in your client dashboard</p>
           </div>
           <div style={{ background:'linear-gradient(135deg,#141B2D,#1C2333)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:20, overflow:'hidden', boxShadow:'0 40px 100px rgba(0,0,0,0.6),0 0 50px rgba(14,165,233,0.12)', position:'relative' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg,transparent,#0EA5E9,#10B981,transparent)' }} />
@@ -355,14 +355,14 @@ export default function HomePage() {
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:52 }}>
             <span className="tag" style={{ background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', color:'#10B981', marginBottom:16, display:'inline-flex' }}>Client Results</span>
-            <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, lineHeight:1.1 }}>Brokers Who Now <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Own Their</span> <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Google Page 1</span></h2>
+            <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, lineHeight:1.1 }}>Brokers Who <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Buried the Negatives</span>{' '}<span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>& Built Real Authority</span></h2>
           </div>
           <div className="tg" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
             {[
-              { mt:'📈 +42% Conversion Rate · 60 Days', q:"We were losing 60% of prospects who Googled us because the first page was full of forum posts. RepHuby flooded Page 1 with 8 authoritative articles in 96 hours. Our closing rate went from 11% to 19% in the first month.", n:'Marcus H.', r:'CEO, CySEC-Regulated FX Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
-              { mt:'🔴 Competitor Review: #1 → #23 Pushed Down', q:"A competitor planted a fake review site ranking #1 for our brand. RepHuby buried it to page 3 in 3 weeks and replaced the top 7 positions with our own content. The AI podcast was a game-changer — prospects now watch our CEO interview before scheduling a call.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
-              { mt:'🏆 #1 Google Ranking in 8 Brand Terms', q:"We went from 2 brand terms controlled to 11 in the first quarter. The real-time dashboard lets our compliance team see every article. For a regulated firm, this level of control over our narrative is priceless. Worth 10x what we pay.", n:'Rafael S.', r:'Head of Marketing, FCA-Regulated Broker · UK', av:'R', g:'135deg,#F59E0B,#F97316' },
-              { mt:'⚡ 96h From Onboarding to Page 1', q:"I was skeptical — we'd tried PR agencies and spent $20K with nothing to show. RepHuby had our first 12 articles live across their network within 96 hours of signing. By week 3, our brand search had a completely different story.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
+              { mt:'📈 +42% Conversion Rate · 60 Days', q:"A competitor seeded fake scam threads about us on 3 forums. RepHuby published our CEO's market analysis on 12 portals, launched a CEO podcast interview, and buried every negative result within 96 hours. Our prospects now find a podcast and 2,400 reviews before they find anything negative. Closing rate: 11% → 19%.", n:'Marcus H.', r:'CEO, CySEC-Regulated FX Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
+              { mt:'🔴 Fake Review Site: #1 → Page 3 in 3 Weeks', q:"A competitor built an entire fake review site targeting our brand name. It was ranking #1 when prospects searched us. RepHuby replaced all 7 top positions with our own portal articles, our analyst's commentary and a video interview with our COO. That site now ranks page 3. Prospects never see it.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
+              { mt:'🏆 11 Brand Keywords Dominated · Q1', q:"Before RepHuby, if you searched our name plus 'withdrawal' or 'regulated' you'd find forum complaints. Now you find our compliance officer's article on Certivade, our analyst on Finvex, and our CEO interview on Bizplex. 11 of 12 tracked brand searches are now controlled by us.", n:'Rafael S.', r:'Head of Marketing, FCA-Regulated Broker · UK', av:'R', g:'135deg,#F59E0B,#F97316' },
+              { mt:'⚡ CEO Podcast Live in 48h · Brand Transformed', q:"In 48 hours we had a professionally produced CEO podcast published to Spotify and YouTube, six broker-authored analysis pieces live on four portals, and a press release on PresxWire. When a prospect now Googles us they find our CEO talking. Old PR agencies couldn't do in 6 months what RepHuby did in 2 days.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
             ].map(t => (
               <div key={t.n} className="tc">
                 <div style={{ background:`linear-gradient(${t.g})`, display:'inline-flex', padding:'5px 12px', borderRadius:8, fontSize:12, color:'#000', fontWeight:700, marginBottom:16 }}>{t.mt}</div>
@@ -389,11 +389,11 @@ export default function HomePage() {
             <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg,transparent,#0EA5E9,#10B981,transparent)' }} />
             <span className="tag" style={{ background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', marginBottom:18, display:'inline-flex' }}>🚨 Only 4 Slots Remaining — June 2025</span>
             <h2 className="syne h2s" style={{ fontSize:48, fontWeight:900, marginBottom:16, lineHeight:1.05 }}>
-              Stop Losing Leads to{' '}
-              <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Unverified</span>{' '}
-              <span style={{ background:'linear-gradient(135deg,#F59E0B,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Competitors.</span>
+              Your Brand Is Being{' '}
+              <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Searched Right</span>{' '}
+              <span style={{ background:'linear-gradient(135deg,#F59E0B,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Now.</span>
             </h2>
-            <p style={{ fontSize:17, color:'#64748b', maxWidth:500, margin:'0 auto 32px', lineHeight:1.7 }}>Every day your Google Page 1 isn&apos;t controlled is revenue walking out the door. 6 broker slots per month.</p>
+            <p style={{ fontSize:17, color:'#64748b', maxWidth:500, margin:'0 auto 32px', lineHeight:1.7 }}>Right now someone is searching &apos;[your broker] scam&apos;. What are they finding? Without RepHuby — a forum post. With RepHuby — your CEO&apos;s podcast, your analyst&apos;s article, your 2,400 verified reviews. 6 broker slots per month.</p>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, maxWidth:500, margin:'0 auto 10px' }} className="fmg">
               <input placeholder="Broker / Company Name" className="inp" />
               <input placeholder="Website URL" type="url" className="inp" />
@@ -480,7 +480,7 @@ function AIDefenseSection() {
             <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Make Sure They Find This Instead.</span>
           </h2>
           <p style={{ fontSize:17, color:'#64748b', maxWidth:620, margin:'0 auto' }}>
-            ChatGPT, Perplexity, Google AI Overview — they all pull from the web. Our 12 portals feed them the narrative <em style={{color:'#F1F5F9'}}>you control</em>.
+            Every search combination of your brand — Google, Perplexity, ChatGPT, AI Overview — lands on broker-authored articles, CEO interviews, podcasts, and verified reviews we publish on your behalf across our 12 portals.
           </p>
         </div>
 
@@ -611,7 +611,7 @@ function AIDefenseSection() {
             <br /><strong style={{color:'#F1F5F9'}}>RepHuby makes sure they all find your story, not your detractors&apos;.</strong>
           </p>
           <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 34px' }}>
-            Protect My Brand from AI Searches →
+            Start Dominating Your Brand Searches →
           </a>
         </div>
       </div>
