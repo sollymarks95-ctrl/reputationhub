@@ -25,7 +25,7 @@ export default function PortalLogin() {
     await new Promise(r => setTimeout(r, 900))
 
     try {
-      localStorage.setItem('rephub_session', JSON.stringify({
+      localStorage.setItem('rephuby_session', JSON.stringify({
         email: email.toLowerCase().trim(),
         name: isAdmin ? 'Solly' : email.split('@')[0],
         role: isAdmin ? 'superadmin' : 'client',
@@ -63,7 +63,7 @@ export default function PortalLogin() {
             <div style={{ textAlign:'center', marginBottom:32 }}>
               <Link href="https://rephuby.com">
                 <span style={{ fontFamily:"'Syne',sans-serif", fontSize:30, fontWeight:900, letterSpacing:'-0.03em' }}>
-                  Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Hub</span>
+                  Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Huby</span>
                 </span>
               </Link>
               <div style={{ fontSize:11, color:'#475569', marginTop:3, letterSpacing:'0.08em', textTransform:'uppercase' }}>Client Intelligence Portal</div>

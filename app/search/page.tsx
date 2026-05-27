@@ -35,7 +35,7 @@ const SLUG_MAP: Record<string,string> = {
 
 export async function generateMetadata({ searchParams }: { searchParams?: Promise<{q?:string}> }) {
   const sp = searchParams ? await searchParams : {}
-  return { title: `Search: ${sp.q || ''} | RepHub`, description: 'Search global trade and financial news across all RepHub publications', robots: 'noindex' }
+  return { title: `Search: ${sp.q || ''} | RepHuby`, description: 'Search global trade and financial news across all RepHuby publications', robots: 'noindex' }
 }
 
 export default async function SearchPage({ searchParams }: { searchParams?: Promise<{ q?: string, site?: string, category?: string }> }) {
@@ -61,7 +61,7 @@ export default async function SearchPage({ searchParams }: { searchParams?: Prom
       
       <header style={{ background:'#111827', padding:'16px 24px', borderBottom:'3px solid #3b82f6' }}>
         <div style={{ maxWidth:900, margin:'0 auto' }}>
-          <Link href="/news/global-trade-wire"><div style={{ fontWeight:900, fontSize:22, color:'#fff', marginBottom:12 }}>🌐 RepHub Global Search</div></Link>
+          <Link href="/news/global-trade-wire"><div style={{ fontWeight:900, fontSize:22, color:'#fff', marginBottom:12 }}>🌐 RepHuby Global Search</div></Link>
           <form action="/search" method="GET">
             <div style={{ display:'flex', gap:8 }}>
               <input name="q" defaultValue={q} placeholder="Search articles, markets, analysis..." autoFocus

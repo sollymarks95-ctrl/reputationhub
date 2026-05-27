@@ -62,7 +62,7 @@ export default async function SitePage({
       url: `${BASE}/reviews-hub/${slug}`,
       description: site.tagline,
       inLanguage: 'en-GB',
-      publisher: { '@type': 'Organization', name: 'RepHub Intelligence Ltd', url: BASE },
+      publisher: { '@type': 'Organization', name: 'RepHuby Intelligence Ltd', url: BASE },
       potentialAction: {
         '@type': 'SearchAction',
         target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/search?q={search_term_string}` },
@@ -73,7 +73,7 @@ export default async function SitePage({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'RepHub Intelligence', item: BASE },
+        { '@type': 'ListItem', position: 1, name: 'RepHuby Intelligence', item: BASE },
         { '@type': 'ListItem', position: 2, name: site.name, item: `${BASE}/reviews-hub/${slug}` },
       ],
     },

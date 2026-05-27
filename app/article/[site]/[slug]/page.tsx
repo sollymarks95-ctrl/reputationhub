@@ -366,7 +366,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             <strong style={{color:'#475569'}}>Risk Disclosure:</strong> Trading in financial instruments involves high risks. Prices may not be real-time or accurate. {site.name} does not accept liability for losses resulting from reliance on information provided. Content is for informational purposes only and does not constitute investment advice.
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:'1px solid #1e293b', paddingTop:14, flexWrap:'wrap', gap:8 }}>
-            <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHub Intelligence Ltd · All Rights Reserved</span>
+            <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHuby Intelligence Ltd · All Rights Reserved</span>
             <div style={{ display:'flex', gap:14 }}>
               {[{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Risk Warning',h:'/legal/risk-warning'},{l:'Cookies',h:'/legal/cookies'},{l:'Sitemap',h:'/sitemap.xml'}].map(({l,h}) => (
                 <Link key={l} href={h}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>

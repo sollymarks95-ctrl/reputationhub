@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import CookieConsent from './components/CookieConsent'
 
 export const metadata: Metadata = {
-  title: 'RepHub Intelligence — Global Markets & Trade News',
+  title: 'RepHuby Intelligence — Global Markets & Trade News',
   description: 'Professional market intelligence, trade news, and financial analysis across global commodity, currency, and equity markets.',
   keywords: 'commodity trading, trade finance, financial markets, gold price, forex, market analysis',
   robots: 'index, follow',
   openGraph: {
-    siteName: 'RepHub Intelligence',
+    siteName: 'RepHuby Intelligence',
     type: 'website',
     locale: 'en_GB',
   },

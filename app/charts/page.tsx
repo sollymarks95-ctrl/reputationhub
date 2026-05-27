@@ -1,5 +1,5 @@
 import Link from 'next/link'
-export const metadata = { title: 'Live Charts | RepHub Markets' }
+export const metadata = { title: 'Live Charts | RepHuby Markets' }
 const SYMBOLS = [
   { v:'CAPITALCOM:GOLD', l:'Gold', icon:'🥇', g:'Metals' },
   { v:'CAPITALCOM:SILVER', l:'Silver', icon:'⚪', g:'Metals' },
@@ -26,7 +26,7 @@ export default function ChartsPage() {
     <div style={{ minHeight:'100vh', background:'#0f172a', fontFamily:'sans-serif' }}>
       <div style={{ background:'#111827', padding:'14px 24px', display:'flex', alignItems:'center', gap:16, justifyContent:'space-between', borderBottom:'1px solid #1e293b' }}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-          <Link href="/news/global-trade-wire"><span style={{ color:'#64748b', fontSize:13, cursor:'pointer' }}>← RepHub</span></Link>
+          <Link href="/news/global-trade-wire"><span style={{ color:'#64748b', fontSize:13, cursor:'pointer' }}>← RepHuby</span></Link>
           <span style={{ color:'#fff', fontWeight:900, fontSize:20 }}>📈 Live Charts</span>
         </div>
         <span style={{ color:'#475569', fontSize:12 }}>Powered by TradingView · Real-time data</span>

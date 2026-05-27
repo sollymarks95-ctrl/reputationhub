@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import AdminDashboard from './AdminDashboard'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Admin Dashboard | RepHub Intelligence', robots: 'noindex, nofollow' }
+export const metadata = { title: 'Admin Dashboard | RepHuby Intelligence', robots: 'noindex, nofollow' }
 
 export default async function AdminPage() {
   const [

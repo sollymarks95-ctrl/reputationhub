@@ -19,7 +19,7 @@ export default async function StatusPage() {
   }
   return (
     <div style={{fontFamily:'sans-serif',padding:32,maxWidth:900,margin:'0 auto'}}>
-      <h1 style={{fontSize:28,fontWeight:900,marginBottom:4}}>🔧 RepHub Status Dashboard</h1>
+      <h1 style={{fontSize:28,fontWeight:900,marginBottom:4}}>🔧 RepHuby Status Dashboard</h1>
       <p style={{color:'#666',marginBottom:24}}>Last updated: {new Date().toLocaleString()}</p>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:32}}>
         {[
@@ -54,7 +54,7 @@ export default async function StatusPage() {
         })}
       </div>
       <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:16,fontSize:13,color:'#374151'}}>
-        <strong>Image Generation:</strong> Visit <code>/api/generate-images?action=run&token=rephub-img-2025</code> to generate AI images for articles. Requires OPENAI_API_KEY in Vercel env vars.<br/><br/>
+        <strong>Image Generation:</strong> Visit <code>/api/generate-images?action=run&token=rephuby-img-2025</code> to generate AI images for articles. Requires OPENAI_API_KEY in Vercel env vars.<br/><br/>
         <strong>Daily Cron:</strong> Runs at 5am UTC (7am Israel) — generates 3 new AI articles per site (36 total/day).<br/><br/>
         <strong>Auto-deploy:</strong> Every push to GitHub main branch → auto-deploys via deploy hook.
       </div>

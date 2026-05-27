@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
   const action = req.nextUrl.searchParams.get('action') || 'status'
 
-  if (action === 'run' && token === 'rephub-img-2025') {
+  if (action === 'run' && token === 'rephuby-img-2025') {
     const { data: articles } = await supabase
       .from('news_articles').select('id, title, category, cover_image_url')
       .ilike('cover_image_url', '%unsplash%').eq('status', 'published').limit(5)
@@ -105,7 +105,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET || 'rephub-cron-2025-secure'}`) {
+  if (auth !== `Bearer ${process.env.CRON_SECRET || 'rephuby-cron-2025-secure'}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const body = await req.json().catch(() => ({}))

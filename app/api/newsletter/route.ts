@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email.toLowerCase().trim()
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
     const { error } = await supabase.from('newsletter_subscribers').upsert({
-      email: cleanEmail, news_site_id: siteId || null, site_name: siteName || 'RepHub',
+      email: cleanEmail, news_site_id: siteId || null, site_name: siteName || 'RepHuby',
       ip_address: ip, is_confirmed: true, subscribed_at: new Date().toISOString()
     }, { onConflict: 'email,news_site_id', ignoreDuplicates: true })
     if (error && !error.message.includes('duplicate')) {

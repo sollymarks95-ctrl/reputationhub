@@ -3,7 +3,7 @@ export async function GET() {
   return NextResponse.json({
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "RepHub Intelligence",
+    "name": "RepHuby Intelligence",
     "url": "https://rephuby.com",
     "description": "B2B reputation management for Forex, Crypto and Trading brokers. 12 proprietary financial portals, AI podcasts, Google brand rank tracking.",
     "contactPoint": { "@type":"ContactPoint","contactType":"sales","url":"https://t.me/rephub_intelligence" },
