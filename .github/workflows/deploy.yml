@@ -9,23 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Deploy via Vercel Action
+        uses: amondnet/vercel-action@v25
         with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Deploy to Vercel
-        run: |
-          npm install -g vercel
-          vercel --token=${{ secrets.VERCEL_TOKEN }} \
-                 --scope=team_i0UdvDcC0rdntVBoxbP7i46X \
-                 --prod \
-                 --yes \
-                 --name=reputationhub
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: team_i0UdvDcC0rdntVBoxbP7i46X
-          VERCEL_PROJECT_ID: prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: team_i0UdvDcC0rdntVBoxbP7i46X
+          vercel-project-id: prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5
+          vercel-args: '--prod'
+          working-directory: ./
