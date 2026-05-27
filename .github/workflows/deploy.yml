@@ -1,18 +1,14 @@
-name: Deploy to Vercel
+name: Notify Deploy
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Vercel Deploy Hook
+      - name: Log push
         run: |
-          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
-            RESPONSE=$(curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}")
-            echo "Triggered: $RESPONSE"
-          else
-            echo "⚠️ No deploy hook set. Run Setup Vercel Deploy Hook workflow first."
-            exit 1
-          fi
+          echo "✅ Push received: ${{ github.sha }}"
+          echo "Vercel GitHub integration handles the actual deploy"
+          echo "If Vercel isn't deploying, check: vercel.com → reputationhub → Settings → Git"
