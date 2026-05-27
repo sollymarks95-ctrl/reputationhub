@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   if (!site) return {}
   const article = await getArticle(site.id, slug)
   if (!article) return {}
-  const BASE = 'https://reputationhub-ten.vercel.app'
+  const BASE = 'https://rephuby.com'
   const route = ROUTE_MAP[siteSlug] || 'news'
   return {
     title: `${article.title} | ${site.name}`,
@@ -61,7 +61,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const related = allArticles.filter((a: any) => a.slug !== slug).slice(0, 8)
   const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
   const paragraphs = (article.body || '').split('\n\n').filter(Boolean)
-  const BASE = 'https://reputationhub-ten.vercel.app'
+  const BASE = 'https://rephuby.com'
 
   // JSON-LD Structured Data for SEO & AI agents
   const jsonLd = {

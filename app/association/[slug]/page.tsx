@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import LiveMarketDashboard from '@/app/components/LiveMarketDashboard'
 import type { Metadata } from 'next'
 
-const BASE = 'https://reputationhub-ten.vercel.app'
+const BASE = 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
