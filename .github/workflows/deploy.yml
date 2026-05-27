@@ -9,11 +9,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy via Vercel Action
-        uses: amondnet/vercel-action@v25
+      - uses: actions/setup-node@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: team_i0UdvDcC0rdntVBoxbP7i46X
-          vercel-project-id: prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5
-          vercel-args: '--prod'
-          working-directory: ./
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create Vercel project config
+        run: |
+          mkdir -p .vercel
+          echo '{"projectId":"prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5","orgId":"team_i0UdvDcC0rdntVBoxbP7i46X"}' > .vercel/project.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@37
+
+      - name: Deploy to Production
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
