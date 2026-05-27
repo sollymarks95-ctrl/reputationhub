@@ -242,6 +242,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── AI DEFENSE DEMO ── */}
+      <AIDefenseSection />
+
       {/* DASHBOARD */}
       <section id="dashboard" style={{ padding:'80px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
@@ -428,5 +431,190 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+// ── AI DEFENSE SECTION ──────────────────────────────────────────────────────
+function AIDefenseSection() {
+  return (
+    <section style={{ padding:'100px 0', background:'#0B0F19', position:'relative', overflow:'hidden' }}>
+      <style>{`
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+        @keyframes slideR{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes slideU{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes typing{from{width:0}to{width:100%}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes spin2{to{transform:rotate(360deg)}}
+        .ai-query-1{animation:typing 1.8s steps(30,end) 0.5s both,slideU .3s 0.5s both}
+        .ai-thinking{animation:fadeIn .3s 2.4s both}
+        .ai-resp{animation:fadeIn .4s 3.2s both}
+        .ai-r1{animation:slideR .4s 3.4s both}
+        .ai-r2{animation:slideR .4s 3.9s both}
+        .ai-r3{animation:slideR .4s 4.4s both}
+        .ai-r4{animation:slideR .4s 4.9s both}
+        .ai-r5{animation:slideR .4s 5.4s both}
+        .ai-r6{animation:slideR .4s 5.9s both}
+        .ai-summary{animation:fadeIn .5s 6.5s both}
+        .cursor{display:inline-block;animation:blink 1s ease-in-out 2.4s 3}
+        .neg-query{animation:typing 1.4s steps(28,end) 0.3s both}
+        .neg-r1{animation:slideR .3s 1.8s both}
+        .neg-r2{animation:slideR .3s 2.1s both}
+        .neg-r3{animation:slideR .3s 2.4s both}
+        .pos-over{animation:fadeIn .5s 3s both}
+      `}</style>
+
+      {/* Background */}
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 50% at 50% 50%,rgba(16,185,129,0.06),transparent),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(14,165,233,0.05),transparent)' }} />
+      <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)', backgroundSize:'52px 52px', maskImage:'radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)' }} />
+
+      <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', position:'relative', zIndex:2 }}>
+        {/* Header */}
+        <div style={{ textAlign:'center', marginBottom:60 }}>
+          <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'5px 14px', borderRadius:100, fontSize:12, fontWeight:600, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', color:'#10B981', marginBottom:18 }}>
+            🤖 AI Search Defense — Live Demo
+          </span>
+          <h2 className="syne h2s" style={{ fontSize:46, fontWeight:900, lineHeight:1.1, marginBottom:16 }}>
+            When Prospects Ask AI{' '}
+            <span style={{ background:'linear-gradient(135deg,#EF4444,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>"Is This Broker a Scam?"</span>
+            <br />
+            <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Make Sure They Find This Instead.</span>
+          </h2>
+          <p style={{ fontSize:17, color:'#64748b', maxWidth:620, margin:'0 auto' }}>
+            ChatGPT, Perplexity, Google AI Overview — they all pull from the web. Our 12 portals feed them the narrative <em style={{color:'#F1F5F9'}}>you control</em>.
+          </p>
+        </div>
+
+        {/* DEMO GRID */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, alignItems:'start' }}>
+
+          {/* LEFT: WITHOUT REPHUBY — the threat */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+              <div style={{ width:10, height:10, borderRadius:'50%', background:'#EF4444' }} />
+              <span style={{ fontSize:13, fontWeight:700, color:'#EF4444', letterSpacing:'0.04em', textTransform:'uppercase' }}>Without RepHuby</span>
+            </div>
+            <div style={{ background:'linear-gradient(135deg,#1a0808,#1C0A0A)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:14, overflow:'hidden', boxShadow:'0 0 40px rgba(239,68,68,0.08)' }}>
+              {/* Perplexity-style header */}
+              <div style={{ padding:'12px 18px', background:'rgba(0,0,0,0.4)', borderBottom:'1px solid rgba(239,68,68,0.15)', display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:24, height:24, borderRadius:6, background:'linear-gradient(135deg,#1e40af,#312e81)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13 }}>🔍</div>
+                <span style={{ fontSize:12, color:'#94A3B8', fontWeight:600 }}>Perplexity AI · Search</span>
+                <div style={{ marginLeft:'auto', fontSize:11, color:'#EF4444', fontWeight:600 }}>Unprotected Brand</div>
+              </div>
+              <div style={{ padding:20 }}>
+                {/* Query */}
+                <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:13 }}>🔎</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="neg-query">is ApexFX broker a scam?</span>
+                  <span className="cursor" style={{ color:'#EF4444' }}>|</span>
+                </div>
+                {/* Bad results */}
+                <div style={{ fontSize:11, fontWeight:700, color:'#EF4444', letterSpacing:'0.06em', marginBottom:10, opacity:0 }} className="neg-r1">⚠ RESULTS FOUND</div>
+                {[
+                  { icon:'🚨', src:'forexpeacearmy.com', title:'"ApexFX scammed me out of $12,000"', snippet:'User reports: withdrawal issues, account manipulation, fake profits...', color:'#EF4444' },
+                  { icon:'❌', src:'trustpilot.com/fake', title:'"DO NOT USE — ApexFX is a fraud"', snippet:'1.2 stars · "They disappeared with my deposit after 3 months"', color:'#F97316' },
+                  { icon:'⚠️', src:'reddit.com/r/Forex', title:'"Anyone else had issues with ApexFX?"', snippet:'247 comments · "Multiple complaints about impossible withdrawals..."', color:'#F59E0B' },
+                ].map((r, i) => (
+                  <div key={i} style={{ padding:'12px 0', borderBottom:'1px solid rgba(239,68,68,0.1)', opacity:0 }} className={`neg-r${i+1}`}>
+                    <div style={{ fontSize:11, color:r.color, marginBottom:3, display:'flex', alignItems:'center', gap:6 }}>
+                      <span>{r.icon}</span><span style={{ fontWeight:700 }}>{r.src}</span>
+                    </div>
+                    <div style={{ fontSize:13, color:'#F1F5F9', fontWeight:600, marginBottom:3 }}>{r.title}</div>
+                    <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5 }}>{r.snippet}</div>
+                  </div>
+                ))}
+                {/* Impact summary */}
+                <div style={{ marginTop:16, padding:'12px 14px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:8, opacity:0 }} className="pos-over">
+                  <div style={{ fontSize:12, color:'#EF4444', fontWeight:700, marginBottom:4 }}>💸 Prospect Impact</div>
+                  <div style={{ fontSize:12, color:'#94A3B8', lineHeight:1.6 }}>Prospect closes the tab. Lead lost. You never knew they searched. This happens <strong style={{color:'#EF4444'}}>hundreds of times per month</strong>.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: WITH REPHUBY — the defense */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+              <div style={{ width:10, height:10, borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s ease-in-out infinite' }} />
+              <span style={{ fontSize:13, fontWeight:700, color:'#10B981', letterSpacing:'0.04em', textTransform:'uppercase' }}>With RepHuby Active</span>
+            </div>
+            <div style={{ background:'linear-gradient(135deg,#071a12,#0C1F16)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:14, overflow:'hidden', boxShadow:'0 0 40px rgba(16,185,129,0.1)' }}>
+              {/* Header */}
+              <div style={{ padding:'12px 18px', background:'rgba(0,0,0,0.4)', borderBottom:'1px solid rgba(16,185,129,0.15)', display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:24, height:24, borderRadius:6, background:'linear-gradient(135deg,#1e40af,#312e81)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13 }}>🤖</div>
+                <span style={{ fontSize:12, color:'#94A3B8', fontWeight:600 }}>ChatGPT · AI Search</span>
+                <div style={{ marginLeft:'auto', fontSize:11, color:'#10B981', fontWeight:600, display:'flex', alignItems:'center', gap:4 }}>
+                  <div style={{ width:6, height:6, borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s ease-in-out infinite' }} />
+                  RepHuby Protected
+                </div>
+              </div>
+              <div style={{ padding:20 }}>
+                {/* Query */}
+                <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:13 }}>💬</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="ai-query-1">is Apex Markets broker legit?</span>
+                  <span className="cursor" style={{ color:'#0EA5E9' }}>|</span>
+                </div>
+                {/* AI thinking */}
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14, opacity:0 }} className="ai-thinking">
+                  <div style={{ width:16, height:16, border:'2px solid rgba(14,165,233,0.3)', borderTopColor:'#0EA5E9', borderRadius:'50%', animation:'spin2 .8s linear infinite' }} />
+                  <span style={{ fontSize:12, color:'#64748b' }}>Searching web for Apex Markets...</span>
+                </div>
+                {/* AI Response */}
+                <div style={{ fontSize:12, fontWeight:700, color:'#10B981', letterSpacing:'0.05em', marginBottom:12, opacity:0 }} className="ai-resp">
+                  ✅ Based on my research, here&apos;s what I found about Apex Markets:
+                </div>
+                {/* Positive results */}
+                {[
+                  { icon:'📊', src:'Finvex · rephuby.com', title:'Apex Markets — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://rephuby.com/finance/finance-terminal' },
+                  { icon:'🎙', src:'Bizplex · rephuby.com', title:'CEO Interview: Apex Markets 2025 Vision', snippet:'Alex Chen discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://rephuby.com/magazine/business-pulse' },
+                  { icon:'⭐', src:'Verivex · rephuby.com', title:'Apex Markets: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · CySEC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://rephuby.com/reviews-hub/trust-score' },
+                  { icon:'🏛', src:'Certivade · rephuby.com', title:'Apex Markets CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://rephuby.com/association/global-trade-assoc' },
+                  { icon:'📰', src:'Nexwire · rephuby.com', title:'Apex Markets Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://rephuby.com/news/global-trade-wire' },
+                  { icon:'👔', src:'Execvex · rephuby.com', title:'Executive Profile: Apex Markets CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://rephuby.com/executive/executive-network' },
+                ].map((r) => (
+                  <a key={r.cls} href={r.href} target="_blank" rel="noopener noreferrer" style={{ display:'block', padding:'11px 0', borderBottom:'1px solid rgba(16,185,129,0.1)', opacity:0, textDecoration:'none' }} className={r.cls}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:11, color:r.color, marginBottom:2, display:'flex', alignItems:'center', gap:5 }}>
+                          <span>{r.icon}</span><span style={{ fontWeight:700 }}>{r.src}</span>
+                        </div>
+                        <div style={{ fontSize:13, color:'#F1F5F9', fontWeight:600, marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.title}</div>
+                        <div style={{ fontSize:11, color:'#64748b', lineHeight:1.5 }}>{r.snippet}</div>
+                      </div>
+                      <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:100, background:`${r.color}20`, color:r.color, border:`1px solid ${r.color}40`, whiteSpace:'nowrap', flexShrink:0, marginTop:2 }}>{r.tag}</span>
+                    </div>
+                  </a>
+                ))}
+                {/* AI Summary */}
+                <div style={{ marginTop:16, padding:'14px 16px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:10, opacity:0 }} className="ai-summary">
+                  <div style={{ fontSize:12, fontWeight:700, color:'#10B981', marginBottom:6, display:'flex', alignItems:'center', gap:6 }}>
+                    <span>🤖</span> AI Verdict
+                  </div>
+                  <div style={{ fontSize:13, color:'#94A3B8', lineHeight:1.65 }}>
+                    <strong style={{color:'#10B981'}}>Apex Markets appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
+                  </div>
+                  <div style={{ marginTop:10, display:'flex', gap:8, flexWrap:'wrap' }}>
+                    {['CySEC Regulated ✓','4.9★ Reviews ✓','CEO Verified ✓','Podcast Active ✓'].map(t => (
+                      <span key={t} style={{ fontSize:11, padding:'3px 10px', background:'rgba(16,185,129,0.15)', color:'#10B981', border:'1px solid rgba(16,185,129,0.3)', borderRadius:100, fontWeight:700 }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div style={{ textAlign:'center', marginTop:52 }}>
+          <p style={{ fontSize:16, color:'#64748b', marginBottom:20 }}>
+            Every AI model — ChatGPT, Perplexity, Gemini, Claude — pulls from web sources.
+            <br /><strong style={{color:'#F1F5F9'}}>RepHuby makes sure they all find your story, not your detractors&apos;.</strong>
+          </p>
+          <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 34px' }}>
+            Protect My Brand from AI Searches →
+          </a>
+        </div>
+      </div>
+    </section>
   )
 }
