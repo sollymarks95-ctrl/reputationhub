@@ -686,7 +686,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
                 <Link href={`/${routePrefix}/${siteSlug}#calendar`}><span style={{ fontSize:12, color:p, fontWeight:600 }}>Filter ›</span></Link>
               </div>
               <iframe
-                src="https://sslecal2.investing.com?ecoDayBackground=%23ffffff&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone,timeselector,filters&countries=25,32,6,37,72,22,17,39,14,10,35,43,56,36,110,11,26,12,4,5&calType=week&timeZone=55&lang=1"
+                src="https://s.tradingview.com/external-embedding/embed-widget-events.html?locale=en&colorTheme=light&isTransparent=false&width=100%25&height=100%25&importanceFilter=-1%2C0%2C1&countryFilter=us%2Ceu%2Cgb%2Cjp%2Ccn%2Cca%2Cau%2Cde%2Cfr%2Cch"
                 style={{ width:'100%', height:460, border:'none', display:'block' }}
                 title="Economic Calendar"
                 loading="lazy"

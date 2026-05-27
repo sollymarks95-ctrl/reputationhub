@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 
-const BASE = 'https://reputationhub-ten.vercel.app'
+const BASE = 'https://rephuby.com'
 const ROUTES: Record<string,string> = {
   'global-trade-wire':'news','finance-terminal':'finance','gold-markets-today':'commodities',
   'business-pulse':'magazine','trust-score':'reviews-hub','company-pedia':'wiki',
