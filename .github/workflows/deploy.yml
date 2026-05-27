@@ -3,26 +3,16 @@ on:
   push:
     branches: [main]
 
-env:
-  VERCEL_ORG_ID: team_i0UdvDcC0rdntVBoxbP7i46X
-  VERCEL_PROJECT_ID: prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Link Vercel project
+      - name: Trigger Vercel Deploy Hook
         run: |
-          mkdir -p .vercel
-          echo '{"projectId":"prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5","orgId":"team_i0UdvDcC0rdntVBoxbP7i46X"}' > .vercel/project.json
-
-      - name: Install Vercel CLI v32 (stable)
-        run: npm install -g vercel@32
-
-      - name: Show version
-        run: vercel --version
-
-      - name: Deploy to Vercel
-        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
+            RESPONSE=$(curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}")
+            echo "Triggered: $RESPONSE"
+          else
+            echo "⚠️ No deploy hook set. Run Setup Vercel Deploy Hook workflow first."
+            exit 1
+          fi
