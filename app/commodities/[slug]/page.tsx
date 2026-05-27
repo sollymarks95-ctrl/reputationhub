@@ -50,7 +50,7 @@ export default async function CommoditiesSite({ params }: { params: Promise<{ sl
           </div>
           <nav style={{ display:'flex', gap:0, height:40 }}>
             {['Markets','Commodities','Gold','Forex','Stocks','Analysis','News'].map((item,i) => (
-              <a key={item} href="#" style={{ padding:'0 16px', display:'flex', alignItems:'center', fontSize:13, fontWeight:700, color:i===0?'#e31837':'#333', borderBottom:i===0?'3px solid #e31837':'3px solid transparent' }}>
+              <a key={item} href='javascript:void(0)' style={{ padding:'0 16px', display:'flex', alignItems:'center', fontSize:13, fontWeight:700, color:i===0?'#e31837':'#333', borderBottom:i===0?'3px solid #e31837':'3px solid transparent' }}>
                 {item}
               </a>
             ))}

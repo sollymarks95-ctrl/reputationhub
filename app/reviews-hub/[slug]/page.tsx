@@ -39,7 +39,7 @@ export default async function ReviewsSite({ params }: { params: Promise<{ slug: 
           </div>
           <nav style={{ display: 'flex', gap: 24 }}>
             {['Categories', 'Write Review', 'For Business', 'About'].map(i => (
-              <a key={i} href="#" style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{i}</a>
+              <a key={i} href='javascript:void(0)' style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{i}</a>
             ))}
           </nav>
         </div>
@@ -113,13 +113,13 @@ export default async function ReviewsSite({ params }: { params: Promise<{ slug: 
               <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 10 }}>{site.name}</div>
               <p style={{ fontSize: 12, lineHeight: 1.7, color: '#666' }}>{site.description}</p>
               <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                {['𝕏','in','f','📷'].map((ic,i) => <a key={i} href="#" style={{ width: 30, height: 30, borderRadius: 4, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11 }}>{ic}</a>)}
+                {['𝕏','in','f','📷'].map((ic,i) => <a key={i} href='javascript:void(0)' style={{ width: 30, height: 30, borderRadius: 4, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11 }}>{ic}</a>)}
               </div>
             </div>
             {[['For Businesses',['Claim Your Profile','Business Solutions','Advertise','API Access']],['Legal',['Terms of Use','Privacy Policy','Cookie Policy','Disclaimers']],['Support',['Help Center','Contact','About Us','Careers']]].map(([title, links]: any) => (
               <div key={title}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', marginBottom: 12, letterSpacing: '0.1em' }}>{title.toUpperCase()}</div>
-                {links.map((l: string) => <a key={l} href="#" style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 6 }}>{l}</a>)}
+                {links.map((l: string) => <a key={l} href='javascript:void(0)' style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 6 }}>{l}</a>)}
               </div>
             ))}
           </div>

@@ -38,7 +38,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
           </div>
           <div style={{ display: 'flex', gap: 20 }}>
             {['Subscribe', 'Newsletter', 'Advertise'].map(i => (
-              <a key={i} href="#" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, letterSpacing: '0.06em' }}>{i.toUpperCase()}</a>
+              <a key={i} href='javascript:void(0)' style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, letterSpacing: '0.06em' }}>{i.toUpperCase()}</a>
             ))}
           </div>
         </div>
@@ -57,7 +57,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
           </div>
           <nav style={{ display: 'flex', justifyContent: 'center', gap: 0, borderTop: '1px solid #ddd', paddingTop: 0 }}>
             {['Home', ...cats].map((c, i) => (
-              <a key={c} href="#" style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: i === 0 ? p : '#333', borderTop: i === 0 ? `3px solid ${p}` : '3px solid transparent', marginTop: -1 }}>
+              <a key={c} href='javascript:void(0)' style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: i === 0 ? p : '#333', borderTop: i === 0 ? `3px solid ${p}` : '3px solid transparent', marginTop: -1 }}>
                 {c.toUpperCase()}
               </a>
             ))}
@@ -75,7 +75,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
           <>
             {/* HERO */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2, marginBottom: 40, borderBottom: '2px solid #111', paddingBottom: 32 }}>
-              <Link href={`/magazine/${slug}/article/${hero.slug}`} className="hov">
+              <Link href={`/news/${slug}/article/${hero.slug}`} className="hov">
                 <div style={{ paddingRight: 32 }}>
                   {hero.cover_image_url ? <img src={hero.cover_image_url} alt="" style={{ width: '100%', height: 380, objectFit: 'cover', marginBottom: 20, display: 'block' }} />
                     : <div style={{ width: '100%', height: 380, background: `linear-gradient(135deg, #111, ${p}88)`, marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>📰</div>}
@@ -100,7 +100,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
             {/* GRID */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 28, marginBottom: 40 }}>
               {grid.slice(0, 6).map((a: any, i: number) => (
-                <Link key={i} href={`/magazine/${slug}/article/${a.slug || '#'}`} className="hov">
+                <Link key={i} href={`/article/${slug}/${a.slug}`} className="hov">
                   <div>
                     {a.cover_image_url ? <img src={a.cover_image_url} alt="" style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block', marginBottom: 12 }} />
                       : <div style={{ width: '100%', height: 180, background: `${p}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, marginBottom: 12 }}>📊</div>}
@@ -124,7 +124,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
               <p style={{ fontSize: 13, lineHeight: 1.7, color: '#777' }}>{site.description}</p>
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 {['𝕏', 'in', 'f', '📷'].map((icon, i) => (
-                  <a key={i} href="#" style={{ width: 32, height: 32, borderRadius: '50%', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, textDecoration: 'none' }}>{icon}</a>
+                  <a key={i} href='javascript:void(0)' style={{ width: 32, height: 32, borderRadius: '50%', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, textDecoration: 'none' }}>{icon}</a>
                 ))}
               </div>
             </div>
@@ -135,7 +135,7 @@ export default async function MagazineSite({ params }: { params: Promise<{ slug:
             ].map(({ title, links }) => (
               <div key={title}>
                 <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', color: '#fff', marginBottom: 16 }}>{title.toUpperCase()}</div>
-                {links.map(l => <a key={l} href="#" style={{ display: 'block', fontSize: 13, color: '#777', marginBottom: 8, textDecoration: 'none' }}>{l}</a>)}
+                {links.map(l => <a key={l} href='javascript:void(0)' style={{ display: 'block', fontSize: 13, color: '#777', marginBottom: 8, textDecoration: 'none' }}>{l}</a>)}
               </div>
             ))}
           </div>

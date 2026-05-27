@@ -34,7 +34,7 @@ export default async function WikiSite({ params }: { params: Promise<{ slug: str
         <nav style={{ background: '#f8f9fa', borderTop: '1px solid #a2a9b1', padding: '0 24px' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', gap: 0 }}>
             {['Main Page', ...cats].map((c, i) => (
-              <a key={c} href="#" className="wa" style={{ padding: '8px 14px', fontSize: 13, color: i === 0 ? '#202122' : p, borderBottom: i === 0 ? '3px solid #202122' : '3px solid transparent', background: i === 0 ? '#fff' : 'transparent', marginBottom: -1, display: 'inline-block', fontFamily: 'sans-serif' }}>{c}</a>
+              <a key={c} href='javascript:void(0)' className="wa" style={{ padding: '8px 14px', fontSize: 13, color: i === 0 ? '#202122' : p, borderBottom: i === 0 ? '3px solid #202122' : '3px solid transparent', background: i === 0 ? '#fff' : 'transparent', marginBottom: -1, display: 'inline-block', fontFamily: 'sans-serif' }}>{c}</a>
             ))}
           </div>
         </nav>
@@ -51,7 +51,7 @@ export default async function WikiSite({ params }: { params: Promise<{ slug: str
               <div style={{ display: 'flex', gap: 16 }}>
                 {articles[0].cover_image_url && <img src={articles[0].cover_image_url} alt="" style={{ width: 120, height: 90, objectFit: 'cover', float: 'right', marginLeft: 16, flexShrink: 0 }} />}
                 <div>
-                  <Link href={`/wiki/${slug}/article/${articles[0].slug}`} className="wa">
+                  <Link href={`/article/${slug}/${articles[0].slug}`} className="wa">
                     <div style={{ fontFamily: '"Linux Libertine",Georgia,serif', fontSize: 22, fontWeight: 700, color: p, marginBottom: 8 }}>{articles[0].title}</div>
                   </Link>
                   <p style={{ fontSize: 14, lineHeight: 1.7, color: '#202122' }}>{articles[0].excerpt}</p>
@@ -74,7 +74,7 @@ export default async function WikiSite({ params }: { params: Promise<{ slug: str
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 11, color: '#555', fontFamily: 'sans-serif', marginBottom: 3 }}>{a.category || 'Business'} · {a.published_at ? timeAgo(a.published_at) : ''}</div>
-                  <Link href={`/wiki/${slug}/article/${a.slug}`} className="wa">
+                  <Link href={`/article/${slug}/${a.slug}`} className="wa">
                     <div style={{ fontSize: 16, fontWeight: 700, color: p, marginBottom: 4 }}>{a.title}</div>
                   </Link>
                   <p style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{a.excerpt?.slice(0, 120)}...</p>
@@ -101,13 +101,13 @@ export default async function WikiSite({ params }: { params: Promise<{ slug: str
           <div style={{ border: '1px solid #a2a9b1', marginBottom: 16 }}>
             <div style={{ background: '#f8f9fa', padding: '8px 12px', borderBottom: '1px solid #a2a9b1', fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif' }}>CATEGORIES</div>
             <div style={{ padding: 12 }}>
-              {cats.map((c: string) => <a key={c} href="#" className="wa" style={{ display: 'block', fontSize: 13, color: p, marginBottom: 6 }}>📁 {c}</a>)}
+              {cats.map((c: string) => <a key={c} href='javascript:void(0)' className="wa" style={{ display: 'block', fontSize: 13, color: p, marginBottom: 6 }}>📁 {c}</a>)}
             </div>
           </div>
           <div style={{ border: '1px solid #a2a9b1' }}>
             <div style={{ background: '#f8f9fa', padding: '8px 12px', borderBottom: '1px solid #a2a9b1', fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif' }}>TOOLS</div>
             <div style={{ padding: 12 }}>
-              {['What links here', 'Related changes', 'Cite this page', 'Print/export', 'RSS Feed'].map(t => <a key={t} href="#" className="wa" style={{ display: 'block', fontSize: 13, color: p, marginBottom: 6 }}>{t}</a>)}
+              {['What links here', 'Related changes', 'Cite this page', 'Print/export', 'RSS Feed'].map(t => <a key={t} href='javascript:void(0)' className="wa" style={{ display: 'block', fontSize: 13, color: p, marginBottom: 6 }}>{t}</a>)}
             </div>
           </div>
         </div>
@@ -116,10 +116,10 @@ export default async function WikiSite({ params }: { params: Promise<{ slug: str
       <footer style={{ background: '#f8f9fa', borderTop: '1px solid #a2a9b1', marginTop: 32, padding: '20px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 12 }}>
-            {['Privacy Policy', 'Terms of Use', 'About', 'Disclaimers', 'Contact'].map(l => <a key={l} href="#" className="wa" style={{ fontSize: 12, color: p }}>{l}</a>)}
+            {['Privacy Policy', 'Terms of Use', 'About', 'Disclaimers', 'Contact'].map(l => <a key={l} href='javascript:void(0)' className="wa" style={{ fontSize: 12, color: p }}>{l}</a>)}
           </div>
           <p style={{ fontSize: 11, color: '#555', lineHeight: 1.6 }}>
-            Text is available under the <a href="#" style={{ color: p }}>Creative Commons Attribution License</a>. {site.name} is operated by RepHub Media Ltd, 71-75 Shelton Street, London WC2H 9JQ. Content is auto-generated for informational purposes only.
+            Text is available under the <a href='javascript:void(0)' style={{ color: p }}>Creative Commons Attribution License</a>. {site.name} is operated by RepHub Media Ltd, 71-75 Shelton Street, London WC2H 9JQ. Content is auto-generated for informational purposes only.
           </p>
           <p style={{ fontSize: 11, color: '#888', marginTop: 6 }}>© {new Date().getFullYear()} {site.name} · Not affiliated with Wikimedia Foundation</p>
         </div>
