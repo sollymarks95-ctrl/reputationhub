@@ -1,0 +1,25 @@
+name: Set Vercel Environment Variables
+on:
+  workflow_dispatch:
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set all env vars via Vercel API
+        run: |
+          PROJECT_ID="prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5"
+          TEAM_ID="team_i0UdvDcC0rdntVBoxbP7i46X"
+          TOKEN="${{ secrets.VERCEL_TOKEN }}"
+
+          set_env() {
+            curl -s -X POST "https://api.vercel.com/v10/projects/${PROJECT_ID}/env?teamId=${TEAM_ID}" \
+              -H "Authorization: Bearer ${TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{\"key\":\"$1\",\"value\":\"$2\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\",\"development\"]}"
+          }
+
+          set_env "ANTHROPIC_API_KEY" "${{ secrets.ANTHROPIC_API_KEY }}"
+          set_env "NEWSAPI_KEY" "${{ secrets.NEWSAPI_KEY }}"
+          set_env "ALPHA_VANTAGE_KEY" "${{ secrets.ALPHA_VANTAGE_KEY }}"
+          echo "All env vars set!"
