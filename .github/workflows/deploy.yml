@@ -3,38 +3,45 @@ on:
   push:
     branches: [main]
 
-env:
-  VERCEL_ORG_ID: team_i0UdvDcC0rdntVBoxbP7i46X
-  VERCEL_PROJECT_ID: prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build project
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel production
-        id: deploy
+      - name: Trigger Vercel Production Deployment
         run: |
-          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "✅ Deployed: $URL"
+          SHA="${{ github.sha }}"
+          MSG="${{ github.event.head_commit.message }}"
 
-      - name: Comment deployment URL
-        run: echo "🚀 Live at ${{ steps.deploy.outputs.url }}"
+          RESPONSE=$(curl -s -X POST \
+            "https://api.vercel.com/v13/deployments?teamId=team_i0UdvDcC0rdntVBoxbP7i46X&forceNew=1" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"name\": \"reputationhub\",
+              \"target\": \"production\",
+              \"gitSource\": {
+                \"type\": \"github\",
+                \"repoId\": \"1251027294\",
+                \"ref\": \"main\",
+                \"sha\": \"${SHA}\"
+              }
+            }")
+
+          echo "Response: $RESPONSE"
+          
+          # Extract URL and state
+          URL=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('url','no-url'))" 2>/dev/null || echo "parse-error")
+          STATE=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status',d.get('readyState','unknown')))" 2>/dev/null || echo "unknown")
+          
+          echo "🚀 Deployment triggered!"
+          echo "URL: $URL"
+          echo "State: $STATE"
+          
+          if echo "$RESPONSE" | grep -q '"error"'; then
+            echo "❌ Vercel API error in response"
+            exit 1
+          fi
+          
+          echo "✅ Deployment queued successfully"
