@@ -44,7 +44,7 @@ export default async function MarketRadar({ params }: { params: Promise<{ slug: 
           </div>
           <nav style={{ display:'flex', gap:0 }}>
             {cats.map((c:string,i:number) => (
-              <a key={c} href="#" style={{ padding:'18px 14px', fontSize:11, fontWeight:700, letterSpacing:'0.08em', color:i===0?p:'rgba(255,255,255,.4)', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', marginBottom:-1 }}>{c.toUpperCase()}</a>
+              <a key={c} href='javascript:void(0)' style={{ padding:'18px 14px', fontSize:11, fontWeight:700, letterSpacing:'0.08em', color:i===0?p:'rgba(255,255,255,.4)', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', marginBottom:-1 }}>{c.toUpperCase()}</a>
             ))}
           </nav>
           <div style={{ fontSize:10, color:'rgba(255,255,255,.3)', letterSpacing:'0.1em' }}>
@@ -130,7 +130,7 @@ export default async function MarketRadar({ params }: { params: Promise<{ slug: 
       <footer style={{ borderTop:`1px solid rgba(255,255,255,.05)`, padding:20, marginTop:20, display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:10, color:'rgba(255,255,255,.2)' }}>
         <span>© {new Date().getFullYear()} {site.name} · RepHub Media Ltd · London, UK · All signals are algorithmic and not financial advice · Data delayed 15min</span>
         <div style={{ display:'flex', gap:16 }}>
-          {['Terms','Privacy','Disclaimer','Contact'].map(l => <a key={l} href="#" style={{ color:'rgba(255,255,255,.2)' }}>{l}</a>)}
+          {['Terms','Privacy','Disclaimer','Contact'].map(l => <a key={l} href='javascript:void(0)' style={{ color:'rgba(255,255,255,.2)' }}>{l}</a>)}
         </div>
       </footer>
     </div>

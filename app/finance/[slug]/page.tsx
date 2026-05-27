@@ -71,7 +71,7 @@ export default async function FinanceSite({ params }: { params: Promise<{ slug: 
         </div>
         <div style={{ display: 'flex', gap: 20 }}>
           {['TERMINAL', 'MARKETS', 'ANALYSIS', 'PORTFOLIO'].map(item => (
-            <a key={item} href="#" style={{ fontSize: 10, color: '#555', letterSpacing: '0.08em' }}>{item}</a>
+            <a key={item} href='javascript:void(0)' style={{ fontSize: 10, color: '#555', letterSpacing: '0.08em' }}>{item}</a>
           ))}
         </div>
       </div>
@@ -90,7 +90,7 @@ export default async function FinanceSite({ params }: { params: Promise<{ slug: 
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           {['LIVE', 'MARKETS', 'ANALYSIS', 'COMPANIES', 'ABOUT'].map((item, i) => (
-            <a key={item} href="#" style={{ fontSize: 11, color: i === 0 ? '#ff6600' : '#666', letterSpacing: '0.08em', fontWeight: i === 0 ? 700 : 400, borderBottom: i === 0 ? '1px solid #ff6600' : 'none', paddingBottom: 2 }}>
+            <a key={item} href='javascript:void(0)' style={{ fontSize: 11, color: i === 0 ? '#ff6600' : '#666', letterSpacing: '0.08em', fontWeight: i === 0 ? 700 : 400, borderBottom: i === 0 ? '1px solid #ff6600' : 'none', paddingBottom: 2 }}>
               {item}
             </a>
           ))}

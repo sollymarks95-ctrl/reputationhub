@@ -23,7 +23,7 @@ export default async function InvestDB({ params }: { params: Promise<{ slug: str
           <div style={{ fontWeight:800, fontSize:22, color:p, letterSpacing:'-0.5px' }}>{site.name}</div>
           <nav style={{ display:'flex', gap:0, flex:1 }}>
             {cats.slice(0,6).map((c:string,i:number) => (
-              <a key={c} href="#" style={{ padding:'20px 14px', fontSize:13, fontWeight:600, color:i===0?p:'#555', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', marginBottom:-1 }}>{c}</a>
+              <a key={c} href='javascript:void(0)' style={{ padding:'20px 14px', fontSize:13, fontWeight:600, color:i===0?p:'#555', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', marginBottom:-1 }}>{c}</a>
             ))}
           </nav>
           <div style={{ display:'flex', gap:8 }}>
@@ -135,11 +135,11 @@ export default async function InvestDB({ params }: { params: Promise<{ slug: str
               <div style={{ color:'#fff', fontWeight:800, fontSize:18, marginBottom:10 }}>{site.name}</div>
               <p style={{ fontSize:12, lineHeight:1.7 }}>{site.description}</p>
               <div style={{ display:'flex', gap:8, marginTop:14 }}>
-                {['𝕏','in','f','✈'].map((ic,i) => <a key={i} href="#" style={{ width:30, height:30, borderRadius:8, background:'#333', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11 }}>{ic}</a>)}
+                {['𝕏','in','f','✈'].map((ic,i) => <a key={i} href='javascript:void(0)' style={{ width:30, height:30, borderRadius:8, background:'#333', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11 }}>{ic}</a>)}
               </div>
             </div>
             {[['Data',['Company Profiles','Market Data','Funding Rounds','API Access']],['Legal',['Terms','Privacy','Data Policy','Cookies']],['Company',['About','Careers','Contact','Press']]].map(([t,ls]:any) => (
-              <div key={t}><div style={{ fontSize:10, fontWeight:800, color:'#fff', marginBottom:12, letterSpacing:'0.1em' }}>{t.toUpperCase()}</div>{ls.map((l:string) => <a key={l} href="#" style={{ display:'block', fontSize:12, color:'#666', marginBottom:6 }}>{l}</a>)}</div>
+              <div key={t}><div style={{ fontSize:10, fontWeight:800, color:'#fff', marginBottom:12, letterSpacing:'0.1em' }}>{t.toUpperCase()}</div>{ls.map((l:string) => <a key={l} href='javascript:void(0)' style={{ display:'block', fontSize:12, color:'#666', marginBottom:6 }}>{l}</a>)}</div>
             ))}
           </div>
           <div style={{ borderTop:'1px solid #333', paddingTop:16, fontSize:11, color:'#555', display:'flex', justifyContent:'space-between' }}>

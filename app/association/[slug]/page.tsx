@@ -22,7 +22,7 @@ export default async function AssociationSite({ params }: { params: Promise<{ sl
         <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', justifyContent:'space-between', fontSize:11, color:'rgba(255,255,255,.7)', fontFamily:'"Open Sans",Arial,sans-serif', letterSpacing:'0.04em' }}>
           <span>THE OFFICIAL TRADE CERTIFICATION BODY · EST. 2018</span>
           <div style={{ display:'flex', gap:20 }}>
-            {['Member Login','Apply Now','Contact'].map(i => <a key={i} href="#" style={{ color:'rgba(255,255,255,.8)' }}>{i}</a>)}
+            {['Member Login','Apply Now','Contact'].map(i => <a key={i} href='javascript:void(0)' style={{ color:'rgba(255,255,255,.8)' }}>{i}</a>)}
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@ export default async function AssociationSite({ params }: { params: Promise<{ sl
         <nav style={{ borderTop:`1px solid #e0e8f0`, marginTop:14 }}>
           <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', gap:0 }}>
             {['Home','Member Directory','Certification','Standards','Resources','About Us'].map((c,i) => (
-              <a key={c} href="#" style={{ padding:'10px 18px', fontSize:13, fontWeight:700, fontFamily:'"Open Sans",sans-serif', color:i===0?p:'#555', borderBottom:i===0?`3px solid ${gold}`:'3px solid transparent', marginBottom:-1 }}>{c}</a>
+              <a key={c} href='javascript:void(0)' style={{ padding:'10px 18px', fontSize:13, fontWeight:700, fontFamily:'"Open Sans",sans-serif', color:i===0?p:'#555', borderBottom:i===0?`3px solid ${gold}`:'3px solid transparent', marginBottom:-1 }}>{c}</a>
             ))}
           </div>
         </nav>
@@ -144,7 +144,7 @@ export default async function AssociationSite({ params }: { params: Promise<{ sl
             {[['Quick Links',['Member Directory','Apply for Membership','Verify a Member','Standards & Criteria','Contact Us']],['Legal',['Terms of Use','Privacy Policy','Cookie Policy','Accreditation Policy','Complaints Procedure']],['Social',['Twitter / X','LinkedIn','Facebook','Newsletter','RSS Feed']]].map(([t,ls]:any) => (
               <div key={t}>
                 <div style={{ color:gold, fontFamily:'"Open Sans",sans-serif', fontWeight:700, fontSize:12, letterSpacing:'0.1em', marginBottom:12 }}>{t.toUpperCase()}</div>
-                {ls.map((l:string) => <a key={l} href="#" style={{ display:'block', fontSize:12, color:'rgba(255,255,255,.6)', marginBottom:6 }}>{l}</a>)}
+                {ls.map((l:string) => <a key={l} href='javascript:void(0)' style={{ display:'block', fontSize:12, color:'rgba(255,255,255,.6)', marginBottom:6 }}>{l}</a>)}
               </div>
             ))}
           </div>

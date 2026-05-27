@@ -38,7 +38,7 @@ export default async function NewsSiteHome({ params }: { params: Promise<{ slug:
           </div>
           <div style={{ display: 'flex', gap: 16 }}>
             {['Sign In', 'Subscribe', 'Newsletter'].map(item => (
-              <a key={item} href="#" style={{ fontSize: 11, color: '#999', fontFamily: 'Arial, sans-serif' }} className="nav-link">{item}</a>
+              <a key={item} href='javascript:void(0)' style={{ fontSize: 11, color: '#999', fontFamily: 'Arial, sans-serif' }} className="nav-link">{item}</a>
             ))}
           </div>
         </div>

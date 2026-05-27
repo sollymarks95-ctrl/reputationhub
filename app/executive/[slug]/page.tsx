@@ -23,7 +23,7 @@ export default async function ExecutiveNetwork({ params }: { params: Promise<{ s
           </div>
           <nav style={{ display:'flex', gap:0, marginLeft:16 }}>
             {['Home','Network','Intelligence','Articles','Events'].map((c,i) => (
-              <a key={c} href="#" style={{ padding:'14px 12px', fontSize:12, fontWeight:600, color:i===0?p:'rgba(0,0,0,.6)', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+              <a key={c} href='javascript:void(0)' style={{ padding:'14px 12px', fontSize:12, fontWeight:600, color:i===0?p:'rgba(0,0,0,.6)', borderBottom:i===0?`2px solid ${p}`:'2px solid transparent', display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
                 <span style={{ fontSize:18 }}>{['🏠','👥','📊','✍️','📅'][i]}</span>
                 {c}
               </a>
@@ -52,7 +52,7 @@ export default async function ExecutiveNetwork({ params }: { params: Promise<{ s
               </div>
             </div>
           </div>
-          {cats.slice(1).map((c:string) => <a key={c} href="#" style={{ display:'block', padding:'10px 12px', fontSize:13, color:'rgba(0,0,0,.7)', background:'#fff', borderBottom:'1px solid #f0f0f0', fontWeight:600 }}>{c}</a>)}
+          {cats.slice(1).map((c:string) => <a key={c} href='javascript:void(0)' style={{ display:'block', padding:'10px 12px', fontSize:13, color:'rgba(0,0,0,.7)', background:'#fff', borderBottom:'1px solid #f0f0f0', fontWeight:600 }}>{c}</a>)}
         </div>
 
         {/* Feed */}
@@ -101,7 +101,7 @@ export default async function ExecutiveNetwork({ params }: { params: Promise<{ s
       <footer style={{ background:'rgba(0,0,0,.85)', color:'rgba(255,255,255,.5)', padding:'24px', marginTop:20, textAlign:'center' }}>
         <div style={{ maxWidth:1128, margin:'0 auto' }}>
           <div style={{ display:'flex', justifyContent:'center', gap:20, marginBottom:10, flexWrap:'wrap' }}>
-            {['About','Accessibility','Help Center','Privacy & Terms','Ad Choices','Advertising','Business Services','Get the app'].map(l => <a key={l} href="#" style={{ fontSize:11, color:'rgba(255,255,255,.5)' }}>{l}</a>)}
+            {['About','Accessibility','Help Center','Privacy & Terms','Ad Choices','Advertising','Business Services','Get the app'].map(l => <a key={l} href='javascript:void(0)' style={{ fontSize:11, color:'rgba(255,255,255,.5)' }}>{l}</a>)}
           </div>
           <div style={{ fontSize:11 }}>© {new Date().getFullYear()} {site.name} · RepHub Media Ltd · London, UK</div>
         </div>
