@@ -4,6 +4,29 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 // ── MARKET SEED DATA ──────────────────────────────────────────────────────────
+// Site-type specific configuration - each site gets its own chart, tabs, labels
+const SITE_CONFIG: Record<string, { defaultTab: string; defaultChart: string; breakingLabel: string }> = {
+  finance: { defaultTab: 'Currencies', defaultChart: 'SP:SPX', breakingLabel: 'MARKETS ALERT' },
+  commodities: { defaultTab: 'Commodities', defaultChart: 'CAPITALCOM:GOLD', breakingLabel: 'COMMODITIES' },
+  markets: { defaultTab: 'Indices', defaultChart: 'CAPITALCOM:GOLD', breakingLabel: 'SIGNAL ALERT' },
+  news: { defaultTab: 'Indices', defaultChart: 'CAPITALCOM:BRENT', breakingLabel: 'BREAKING' },
+  magazine: { defaultTab: 'Stocks', defaultChart: 'SP:SPX', breakingLabel: 'EXCLUSIVE' },
+  reviews: { defaultTab: 'Stocks', defaultChart: 'SP:SPX', breakingLabel: 'VERIFIED INTEL' },
+  wiki: { defaultTab: 'Indices', defaultChart: 'SP:SPX', breakingLabel: 'REFERENCE' },
+  pressroom: { defaultTab: 'Stocks', defaultChart: 'SP:SPX', breakingLabel: 'PRESS RELEASE' },
+  investdb: { defaultTab: 'Stocks', defaultChart: 'NASDAQ:NVDA', breakingLabel: 'DEAL ALERT' },
+  forum: { defaultTab: 'Commodities', defaultChart: 'CAPITALCOM:BRENT', breakingLabel: 'COMMUNITY' },
+  association: { defaultTab: 'Indices', defaultChart: 'FX:EURUSD', breakingLabel: 'ANNOUNCEMENT' },
+  executive: { defaultTab: 'Stocks', defaultChart: 'NASDAQ:AAPL', breakingLabel: 'APPOINTMENT' },
+}
+const QUICK_CHARTS: Record<string, {v:string;l:string}[]> = {
+  finance:    [{v:'SP:SPX',l:'S&P 500'},{v:'FX:EURUSD',l:'EUR/USD'},{v:'FX:GBPUSD',l:'GBP/USD'},{v:'CAPITALCOM:US30',l:'Dow Jones'},{v:'CAPITALCOM:BITCOIN',l:'Bitcoin'},{v:'FX:USDJPY',l:'USD/JPY'}],
+  commodities:[{v:'CAPITALCOM:GOLD',l:'Gold'},{v:'CAPITALCOM:SILVER',l:'Silver'},{v:'CAPITALCOM:OIL_CRUDE',l:'WTI Oil'},{v:'CAPITALCOM:BRENT',l:'Brent'},{v:'CAPITALCOM:COPPER',l:'Copper'},{v:'CAPITALCOM:NATURAL_GAS',l:'Nat Gas'}],
+  markets:    [{v:'CAPITALCOM:GOLD',l:'Gold'},{v:'SP:SPX',l:'S&P 500'},{v:'CAPITALCOM:BITCOIN',l:'Bitcoin'},{v:'FX:EURUSD',l:'EUR/USD'},{v:'CAPITALCOM:BRENT',l:'Oil'},{v:'CAPITALCOM:COPPER',l:'Copper'}],
+  investdb:   [{v:'NASDAQ:NVDA',l:'NVIDIA'},{v:'NASDAQ:AAPL',l:'Apple'},{v:'NYSE:TSLA',l:'Tesla'},{v:'NASDAQ:MSFT',l:'Microsoft'},{v:'SP:SPX',l:'S&P 500'},{v:'CAPITALCOM:BITCOIN',l:'Bitcoin'}],
+  executive:  [{v:'NASDAQ:AAPL',l:'Apple'},{v:'NASDAQ:MSFT',l:'Microsoft'},{v:'NASDAQ:NVDA',l:'NVIDIA'},{v:'NYSE:TSLA',l:'Tesla'},{v:'SP:SPX',l:'S&P 500'},{v:'NYSE:JPM',l:'JPMorgan'}],
+  default:    [{v:'CAPITALCOM:GOLD',l:'Gold'},{v:'SP:SPX',l:'S&P 500'},{v:'FX:EURUSD',l:'EUR/USD'},{v:'CAPITALCOM:BRENT',l:'Oil'},{v:'CAPITALCOM:BITCOIN',l:'Bitcoin'},{v:'NASDAQ:AAPL',l:'Apple'}],
+}
 const INDICES = [
   { name:'S&P 500', price:5248.35, change:15.23, pct:0.29, flag:'🇺🇸', hi:5271.20, lo:5224.10 },
   { name:'Dow Jones', price:39127.80, change:-45.20, pct:-0.12, flag:'🇺🇸', hi:39240.10, lo:38980.50 },
@@ -179,13 +202,17 @@ function SearchBar({ routePrefix, siteSlug }: { routePrefix: string; siteSlug: s
   )
 }
 
-function ChartSection({ p, routePrefix, siteSlug }: { p: string; routePrefix: string; siteSlug: string }) {
-  const [symbol, setSymbol] = useState('CAPITALCOM:GOLD')
+function ChartSection({ p, routePrefix, siteSlug, siteType }: { p: string; routePrefix: string; siteSlug: string; siteType?: string }) {
+  const cfg = SITE_CONFIG[siteType || 'default'] || SITE_CONFIG.news
+  const quickCharts = QUICK_CHARTS[siteType || 'default'] || QUICK_CHARTS.default
+  const [symbol, setSymbol] = useState(cfg.defaultChart)
   const [interval, setInterval] = useState('D')
-  const SYMBOLS = [
+  const ALL_SYMBOLS = [
     { v:'CAPITALCOM:GOLD', l:'Gold', g:'Metals' },
     { v:'CAPITALCOM:SILVER', l:'Silver', g:'Metals' },
     { v:'CAPITALCOM:COPPER', l:'Copper', g:'Metals' },
+    { v:'CAPITALCOM:URANIUM', l:'Uranium', g:'Metals' },
+    { v:'CAPITALCOM:PLATINUM', l:'Platinum', g:'Metals' },
     { v:'CAPITALCOM:OIL_CRUDE', l:'WTI Oil', g:'Energy' },
     { v:'CAPITALCOM:BRENT', l:'Brent Oil', g:'Energy' },
     { v:'CAPITALCOM:NATURAL_GAS', l:'Natural Gas', g:'Energy' },
@@ -193,21 +220,27 @@ function ChartSection({ p, routePrefix, siteSlug }: { p: string; routePrefix: st
     { v:'FX:GBPUSD', l:'GBP/USD', g:'Forex' },
     { v:'FX:USDJPY', l:'USD/JPY', g:'Forex' },
     { v:'FX:AUDUSD', l:'AUD/USD', g:'Forex' },
+    { v:'FX:USDCAD', l:'USD/CAD', g:'Forex' },
     { v:'NASDAQ:AAPL', l:'Apple', g:'Stocks' },
     { v:'NASDAQ:NVDA', l:'NVIDIA', g:'Stocks' },
     { v:'NYSE:TSLA', l:'Tesla', g:'Stocks' },
+    { v:'NASDAQ:MSFT', l:'Microsoft', g:'Stocks' },
+    { v:'NYSE:JPM', l:'JPMorgan', g:'Stocks' },
     { v:'SP:SPX', l:'S&P 500', g:'Indices' },
     { v:'CAPITALCOM:US30', l:'Dow Jones', g:'Indices' },
+    { v:'CAPITALCOM:DE40', l:'DAX', g:'Indices' },
+    { v:'CAPITALCOM:UK100', l:'FTSE 100', g:'Indices' },
     { v:'CAPITALCOM:BITCOIN', l:'Bitcoin', g:'Crypto' },
     { v:'CAPITALCOM:ETHEREUM', l:'Ethereum', g:'Crypto' },
   ]
-  const groups = [...new Set(SYMBOLS.map(s => s.g))]
-  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_adv&symbol=${encodeURIComponent(symbol)}&interval=${interval}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%22RSI%40tv-basicstudies%22%5D&theme=light&style=1&timezone=exchange&withdateranges=1&show_popup_button=1&hide_top_toolbar=0`
+  const groups = [...new Set(ALL_SYMBOLS.map(s => s.g))]
+  const currentLabel = ALL_SYMBOLS.find(s=>s.v===symbol)?.l || quickCharts.find(q=>q.v===symbol)?.l || symbol.split(':')[1]
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_adv_${siteSlug}&symbol=${encodeURIComponent(symbol)}&interval=${interval}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%22RSI%40tv-basicstudies%22%5D&theme=light&style=1&timezone=exchange&withdateranges=1&show_popup_button=1&hide_top_toolbar=0`
   return (
     <div id="chart" className="card" style={{ marginBottom:20, overflow:'hidden' }}>
       <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, flexWrap:'wrap', gap:8 }}>
-          <h2 style={{ fontSize:15, fontWeight:800 }}>📈 Live Chart — <span style={{ color:p }}>{SYMBOLS.find(s=>s.v===symbol)?.l || 'Gold'}</span></h2>
+          <h2 style={{ fontSize:15, fontWeight:800 }}>📈 Live Chart — <span style={{ color:p }}>{currentLabel}</span></h2>
           <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
             {['1','15','60','D','W'].map(r => (
               <button key={r} onClick={() => setInterval(r)} style={{ padding:'3px 10px', background:interval===r?'#111':'#f3f4f6', color:interval===r?'#fff':'#374151', border:'none', borderRadius:4, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'sans-serif' }}>
@@ -217,13 +250,22 @@ function ChartSection({ p, routePrefix, siteSlug }: { p: string; routePrefix: st
             <Link href="/charts"><button style={{ padding:'3px 12px', background:p, color:'#fff', border:'none', borderRadius:4, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'sans-serif' }}>Full Screen ↗</button></Link>
           </div>
         </div>
-        {/* SYMBOL SELECTOR */}
+        {/* QUICK PICKS - site-specific */}
+        <div style={{ display:'flex', gap:4, marginBottom:6, flexWrap:'wrap' }}>
+          <span style={{ fontSize:10, color:'#9ca3af', fontWeight:700, alignSelf:'center', whiteSpace:'nowrap' }}>Quick:</span>
+          {quickCharts.map(q => (
+            <button key={q.v} onClick={() => setSymbol(q.v)} style={{ padding:'3px 10px', background:symbol===q.v?p:'#f3f4f6', color:symbol===q.v?'#fff':'#374151', border:'none', borderRadius:3, fontSize:11, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'sans-serif' }}>
+              {q.l}
+            </button>
+          ))}
+        </div>
+        {/* FULL SYMBOL SELECTOR */}
         <div style={{ display:'flex', gap:4, overflowX:'auto', paddingBottom:4 }}>
           {groups.map(g => (
-            <div key={g} style={{ display:'flex', gap:3, alignItems:'center' }}>
+            <div key={g} style={{ display:'flex', gap:3, alignItems:'center', flexShrink:0 }}>
               <span style={{ fontSize:10, color:'#9ca3af', fontWeight:700, whiteSpace:'nowrap', marginRight:2 }}>{g}:</span>
-              {SYMBOLS.filter(s=>s.g===g).map(s => (
-                <button key={s.v} onClick={() => setSymbol(s.v)} style={{ padding:'3px 10px', background:symbol===s.v?p:'#f3f4f6', color:symbol===s.v?'#fff':'#374151', border:'none', borderRadius:3, fontSize:11, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'sans-serif' }}>
+              {ALL_SYMBOLS.filter(s=>s.g===g).map(s => (
+                <button key={s.v} onClick={() => setSymbol(s.v)} style={{ padding:'3px 9px', background:symbol===s.v?p:'#f9fafb', color:symbol===s.v?'#fff':'#6b7280', border:`1px solid ${symbol===s.v?p:'#e5e7eb'}`, borderRadius:3, fontSize:10, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'sans-serif' }}>
                   {s.l}
                 </button>
               ))}
@@ -236,7 +278,7 @@ function ChartSection({ p, routePrefix, siteSlug }: { p: string; routePrefix: st
         key={`${symbol}-${interval}`}
         src={chartUrl}
         style={{ width:'100%', height:480, border:'none', display:'block' }}
-        title={`${symbol} Chart`}
+        title={`${currentLabel} Live Chart`}
         allow="fullscreen"
       />
     </div>
@@ -247,7 +289,8 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
   articles: any[], site: any, routePrefix: string, siteSlug: string, primaryColor: string, searchParams?: any
 }) {
   const p = primaryColor || '#c0392b'
-  const [tab, setTab] = useState('Indices')
+  const siteCfg = SITE_CONFIG[site.site_type || 'default'] || SITE_CONFIG.news
+  const [tab, setTab] = useState(siteCfg.defaultTab)
   const [screenerTab, setScreenerTab] = useState('Most Active')
   const [indices, setIndices] = useState(INDICES)
   const [commodities, setCommodities] = useState(COMMODITIES)
@@ -373,7 +416,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
       {hero && (
         <div style={{ background:`linear-gradient(90deg,${p}20,${p}08)`, borderBottom:`1px solid ${p}30`, padding:'8px 20px' }}>
           <div style={{ maxWidth:1400, margin:'0 auto', display:'flex', alignItems:'center', gap:10 }}>
-            <span style={{ background:'#ef4444', color:'#fff', padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:900, letterSpacing:'0.06em', flexShrink:0 }}>BREAKING</span>
+            <span style={{ background:'#ef4444', color:'#fff', padding:'2px 8px', borderRadius:3, fontSize:10, fontWeight:900, letterSpacing:'0.06em', flexShrink:0 }}>{siteCfg.breakingLabel}</span>
             <Link href={`/article/${siteSlug}/${hero.slug}`}>
               <span style={{ fontSize:13, fontWeight:600, color:'#111', cursor:'pointer' }}>{hero.title}</span>
             </Link>
@@ -458,7 +501,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
             </div>
 
             {/* FULL TRADINGVIEW ADVANCED CHART */}
-            <ChartSection p={p} routePrefix={routePrefix} siteSlug={siteSlug} />
+            <ChartSection p={p} routePrefix={routePrefix} siteSlug={siteSlug} siteType={site.site_type} />
 
             {/* WORLD INDICES + COMMODITIES */}
             <div className="two-col" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:20 }}>
