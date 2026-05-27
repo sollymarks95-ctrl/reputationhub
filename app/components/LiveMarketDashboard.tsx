@@ -697,7 +697,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
             {[
               { title:'Coverage', links: cats.slice(0,5).map((c:string) => ({ label:c, href:`/${routePrefix}/${siteSlug}?category=${encodeURIComponent(c)}` })) },
               { title:'Markets', links:[{label:'World Indices',href:`/${routePrefix}/${siteSlug}#markets`},{label:'Commodities',href:`/${routePrefix}/${siteSlug}?category=Commodities`},{label:'Currencies',href:`/${routePrefix}/${siteSlug}?category=Forex`},{label:'Screener',href:`/${routePrefix}/${siteSlug}#screener`},{label:'Calendar',href:`/${routePrefix}/${siteSlug}#calendar`}] },
-              { title:'Company', links:[{label:'About Us',href:`/${routePrefix}/${siteSlug}`},{label:'Our Journalists',href:`/${routePrefix}/${siteSlug}`},{label:'Advertise',href:`/${routePrefix}/${siteSlug}`},{label:'Contact',href:`/${routePrefix}/${siteSlug}`},{label:'Privacy Policy',href:`/${routePrefix}/${siteSlug}`},{label:'Terms of Use',href:`/${routePrefix}/${siteSlug}`}] },
+              { title:'Company', links:[{label:'About Us',href:'/legal/about'},{label:'Our Journalists',href:'/legal/about'},{label:'Advertise With Us',href:'/legal/advertise'},{label:'Contact Us',href:'/legal/contact'},{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'}] },
             ].map(col => (
               <div key={col.title}>
                 <div style={{ fontWeight:700, fontSize:11, color:'#94a3b8', marginBottom:12, textTransform:'uppercase', letterSpacing:'0.08em' }}>{col.title}</div>
@@ -717,7 +717,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
             <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHub Intelligence Ltd · All Rights Reserved</span>
             <div style={{ display:'flex', gap:16 }}>
               {['Terms','Privacy','Risk Warning','Cookies','Sitemap'].map(l => (
-                <Link key={l} href={l==='Sitemap'?'/sitemap.xml':`/${routePrefix}/${siteSlug}`}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>
+                <Link key={l} href={l==='Sitemap'?'/sitemap.xml':l==='Terms'?'/legal/terms':l==='Privacy'?'/legal/privacy':l==='Risk Warning'?'/legal/risk-warning':'/legal/cookies'}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>
               ))}
             </div>
           </div>
