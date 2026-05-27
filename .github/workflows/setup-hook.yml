@@ -1,45 +1,60 @@
 name: Setup Vercel Deploy Hook
 on:
-  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/setup-hook.yml']
 
 jobs:
   create-hook:
     runs-on: ubuntu-latest
     steps:
-      - name: Create deploy hook and save as secret
+      - name: Create Vercel deploy hook
         run: |
-          # Create the deploy hook
           RESPONSE=$(curl -s -X POST \
             "https://api.vercel.com/v1/projects/prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5/deploy-hooks?teamId=team_i0UdvDcC0rdntVBoxbP7i46X" \
             -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{"name":"auto-deploy","ref":"main"}')
           
-          echo "Response: $RESPONSE"
+          echo "Raw: $RESPONSE"
           
-          # Extract hook details
           HOOK_URL=$(echo "$RESPONSE" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-hook = d.get('hook', {})
-hook_id = hook.get('id', '')
-secret = hook.get('secretToken', '')
-if hook_id and secret:
-    print(f'https://api.vercel.com/v1/integrations/deploy/{hook_id}/{secret}')
+import sys,json
+d=json.load(sys.stdin)
+hook=d.get('hook',{})
+hid=hook.get('id','')
+tok=hook.get('secretToken','')
+if hid and tok:
+    print(f'https://api.vercel.com/v1/integrations/deploy/{hid}/{tok}')
 else:
-    print('ERROR: ' + str(d))
-" 2>/dev/null)
+    print('FAILED: '+str(d))
+" 2>/dev/null || echo "parse-error")
           
           echo "Hook URL: $HOOK_URL"
           
           if [[ "$HOOK_URL" == https* ]]; then
-            # Save as GitHub secret using gh CLI
-            echo "$HOOK_URL" | gh secret set VERCEL_DEPLOY_HOOK_URL
-            echo "✅ Deploy hook saved as VERCEL_DEPLOY_HOOK_URL secret"
-            echo ""
-            echo "Test it with: curl -X POST '$HOOK_URL'"
-          else
-            echo "❌ Failed to create hook: $HOOK_URL"
+            # Encrypt and store as GitHub secret using PAT
+            pip install PyNaCl -q
+            python3 << PYEOF
+import requests, base64
+from nacl import encoding, public
+
+PAT = "${{ secrets.GH_PAT }}"
+REPO = "sollymarks95-ctrl/reputationhub"
+
+# Get repo public key
+r = requests.get(f"https://api.github.com/repos/{REPO}/actions/secrets/public-key",
+    headers={"Authorization": f"Bearer {PAT}", "Accept": "application/vnd.github+json"})
+data = r.json()
+key_id = data["key_id"]
+key_b64 = data["key"]
+
+pub = public.PublicKey(key_b64.encode(), encoding.Base64Encoder())
+box = public.SealedBox(pub)
+enc = base64.b64encode(box.encrypt(b"$HOOK_URL")).decode()
+
+r2 = requests.put(f"https://api.github.com/repos/{REPO}/actions/secrets/VERCEL_DEPLOY_HOOK_URL",
+    headers={"Authorization": f"Bearer {PAT}", "Accept": "application/vnd.github+json"},
+    json={"encrypted_value": enc, "key_id": key_id})
+print("Secret saved:", r2.status_code, r2.json())
+PYEOF
           fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
