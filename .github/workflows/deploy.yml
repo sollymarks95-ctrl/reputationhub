@@ -13,22 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Link Vercel project
         run: |
           mkdir -p .vercel
           echo '{"projectId":"prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5","orgId":"team_i0UdvDcC0rdntVBoxbP7i46X"}' > .vercel/project.json
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+      - name: Install Vercel CLI v32 (stable)
+        run: npm install -g vercel@32
 
-      - name: Deploy source to Vercel
-        run: |
-          vercel \
-            --token="${{ secrets.VERCEL_TOKEN }}" \
-            --prod \
-            --yes \
-            --scope=team_i0UdvDcC0rdntVBoxbP7i46X
+      - name: Show version
+        run: vercel --version
+
+      - name: Deploy to Vercel
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
