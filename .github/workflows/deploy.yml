@@ -1,0 +1,29 @@
+name: Deploy to Vercel
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy latest commit to Vercel
+        run: |
+          RESPONSE=$(curl -s -X POST \
+            "https://api.vercel.com/v13/deployments?teamId=team_i0UdvDcC0rdntVBoxbP7i46X" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "reputationhub",
+              "gitSource": {
+                "type": "github",
+                "repoId": "1251027294",
+                "ref": "main"
+              },
+              "projectSettings": {
+                "framework": "nextjs",
+                "buildCommand": "npm run build",
+                "installCommand": "npm install"
+              }
+            }')
+          echo "Deploy response: $(echo $RESPONSE | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get(\"url\",d.get(\"error\",str(d)))[:100])')"
