@@ -1,25 +1,41 @@
 name: Set Vercel Environment Variables
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/set-env-vars.yml'
 
 jobs:
   set-env:
     runs-on: ubuntu-latest
     steps:
-      - name: Set all env vars via Vercel API
+      - name: Add all env vars to Vercel
         run: |
-          PROJECT_ID="prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5"
-          TEAM_ID="team_i0UdvDcC0rdntVBoxbP7i46X"
+          PROJECT="prj_Kziy22RlbG1OFUJkWAA8SC3Gn9U5"
+          TEAM="team_i0UdvDcC0rdntVBoxbP7i46X"
           TOKEN="${{ secrets.VERCEL_TOKEN }}"
 
-          set_env() {
-            curl -s -X POST "https://api.vercel.com/v10/projects/${PROJECT_ID}/env?teamId=${TEAM_ID}" \
+          add_env() {
+            RESULT=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST "https://api.vercel.com/v10/projects/${PROJECT}/env?teamId=${TEAM}" \
               -H "Authorization: Bearer ${TOKEN}" \
               -H "Content-Type: application/json" \
-              -d "{\"key\":\"$1\",\"value\":\"$2\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\",\"development\"]}"
+              -d "{\"key\":\"$1\",\"value\":\"$2\",\"type\":\"encrypted\",\"target\":[\"production\",\"preview\",\"development\"]}")
+            echo "$1 → HTTP $RESULT"
           }
 
-          set_env "ANTHROPIC_API_KEY" "${{ secrets.ANTHROPIC_API_KEY }}"
-          set_env "NEWSAPI_KEY" "${{ secrets.NEWSAPI_KEY }}"
-          set_env "ALPHA_VANTAGE_KEY" "${{ secrets.ALPHA_VANTAGE_KEY }}"
-          echo "All env vars set!"
+          add_env "ANTHROPIC_API_KEY"    "${{ secrets.ANTHROPIC_API_KEY }}"
+          add_env "NEWSAPI_KEY"          "${{ secrets.NEWSAPI_KEY }}"
+          add_env "ALPHA_VANTAGE_KEY"    "${{ secrets.ALPHA_VANTAGE_KEY }}"
+          add_env "NEXT_PUBLIC_SUPABASE_URL" "https://gykxxhxsakxhfuutgobb.supabase.co"
+
+          echo "✅ All environment variables set on Vercel!"
+
+      - name: Trigger Vercel redeploy
+        run: |
+          curl -s -X POST \
+            "https://api.vercel.com/v13/deployments?teamId=team_i0UdvDcC0rdntVBoxbP7i46X" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"reputationhub","gitSource":{"type":"github","repoId":"1251027294","ref":"main"}}' \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Deploying:', d.get('url','error'))"
