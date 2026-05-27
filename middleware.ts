@@ -5,41 +5,41 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
 
-  // Skip dashboard, api, static files
   if (
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon')
-  ) {
-    return NextResponse.next()
-  }
+  ) return NextResponse.next()
 
-  // Local dev — use ?site=slug to preview different sites
   const siteParam = request.nextUrl.searchParams.get('site')
   if (siteParam) {
     const url = request.nextUrl.clone()
-    url.pathname = `/sites/${siteParam}${pathname}`
+    url.pathname = `/news/${siteParam}${pathname}`
     return NextResponse.rewrite(url)
   }
 
-  // Production — map domain to site slug
-  // e.g. tradeverify.com → /sites/tradeverify
-  const knownDomains: Record<string, string> = {
-    'tradeverify.com': 'tradeverify',
-    'supplierindex.com': 'supplierindex',
-    'importerratings.com': 'importerratings',
-    'wholesalehub.com': 'wholesalehub',
-    'biztrust.com': 'biztrust',
-    'bizverified.com': 'bizverified',
+  const domainMap: Record<string, { type: string; slug: string }> = {
+    'nexwire.com':      { type: 'news',        slug: 'global-trade-wire' },
+    'finvex.com':       { type: 'finance',      slug: 'finance-terminal' },
+    'aurexhq.com':      { type: 'commodities',  slug: 'gold-markets-today' },
+    'bizplex.com':      { type: 'magazine',     slug: 'business-pulse' },
+    'verivex.com':      { type: 'reviews-hub',  slug: 'trust-score' },
+    'bizpedia.io':      { type: 'wiki',         slug: 'company-pedia' },
+    'presxwire.com':    { type: 'pressroom',    slug: 'press-central' },
+    'invexhub.com':     { type: 'investdb',     slug: 'invest-data' },
+    'tradvex.com':      { type: 'forum',        slug: 'trade-board' },
+    'certivade.com':    { type: 'association',  slug: 'global-trade-assoc' },
+    'execvex.com':      { type: 'executive',    slug: 'executive-network' },
+    'signalix.com':     { type: 'market-radar', slug: 'market-radar' },
   }
 
   const cleanHost = hostname.replace('www.', '').split(':')[0]
-  const siteSlug = knownDomains[cleanHost]
+  const site = domainMap[cleanHost]
 
-  if (siteSlug) {
+  if (site) {
     const url = request.nextUrl.clone()
-    url.pathname = `/sites/${siteSlug}${pathname}`
+    url.pathname = `/${site.type}/${site.slug}${pathname}`
     return NextResponse.rewrite(url)
   }
 
