@@ -353,8 +353,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
             {[
               { title:'Coverage', links: cats.slice(0,5).map((c: string) => ({ label:c, href:`/${route}/${siteSlug}?category=${encodeURIComponent(c)}` })) },
-              { title:'Company', links:[{label:'About Us',href:`/${route}/${siteSlug}`},{label:'Our Team',href:`/${route}/${siteSlug}`},{label:'Contact',href:`/${route}/${siteSlug}`},{label:'Advertise',href:`/${route}/${siteSlug}`}] },
-              { title:'Legal', links:[{label:'Privacy Policy',href:`/${route}/${siteSlug}`},{label:'Terms of Use',href:`/${route}/${siteSlug}`},{label:'Risk Warning',href:`/${route}/${siteSlug}`},{label:'Sitemap',href:'/sitemap.xml'}] }
+              { title:'Company', links:[{label:'About Us',href:'/legal/about'},{label:'Our Team',href:'/legal/about'},{label:'Contact Us',href:'/legal/contact'},{label:'Advertise',href:'/legal/advertise'}] },
+              { title:'Legal', links:[{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Risk Warning',href:'/legal/risk-warning'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}] }
             ].map(col => (
               <div key={col.title}>
                 <div style={{ fontWeight:700, fontSize:11, color:'#94a3b8', marginBottom:12, textTransform:'uppercase', letterSpacing:'0.08em' }}>{col.title}</div>
@@ -368,8 +368,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:'1px solid #1e293b', paddingTop:14, flexWrap:'wrap', gap:8 }}>
             <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHub Intelligence Ltd · All Rights Reserved</span>
             <div style={{ display:'flex', gap:14 }}>
-              {['Privacy','Terms','Risk Warning','Sitemap'].map(l => (
-                <Link key={l} href={l==='Sitemap'?'/sitemap.xml':`/${route}/${siteSlug}`}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>
+              {[{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Risk Warning',h:'/legal/risk-warning'},{l:'Cookies',h:'/legal/cookies'},{l:'Sitemap',h:'/sitemap.xml'}].map(({l,h}) => (
+                <Link key={l} href={h}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>
               ))}
             </div>
           </div>
