@@ -24,12 +24,14 @@ jobs:
             echo "$1 → HTTP $RESULT"
           }
 
-          add_env "ANTHROPIC_API_KEY"    "${{ secrets.ANTHROPIC_API_KEY }}"
-          add_env "NEWSAPI_KEY"          "${{ secrets.NEWSAPI_KEY }}"
-          add_env "ALPHA_VANTAGE_KEY"    "${{ secrets.ALPHA_VANTAGE_KEY }}"
-          add_env "NEXT_PUBLIC_SUPABASE_URL" "https://gykxxhxsakxhfuutgobb.supabase.co"
+          add_env "ANTHROPIC_API_KEY"              "${{ secrets.ANTHROPIC_API_KEY }}"
+          add_env "NEWSAPI_KEY"                    "${{ secrets.NEWSAPI_KEY }}"
+          add_env "ALPHA_VANTAGE_KEY"              "${{ secrets.ALPHA_VANTAGE_KEY }}"
+          add_env "NEXT_PUBLIC_SUPABASE_URL"       "https://gykxxhxsakxhfuutgobb.supabase.co"
+          add_env "NEXT_PUBLIC_SUPABASE_ANON_KEY"  "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+          add_env "CRON_SECRET"                    "rephub-cron-2025-secure"
 
-          echo "✅ All environment variables set on Vercel!"
+          echo "✅ All 6 environment variables set on Vercel!"
 
       - name: Trigger Vercel redeploy
         run: |
@@ -38,4 +40,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{"name":"reputationhub","gitSource":{"type":"github","repoId":"1251027294","ref":"main"}}' \
-            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Deploying:', d.get('url','error'))"
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print('Deploying:', d.get('url','check vercel'))"
