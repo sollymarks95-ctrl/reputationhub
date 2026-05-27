@@ -179,6 +179,70 @@ function SearchBar({ routePrefix, siteSlug }: { routePrefix: string; siteSlug: s
   )
 }
 
+function ChartSection({ p, routePrefix, siteSlug }: { p: string; routePrefix: string; siteSlug: string }) {
+  const [symbol, setSymbol] = useState('CAPITALCOM:GOLD')
+  const [interval, setInterval] = useState('D')
+  const SYMBOLS = [
+    { v:'CAPITALCOM:GOLD', l:'Gold', g:'Metals' },
+    { v:'CAPITALCOM:SILVER', l:'Silver', g:'Metals' },
+    { v:'CAPITALCOM:COPPER', l:'Copper', g:'Metals' },
+    { v:'CAPITALCOM:OIL_CRUDE', l:'WTI Oil', g:'Energy' },
+    { v:'CAPITALCOM:BRENT', l:'Brent Oil', g:'Energy' },
+    { v:'CAPITALCOM:NATURAL_GAS', l:'Natural Gas', g:'Energy' },
+    { v:'FX:EURUSD', l:'EUR/USD', g:'Forex' },
+    { v:'FX:GBPUSD', l:'GBP/USD', g:'Forex' },
+    { v:'FX:USDJPY', l:'USD/JPY', g:'Forex' },
+    { v:'FX:AUDUSD', l:'AUD/USD', g:'Forex' },
+    { v:'NASDAQ:AAPL', l:'Apple', g:'Stocks' },
+    { v:'NASDAQ:NVDA', l:'NVIDIA', g:'Stocks' },
+    { v:'NYSE:TSLA', l:'Tesla', g:'Stocks' },
+    { v:'SP:SPX', l:'S&P 500', g:'Indices' },
+    { v:'CAPITALCOM:US30', l:'Dow Jones', g:'Indices' },
+    { v:'CAPITALCOM:BITCOIN', l:'Bitcoin', g:'Crypto' },
+    { v:'CAPITALCOM:ETHEREUM', l:'Ethereum', g:'Crypto' },
+  ]
+  const groups = [...new Set(SYMBOLS.map(s => s.g))]
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tv_adv&symbol=${encodeURIComponent(symbol)}&interval=${interval}&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%22RSI%40tv-basicstudies%22%5D&theme=light&style=1&timezone=exchange&withdateranges=1&show_popup_button=1&hide_top_toolbar=0`
+  return (
+    <div id="chart" className="card" style={{ marginBottom:20, overflow:'hidden' }}>
+      <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, flexWrap:'wrap', gap:8 }}>
+          <h2 style={{ fontSize:15, fontWeight:800 }}>📈 Live Chart — <span style={{ color:p }}>{SYMBOLS.find(s=>s.v===symbol)?.l || 'Gold'}</span></h2>
+          <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
+            {['1','15','60','D','W'].map(r => (
+              <button key={r} onClick={() => setInterval(r)} style={{ padding:'3px 10px', background:interval===r?'#111':'#f3f4f6', color:interval===r?'#fff':'#374151', border:'none', borderRadius:4, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'sans-serif' }}>
+                {r==='1'?'1m':r==='15'?'15m':r==='60'?'1H':r==='D'?'1D':r==='W'?'1W':r}
+              </button>
+            ))}
+            <Link href="/charts"><button style={{ padding:'3px 12px', background:p, color:'#fff', border:'none', borderRadius:4, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'sans-serif' }}>Full Screen ↗</button></Link>
+          </div>
+        </div>
+        {/* SYMBOL SELECTOR */}
+        <div style={{ display:'flex', gap:4, overflowX:'auto', paddingBottom:4 }}>
+          {groups.map(g => (
+            <div key={g} style={{ display:'flex', gap:3, alignItems:'center' }}>
+              <span style={{ fontSize:10, color:'#9ca3af', fontWeight:700, whiteSpace:'nowrap', marginRight:2 }}>{g}:</span>
+              {SYMBOLS.filter(s=>s.g===g).map(s => (
+                <button key={s.v} onClick={() => setSymbol(s.v)} style={{ padding:'3px 10px', background:symbol===s.v?p:'#f3f4f6', color:symbol===s.v?'#fff':'#374151', border:'none', borderRadius:3, fontSize:11, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'sans-serif' }}>
+                  {s.l}
+                </button>
+              ))}
+              <span style={{ color:'#e5e7eb', margin:'0 4px' }}>|</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <iframe
+        key={`${symbol}-${interval}`}
+        src={chartUrl}
+        style={{ width:'100%', height:480, border:'none', display:'block' }}
+        title={`${symbol} Chart`}
+        allow="fullscreen"
+      />
+    </div>
+  )
+}
+
 export default function LiveMarketDashboard({ articles, site, routePrefix, siteSlug, primaryColor, searchParams }: {
   articles: any[], site: any, routePrefix: string, siteSlug: string, primaryColor: string, searchParams?: any
 }) {
@@ -271,7 +335,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
           {/* NAV */}
           <nav style={{ borderTop:'1px solid #f3f4f6', display:'flex', gap:0, overflowX:'auto', height:40 }}>
             {['Markets','News','Analysis','Charts','Technical','Calendar','Screener','Tools','Academy'].map(n => (
-              <Link key={n} href={n==='Calendar'?`/calendar/${siteSlug}`:n==='Screener'?`/${routePrefix}/${siteSlug}#screener`:n==='Charts'?`/charts/${siteSlug}`:n==='Academy'?`/academy/${siteSlug}`:n==='Tools'?`/${routePrefix}/${siteSlug}#screener`:`/${routePrefix}/${siteSlug}?category=${n==='News'?'Trade':n}`}>
+              <Link key={n} href={n==='Calendar'?`/${routePrefix}/${siteSlug}#calendar`:n==='Screener'?`/${routePrefix}/${siteSlug}#screener`:n==='Charts'?`/charts`:n==='Academy'?`/academy`:n==='Technical'?`/${routePrefix}/${siteSlug}?category=Analysis`:n==='Tools'?`/${routePrefix}/${siteSlug}#screener`:n==='Markets'?`/${routePrefix}/${siteSlug}#markets`:n==='News'?`/${routePrefix}/${siteSlug}`:n==='Analysis'?`/${routePrefix}/${siteSlug}?category=Analysis`:`/${routePrefix}/${siteSlug}`}>
                 <span style={{ padding:'0 12px', height:40, display:'flex', alignItems:'center', fontSize:13, fontWeight:500, color:'#374151', whiteSpace:'nowrap', cursor:'pointer' }}>{n}</span>
               </Link>
             ))}
@@ -393,19 +457,8 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
               </div>
             </div>
 
-            {/* TRADINGVIEW CHART */}
-            <div id="chart" className="card" style={{ marginBottom:20, overflow:'hidden' }}>
-              <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <h2 style={{ fontSize:15, fontWeight:800 }}>📈 Live Chart</h2>
-                <div style={{ display:'flex', gap:6 }}>
-                  {['1D','1W','1M','3M','1Y'].map(r => (
-                    <button key={r} style={{ padding:'3px 10px', background:r==='1D'?'#111':'#f3f4f6', color:r==='1D'?'#fff':'#374151', border:'none', borderRadius:4, fontSize:11, fontWeight:600, cursor:'pointer' }}>{r}</button>
-                  ))}
-                </div>
-              </div>
-              <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv_c1&symbol=CAPITALCOM%3AGOLD&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=light&style=1&timezone=exchange&show_popup_button=1"
-                style={{ width:'100%', height:380, border:'none', display:'block' }} title="Live Chart" allow="fullscreen" />
-            </div>
+            {/* FULL TRADINGVIEW ADVANCED CHART */}
+            <ChartSection p={p} routePrefix={routePrefix} siteSlug={siteSlug} />
 
             {/* WORLD INDICES + COMMODITIES */}
             <div className="two-col" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:20 }}>
@@ -531,17 +584,21 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
               ))}
             </div>
 
-            {/* REAL ECONOMIC CALENDAR - TradingView */}
+            {/* REAL ECONOMIC CALENDAR - TradingView Live Widget */}
             <div id="calendar" className="card" style={{ marginBottom:20, overflow:'hidden' }}>
               <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <h2 style={{ fontSize:15, fontWeight:800 }}>📅 Economic Calendar</h2>
-                <a href={`/calendar/${siteSlug}`} style={{ fontSize:12, color:p, fontWeight:600, textDecoration:'none' }}>Full calendar ›</a>
+                <h2 style={{ fontSize:15, fontWeight:800 }}>📅 Economic Calendar — Live Events</h2>
+                <Link href={`/${routePrefix}/${siteSlug}#calendar`}><span style={{ fontSize:12, color:p, fontWeight:600 }}>View all events ›</span></Link>
               </div>
               <iframe
-                src="https://s.tradingview.com/external-embedding/embed-widget-events.html?%7B%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22locale%22%3A%22en%22%2C%22importanceFilter%22%3A%22-1%2C0%2C1%22%2C%22countryFilter%22%3A%22us%2Ceu%2Cgb%2Cjp%2Ccn%2Cca%2Cau%22%7D"
-                style={{ width:'100%', height:400, border:'none', display:'block' }}
+                src="https://sslecal2.investing.com?ecoDayBackground=%23ffffff&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone,timeselector,filters&countries=25,32,6,37,72,22,17,39,14,10,35,43,56,36,110,11,26,12,4,5&calType=week&timeZone=55&lang=1"
+                style={{ width:'100%', height:467, border:'none', display:'block' }}
                 title="Economic Calendar"
+                allow="fullscreen"
               />
+              <div style={{ padding:'8px 14px', background:'#f9fafb', borderTop:'1px solid #e5e7eb', fontSize:11, color:'#9ca3af', textAlign:'center' }}>
+                Real-time economic events powered by Investing.com · All times local
+              </div>
             </div>
 
 
