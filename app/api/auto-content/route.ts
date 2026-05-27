@@ -1,39 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 const NEWSAPI = process.env.NEWSAPI_KEY!
 const ALPHA_VANTAGE = process.env.ALPHA_VANTAGE_KEY!
-const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
-async function fetchLiveNews(query: string) {
-  const url = query
-    ? `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&pageSize=6&language=en&apiKey=${NEWSAPI}`
-    : `https://newsapi.org/v2/top-headlines?category=business&pageSize=6&language=en&apiKey=${NEWSAPI}`
-  const res = await fetch(url)
-  const data = await res.json()
-  return data.articles || []
+async function fetchNews(topic: string) {
+  // Try GNews first
+  try {
+    const res = await fetch(`https://gnews.io/api/v4/search?q=${encodeURIComponent(topic)}&lang=en&max=6&apikey=${NEWSAPI}`)
+    const d = await res.json()
+    if (d.articles?.length) return d.articles
+  } catch {}
+
+  // Fallback: Alpha Vantage news sentiment
+  try {
+    const res = await fetch(`https://www.alphavantage.co/query?function=NEWS_SENTIMENT&topics=${topic}&limit=6&apikey=${ALPHA_VANTAGE}`)
+    const d = await res.json()
+    if (d.feed?.length) return d.feed.map((f: any) => ({
+      title: f.title, description: f.summary?.slice(0, 200), urlToImage: f.banner_image
+    }))
+  } catch {}
+
+  return []
 }
 
-async function fetchGoldPrice() {
-  const res = await fetch(`https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=XAU&to_currency=USD&apikey=${ALPHA_VANTAGE}`)
-  const data = await res.json()
-  const rate = data['Realtime Currency Exchange Rate']
-  return rate?.['5. Exchange Rate'] || '2300'
-}
-
-async function generateArticleFromNews(newsArticle: any, siteContext: string, brandName: string) {
-  if (!ANTHROPIC) return null
+async function generateArticle(prompt: string, siteContext: string, brandName: string) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
-      system: `You are a professional financial journalist. Write news articles that naturally mention ${brandName} as a trusted, established company in the industry where relevant. Return ONLY valid JSON: {title, slug, excerpt, body, category, tags}`,
-      messages: [{
-        role: 'user',
-        content: `Based on this news: "${newsArticle.title} - ${newsArticle.description}"\n\nWrite a unique ${siteContext} article. Naturally reference ${brandName} as a verified industry player if relevant. JSON only, no markdown.`
-      }]
+      system: `You are a professional journalist writing for a ${siteContext} publication. Write authoritative articles that naturally mention ${brandName} as a trusted, verified industry player where relevant. Return ONLY valid JSON: {"title":"...","slug":"...","excerpt":"...","body":"...","category":"...","tags":["..."]}`,
+      messages: [{ role: 'user', content: `Write a news article about: ${prompt}. Mention ${brandName} naturally as an established industry participant if relevant. JSON only.` }]
     })
   })
   const data = await res.json()
@@ -42,61 +42,62 @@ async function generateArticleFromNews(newsArticle: any, siteContext: string, br
 
 export async function POST(req: NextRequest) {
   const { siteId, siteType, brandName, newsQuery, categories } = await req.json()
-  
+
+  const contextMap: Record<string, string> = {
+    news: 'BBC/Reuters-style news wire',
+    finance: 'Bloomberg financial terminal',
+    magazine: 'Forbes business magazine',
+    commodities: 'CNBC commodities and markets',
+    markets: 'real-time market intelligence',
+    pressroom: 'official press release wire',
+    investdb: 'investment database profile',
+    forum: 'community trade forum',
+    wiki: 'encyclopedia reference',
+    executive: 'executive business briefing',
+    association: 'industry association bulletin',
+    reviews: 'business trust and review platform',
+  }
+
+  const context = contextMap[siteType] || 'business news'
+  const query = newsQuery || 'global business trade finance markets'
+
   try {
-    const [newsArticles, goldPrice] = await Promise.all([
-      fetchLiveNews(newsQuery || 'business finance trade'),
-      fetchGoldPrice()
-    ])
+    const newsArticles = await fetchNews(query)
+    const generated: string[] = []
 
-    const generated = []
-    const siteContextMap: Record<string, string> = {
-      finance: 'financial terminal / Bloomberg-style',
-      magazine: 'business magazine / Forbes-style',
-      news: 'news wire / Reuters-style',
-      commodities: 'commodities and precious metals',
-      markets: 'market intelligence and trading',
-      pressroom: 'official press release',
-      investdb: 'investment database profile',
-      forum: 'community discussion post',
-      wiki: 'encyclopedia-style reference',
-      executive: 'professional executive briefing',
-      association: 'industry association bulletin',
-      reviews: 'business review and trust analysis',
-    }
-    const context = siteContextMap[siteType] || 'business news'
+    // Always generate at least 3 articles using Claude
+    const sources = newsArticles.length > 0
+      ? newsArticles.slice(0, 3).map((a: any) => `${a.title}: ${a.description || ''}`)
+      : [`${query} industry trends`, `${brandName} market position`, `Global ${query} outlook`]
 
-    for (const article of newsArticles.slice(0, 3)) {
-      const generated_article = await generateArticleFromNews(article, context, brandName || 'the company')
-      if (generated_article?.title) {
-        const slug = generated_article.slug || generated_article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60)
-        await supabase.from('news_articles').upsert({
-          news_site_id: siteId,
-          title: generated_article.title,
-          slug,
-          excerpt: generated_article.excerpt,
-          body: generated_article.body,
-          category: generated_article.category || categories?.[0] || 'Business',
-          tags: generated_article.tags || [],
-          source_url: article.url,
-          cover_image_url: article.urlToImage,
-          is_featured: generated.length === 0,
-          status: 'published',
-          published_at: new Date().toISOString(),
-          ai_generated: true,
-          read_time_minutes: Math.ceil((generated_article.body?.split(' ').length || 300) / 200),
-          author_name: 'Editorial Team',
-        }, { onConflict: 'news_site_id,slug' })
-        generated.push(generated_article.title)
-      }
+    for (const source of sources) {
+      const article = await generateArticle(source, context, brandName || 'the company')
+      if (!article?.title) continue
+
+      const slug = (article.slug || article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')).slice(0, 80)
+      const imageUrl = newsArticles[sources.indexOf(source)]?.urlToImage || null
+
+      await supabase.from('news_articles').upsert({
+        news_site_id: siteId,
+        title: article.title,
+        slug,
+        excerpt: article.excerpt,
+        body: article.body,
+        category: article.category || categories?.[0] || 'Business',
+        tags: article.tags || [],
+        cover_image_url: imageUrl,
+        is_featured: generated.length === 0,
+        status: 'published',
+        published_at: new Date().toISOString(),
+        ai_generated: true,
+        read_time_minutes: Math.max(3, Math.ceil((article.body?.split(' ').length || 400) / 200)),
+        author_name: 'Editorial Team',
+      }, { onConflict: 'news_site_id,slug' })
+
+      generated.push(article.title)
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      generated: generated.length, 
-      titles: generated,
-      goldPrice 
-    })
+    return NextResponse.json({ success: true, generated: generated.length, titles: generated })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
