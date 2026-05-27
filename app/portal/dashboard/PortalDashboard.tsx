@@ -78,7 +78,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
         <div style={{ padding:'20px 16px', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
           <Link href="/">
             <div style={{ fontFamily:"'Syne',sans-serif", fontSize:22, fontWeight:900, letterSpacing:'-0.03em' }}>
-              Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }} className="logo-text">Hub</span>
+              Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }} className="logo-text">Huby</span>
             </div>
           </Link>
           <div style={{ fontSize:10, color:'#475569', marginTop:2, letterSpacing:'0.06em' }} className="logo-text">CLIENT PORTAL</div>
@@ -127,7 +127,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
           <div style={{ fontSize:11, color:'#475569', marginBottom:6 }} className="logo-text">Account Manager</div>
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
             <div style={{ width:28, height:28, borderRadius:'50%', background:'linear-gradient(135deg,#0EA5E9,#10B981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800 }}>S</div>
-            <div className="logo-text" style={{ fontSize:12, color:'#94A3B8' }}>{client?.account_manager || 'RepHub Team'}</div>
+            <div className="logo-text" style={{ fontSize:12, color:'#94A3B8' }}>{client?.account_manager || 'RepHuby Team'}</div>
           </div>
           <a href="https://t.me/rephub_intelligence" target="_blank">
             <button className="btn btn-ghost" style={{ width:'100%', justifyContent:'center', marginBottom:8, fontSize:12 }}>

@@ -8,15 +8,15 @@ export default function CookieConsent() {
 
   useEffect(() => {
     try {
-      const consent = localStorage.getItem('rephub-cookie-consent')
+      const consent = localStorage.getItem('rephuby-cookie-consent')
       if (!consent) setVisible(true)
     } catch {}
   }, [])
 
   function accept(all: boolean) {
     try {
-      localStorage.setItem('rephub-cookie-consent', all ? 'all' : 'essential')
-      localStorage.setItem('rephub-cookie-date', new Date().toISOString())
+      localStorage.setItem('rephuby-cookie-consent', all ? 'all' : 'essential')
+      localStorage.setItem('rephuby-cookie-date', new Date().toISOString())
     } catch {}
     setVisible(false)
   }

@@ -794,10 +794,10 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
             ))}
           </div>
           <div style={{ borderTop:'1px solid #1e293b', paddingTop:16, fontSize:11, color:'#334155', lineHeight:1.8, marginBottom:12 }}>
-            <strong style={{color:'#475569'}}>Risk Disclosure:</strong> Trading in financial instruments involves high risks including the risk of losing some or all of your investment. Prices may not be real-time or accurate. Content is for informational purposes only and does not constitute investment advice. RepHub Intelligence Ltd is not authorised by the Financial Conduct Authority to provide investment advice.
+            <strong style={{color:'#475569'}}>Risk Disclosure:</strong> Trading in financial instruments involves high risks including the risk of losing some or all of your investment. Prices may not be real-time or accurate. Content is for informational purposes only and does not constitute investment advice. RepHuby Intelligence Ltd is not authorised by the Financial Conduct Authority to provide investment advice.
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:14, borderTop:'1px solid #1e293b', flexWrap:'wrap', gap:10 }}>
-            <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHub Intelligence Ltd · All Rights Reserved</span>
+            <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · RepHuby Intelligence Ltd · All Rights Reserved</span>
             <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
               {[{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Risk Warning',h:'/legal/risk-warning'},{l:'Cookies',h:'/legal/cookies'},{l:'Contact',h:'/legal/contact'}].map(({l,h}) => (
                 <Link key={l} href={h}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>

@@ -88,7 +88,7 @@ async function generateArticles(site: any) {
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET || 'rephub-cron-2025-secure'}`) {
+  if (auth !== `Bearer ${process.env.CRON_SECRET || 'REDACTED_CRON_SECRET'}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

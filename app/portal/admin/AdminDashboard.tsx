@@ -43,13 +43,13 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   // Auth guard
   useEffect(() => {
     try {
-      const s = JSON.parse(localStorage.getItem('rephub_session') || '{}')
+      const s = JSON.parse(localStorage.getItem('rephuby_session') || '{}')
       if (s.role !== 'superadmin') router.push('/portal')
     } catch { router.push('/portal') }
   }, [])
 
   function logout() {
-    localStorage.removeItem('rephub_session')
+    localStorage.removeItem('rephuby_session')
     router.push('/portal')
   }
 
@@ -89,7 +89,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
         <div style={{ padding:'18px 16px', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
           <Link href="https://rephuby.com">
             <div style={{ fontFamily:"'Syne',sans-serif", fontSize:22, fontWeight:900 }}>
-              Rep<span style={{ background:'linear-gradient(135deg,#EF4444,#DC2626)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Hub</span>
+              Rep<span style={{ background:'linear-gradient(135deg,#EF4444,#DC2626)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Huby</span>
             </div>
           </Link>
           <div style={{ fontSize:10, color:'#EF4444', marginTop:2, fontWeight:700, letterSpacing:'0.08em' }} className="adm-label">⚙ ADMIN COMMAND CENTER</div>
@@ -100,7 +100,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           <div style={{ width:36, height:36, borderRadius:8, background:'linear-gradient(135deg,#EF4444,#DC2626)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:16 }}>S</div>
           <div>
             <div style={{ fontWeight:700, fontSize:13 }}>Solly</div>
-            <div style={{ fontSize:10, color:'#475569' }}>Super Admin · RepHub</div>
+            <div style={{ fontSize:10, color:'#475569' }}>Super Admin · RepHuby</div>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
               {/* KPIs */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
                 {[
-                  { label:'Active Clients', value:clients.length, icon:'👥', color:'#EF4444', sub:'On RepHub network' },
+                  { label:'Active Clients', value:clients.length, icon:'👥', color:'#EF4444', sub:'On RepHuby network' },
                   { label:'Articles Published', value:totalArticles.toLocaleString(), icon:'📰', color:'#0EA5E9', sub:'Across all 12 portals' },
                   { label:'Newsletter Subscribers', value:totalSubscribers.toLocaleString(), icon:'📧', color:'#10B981', sub:'Total opt-in emails' },
                   { label:'Content Pieces', value:allContent.length, icon:'🎯', color:'#F59E0B', sub:'For active clients' },
@@ -271,7 +271,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       { label:'Content', value:allContent.filter((x:any)=>x.client_id===c.id).length },
                       { label:'Page 1 Keywords', value:allRankings.filter((x:any)=>x.client_id===c.id&&x.current_position<=10).length },
                       { label:'Podcasts', value:allPodcasts.filter((x:any)=>x.client_id===c.id&&x.status==='published').length },
-                      { label:'AM', value:c.account_manager?.split('—')[0]?.trim()||'RepHub' },
+                      { label:'AM', value:c.account_manager?.split('—')[0]?.trim()||'RepHuby' },
                     ].map(m => (
                       <div key={m.label} style={{ padding:'10px 14px', background:'rgba(255,255,255,0.04)', borderRadius:8, textAlign:'center' }}>
                         <div style={{ fontFamily:"'Syne',sans-serif", fontSize:22, fontWeight:800, color:'#F1F5F9' }}>{m.value}</div>

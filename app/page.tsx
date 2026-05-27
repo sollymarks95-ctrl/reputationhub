@@ -75,7 +75,7 @@ export default function HomePage() {
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
             <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
-              Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Hub</span>
+              Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Huby</span>
             </div>
           </Link>
           <div className="nl" style={{ display:'flex', gap:4 }}>
@@ -254,7 +254,7 @@ export default function HomePage() {
             <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg,transparent,#0EA5E9,#10B981,transparent)' }} />
             <div style={{ padding:'13px 22px', background:'#0B0F19', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', gap:10 }}>
               <div style={{ display:'flex', gap:6 }}>{['#EF4444','#F59E0B','#10B981'].map(c=><div key={c} style={{width:11,height:11,borderRadius:'50%',background:c}}/>)}</div>
-              <span className="syne" style={{ fontSize:12, color:'#64748b', fontWeight:700 }}>RepHub Intelligence Dashboard — rephuby.com/portal/dashboard</span>
+              <span className="syne" style={{ fontSize:12, color:'#64748b', fontWeight:700 }}>RepHuby Intelligence Dashboard — rephuby.com/portal/dashboard</span>
               <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:5, fontSize:11, color:'#10B981' }}>
                 <div style={{ width:7, height:7, borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s ease-in-out infinite' }} />Live
               </div>
@@ -356,10 +356,10 @@ export default function HomePage() {
           </div>
           <div className="tg" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
             {[
-              { mt:'📈 +42% Conversion Rate · 60 Days', q:"We were losing 60% of prospects who Googled us because the first page was full of forum posts. RepHub flooded Page 1 with 8 authoritative articles in 96 hours. Our closing rate went from 11% to 19% in the first month.", n:'Marcus H.', r:'CEO, CySEC-Regulated FX Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
-              { mt:'🔴 Competitor Review: #1 → #23 Pushed Down', q:"A competitor planted a fake review site ranking #1 for our brand. RepHub buried it to page 3 in 3 weeks and replaced the top 7 positions with our own content. The AI podcast was a game-changer — prospects now watch our CEO interview before scheduling a call.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
+              { mt:'📈 +42% Conversion Rate · 60 Days', q:"We were losing 60% of prospects who Googled us because the first page was full of forum posts. RepHuby flooded Page 1 with 8 authoritative articles in 96 hours. Our closing rate went from 11% to 19% in the first month.", n:'Marcus H.', r:'CEO, CySEC-Regulated FX Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
+              { mt:'🔴 Competitor Review: #1 → #23 Pushed Down', q:"A competitor planted a fake review site ranking #1 for our brand. RepHuby buried it to page 3 in 3 weeks and replaced the top 7 positions with our own content. The AI podcast was a game-changer — prospects now watch our CEO interview before scheduling a call.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
               { mt:'🏆 #1 Google Ranking in 8 Brand Terms', q:"We went from 2 brand terms controlled to 11 in the first quarter. The real-time dashboard lets our compliance team see every article. For a regulated firm, this level of control over our narrative is priceless. Worth 10x what we pay.", n:'Rafael S.', r:'Head of Marketing, FCA-Regulated Broker · UK', av:'R', g:'135deg,#F59E0B,#F97316' },
-              { mt:'⚡ 96h From Onboarding to Page 1', q:"I was skeptical — we'd tried PR agencies and spent $20K with nothing to show. RepHub had our first 12 articles live across their network within 96 hours of signing. By week 3, our brand search had a completely different story.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
+              { mt:'⚡ 96h From Onboarding to Page 1', q:"I was skeptical — we'd tried PR agencies and spent $20K with nothing to show. RepHuby had our first 12 articles live across their network within 96 hours of signing. By week 3, our brand search had a completely different story.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
             ].map(t => (
               <div key={t.n} className="tc">
                 <div style={{ background:`linear-gradient(${t.g})`, display:'inline-flex', padding:'5px 12px', borderRadius:8, fontSize:12, color:'#000', fontWeight:700, marginBottom:16 }}>{t.mt}</div>
@@ -413,7 +413,7 @@ export default function HomePage() {
       <footer style={{ padding:'32px 0', background:'#0B0F19', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:14 }}>
           <div>
-            <Link href="/"><div className="syne" style={{ fontSize:20, fontWeight:900 }}>Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Hub</span></div></Link>
+            <Link href="/"><div className="syne" style={{ fontSize:20, fontWeight:900 }}>Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Huby</span></div></Link>
             <div style={{ fontSize:12, color:'#334155', marginTop:4 }}>The Authority Engine for Trading Brokers · rephuby.com</div>
           </div>
           <div style={{ display:'flex', gap:18, flexWrap:'wrap' }}>
@@ -423,7 +423,7 @@ export default function HomePage() {
           </div>
           <div style={{ textAlign:'right' }}>
             <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" style={{ color:'#10B981', fontWeight:600, fontSize:13 }}>📱 @rephub_intelligence</a>
-            <div style={{ fontSize:12, color:'#334155', marginTop:4 }}>© 2025 RepHub Intelligence Ltd</div>
+            <div style={{ fontSize:12, color:'#334155', marginTop:4 }}>© 2025 RepHuby Intelligence Ltd</div>
           </div>
         </div>
       </footer>

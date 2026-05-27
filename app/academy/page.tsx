@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
-export const metadata = { title: 'Academy | RepHub', description: 'Financial education and professional development courses coming soon.' }
+export const metadata = { title: 'Academy | RepHuby', description: 'Financial education and professional development courses coming soon.' }
 
 export default async function AcademyPage() {
   const { data: sites } = await supabase.from('news_sites').select('name,slug,primary_color').eq('is_live',true).limit(6)
@@ -9,7 +9,7 @@ export default async function AcademyPage() {
     <div style={{ minHeight:'100vh', background:'#0f172a', fontFamily:'sans-serif', color:'#fff', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:40 }}>
       <div style={{ textAlign:'center', maxWidth:600 }}>
         <div style={{ fontSize:64, marginBottom:20 }}>🎓</div>
-        <h1 style={{ fontSize:40, fontWeight:900, marginBottom:16, letterSpacing:'-1px' }}>RepHub Academy</h1>
+        <h1 style={{ fontSize:40, fontWeight:900, marginBottom:16, letterSpacing:'-1px' }}>RepHuby Academy</h1>
         <p style={{ fontSize:20, color:'#94a3b8', lineHeight:1.7, marginBottom:32 }}>
           Professional courses in commodity trading, trade finance, market analysis, and global business strategy. 
           Curriculum being developed with industry experts.
@@ -43,7 +43,7 @@ export default async function AcademyPage() {
         </div>
         <Link href="/news/global-trade-wire">
           <button style={{ background:'transparent', color:'#94a3b8', border:'1px solid #334155', padding:'10px 24px', borderRadius:6, cursor:'pointer', fontSize:14, fontFamily:'sans-serif' }}>
-            ← Back to RepHub
+            ← Back to RepHuby
           </button>
         </Link>
       </div>

@@ -8,7 +8,7 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
       <>
         <p><strong>Last updated:</strong> {new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         <h2>1. Who We Are</h2>
-        <p>RepHub Intelligence Ltd ("we", "our", "us") operates a network of professional financial news and intelligence publications. Our registered address is 71-75 Shelton Street, London, WC2H 9JQ, United Kingdom.</p>
+        <p>RepHuby Intelligence Ltd ("we", "our", "us") operates a network of professional financial news and intelligence publications. Our registered address is 71-75 Shelton Street, London, WC2H 9JQ, United Kingdom.</p>
         <h2>2. What Information We Collect</h2>
         <p>We may collect the following types of personal information:</p>
         <ul>
@@ -48,19 +48,19 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
       <>
         <p><strong>Last updated:</strong> {new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using any publication within the RepHub Intelligence network ("Services"), you accept and agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use our Services.</p>
+        <p>By accessing and using any publication within the RepHuby Intelligence network ("Services"), you accept and agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use our Services.</p>
         <h2>2. Nature of the Service</h2>
-        <p>RepHub Intelligence publications provide financial news, market commentary, analysis, and data for informational purposes only. Our Services do not constitute financial advice, investment advice, trading advice, or any other type of professional advice. Information provided through our Services should not be relied upon as a basis for making financial or investment decisions.</p>
+        <p>RepHuby Intelligence publications provide financial news, market commentary, analysis, and data for informational purposes only. Our Services do not constitute financial advice, investment advice, trading advice, or any other type of professional advice. Information provided through our Services should not be relied upon as a basis for making financial or investment decisions.</p>
         <h2>3. No Investment Advice</h2>
         <p>Nothing on our websites constitutes a solicitation or offer to buy or sell any financial instrument or investment product. We are not authorised or regulated by the Financial Conduct Authority (FCA) or any other regulatory body to provide investment advice. You should consult a qualified financial adviser before making any investment decisions.</p>
         <h2>4. Accuracy of Information</h2>
         <p>While we endeavour to ensure that information published through our Services is accurate and up-to-date, we make no warranty, express or implied, regarding the accuracy, completeness, or timeliness of any information provided. Market data, prices, and news are subject to change without notice and may not reflect current market conditions.</p>
         <h2>5. Intellectual Property</h2>
-        <p>All content on RepHub Intelligence publications, including but not limited to text, graphics, logos, images, and data compilations, is the property of RepHub Intelligence Ltd or its content providers and is protected by applicable copyright and intellectual property laws. You may not reproduce, distribute, or create derivative works from our content without our express written permission.</p>
+        <p>All content on RepHuby Intelligence publications, including but not limited to text, graphics, logos, images, and data compilations, is the property of RepHuby Intelligence Ltd or its content providers and is protected by applicable copyright and intellectual property laws. You may not reproduce, distribute, or create derivative works from our content without our express written permission.</p>
         <h2>6. Prohibited Uses</h2>
         <p>You agree not to: use our Services for any unlawful purpose; scrape or systematically extract data from our websites without permission; interfere with the proper functioning of our Services; attempt to gain unauthorised access to our systems; or use our content in any way that misrepresents its source or our organisation.</p>
         <h2>7. Limitation of Liability</h2>
-        <p>To the maximum extent permitted by applicable law, RepHub Intelligence Ltd shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of our Services or reliance on any information provided therein. This limitation applies regardless of whether such damages were foreseeable.</p>
+        <p>To the maximum extent permitted by applicable law, RepHuby Intelligence Ltd shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of our Services or reliance on any information provided therein. This limitation applies regardless of whether such damages were foreseeable.</p>
         <h2>8. Third-Party Links</h2>
         <p>Our Services may contain links to third-party websites and services. We have no control over and accept no responsibility for the content, privacy practices, or availability of third-party websites. Links are provided for convenience only.</p>
         <h2>9. Governing Law</h2>
@@ -86,11 +86,11 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
         <h2>Past Performance</h2>
         <p>Past performance is not indicative of future results. The value of investments can fall as well as rise. You may receive back less than you originally invested. Market analysis and commentary published on our platforms represents the views of individual analysts and does not constitute a guarantee of future performance.</p>
         <h2>Data Accuracy</h2>
-        <p>RepHub Intelligence Ltd would like to remind you that the data contained in our publications is not necessarily real-time nor accurate. The data and prices on our websites may not necessarily be provided by any market or exchange, but may be provided by market makers, and so prices may not be accurate and may differ from the actual price at any given market.</p>
+        <p>RepHuby Intelligence Ltd would like to remind you that the data contained in our publications is not necessarily real-time nor accurate. The data and prices on our websites may not necessarily be provided by any market or exchange, but may be provided by market makers, and so prices may not be accurate and may differ from the actual price at any given market.</p>
         <h2>Not Investment Advice</h2>
         <p>Nothing on our websites constitutes investment advice. Our publications are for informational and educational purposes only. We are not a licensed investment adviser, broker, or dealer. You should seek independent financial advice from a qualified professional before making any investment decisions.</p>
         <h2>Regulatory Status</h2>
-        <p>RepHub Intelligence Ltd is a news and information publisher. We are not authorised or regulated by the Financial Conduct Authority or any other financial regulatory authority to provide investment advice or recommendations.</p>
+        <p>RepHuby Intelligence Ltd is a news and information publisher. We are not authorised or regulated by the Financial Conduct Authority or any other financial regulatory authority to provide investment advice or recommendations.</p>
         <h2>Seek Professional Advice</h2>
         <p>If you are in any doubt about the suitability of any investment for your circumstances, you should seek independent financial and legal advice.</p>
       </>
@@ -123,14 +123,14 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
     )
   },
   about: {
-    title: 'About RepHub Intelligence',
+    title: 'About RepHuby Intelligence',
     content: () => (
       <>
         <h2>Who We Are</h2>
-        <p>RepHub Intelligence operates a network of twelve professional financial news and market intelligence publications, covering global trade, commodity markets, financial markets, business strategy, and professional services for the international business community.</p>
+        <p>RepHuby Intelligence operates a network of twelve professional financial news and market intelligence publications, covering global trade, commodity markets, financial markets, business strategy, and professional services for the international business community.</p>
         <p>Our publications serve financial professionals, commodity traders, business executives, and investors who require accurate, timely, and professionally written intelligence to inform their commercial decisions.</p>
         <h2>Our Publications</h2>
-        <p>The RepHub Intelligence network includes:</p>
+        <p>The RepHuby Intelligence network includes:</p>
         <ul>
           <li><strong>Nexwire</strong> — Global trade news and supply chain intelligence</li>
           <li><strong>Finvex</strong> — Financial markets, currencies, and investment analysis</li>
@@ -146,11 +146,11 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
           <li><strong>Signalix</strong> — Market signals and technical analysis</li>
         </ul>
         <h2>Our Editorial Standards</h2>
-        <p>RepHub Intelligence is committed to the highest standards of accuracy, fairness, and independence in our editorial content. Our team of journalists and analysts combine deep industry expertise with rigorous reporting standards. We do not accept payment to influence editorial coverage and clearly distinguish between news content and commercially supported content.</p>
+        <p>RepHuby Intelligence is committed to the highest standards of accuracy, fairness, and independence in our editorial content. Our team of journalists and analysts combine deep industry expertise with rigorous reporting standards. We do not accept payment to influence editorial coverage and clearly distinguish between news content and commercially supported content.</p>
         <h2>Our Technology</h2>
         <p>Our publications use a combination of professional journalism, expert analysis, and AI-assisted content generation to produce the volume and breadth of coverage that our readers require. All AI-assisted content is reviewed for accuracy and relevance before publication.</p>
         <h2>Regulatory Information</h2>
-        <p>RepHub Intelligence Ltd is a news and information publisher registered in England and Wales. We are not authorised by the Financial Conduct Authority to provide investment advice. Our content is provided for informational purposes only.</p>
+        <p>RepHuby Intelligence Ltd is a news and information publisher registered in England and Wales. We are not authorised by the Financial Conduct Authority to provide investment advice. Our content is provided for informational purposes only.</p>
         <p><strong>Registered Address:</strong> 71-75 Shelton Street, London, WC2H 9JQ, United Kingdom</p>
       </>
     )
@@ -178,7 +178,7 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
           ))}
         </div>
         <h2>Registered Address</h2>
-        <p>RepHub Intelligence Ltd<br/>71-75 Shelton Street<br/>London, WC2H 9JQ<br/>United Kingdom</p>
+        <p>RepHuby Intelligence Ltd<br/>71-75 Shelton Street<br/>London, WC2H 9JQ<br/>United Kingdom</p>
         <h2>Newsletter Subscriptions</h2>
         <p>To manage your newsletter subscription, unsubscribe, or update your preferences, please email: <a href="mailto:newsletter@rephub.com" style={{color:'#3b82f6'}}>newsletter@rephub.com</a></p>
         <p>Please include your email address and which publications you wish to subscribe to or unsubscribe from.</p>
@@ -192,7 +192,7 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
     content: () => (
       <>
         <h2>Reach the Global Trading Community</h2>
-        <p>The RepHub Intelligence network reaches over 200,000 professional readers monthly across its twelve publications, comprising commodity traders, financial professionals, business executives, and investors actively engaged in international commerce.</p>
+        <p>The RepHuby Intelligence network reaches over 200,000 professional readers monthly across its twelve publications, comprising commodity traders, financial professionals, business executives, and investors actively engaged in international commerce.</p>
         <h2>Our Audience</h2>
         <ul>
           <li>Commodity traders and trading companies across metals, energy, and agricultural markets</li>
@@ -222,10 +222,10 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
   const { page } = await params
   const legal = LEGAL[page]
-  if (!legal) return { title: 'Legal | RepHub Intelligence' }
+  if (!legal) return { title: 'Legal | RepHuby Intelligence' }
   return {
-    title: `${legal.title} | RepHub Intelligence`,
-    description: `RepHub Intelligence ${legal.title}`,
+    title: `${legal.title} | RepHuby Intelligence`,
+    description: `RepHuby Intelligence ${legal.title}`,
     robots: 'noindex, nofollow',
   }
 }
@@ -273,7 +273,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
       {/* HEADER */}
       <header style={{ background:'#1e293b', padding:'14px 24px', display:'flex', alignItems:'center', gap:16, justifyContent:'space-between' }}>
         <Link href="/news/global-trade-wire">
-          <div style={{ fontWeight:900, fontSize:20, color:'#fff' }}>RepHub Intelligence</div>
+          <div style={{ fontWeight:900, fontSize:20, color:'#fff' }}>RepHuby Intelligence</div>
         </Link>
         <span style={{ color:'#64748b', fontSize:12 }}>Legal & Compliance</span>
       </header>
@@ -292,7 +292,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
             ))}
           </div>
           <div style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', padding:14, marginTop:14, fontSize:12, color:'#6b7280' }}>
-            <div style={{ fontWeight:700, color:'#374151', marginBottom:6 }}>RepHub Intelligence Ltd</div>
+            <div style={{ fontWeight:700, color:'#374151', marginBottom:6 }}>RepHuby Intelligence Ltd</div>
             <div>71-75 Shelton Street</div>
             <div>London, WC2H 9JQ</div>
             <div>United Kingdom</div>
@@ -308,7 +308,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
           </div>
           {legal.content()}
           <div style={{ marginTop:32, paddingTop:20, borderTop:'1px solid #e5e7eb', fontSize:12, color:'#9ca3af' }}>
-            © {new Date().getFullYear()} RepHub Intelligence Ltd · All rights reserved
+            © {new Date().getFullYear()} RepHuby Intelligence Ltd · All rights reserved
           </div>
         </main>
       </div>
