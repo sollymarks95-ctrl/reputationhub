@@ -271,7 +271,7 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
           {/* NAV */}
           <nav style={{ borderTop:'1px solid #f3f4f6', display:'flex', gap:0, overflowX:'auto', height:40 }}>
             {['Markets','News','Analysis','Charts','Technical','Calendar','Screener','Tools','Academy'].map(n => (
-              <Link key={n} href={n==='Calendar'?`/${routePrefix}/${siteSlug}#calendar`:n==='Screener'?`/${routePrefix}/${siteSlug}#screener`:n==='Charts'?`/${routePrefix}/${siteSlug}#chart`:n==='Tools'?`/${routePrefix}/${siteSlug}#screener`:`/${routePrefix}/${siteSlug}?category=${n==='News'?'Trade':n==='Academy'?'Reference':n}`}>
+              <Link key={n} href={n==='Calendar'?`/calendar/${siteSlug}`:n==='Screener'?`/${routePrefix}/${siteSlug}#screener`:n==='Charts'?`/charts/${siteSlug}`:n==='Academy'?`/academy/${siteSlug}`:n==='Tools'?`/${routePrefix}/${siteSlug}#screener`:`/${routePrefix}/${siteSlug}?category=${n==='News'?'Trade':n}`}>
                 <span style={{ padding:'0 12px', height:40, display:'flex', alignItems:'center', fontSize:13, fontWeight:500, color:'#374151', whiteSpace:'nowrap', cursor:'pointer' }}>{n}</span>
               </Link>
             ))}
@@ -531,29 +531,20 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
               ))}
             </div>
 
-            {/* ECONOMIC CALENDAR */}
-            <div id="calendar" className="card" style={{ marginBottom:20 }}>
-              <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb', display:'flex', justifyContent:'space-between' }}>
+            {/* REAL ECONOMIC CALENDAR - TradingView */}
+            <div id="calendar" className="card" style={{ marginBottom:20, overflow:'hidden' }}>
+              <div style={{ padding:'12px 16px', borderBottom:'1px solid #e5e7eb', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <h2 style={{ fontSize:15, fontWeight:800 }}>📅 Economic Calendar</h2>
-                <span style={{ fontSize:12, color:'#9ca3af' }}>Today · {new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+                <a href={`/calendar/${siteSlug}`} style={{ fontSize:12, color:p, fontWeight:600, textDecoration:'none' }}>Full calendar ›</a>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'65px 28px 1fr 70px 70px 70px', padding:'7px 14px', background:'#f9fafb', fontSize:10, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.04em', borderBottom:'1px solid #e5e7eb', gap:6 }}>
-                <span>Time</span><span>Cty</span><span>Event</span><span style={{textAlign:'right'}}>Actual</span><span style={{textAlign:'right'}}>Forecast</span><span style={{textAlign:'right'}}>Prev</span>
-              </div>
-              {CALENDAR.map((ev,i) => (
-                <div key={i} style={{ display:'grid', gridTemplateColumns:'65px 28px 1fr 70px 70px 70px', padding:'9px 14px', borderBottom:'1px solid #f3f4f6', fontSize:12, gap:6, alignItems:'center' }}>
-                  <span style={{ fontFamily:'monospace', color:'#374151', fontWeight:600, fontSize:11 }}>{ev.time}</span>
-                  <span style={{ fontSize:14 }}>{ev.country}</span>
-                  <span style={{ display:'flex', gap:7, alignItems:'center' }}>
-                    <span className={`imp-${ev.impact}`}>{ev.impact.toUpperCase()}</span>
-                    <span style={{ fontWeight:600, color:'#111' }}>{ev.event}</span>
-                  </span>
-                  <span style={{ textAlign:'right', fontWeight:700, color:ev.actual?'#16a34a':'#9ca3af', fontSize:12 }}>{ev.actual||'--'}</span>
-                  <span style={{ textAlign:'right', color:'#6b7280', fontSize:12 }}>{ev.forecast||'--'}</span>
-                  <span style={{ textAlign:'right', color:'#6b7280', fontSize:12 }}>{ev.prev||'--'}</span>
-                </div>
-              ))}
+              <iframe
+                src="https://s.tradingview.com/external-embedding/embed-widget-events.html?%7B%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22locale%22%3A%22en%22%2C%22importanceFilter%22%3A%22-1%2C0%2C1%22%2C%22countryFilter%22%3A%22us%2Ceu%2Cgb%2Cjp%2Ccn%2Cca%2Cau%22%7D"
+                style={{ width:'100%', height:400, border:'none', display:'block' }}
+                title="Economic Calendar"
+              />
             </div>
+
+
           </main>
 
           {/* SIDEBAR */}
