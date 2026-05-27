@@ -1,13 +1,97 @@
 import { getNewsSite, getLatestArticles } from '@/lib/news'
 import { notFound } from 'next/navigation'
 import LiveMarketDashboard from '@/app/components/LiveMarketDashboard'
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params; const site = await getNewsSite(slug); if (!site) return {}
-  return { title: site.seo_title || site.name, description: site.tagline, robots: 'index, follow' }
+import type { Metadata } from 'next'
+
+const BASE = 'https://reputationhub-ten.vercel.app'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const site = await getNewsSite(slug)
+  if (!site) return {}
+  const url = `${BASE}/reviews-hub/${slug}`
+  return {
+    title: site.seo_title || `${site.name} — Verified Business Reviews B2B Trust Intelligence`,
+    description: site.tagline || `${site.name} provides professional intelligence on verified business reviews b2b trust intelligence.`,
+    keywords: `${site.name}, verified, business, reviews, b2b, trust, intelligence, market analysis, intelligence`,
+    robots: 'index, follow',
+    alternates: { canonical: url },
+    openGraph: {
+      title: site.seo_title || site.name,
+      description: site.tagline,
+      url, type: 'website', siteName: site.name,
+      images: [{ url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200', width: 1200, height: 630, alt: site.name }],
+    },
+    twitter: { card: 'summary_large_image', title: site.name, description: site.tagline },
+    other: { 'application-name': site.name, 'news_keywords': 'Verified Business Reviews B2B Trust Intelligence' },
+  }
 }
-export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: Promise<{ category?: string }> }) {
-  const { slug } = await params; const sp = searchParams ? await searchParams : {}
-  const site = await getNewsSite(slug); if (!site) notFound()
+
+export default async function SitePage({
+  params, searchParams
+}: {
+  params: Promise<{ slug: string }>
+  searchParams?: Promise<{ category?: string }>
+}) {
+  const { slug } = await params
+  const sp = searchParams ? await searchParams : {}
+  const site = await getNewsSite(slug)
+  if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
-  return <LiveMarketDashboard articles={articles} site={site} routePrefix="reviews-hub" siteSlug={slug} primaryColor={site.primary_color || '#059669'} searchParams={sp} />
+  const p = site.primary_color || '#059669'
+
+  // JSON-LD structured data for AI agents and search engines
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsMediaOrganization',
+      name: site.name,
+      description: site.tagline,
+      url: `${BASE}/reviews-hub/${slug}`,
+      logo: { '@type': 'ImageObject', url: `${BASE}/logo.png`, width: 280, height: 60 },
+      publishingPrinciples: `${BASE}/legal/about`,
+      ethicsPolicy: `${BASE}/legal/terms`,
+      masthead: `${BASE}/legal/about`,
+      correctionsPolicy: `${BASE}/legal/contact`,
+      contactPoint: { '@type': 'ContactPoint', contactType: 'editorial', email: 'editorial@rephub.com', url: `${BASE}/legal/contact` },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: site.name,
+      url: `${BASE}/reviews-hub/${slug}`,
+      description: site.tagline,
+      inLanguage: 'en-GB',
+      publisher: { '@type': 'Organization', name: 'RepHub Intelligence Ltd', url: BASE },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/search?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'RepHub Intelligence', item: BASE },
+        { '@type': 'ListItem', position: 2, name: site.name, item: `${BASE}/reviews-hub/${slug}` },
+      ],
+    },
+  ]
+
+  return (
+    <>
+      {schemas.map((s, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
+      ))}
+      <LiveMarketDashboard
+        articles={articles}
+        site={site}
+        routePrefix="reviews-hub"
+        siteSlug={slug}
+        primaryColor={p}
+        searchParams={sp}
+      />
+    </>
+  )
 }
