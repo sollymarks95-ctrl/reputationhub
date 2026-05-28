@@ -128,7 +128,7 @@ export default function WikiTemplate({ articles = [], site, routePrefix, siteSlu
       </div>
 
       <div style={{ background:'#F8F9FA', borderTop:'1px solid #A2A9B1', padding:'16px 24px', fontFamily:'Source Sans 3,sans-serif', fontSize:12, color:'#555', textAlign:'center' }}>
-        BIZPEDIA · bizpedia.com · The Financial Intelligence Encyclopedia · © {new Date().getFullYear()} RepHuby Intelligence Network
+        BIZPEDIA · bizpedia.com · The Financial Intelligence Encyclopedia · © {new Date().getFullYear()} Financial Intelligence Network
       </div>
     </div>
   )
