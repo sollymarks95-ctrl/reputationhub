@@ -59,6 +59,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   // Podcast state
   const [podClient, setPodClient] = useState('')
   const [podEpNum, setPodEpNum] = useState('')
+  const [podSite, setPodSite] = useState('')
   const [podTitle, setPodTitle] = useState('')
   const [podHost, setPodHost] = useState('James Richardson')
   const [podHostRole, setPodHostRole] = useState('Show Host')
@@ -134,6 +135,38 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     const d = await r.json()
     if (d.script) { setPodScript(d.script); setPodEpisodeId(d.episodeId || '') }
     else setPodMsg(d.error || 'Failed to generate script')
+    setPodLoading(false)
+  }
+
+
+  // ONE-CLICK: script + audio in sequence
+  async function generateFullPodcast(e: React.FormEvent) {
+    e.preventDefault()
+    if (!podClient) { alert('Select a client first'); return }
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodMsg('Generating script...')
+    try {
+      const scriptRes = await fetch('/api/admin/generate-script', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, durationMinutes: parseInt(podDuration)||20 })
+      })
+      const scriptData = await scriptRes.json()
+      if (!scriptData.success) { setPodMsg('Script failed: ' + scriptData.error); setPodLoading(false); return }
+      setPodScript(scriptData.script)
+      setPodEpisodeId(scriptData.podcastId)
+      setPodMsg(`✓ Script: ${scriptData.stats?.wordCount} words (~${scriptData.stats?.estimatedMinutes} min). Generating audio with ElevenLabs...`)
+      // Now generate audio
+      const audioRes = await fetch('/api/admin/generate-audio', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ script: scriptData.script, podcastId: scriptData.podcastId, title: podTitle, clientId: podClient })
+      })
+      const audioData = await audioRes.json()
+      if (audioData.audioUrl) {
+        setPodAudio(audioData.audioUrl)
+        setPodMsg(`✓ Podcast complete! ${audioData.segments} segments, ${audioData.sizeKb}KB`)
+      } else {
+        setPodMsg('Audio failed: ' + (audioData.error || 'unknown error'))
+      }
+    } catch (e: any) { setPodMsg('Error: ' + e.message) }
     setPodLoading(false)
   }
 
@@ -559,12 +592,21 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   </div>
 
                   <form onSubmit={generateScript}>
-                    <div style={{ marginBottom:12 }}>
-                      <label>Client</label>
-                      <select className="inp" value={podClient} onChange={e => setPodClient(e.target.value)} required>
-                        <option value="">— Select Client —</option>
-                        {clients.map((c: any) => <option key={c.id} value={c.id}>{c.company_name}</option>)}
-                      </select>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
+                      <div>
+                        <label>Client</label>
+                        <select className="inp" value={podClient} onChange={e => setPodClient(e.target.value)} required>
+                          <option value="">— Select Client —</option>
+                          {clients.map((c: any) => <option key={c.id} value={c.id}>{c.company_name}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label>Publish to Portal</label>
+                        <select className="inp" value={podSite} onChange={e => setPodSite(e.target.value)}>
+                          <option value="">— Select Site —</option>
+                          {PORTALS.map(p => <option key={p.slug} value={p.slug}>{p.name} ({p.domain})</option>)}
+                        </select>
+                      </div>
                     </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
                       <div><label>Host Name</label><input className="inp" value={podHost} onChange={e => setPodHost(e.target.value)} placeholder="James Richardson" /></div>
@@ -586,9 +628,18 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <label>Topic / Key Points</label>
                       <textarea className="inp" value={podTopic} onChange={e => setPodTopic(e.target.value)} rows={4} placeholder="Click a template above — it auto-fills with trending topics, market data, and talking points" required />
                     </div>
-                    <button type="submit" className="btn b-blue" style={{ width:'100%', justifyContent:'center' }} disabled={podLoading}>
-                      {podLoading ? <><Spinner/> Writing Script...</> : '📝 Generate Podcast Script →'}
-                    </button>
+                    <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                      {/* 1-CLICK PRIMARY BUTTON */}
+                      <button type="button" onClick={generateFullPodcast} 
+                        className="btn" disabled={podLoading}
+                        style={{ width:'100%', justifyContent:'center', background:'linear-gradient(135deg,#0EA5E9,#10B981)', border:'none', color:'#fff', fontWeight:800, fontSize:14, padding:'14px', borderRadius:8, cursor: podLoading ? 'not-allowed' : 'pointer' }}>
+                        {podLoading ? <><Spinner/> {podMsg || 'Generating...'}</> : '⚡ 1-CLICK: Full Podcast (Script + Audio)'}
+                      </button>
+                      <div style={{ textAlign:'center', fontSize:10, color:'#475569' }}>— or step by step —</div>
+                      <button type="submit" className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }} disabled={podLoading}>
+                        📝 Script Only
+                      </button>
+                    </div>
                   </form>
 
                   {/* Audio generation */}
