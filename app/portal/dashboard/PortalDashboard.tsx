@@ -481,12 +481,23 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
                     </div>
                     {ep.description && <p style={{ fontSize:13, color:'#64748b', lineHeight:1.6, marginBottom:16 }}>{ep.description}</p>}
                     
-                    {/* Waveform */}
-                    <div style={{ height:48, display:'flex', alignItems:'center', gap:2, background:'rgba(255,255,255,0.03)', borderRadius:8, padding:'0 12px', marginBottom:16 }}>
-                      {Array.from({length:40}).map((_,j) => (
-                        <div key={j} style={{ width:3, borderRadius:2, background:ep.status==='generating'?'#F59E0B':p, opacity:ep.status==='generating'?0.7:1, animation:ep.status!=='generating'?'none':`wave ${0.4+Math.random()*0.8}s ease-in-out ${j*0.04}s infinite alternate`, height:Math.floor(Math.random()*28+8) }} />
-                      ))}
-                    </div>
+                    {/* Audio Player or Waveform */}
+                    {ep.mp3_url ? (
+                      <div style={{ marginBottom:16 }}>
+                        <audio controls style={{ width:'100%', borderRadius:8, background:'#0B0F19', outline:'none' }} src={ep.mp3_url}>
+                          Your browser does not support the audio element.
+                        </audio>
+                        <a href={ep.mp3_url} download style={{ display:'inline-block', marginTop:6, fontSize:11, color:'#0EA5E9', textDecoration:'none' }}>
+                          ⬇ Download MP3
+                        </a>
+                      </div>
+                    ) : (
+                      <div style={{ height:48, display:'flex', alignItems:'center', gap:2, background:'rgba(255,255,255,0.03)', borderRadius:8, padding:'0 12px', marginBottom:16 }}>
+                        {Array.from({length:40}).map((_,j) => (
+                          <div key={j} style={{ width:3, borderRadius:2, background:ep.status==='generating'?'#F59E0B':'#0EA5E9', opacity:ep.status==='generating'?0.7:0.6, animation:`wave ${0.4+0.8*((j*7)%10)/10}s ease-in-out ${j*0.04}s infinite alternate`, height:8+20*((j*13)%10)/10 }} />
+                        ))}
+                      </div>
+                    )}
 
                     <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                       {ep.duration_minutes > 0 && <span className="badge badge-blue">⏱ {ep.duration_minutes} min</span>}

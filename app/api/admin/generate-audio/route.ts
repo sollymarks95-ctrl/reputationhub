@@ -134,7 +134,28 @@ export async function POST(req: NextRequest) {
     const { data: urlData } = sb.storage.from('podcasts').getPublicUrl(fileName)
     const audioUrl = urlData.publicUrl
 
-    if (podcastId) await sb.from('podcast_scripts').update({ audio_url:audioUrl, status:'ready' }).eq('id', podcastId)
+    if (podcastId) {
+      await sb.from('podcast_scripts').update({ audio_url:audioUrl, status:'ready' }).eq('id', podcastId)
+      // Also upsert into portal_podcasts with the mp3_url for playback
+      const epNum = parseInt(title?.match(/\d+/)?.[0] || '1')
+      const { data: existing } = await sb.from('portal_podcasts').select('id').eq('client_id', clientId).eq('title', title||'Episode').maybeSingle()
+      if (existing?.id) {
+        await sb.from('portal_podcasts').update({ mp3_url: audioUrl, status:'published', script: script?.substring(0,500) }).eq('id', existing.id)
+      } else {
+        await sb.from('portal_podcasts').insert({
+          client_id: clientId,
+          title: title || 'Podcast Episode',
+          description: `AI podcast with ${guestName||'guest'}`,
+          duration_minutes: Math.round((combined.length / 1024 / 128) * 8 / 60) || 20,
+          status: 'published',
+          mp3_url: audioUrl,
+          host_name: siteConfig.hostName,
+          guest_name: guestName || 'Guest',
+          script: script?.substring(0,500),
+          published_at: new Date().toISOString()
+        })
+      }
+    }
     if (clientId) await sb.from('portal_activity').insert({ client_id:clientId, type:'podcast_ready', description:`Audio: ${title||'Episode'}` })
 
     return NextResponse.json({
