@@ -46,37 +46,34 @@ export async function POST(req: NextRequest) {
   const targetWords = Math.round(duration * 140)
   const minWords = Math.round(duration * 130)
 
-  const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script for "${SHOW_NAME}".
-Target: EXACTLY ${targetWords} words (±100 words).
+  const prompt = `Write a ${duration}-minute financial podcast conversation that sounds like two REAL humans talking — not corporate, not scripted, not AI.
 
-SHOW: "${SHOW_NAME}" on ${siteCfg.domain}
-HOST: ${HOST}, ${HOST_TITLE}
-GUEST: ${GUEST}, ${GUEST_TITLE} at ${company}
-TOPIC: ${topic || company + ' — market position and competitive advantage in ' + industry}
+SHOW: "${SHOW_NAME}" | HOST: ${HOST} (${HOST_TITLE}) | GUEST: ${GUEST} (${GUEST_TITLE} at ${company})
+TOPIC: ${topic || company + ' — story, edge, and 2026 outlook in ' + industry}
+LENGTH: ${targetWords} words
 
-FORMAT RULES — CRITICAL:
-1. Label EVERY line with the speaker's REAL NAME followed by a colon:
-   "${HOST}:" for the host
-   "${GUEST}:" for the guest
-   NEVER use "HOST:" or "GUEST:" — always use their actual names
-2. NO stage directions, NO [brackets], NO (parenthetical), NO asterisks
-3. The conversation flows like two professionals who know each other well
-4. Use natural contractions: "we're", "it's", "that's", "I've", "you've"
-5. Include natural transitions: "Look,", "Here's the thing,", "Right, and that's exactly...", "What's interesting is...", "Yeah, and..."
-6. ${HOST} opens with show name and introduces ${GUEST} naturally within the first paragraph
-7. ${GUEST} thanks ${HOST} by name in their first reply
-8. Word count: ${targetWords} words — this is CRITICAL for timing
+FORMAT (strict):
+- Every line starts with the speaker's name and colon: "${HOST}:" or "${GUEST}:"
+- NEVER write "HOST:" or "GUEST:" — always their real names
+- NO stage directions, NO [brackets], NO asterisks, NO (notes)
+- Each turn = 2-5 sentences. Nobody speaks for 6+ sentences straight.
+- Rapid back-and-forth — keep the energy moving
+
+SOUND HUMAN — these are non-negotiable:
+1. SHORT REACTIONS between longer thoughts: "Yeah.", "Right.", "Exactly.", "Hm.", "Interesting.", "Go on."
+2. NATURAL STUMBLES: "It's— look, it's complicated.", "And honestly?", "I mean, at the end of the day...", "Here's the thing—"
+3. REAL PUSHBACK occasionally: "I'd actually challenge that a bit.", "Some critics would say...", "Fair, but—"
+4. INTERRUPTION ENERGY: sentences that cut in with "—" or start with "Wait—" or "Hold on—"
+5. SPECIFICS: real numbers, real competitor names, real dates, real regulations — no vague generalities
+6. CASUAL VOCABULARY: how smart people actually talk over coffee. No "leverage", "synergies", "robust"
+7. MIX sentence lengths — "Wow." next to a 3-sentence explanation. Rhythm matters.
 
 STRUCTURE:
-- 0-2 min: Strong hook, intro ${GUEST} naturally, tease episode
-- 2-${duration - 3} min: Deep discussion with real data, named companies, market events
-- ${duration - 3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
+- First 90 sec: ${HOST} opens with a punchy hook and introduces ${GUEST} like they know each other
+- Middle: Meaty real conversation — debate, stories, data, challenges, surprises  
+- Last 90 sec: One bold prediction from ${GUEST}, warm sign-off from ${HOST}
 
-WORD COUNT REQUIREMENT: This script MUST be at least ${minWords} words. Count carefully.
-A ${duration}-minute podcast at 140 words/minute = ${targetWords} words minimum.
-Do NOT end early. Fill all ${duration} minutes of content.
-
-OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no preamble:`
+START immediately with "${HOST}:" — no title, no preamble, no explanation:`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
