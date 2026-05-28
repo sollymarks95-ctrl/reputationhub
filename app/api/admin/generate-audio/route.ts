@@ -51,40 +51,57 @@ async function generateSpeech(text: string, voiceId: string, apiKey: string): Pr
   return Buffer.from(arrayBuffer)
 }
 
+// Clean text before speech - remove stage directions, speaker labels, formatting
+function cleanTextForSpeech(text: string): string {
+  return text
+    .replace(/^(HOST|GUEST)[:\s]*/i, '')          // strip any remaining speaker labels
+    .replace(/\[([^\]]+)\]/g, '')                  // remove [stage directions]
+    .replace(/\(([^)]+)\)/g, '')                    // remove (parenthetical notes)  
+    .replace(/\*([^*]+)\*/g, '$1')                  // remove *emphasis* markers
+    .replace(/#{1,3}\s/g, '')                       // remove markdown headers
+    .replace(/\s{2,}/g, ' ')                        // collapse multiple spaces
+    .trim()
+}
+
 // Parse multi-speaker script: HOST: ... GUEST: ... lines
 function parseScript(script: string): Array<{ speaker: 'host' | 'guest'; text: string }> {
   const lines: Array<{ speaker: 'host' | 'guest'; text: string }> = []
-  const parts = script.split(/\n(?=HOST:|GUEST:|HOST\s*\(|GUEST\s*\()/)
+  
+  // Split on newlines where next line starts with HOST: or GUEST:
+  const parts = script.split(/\n(?=HOST:|GUEST:)/i)
   
   for (const part of parts) {
     const trimmed = part.trim()
-    if (!trimmed) continue
+    if (!trimmed || trimmed.length < 5) continue
     
-    if (/^HOST[\s:(]/i.test(trimmed)) {
-      const text = trimmed.replace(/^HOST[\s:()A-Z]*:?\s*/i, '').trim()
-      if (text) lines.push({ speaker: 'host', text })
-    } else if (/^GUEST[\s:(]/i.test(trimmed)) {
-      const text = trimmed.replace(/^GUEST[\s:()A-Z]*:?\s*/i, '').trim()
-      if (text) lines.push({ speaker: 'guest', text })
+    if (/^HOST:/i.test(trimmed)) {
+      const text = cleanTextForSpeech(trimmed.replace(/^HOST:\s*/i, ''))
+      if (text.length > 5) lines.push({ speaker: 'host', text })
+    } else if (/^GUEST:/i.test(trimmed)) {
+      const text = cleanTextForSpeech(trimmed.replace(/^GUEST:\s*/i, ''))
+      if (text.length > 5) lines.push({ speaker: 'guest', text })
     } else if (lines.length > 0) {
-      // Continue previous speaker
-      lines[lines.length - 1].text += ' ' + trimmed
+      // Continuation of previous speaker
+      const cleaned = cleanTextForSpeech(trimmed)
+      if (cleaned.length > 5) {
+        lines[lines.length - 1].text += ' ' + cleaned
+      }
     } else {
-      // No speaker tag — treat as host
-      lines.push({ speaker: 'host', text: trimmed })
+      const cleaned = cleanTextForSpeech(trimmed)
+      if (cleaned.length > 5) lines.push({ speaker: 'host', text: cleaned })
     }
   }
 
-  // If no HOST/GUEST found, split evenly
+  // Fallback: split evenly if no speaker tags found
   if (!lines.some(l => l.speaker === 'guest')) {
     const sentences = script.match(/[^.!?]+[.!?]+/g) || [script]
     return sentences.map((s, i) => ({
       speaker: i % 2 === 0 ? 'host' : 'guest',
-      text: s.trim(),
+      text: cleanTextForSpeech(s),
     }))
   }
 
-  return lines
+  return lines.filter(l => l.text.length > 10)
 }
 
 export async function POST(req: NextRequest) {
