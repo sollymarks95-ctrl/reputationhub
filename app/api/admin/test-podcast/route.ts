@@ -53,24 +53,22 @@ export async function GET() {
   if(cur) segs.push(cur)
   log.push(`${ms()} Parsed ${segs.length} segments — Host:${siteConfig.hostName}(Arnold) Guest:${guestVoice.name}`)
 
-  log.push(`${ms()} Calling ElevenLabs — batches of 5...`)
+  log.push(`${ms()} Calling ElevenLabs — sequential (1 at a time)...`)
   const bufs: Buffer[] = new Array(segs.length)
   const HS = {stability:0.55,similarity_boost:0.85,style:0.35,use_speaker_boost:true}
   const GS = {stability:0.42,similarity_boost:0.82,style:0.50,use_speaker_boost:true}
   try {
-    for (let i=0;i<segs.length;i+=5) {
-      const batch=segs.slice(i,i+5)
-      const res=await Promise.all(batch.map(async(seg,bi)=>{
-        const vId=seg.s==='host'?siteConfig.hostVoiceId:guestVoice.id
-        const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`,{
-          method:'POST',headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
-          body:JSON.stringify({text:seg.t,model_id:'eleven_multilingual_v2',voice_settings:seg.s==='host'?HS:GS})
-        })
-        if(!r.ok) throw new Error(`EL seg${i+bi}: `+(await r.text()).slice(0,100))
-        return {idx:i+bi,buf:Buffer.from(await r.arrayBuffer())}
-      }))
-      res.forEach(({idx,buf})=>bufs[idx]=buf)
-      log.push(`${ms()} Batch ${Math.floor(i/5)+1}/${Math.ceil(segs.length/5)} done`)
+    for (let i=0;i<segs.length;i++) {
+      const seg=segs[i]
+      const vId=seg.s==='host'?siteConfig.hostVoiceId:guestVoice.id
+      const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`,{
+        method:'POST',headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
+        body:JSON.stringify({text:seg.t,model_id:'eleven_multilingual_v2',voice_settings:seg.s==='host'?HS:GS})
+      })
+      if(!r.ok) throw new Error(`EL seg${i}: `+(await r.text()).slice(0,100))
+      bufs[i]=Buffer.from(await r.arrayBuffer())
+      log.push(`${ms()} Seg ${i+1}/${segs.length} done`)
+      if(i<segs.length-1) await new Promise(res=>setTimeout(res,200))
     }
   } catch(e:any){ return html('ElevenLabs Failed','',log,e.message) }
 
