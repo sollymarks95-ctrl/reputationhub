@@ -12,7 +12,22 @@ export async function OPTIONS() {
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 export async function POST(req: NextRequest) {
-  const { clientId, topic, episode, duration = 20, hostName, hostRole, guestName, guestRole, siteSlug = '' } = await req.json()
+  const body = await req.json()
+  const {
+    clientId,
+    topic,
+    episode,
+    episodeNumber,
+    hostName,
+    hostRole,
+    guestName,
+    guestRole,
+    siteSlug = '',
+  } = body
+
+  // Support both `duration` and `durationMinutes` from frontend
+  const duration: number = parseInt(body.durationMinutes || body.duration) || 20
+  const epNum = episodeNumber || episode || 1
 
   const client = clientId
     ? (await supabase.from('portal_clients').select('*').eq('id', clientId).single()).data
@@ -21,16 +36,15 @@ export async function POST(req: NextRequest) {
   const company = client?.company_name || 'the firm'
   const industry = client?.industry || 'financial services'
 
-  // Get site-specific show config
   const siteCfg = getSiteConfig(siteSlug)
-  const SHOW_NAME = siteCfg.showName         // e.g. "Nex-Wire Intelligence"
-  const HOST = hostName || siteCfg.hostName  // e.g. "David Hart"
+  const SHOW_NAME = siteCfg.showName
+  const HOST = hostName || siteCfg.hostName
   const HOST_TITLE = hostRole || siteCfg.hostRole
   const GUEST = guestName || 'Sarah Mitchell'
   const GUEST_TITLE = guestRole || 'Expert Analyst'
 
   const targetWords = Math.round(duration * 130 * 1.1)
-  const minWords = Math.round(duration * 120)  // hard floor
+  const minWords = Math.round(duration * 120)
 
   const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script for "${SHOW_NAME}".
 Target: EXACTLY ${targetWords} words (±100 words).
@@ -53,19 +67,14 @@ FORMAT RULES — CRITICAL:
 7. ${GUEST} thanks ${HOST} by name in their first reply
 8. Word count: ${targetWords} words — this is CRITICAL for timing
 
-MARKET DATA: Search the web for TODAY'S real prices before writing:
-- Search "gold price today", "bitcoin price today", "EUR/USD today", "S&P 500 today", "oil price today"
-- Use ONLY real prices you find — never use outdated or estimated numbers
-- If you can't find a current price, say "gold is trading near recent highs" not a specific number
-
 STRUCTURE:
 - 0-2 min: Strong hook, intro ${GUEST} naturally, tease episode
-- 2-${duration-3} min: Deep discussion with real data, named companies, market events  
-- ${duration-3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
+- 2-${duration - 3} min: Deep discussion with real data, named companies, market events
+- ${duration - 3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
 
 WORD COUNT REQUIREMENT: This script MUST be at least ${minWords} words. Count carefully.
-A {duration}-minute podcast at 130 words/minute = {targetWords} words minimum.
-Do NOT end early. Fill all {duration} minutes of content.
+A ${duration}-minute podcast at 130 words/minute = ${targetWords} words minimum.
+Do NOT end early. Fill all ${duration} minutes of content.
 
 OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no preamble:`
 
@@ -76,32 +85,41 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 12000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: 'You are writing a financial podcast script. Always search for real current market prices and news before writing. Only use verified, accurate data.',
+        model: 'claude-sonnet-4-6',
+        max_tokens: 16000,
+        system: 'You are writing a financial podcast script. Write detailed, professional scripts using realistic but general market context. Always produce the full script immediately.',
         messages: [{ role: 'user', content: prompt }]
       }),
-      signal: AbortSignal.timeout(90000),
+      signal: AbortSignal.timeout(100000),
     })
 
     const data = await res.json()
-    // Get last text block (after any web search tool use)
+
+    if (data.error) {
+      console.error('Anthropic API error:', data.error)
+      return NextResponse.json({ error: data.error.message || 'Anthropic API error' }, { status: 500, headers: { "Access-Control-Allow-Origin": "*" } })
+    }
+
     const textBlocks = (data.content || []).filter((b: any) => b.type === 'text')
     const script = (textBlocks[textBlocks.length - 1]?.text || '').trim()
+
+    if (!script) {
+      console.error('Empty script. Full response:', JSON.stringify(data).slice(0, 500))
+      return NextResponse.json({ error: 'Empty script returned — check API key and model' }, { status: 500, headers: { "Access-Control-Allow-Origin": "*" } })
+    }
+
     const wordCount = script.split(/\s+/).length
     const hostLines = (script.match(new RegExp('^' + HOST + ':', 'gm')) || []).length
     const guestLines = (script.match(new RegExp('^' + GUEST + ':', 'gm')) || []).length
 
     const { data: saved } = await supabase.from('podcast_scripts').insert({
       client_id: clientId || null,
-      title: `${SHOW_NAME} — Episode ${episode || 1}: ${topic || GUEST_TITLE + ' Interview'}`,
+      title: `${SHOW_NAME} — Episode ${epNum}: ${topic || GUEST_TITLE + ' Interview'}`,
       script,
       status: 'draft',
-      episode_number: episode || 1,
+      episode_number: epNum,
       duration_minutes: duration,
     }).select().single()
 
@@ -112,8 +130,10 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
       hostName: HOST,
       guestName: GUEST,
       stats: { wordCount, hostLines, guestLines, estimatedMinutes: Math.round(wordCount / 130) },
-    })
+    }, { headers: { "Access-Control-Allow-Origin": "*" } })
+
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
+    console.error('generate-script error:', e)
+    return NextResponse.json({ error: e.message }, { status: 500, headers: { "Access-Control-Allow-Origin": "*" } })
   }
 }
