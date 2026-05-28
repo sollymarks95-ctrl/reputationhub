@@ -96,7 +96,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   }, [])
 
   useEffect(() => {
-    try { const s = JSON.parse(localStorage.getItem('rephuby_session') || '{}'); if (s.role !== 'superadmin') router.push('/portal') } catch { router.push('/portal') }
+    try { const s = JSON.parse(localStorage.getItem('rephuby_session') || localStorage.getItem('rephub_session') || '{}'); if (s.role !== 'superadmin') router.push('/portal') } catch { router.push('/portal') }
   }, [])
 
   useEffect(() => {
