@@ -5,150 +5,165 @@ export const runtime = 'nodejs'
 export const maxDuration = 300
 
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
-const OPENAI_KEY = process.env.OPENAI_API_KEY!
 
-const STYLE = "Professional editorial news photograph, photorealistic, high quality, dramatic lighting, no text, no watermarks, cinematic"
-const IMG_PROMPTS: Record<string, string> = {
-  'Trade': 'global shipping port cargo containers cranes maritime',
-  'Markets': 'financial trading floor screens charts Wall Street',
-  'Finance': 'modern bank glass skyscraper financial district dusk',
-  'Gold': 'gold bullion bars coins polished surface luxury',
-  'Silver': 'silver precious metals bars studio photography metallic',
-  'Commodities': 'oil barrels wheat fields copper industrial commodity',
-  'Forex': 'currency exchange notes coins forex trading screens',
-  'Strategy': 'executive boardroom meeting glass walls city skyline',
-  'Leadership': 'business leader walking modern corporate office',
-  'ESG': 'wind turbines solar panels green sustainable energy',
-  'Research': 'data analysis charts multiple monitors tech office',
-  'Analysis': 'financial analyst charts trading screens close-up',
-  'Signals': 'candlestick charts technical indicators trading screens',
-  'Default': 'global business finance city skyline financial district',
+const SITES = [
+  { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nexwire',   slug:'global-trade-wire',  route:'news',         category:'Trade',      topics:['global trade','forex markets','geopolitical risk','USD outlook'] },
+  { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'Finvex',    slug:'finance-terminal',   route:'finance',      category:'Finance',    topics:['stock markets','S&P 500','interest rates','Federal Reserve','earnings'] },
+  { id:'3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1', name:'AurexHQ',   slug:'gold-markets-today', route:'commodities',  category:'Gold',       topics:['gold price','oil price','commodities','silver','natural gas'] },
+  { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'Bizplex',   slug:'business-pulse',     route:'magazine',     category:'Strategy',   topics:['M&A','fintech','startup funding','CEO strategy','business growth'] },
+  { id:'6ae7e692-bce9-489d-b835-87dcba9ffc47', name:'Verivex',   slug:'trust-score',        route:'reviews-hub',  category:'Analysis',   topics:['broker regulation','CySEC update','FCA news','trading platform review'] },
+  { id:'aa04790b-9aed-4fa9-867d-3481adc828c5', name:'Bizpedia',  slug:'company-pedia',      route:'wiki',         category:'Research',   topics:['company profile','broker history','executive bio','market maker'] },
+  { id:'104ceccb-e3d0-4979-85be-b7297abb7f90', name:'PresxWire', slug:'press-central',      route:'pressroom',   category:'Markets',    topics:['press release','regulatory announcement','IPO','broker news'] },
+  { id:'1cd6688f-bec9-4d1b-a024-80952bf31a21', name:'InvexHub',  slug:'invest-data',        route:'investdb',     category:'Finance',    topics:['investment data','ETF flows','fund performance','portfolio strategy'] },
+  { id:'d020965e-d84d-4c9e-a068-d3b90f6902d0', name:'Tradvex',   slug:'trade-board',        route:'forum',        category:'Signals',    topics:['EUR/USD','GBP/USD','BTC/USD','trading signals','technical analysis'] },
+  { id:'1972c09e-a68e-4997-b2a8-00756ead609c', name:'Certivade', slug:'global-trade-assoc', route:'association',  category:'Trade',      topics:['trade certification','regulatory compliance','MiFID II','ESMA'] },
+  { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'Execvex',   slug:'executive-network',  route:'executive',    category:'Leadership', topics:['executive interview','C-suite','hedge fund manager','broker leadership'] },
+  { id:'27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22', name:'Signalix',  slug:'market-radar',       route:'market-radar', category:'Signals',    topics:['market radar','volatility index','VIX','crypto signals','forex signals'] },
+]
+
+const COVER_IMAGES: Record<string, string> = {
+  Trade: 'https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=1200&q=80',
+  Finance: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80',
+  Gold: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=1200&q=80',
+  Strategy: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
+  Analysis: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
+  Research: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
+  Markets: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80',
+  Signals: 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80',
+  Leadership: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=1200&q=80',
 }
 
-async function generateAIImage(title: string, category: string): Promise<string | null> {
-  if (!OPENAI_KEY) return null
-  const prompt = `${STYLE}: ${IMG_PROMPTS[category] || IMG_PROMPTS['Default']}. Scene: ${title.substring(0, 80)}`
-  for (const model of ['gpt-image-1', 'dall-e-3']) {
-    try {
-      const body: any = { model, prompt, n: 1, size: '1024x1024' }
-      if (model === 'dall-e-3') { body.quality = 'hd'; body.response_format = 'url' }
-      else { body.quality = 'high'; body.output_format = 'url' }
-      const res = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(40000),
-      })
-      if (!res.ok) continue
-      const data = await res.json()
-      const url = data?.data?.[0]?.url
-      if (url) return url
-    } catch { continue }
-  }
-  return null
-}
-
-async function generateArticles(site: any) {
-  const topics: Record<string, string> = {
-    news: 'global trade, exports, shipping, supply chains, international business news',
-    finance: 'financial markets, forex, stocks, bonds, central banks, interest rates, crypto',
-    commodities: 'gold prices, silver, oil, copper, precious metals, mining, commodities trading',
-    magazine: 'business strategy, corporate leadership, innovation, entrepreneurship, growth',
-    reviews: 'business trust, company reviews, B2B reputation, verified businesses, ratings',
-    wiki: 'company profiles, industry knowledge, trade regulations, market reference data',
-    pressroom: 'corporate press releases, company announcements, M&A, IPOs, funding rounds',
-    investdb: 'startup funding, private equity, venture capital, investment deals, valuations',
-    forum: 'trade community, market debates, import export discussions, business Q&A',
-    association: 'trade certification, compliance, industry association, standards news',
-    executive: 'executive careers, CEO profiles, leadership moves, C-suite news, boards',
-    markets: 'market signals, trading intelligence, technical analysis, price movements',
-  }
-  const topic = topics[site.site_type || 'news'] || topics.news
-
-  const authorNames = ['Sarah Mitchell', 'James Thornton', 'Emma Hartley', 'Dr. Michael Wong', 'Marcus Chen', 'Priya Sharma', 'David Nakamura', 'Elena Vasquez']
-  const author = authorNames[Math.floor(Math.random() * authorNames.length)]
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 6000,
-      system: `You write professional long-form journalism for ${site.name}. Generate 3 unique, SEO-optimised articles (600-900 words each). Each must cover a completely DIFFERENT specific story. Return ONLY a JSON array.`,
-      messages: [{ role: 'user', content: `Write 3 professional news articles about: ${topic}. Each must be 600+ words with multiple paragraphs. Include specific data, quotes, company names, statistics. SEO headlines. JSON: [{"title":"Compelling headline with keywords","slug":"seo-url-slug","excerpt":"2-sentence summary with keywords","body":"Full article 600-900 words with paragraphs separated by \\n\\n. Professional journalism. Include subheadings formatted as ## HEADING.","category":"Category","tags":["tag1","tag2","tag3"],"read_time_minutes":6}]` }]
-    })
-  })
-  const data = await res.json()
-  const text = data.content?.[0]?.text || '[]'
+async function generateArticleWithWebSearch(site: typeof SITES[0], topic: string): Promise<{ title: string; body: string } | null> {
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  
   try {
-    const clean = text.replace(/```json|```/g, '').trim()
-    return JSON.parse(clean)
-  } catch { return [] }
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a senior financial journalist writing for ${site.name}, an elite financial portal. Today is ${today}.
+
+Write a 600-750 word professional article that:
+- Leads with TODAY's actual market data (search for it)
+- Uses specific real numbers, price levels, and events from the last 24-48 hours
+- Is written in a professional financial journalism style (like Reuters/Bloomberg)
+- Has a compelling headline
+- Includes 4-5 paragraphs with real market context
+
+Format response as:
+HEADLINE: [compelling article title]
+BODY:
+[full article body]`,
+        messages: [{
+          role: 'user',
+          content: `Search for the latest news and write a ${site.category} article about: ${topic}. Use real, current market data from today or yesterday. Include specific price levels, percentage moves, and real market events.`
+        }]
+      }),
+      signal: AbortSignal.timeout(60000),
+    })
+
+    const data = await response.json()
+    const textBlock = data.content?.find((b: any) => b.type === 'text')
+    const text = textBlock?.text || ''
+    
+    const headlineMatch = text.match(/HEADLINE:\s*(.+)/i)
+    const bodyMatch = text.match(/BODY:\s*([\s\S]+)/i)
+    
+    if (headlineMatch && bodyMatch) {
+      return {
+        title: headlineMatch[1].trim().replace(/^["']|["']$/g, ''),
+        body: bodyMatch[1].trim()
+      }
+    }
+
+    // Fallback: split on first newline
+    const lines = text.split('\n').filter(Boolean)
+    return {
+      title: lines[0].replace(/^#+\s*/, '').replace(/\*+/g, '').trim(),
+      body: lines.slice(1).join('\n\n').trim()
+    }
+  } catch (e) {
+    console.error(`Error generating article for ${site.name}:`, e)
+    return null
+  }
+}
+
+function makeSlug(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80) + '-' + Date.now().toString(36)
 }
 
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET || 'rephuby-cron-2025-secure'}`) {
+  const authHeader = req.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET || 'rephuby-cron-2025-secure'
+  
+  // Allow Vercel cron (no auth header) or manual trigger with secret
+  if (authHeader && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { data: sites } = await supabase.from('news_sites').select('*').eq('is_live', true)
-  if (!sites?.length) return NextResponse.json({ message: 'No sites' })
+  const results: any[] = []
+  const errors: any[] = []
+  let published = 0
 
-  const FALLBACK_IMAGES = [
-    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1024',
-    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1024',
-    'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1024',
-    'https://images.unsplash.com/photo-1610375461369-d613b564f4c4?w=1024',
-    'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1024',
-  ]
-
-  const results = []
-  for (const site of sites) {
+  for (const site of SITES) {
+    // Pick random topic for this run
+    const topic = site.topics[Math.floor(Math.random() * site.topics.length)]
+    
     try {
-      const articles = await generateArticles(site)
-      let inserted = 0
-      const authorNames = ['Sarah Mitchell', 'James Thornton', 'Emma Hartley', 'Dr. Michael Wong', 'Marcus Chen', 'Priya Sharma']
-
-      for (const a of articles) {
-        const slug = (a.slug || a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 80)) + '-' + Date.now()
-
-        // Generate AI image for this article
-        let imageUrl = FALLBACK_IMAGES[Math.floor(Math.random() * FALLBACK_IMAGES.length)]
-        try {
-          const aiImage = await generateAIImage(a.title, a.category || 'Default')
-          if (aiImage) imageUrl = aiImage
-        } catch { /* use fallback */ }
-
-        const { error } = await supabase.from('news_articles').upsert({
-          news_site_id: site.id,
-          title: a.title,
-          slug,
-          excerpt: a.excerpt,
-          body: a.body,
-          category: a.category || 'News',
-          tags: a.tags || [],
-          cover_image_url: imageUrl,
-          is_featured: false,
-          is_breaking: Math.random() > 0.9,
-          status: 'published',
-          published_at: new Date().toISOString(),
-          ai_generated: true,
-          read_time_minutes: a.read_time_minutes || 6,
-          author_name: authorNames[Math.floor(Math.random() * authorNames.length)],
-        }, { onConflict: 'news_site_id,slug' })
-        if (!error) inserted++
+      const article = await generateArticleWithWebSearch(site, topic)
+      if (!article || !article.title || !article.body) {
+        errors.push({ site: site.name, error: 'No content generated' })
+        continue
       }
-      results.push({ site: site.name, inserted })
+
+      const slug = makeSlug(article.title)
+      const excerpt = article.body.split('\n').filter(Boolean)[0]?.slice(0, 280) + '...'
+      const readTime = Math.ceil(article.body.split(' ').length / 200)
+      const cover = COVER_IMAGES[site.category] || COVER_IMAGES.Finance
+
+      const { error } = await supabase.from('news_articles').insert({
+        news_site_id: site.id,
+        title: article.title,
+        slug,
+        excerpt,
+        body: article.body,
+        category: site.category,
+        tags: [topic, site.category, 'Market Analysis'],
+        cover_image_url: cover,
+        is_featured: false,
+        is_breaking: false,
+        status: 'published',
+        published_at: new Date().toISOString(),
+        ai_generated: true,
+        read_time_minutes: readTime,
+        author_name: 'Editorial Team',
+      })
+
+      if (error) {
+        errors.push({ site: site.name, error: error.message })
+      } else {
+        published++
+        results.push({ site: site.name, title: article.title, topic })
+      }
     } catch (e: any) {
-      results.push({ site: site.name, error: e.message?.substring(0, 50) })
+      errors.push({ site: site.name, error: e.message })
     }
   }
 
   return NextResponse.json({
     success: true,
+    published,
+    total_sites: SITES.length,
     timestamp: new Date().toISOString(),
-    total: results.reduce((a, r) => a + ((r as any).inserted || 0), 0),
-    results
+    articles: results,
+    errors: errors.length ? errors : undefined,
   })
 }
