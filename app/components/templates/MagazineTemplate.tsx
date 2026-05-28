@@ -122,7 +122,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
               <div className="mmeta">By {hero.author_name||'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes||5} min read</div>
               <a href={`/article/${siteSlug}/${hero.slug}`} style={{display:'inline-block',marginTop:14,fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:700,color:p,borderBottom:`2px solid ${p}`,paddingBottom:2}}>Read Full Article →</a>
             </div>
-            <a href={`/article/${siteSlug}/${hero.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/></a>
+            <a href={`/article/${siteSlug}/${hero.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/></a>
           </div>
         )}
 
@@ -130,7 +130,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         <div className="m3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:28,marginBottom:44,paddingBottom:36,borderBottom:'1px solid #ddd'}}>
           {(feat.length ? feat : articles.slice(1,4)).map((a:any,i:number)=>(
             <div key={a.id} className="mcard">
-              <a href={`/article/${siteSlug}/${a.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:'100%',height:190,objectFit:'cover',marginBottom:12}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/></a>
+              <a href={`/article/${siteSlug}/${a.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:'100%',height:190,objectFit:'cover',marginBottom:12}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/></a>
               <span className="mcat">{a.category}</span>
               <a href={`/article/${siteSlug}/${a.slug}`}><div className="mhl" style={{fontSize:20,marginBottom:8}}>{a.title}</div></a>
               <div style={{fontFamily:'Georgia,serif',fontSize:13,color:'#555',lineHeight:1.6}}>{a.excerpt?.slice(0,110)}</div>
@@ -144,7 +144,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         <div className="m2" style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:18,marginBottom:44}}>
           {(list.length ? list : articles.slice(4,14)).map((a:any,i:number)=>(
             <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="mcard" style={{display:'flex',gap:14,paddingBottom:16,borderBottom:'1px solid #ddd'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+4)} alt={a.title} style={{width:96,height:68,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+4)} alt={a.title} style={{width:96,height:68,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
               <div>
                 <span className="mcat" style={{fontSize:9,marginBottom:4}}>{a.category}</span>
                 <div className="mhl" style={{fontSize:16,marginBottom:4}}>{a.title}</div>

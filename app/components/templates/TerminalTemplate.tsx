@@ -207,7 +207,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             <div style={{background:'#0D1117',padding:22}}>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:accent,letterSpacing:'.1em',marginBottom:10,textTransform:'uppercase'}}>{hero.category} · FEATURED</div>
               <a href={`/article/${siteSlug}/${hero.slug}`} className="term-link">
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
                 <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:20,fontWeight:700,color:'#F0F6FC',lineHeight:1.3,marginBottom:10}}>{hero.title}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:'#8B949E',lineHeight:1.6}}>{hero.excerpt?.slice(0,180)}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:10}}>{hero.author_name} · {timeAgo(hero.published_at)}</div>
@@ -225,7 +225,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:'#444D56',letterSpacing:'.1em',padding:'10px 16px',borderBottom:'1px solid #1C2333',textTransform:'uppercase'}}>{col.label}</div>
               {col.items.map((a: any, idx: number) => (
                 <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'12px 16px',borderBottom:'1px solid #0D1117'}}>
-                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
+                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
                   <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
                   <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4,marginBottom:4}}>{a.title}</div>
                   <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56'}}>{timeAgo(a.published_at)}</div>
@@ -240,7 +240,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'#1C2333',marginBottom:20}}>
             {articles.slice(19,27).map((a: any, i: number) => (
               <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'14px 16px',background:'#0D1117'}}>
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
                 <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4}}>{a.title}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:4}}>{timeAgo(a.published_at)}</div>
