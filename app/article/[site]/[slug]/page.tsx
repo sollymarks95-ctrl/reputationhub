@@ -218,7 +218,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* COVER IMAGE */}
             {article.cover_image_url && (
               <figure style={{ marginBottom:26 }}>
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={article.cover_image_url} alt={article.title} style={{ width:'100%', maxHeight:480, objectFit:'cover', display:'block', borderRadius:4 }} loading="eager" />
+                <img referrerPolicy="no-referrer" src={article.cover_image_url} alt={article.title} style={{ width:'100%', maxHeight:480, objectFit:'cover', display:'block', borderRadius:4 }} loading="eager" onError={(e:any)=>{e.currentTarget.style.display='none'}} />
                 <figcaption style={{ fontSize:11, color:'#9ca3af', marginTop:6, fontFamily:'sans-serif', fontStyle:'italic', textAlign:'center' }}>
                   {site.name} Editorial · {article.category || 'News'}
                 </figcaption>
