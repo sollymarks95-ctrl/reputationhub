@@ -48,12 +48,10 @@ FORMAT RULES — CRITICAL:
 7. ${GUEST} thanks ${HOST} by name in their first reply
 8. Word count: ${targetWords} words — this is CRITICAL for timing
 
-MARKET CONTEXT (weave in naturally, use exact numbers):
-- Bitcoin at $76,210 (down from $126k ATH in Oct 2025)
-- Gold at $4,404/oz (all-time high territory)
-- EUR/USD 1.1124 — ECB hawkish, Fed holding at 3.5%
-- Oil at $63 despite Hormuz tensions
-- S&P 500 at 5,842, NASDAQ 19,486
+MARKET DATA: Search the web for TODAY'S real prices before writing:
+- Search "gold price today", "bitcoin price today", "EUR/USD today", "S&P 500 today", "oil price today"
+- Use ONLY real prices you find — never use outdated or estimated numbers
+- If you can't find a current price, say "gold is trading near recent highs" not a specific number
 
 STRUCTURE:
 - 0-2 min: Strong hook, intro ${GUEST} naturally, tease episode
@@ -65,17 +63,26 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05',
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 8000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: 'You are writing a financial podcast script. Always search for real current market prices and news before writing. Only use verified, accurate data.',
         messages: [{ role: 'user', content: prompt }]
       }),
       signal: AbortSignal.timeout(90000),
     })
 
     const data = await res.json()
-    const script = data.content?.[0]?.text?.trim() || ''
+    // Get last text block (after any web search tool use)
+    const textBlocks = (data.content || []).filter((b: any) => b.type === 'text')
+    const script = (textBlocks[textBlocks.length - 1]?.text || '').trim()
     const wordCount = script.split(/\s+/).length
     const hostLines = (script.match(new RegExp('^' + HOST + ':', 'gm')) || []).length
     const guestLines = (script.match(new RegExp('^' + GUEST + ':', 'gm')) || []).length
