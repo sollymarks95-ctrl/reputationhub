@@ -203,6 +203,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const sd = await sr.json()
       if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
+      setPodSubTab('episodes')
       setPodMsg('🎙 Script ready. Generating audio...')
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { getSiteConfig } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
-export const maxDuration = 120
+export const maxDuration = 300
 
 export async function OPTIONS() {
   return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
@@ -89,7 +89,7 @@ START immediately with "${HOST}:" — no title, no preamble, no explanation:`
         system: 'You are writing a financial podcast script. Write detailed, professional scripts using realistic but general market context. Always produce the full script immediately.',
         messages: [{ role: 'user', content: prompt }]
       }),
-      signal: AbortSignal.timeout(100000),
+      signal: AbortSignal.timeout(270000),
     })
 
     const data = await res.json()

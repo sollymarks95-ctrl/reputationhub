@@ -73,7 +73,7 @@ async function speak(text: string, voiceId: string, settings: object, apiKey: st
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'xi-api-key': apiKey },
       body: JSON.stringify({ text, model_id:'eleven_turbo_v2_5', voice_settings: settings }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
     })
     if (!r.ok) { console.error('EL', r.status, voiceId); return null }
     return Buffer.from(await r.arrayBuffer())
