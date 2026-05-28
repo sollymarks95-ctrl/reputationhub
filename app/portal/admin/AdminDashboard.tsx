@@ -142,7 +142,58 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   }
 
 
-  // ONE-CLICK: script + audio in sequence
+  // OPTION 1: Audio only
+  async function generateAudioPodcast() {
+    if (!podClient) { alert('Select a client first'); return }
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Writing script...')
+    try {
+      const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 }) })
+      const sd = await sr.json()
+      if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
+      setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
+      setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
+      const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest }) })
+      const ad = await ar.json()
+      if (ad.audioUrl) {
+        setPodAudio(ad.audioUrl)
+        setPodMsg(`✅ Audio podcast ready! Host: ${ad.voices?.host} · Guest: ${ad.voices?.guest}`)
+      } else { setPodMsg('Audio error: '+(ad.error||'unknown')) }
+    } catch(e:any) { setPodMsg('Error: '+e.message) }
+    setPodLoading(false)
+  }
+
+  // OPTION 2: Full video podcast
+  async function generateVideoPodcast() {
+    if (!podClient) { alert('Select a client first'); return }
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Writing script...')
+    try {
+      const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 }) })
+      const sd = await sr.json()
+      if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
+      setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
+      setPodMsg('🎙 Script ready. Generating audio...')
+      const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest }) })
+      const ad = await ar.json()
+      if (!ad.audioUrl) { setPodMsg('Audio error: '+(ad.error||'unknown')); setPodLoading(false); return }
+      setPodAudio(ad.audioUrl)
+      setPodMsg('🎬 Audio done. Sending to Descript for video production...')
+      setPodVideoLoading(true)
+      const vr = await fetch('/api/admin/generate-video', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ audioUrl:ad.audioUrl, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, episodeTitle:podTitle, episodeNum:parseInt(podEpNum)||1, clientId:podClient, podcastId:sd.podcastId, duration:parseInt(podDuration)*60 }) })
+      const vd = await vr.json()
+      if (vd.videoUrl) setPodVideo(vd.videoUrl)
+      if (vd.projectUrl||vd.descriptLink) setPodDescriptUrl(vd.projectUrl||vd.descriptLink)
+      setPodMsg(vd.success ? `✅ Video podcast ready! Host: ${ad.voices?.host} · Guest: ${ad.voices?.guest}` : '✓ Audio ready — Descript project created, open to export video')
+      setPodVideoLoading(false)
+    } catch(e:any) { setPodMsg('Error: '+e.message); setPodVideoLoading(false) }
+    setPodLoading(false)
+  }
+
+  // LEGACY: 1-click (keep for generateFullPodcast reference)
   async function generateFullPodcast(e: React.FormEvent) {
     e.preventDefault()
     if (!podClient) { alert('Select a client first'); return }
@@ -160,7 +211,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       // Now generate audio
       const audioRes = await fetch('/api/admin/generate-audio', {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ script: scriptData.script, podcastId: scriptData.podcastId, title: podTitle, clientId: podClient })
+        body: JSON.stringify({ script: scriptData.script, podcastId: scriptData.podcastId, title: podTitle, clientId: podClient, guestName: podGuest })
       })
       const audioData = await audioRes.json()
       if (audioData.audioUrl) {
@@ -659,18 +710,31 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <label>Topic / Key Points</label>
                       <textarea className="inp" value={podTopic} onChange={e => setPodTopic(e.target.value)} rows={4} placeholder="Click a template above — it auto-fills with trending topics, market data, and talking points" required />
                     </div>
-                    <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                      {/* 1-CLICK PRIMARY BUTTON */}
-                      <button type="button" onClick={generateFullPodcast} 
-                        className="btn" disabled={podLoading}
-                        style={{ width:'100%', justifyContent:'center', background:'linear-gradient(135deg,#0EA5E9,#10B981)', border:'none', color:'#fff', fontWeight:800, fontSize:14, padding:'14px', borderRadius:8, cursor: podLoading ? 'not-allowed' : 'pointer' }}>
-                        {podLoading ? <><Spinner/> {podMsg || 'Generating...'}</> : '⚡ 1-CLICK: Full Podcast (Script + Audio)'}
+                    {/* TWO OUTPUT OPTIONS */}
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:8 }}>
+                      {/* OPTION 1: AUDIO PODCAST */}
+                      <button type="button" onClick={generateAudioPodcast} disabled={podLoading}
+                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:10, color:'#fff', cursor: podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+                        <span style={{ fontSize:24 }}>🎙</span>
+                        <span style={{ fontWeight:800, fontSize:13 }}>Audio Podcast</span>
+                        <span style={{ fontSize:10, opacity:0.85 }}>Script → ElevenLabs → MP3</span>
                       </button>
-                      <div style={{ textAlign:'center', fontSize:10, color:'#475569' }}>— or step by step —</div>
-                      <button type="submit" className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }} disabled={podLoading}>
-                        📝 Script Only
+                      {/* OPTION 2: VIDEO PODCAST */}
+                      <button type="button" onClick={generateVideoPodcast} disabled={podLoading}
+                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:10, color:'#fff', cursor: podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+                        <span style={{ fontSize:24 }}>🎬</span>
+                        <span style={{ fontWeight:800, fontSize:13 }}>Video Podcast</span>
+                        <span style={{ fontSize:10, opacity:0.85 }}>Script → Audio → Descript</span>
                       </button>
                     </div>
+                    {podLoading && (
+                      <div style={{ padding:'10px 14px', background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.2)', borderRadius:8, fontSize:12, color:'#0EA5E9', display:'flex', alignItems:'center', gap:8 }}>
+                        <Spinner/> {podMsg || 'Generating...'}
+                      </div>
+                    )}
+                    <button type="submit" className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11, marginTop:4 }} disabled={podLoading}>
+                      📝 Script Only (review before generating)
+                    </button>
                   </form>
 
                   {/* Audio generation */}
@@ -689,8 +753,11 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       {podAudio && (
                         <div style={{ marginTop:10 }}>
                           <div style={{ padding:'8px 12px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:6, marginBottom:10 }}>
-                            <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:3 }}>✓ PRODUCTION COMPLETE</div>
-                            <div style={{ fontSize:10, color:'#64748b' }}>ElevenLabs 2-voice audio · Descript Studio Sound · Professional captions</div>
+                            <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:4 }}>✓ AUDIO READY — ELEVENLABS</div>
+                            <div style={{ display:'flex', gap:16 }}>
+                              <div style={{ fontSize:10, color:'#64748b' }}>🎤 Host: <span style={{color:'#0EA5E9',fontWeight:700}}>Adam</span> (always consistent)</div>
+                              <div style={{ fontSize:10, color:'#64748b' }}>🎤 Guest: <span style={{color:'#10B981',fontWeight:700}}>Auto-matched to name</span></div>
+                            </div>
                           </div>
                           <audio controls style={{ width:'100%', borderRadius:6, background:'#0B0F19', marginBottom:8 }} src={podAudio}/>
                           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
