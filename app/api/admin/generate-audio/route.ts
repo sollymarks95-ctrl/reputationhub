@@ -20,11 +20,11 @@ async function getKey(name: string) {
   return data?.key_value || ''
 }
 
-// Lower stability = more expressive/natural, less robotic monotone
-// Lower similarity = more variation in tone and pace
-// Higher style = more personality and emphasis
-const HOST_SETTINGS  = { stability:0.30, similarity_boost:0.70, style:0.55, use_speaker_boost:true }
-const GUEST_SETTINGS = { stability:0.25, similarity_boost:0.65, style:0.65, use_speaker_boost:true }
+// Balanced settings: stability ~0.45 = natural without being flat or wobbly
+// similarity_boost 0.72 = consistent voice identity with natural variation
+// style 0.40 = expressive enough to sound human, not overdone
+const HOST_SETTINGS  = { stability:0.45, similarity_boost:0.72, style:0.38, use_speaker_boost:true }
+const GUEST_SETTINGS = { stability:0.42, similarity_boost:0.70, style:0.45, use_speaker_boost:true }
 
 function cleanText(text: string) {
   return text
@@ -72,7 +72,7 @@ async function speak(text: string, voiceId: string, settings: object, apiKey: st
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'xi-api-key': apiKey },
-      body: JSON.stringify({ text, model_id:'eleven_multilingual_v2', voice_settings: settings }),
+      body: JSON.stringify({ text, model_id:'eleven_turbo_v2_5', voice_settings: settings }),
       signal: AbortSignal.timeout(30000),
     })
     if (!r.ok) { console.error('EL', r.status, voiceId); return null }

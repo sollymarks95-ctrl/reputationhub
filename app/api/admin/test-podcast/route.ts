@@ -63,7 +63,7 @@ export async function GET() {
       const vId=seg.s==='host'?siteConfig.hostVoiceId:guestVoice.id
       const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`,{
         method:'POST',headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
-        body:JSON.stringify({text:seg.t,model_id:'eleven_multilingual_v2',voice_settings:seg.s==='host'?HS:GS})
+        body:JSON.stringify({text:seg.t,model_id:'eleven_turbo_v2_5',voice_settings:seg.s==='host'?HS:GS})
       })
       if(!r.ok) throw new Error(`EL seg${i}: `+(await r.text()).slice(0,100))
       bufs[i]=Buffer.from(await r.arrayBuffer())
