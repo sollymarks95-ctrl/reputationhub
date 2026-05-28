@@ -1,6 +1,6 @@
 import { getNewsSite, getLatestArticles } from '@/lib/news'
 import { notFound } from 'next/navigation'
-import LiveMarketDashboard from '@/app/components/LiveMarketDashboard'
+import SiteRenderer from '@/app/components/SiteRenderer'
 import type { Metadata } from 'next'
 
 const BASE = 'https://rephuby.com'
@@ -84,7 +84,7 @@ export default async function SitePage({
       {schemas.map((s, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
       ))}
-      <LiveMarketDashboard
+      <SiteRenderer
         articles={articles}
         site={site}
         routePrefix="forum"
