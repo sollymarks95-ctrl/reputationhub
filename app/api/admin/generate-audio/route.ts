@@ -5,6 +5,10 @@ import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
+export async function OPTIONS() {
+  return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
+}
+
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -109,8 +113,8 @@ export async function POST(req: NextRequest) {
     const hName: string = body.hostName || 'HOST'
 
     const elKey = await getKey('ELEVENLABS_KEY')
-    if (!elKey) return NextResponse.json({ error:'ElevenLabs key not configured' }, { status:400 })
-    if (!script) return NextResponse.json({ error:'Script required' }, { status:400 })
+    if (!elKey) return NextResponse.json({ error:'ElevenLabs key not configured' }, { status:400, headers:{"Access-Control-Allow-Origin":"*"} })
+    if (!script) return NextResponse.json({ error:'Script required' }, { status:400, headers:{"Access-Control-Allow-Origin":"*"} })
 
     const siteConfig = getSiteConfig(siteSlug)
     const hostVoiceId = siteConfig.hostVoiceId
@@ -123,14 +127,14 @@ export async function POST(req: NextRequest) {
 
     const buffers = await processBatch(segments, hostVoiceId, guestVoice.id, elKey, 5)
 
-    if (buffers.length === 0) return NextResponse.json({ error:'No audio generated — check ElevenLabs key' }, { status:500 })
+    if (buffers.length === 0) return NextResponse.json({ error:'No audio generated — check ElevenLabs key' }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
 
     const combined = Buffer.concat(buffers)
     const fileName = `podcast-${podcastId || Date.now()}-${Date.now().toString(36)}.mp3`
 
     const { error: upErr } = await sb.storage.from('podcasts')
       .upload(fileName, combined, { contentType:'audio/mpeg', cacheControl:'31536000', upsert:true })
-    if (upErr) return NextResponse.json({ error: upErr.message }, { status:500 })
+    if (upErr) return NextResponse.json({ error: upErr.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
 
     const { data: urlData } = sb.storage.from('podcasts').getPublicUrl(fileName)
     const audioUrl = urlData.publicUrl
@@ -171,6 +175,6 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch(e: any) {
-    return NextResponse.json({ error: e.message }, { status:500 })
+    return NextResponse.json({ error: e.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
   }
 }

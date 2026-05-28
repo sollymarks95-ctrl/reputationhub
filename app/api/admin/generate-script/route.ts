@@ -5,6 +5,10 @@ import { getSiteConfig } from '@/app/lib/podcast-config'
 export const runtime = 'nodejs'
 export const maxDuration = 120
 
+export async function OPTIONS() {
+  return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
+}
+
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 export async function POST(req: NextRequest) {
@@ -110,6 +114,6 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
       stats: { wordCount, hostLines, guestLines, estimatedMinutes: Math.round(wordCount / 130) },
     })
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    return NextResponse.json({ error: e.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
   }
 }
