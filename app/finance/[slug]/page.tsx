@@ -15,6 +15,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: site.tagline || `${site.name} provides professional intelligence on financial markets forex investment analysis.`,
     keywords: `${site.name}, financial, markets, forex, investment, analysis, market analysis, intelligence`,
     robots: 'index, follow',
+    icons: {
+      icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='#1971C2'/><text y='.9em' font-size='60' font-family='Arial' font-weight='bold' fill='white' x='50%' text-anchor='middle' dominant-baseline='middle' dy='.1em'>F</text></svg>`,
+    },
     alternates: { canonical: url },
     openGraph: {
       title: site.seo_title || site.name,

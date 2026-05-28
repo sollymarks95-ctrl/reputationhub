@@ -11,10 +11,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!site) return {}
   const url = `${BASE}/news/${slug}`
   return {
-    title: site.seo_title || `${site.name} — Global Trade Markets News Intelligence`,
+    title: site.seo_title || `Nex-Wire — Global Trade & Market Intelligence`,
     description: site.tagline || `${site.name} provides professional intelligence on global trade markets news intelligence.`,
     keywords: `${site.name}, global, trade, markets, news, intelligence, market analysis, intelligence`,
     robots: 'index, follow',
+    icons: {
+      icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='#E03131'/><text y='.9em' font-size='60' font-family='Arial' font-weight='bold' fill='white' x='50%' text-anchor='middle' dominant-baseline='middle' dy='.1em'>N</text></svg>`,
+    },
     alternates: { canonical: url },
     openGraph: {
       title: site.seo_title || site.name,
