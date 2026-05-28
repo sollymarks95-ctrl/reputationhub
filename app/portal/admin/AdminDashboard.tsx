@@ -147,7 +147,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     e.preventDefault()
     setPodLoading(true); setPodScript(''); setPodMsg(''); setPodAudio('')
     const r = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, brokerName: getClientBrokerName(podClient), regulation: getClientRegulation(podClient), durationMinutes: parseInt(podDuration)||20 }) })
+      body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, brokerName: getClientBrokerName(podClient), regulation: getClientRegulation(podClient), durationMinutes: parseInt(podDuration)||20 , siteSlug:podSite }) })
     const d = await r.json()
     if (d.script) { setPodScript(d.script); setPodEpisodeId(d.episodeId || '') }
     else setPodMsg(d.error || 'Failed to generate script')
@@ -161,7 +161,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Writing script...')
     try {
       const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 }) })
+        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
       const sd = await sr.json()
       if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
@@ -183,7 +183,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Writing script...')
     try {
       const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 }) })
+        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
       const sd = await sr.json()
       if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
@@ -214,7 +214,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     try {
       const scriptRes = await fetch('/api/admin/generate-script', {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, durationMinutes: parseInt(podDuration)||20 })
+        body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, durationMinutes: parseInt(podDuration)||20 , siteSlug:podSite })
       })
       const scriptData = await scriptRes.json()
       if (!scriptData.success) { setPodMsg('Script failed: ' + scriptData.error); setPodLoading(false); return }
