@@ -2,18 +2,18 @@
 import Link from 'next/link'
 
 const PORTALS = [
-  { name:'Nexwire',  type:'Global Trade News',  color:'#c0392b', route:'news/global-trade-wire'          },
-  { name:'Finvex',   type:'Financial Markets',   color:'#1a73e8', route:'finance/finance-terminal'        },
-  { name:'AurexHQ',  type:'Gold & Commodities',  color:'#d4a017', route:'commodities/gold-markets-today'  },
-  { name:'Bizplex',  type:'Business Magazine',   color:'#7c3aed', route:'magazine/business-pulse'         },
-  { name:'Verivex',  type:'Verified Reviews',    color:'#059669', route:'reviews-hub/trust-score'         },
-  { name:'Bizpedia', type:'Company Profiles',    color:'#0369a1', route:'wiki/company-pedia'              },
-  { name:'PresxWire',type:'Press Releases',      color:'#dc2626', route:'pressroom/press-central'         },
-  { name:'InvexHub', type:'Investment Intel',    color:'#0f766e', route:'investdb/invest-data'            },
-  { name:'Tradvex',  type:'Trade Community',     color:'#ea580c', route:'forum/trade-board'               },
-  { name:'Certivade',type:'Trade Standards',     color:'#1d4ed8', route:'association/global-trade-assoc'  },
-  { name:'Execvex',  type:'Executive Network',   color:'#4f46e5', route:'executive/executive-network'     },
-  { name:'Signalix', type:'Market Signals',      color:'#b91c1c', route:'market-radar/market-radar'       },
+  { name:'NEX-WIRE',  domain:'nex-wire.com',    type:'Global Trade Intelligence', color:'#E03131', accent:'#FF6B6B', abbr:'NW', route:'news/global-trade-wire'          },
+  { name:'FINVEXX',   domain:'finvexx.com',      type:'Financial Markets & Data',  color:'#1971C2', accent:'#74C0FC', abbr:'FX', route:'finance/finance-terminal'        },
+  { name:'AUREXHQ',   domain:'aurexhq.com',      type:'Gold & Commodities',        color:'#B08700', accent:'#FFD43B', abbr:'AX', route:'commodities/gold-markets-today'  },
+  { name:'BIZPLEX',   domain:'bizplex.co',       type:'Business Strategy',         color:'#6741D9', accent:'#B197FC', abbr:'BP', route:'magazine/business-pulse'         },
+  { name:'VERIVEX',   domain:'verivex.co',       type:'Verified Reviews',          color:'#0CA678', accent:'#63E6BE', abbr:'VX', route:'reviews-hub/trust-score'         },
+  { name:'BIZPEDIA',  domain:'bizpedia.com',     type:'Company Intelligence',      color:'#1864AB', accent:'#74C0FC', abbr:'BZ', route:'wiki/company-pedia'              },
+  { name:'PRESXWIRE', domain:'presxwire.com',    type:'Press & Announcements',     color:'#C92A2A', accent:'#FF8787', abbr:'PW', route:'pressroom/press-central'         },
+  { name:'INVEXHUB',  domain:'invexhub.com',     type:'Investment Intelligence',   color:'#0B6E4F', accent:'#63E6BE', abbr:'IH', route:'investdb/invest-data'            },
+  { name:'TRADVEX',   domain:'tradvex.com',      type:'Trade Community',           color:'#D9480F', accent:'#FFA94D', abbr:'TV', route:'forum/trade-board'               },
+  { name:'CERTIVADE', domain:'certivade.com',    type:'Trade & Compliance',        color:'#1864AB', accent:'#A5D8FF', abbr:'CV', route:'association/global-trade-assoc'  },
+  { name:'EXECVEX',   domain:'execvex.com',      type:'Executive Network',         color:'#3B5BDB', accent:'#BAC8FF', abbr:'EV', route:'executive/executive-network'     },
+  { name:'SIGNALIX',  domain:'signalix.com',     type:'Market Signals & Radar',    color:'#A61E4D', accent:'#F783AC', abbr:'SX', route:'market-radar/market-radar'       },
 ]
 
 export default function HomePage() {

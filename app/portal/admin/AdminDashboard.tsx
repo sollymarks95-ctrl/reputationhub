@@ -4,18 +4,18 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const PORTALS = [
-  { name:'Nexwire', slug:'global-trade-wire', color:'#c0392b', route:'news' },
-  { name:'Finvex', slug:'finance-terminal', color:'#1a73e8', route:'finance' },
-  { name:'AurexHQ', slug:'gold-markets-today', color:'#d4a017', route:'commodities' },
-  { name:'Bizplex', slug:'business-pulse', color:'#7c3aed', route:'magazine' },
-  { name:'Verivex', slug:'trust-score', color:'#059669', route:'reviews-hub' },
-  { name:'Bizpedia', slug:'company-pedia', color:'#0369a1', route:'wiki' },
-  { name:'PresxWire', slug:'press-central', color:'#dc2626', route:'pressroom' },
-  { name:'InvexHub', slug:'invest-data', color:'#0f766e', route:'investdb' },
-  { name:'Tradvex', slug:'trade-board', color:'#ea580c', route:'forum' },
-  { name:'Certivade', slug:'global-trade-assoc', color:'#1d4ed8', route:'association' },
-  { name:'Execvex', slug:'executive-network', color:'#4f46e5', route:'executive' },
-  { name:'Signalix', slug:'market-radar', color:'#b91c1c', route:'market-radar' },
+  { name:'NEX-WIRE',  abbr:'NW', domain:'nex-wire.com',   slug:'global-trade-wire',  color:'#E03131', accent:'#FF6B6B', route:'news'        },
+  { name:'FINVEXX',   abbr:'FX', domain:'finvexx.com',    slug:'finance-terminal',   color:'#1971C2', accent:'#74C0FC', route:'finance'     },
+  { name:'AUREXHQ',   abbr:'AX', domain:'aurexhq.com',    slug:'gold-markets-today', color:'#B08700', accent:'#FFD43B', route:'commodities' },
+  { name:'BIZPLEX',   abbr:'BP', domain:'bizplex.co',     slug:'business-pulse',     color:'#6741D9', accent:'#B197FC', route:'magazine'    },
+  { name:'VERIVEX',   abbr:'VX', domain:'verivex.co',     slug:'trust-score',        color:'#0CA678', accent:'#63E6BE', route:'reviews-hub' },
+  { name:'BIZPEDIA',  abbr:'BZ', domain:'bizpedia.com',   slug:'company-pedia',      color:'#1864AB', accent:'#74C0FC', route:'wiki'        },
+  { name:'PRESXWIRE', abbr:'PW', domain:'presxwire.com',  slug:'press-central',      color:'#C92A2A', accent:'#FF8787', route:'pressroom'   },
+  { name:'INVEXHUB',  abbr:'IH', domain:'invexhub.com',   slug:'invest-data',        color:'#0B6E4F', accent:'#63E6BE', route:'investdb'    },
+  { name:'TRADVEX',   abbr:'TV', domain:'tradvex.com',    slug:'trade-board',        color:'#D9480F', accent:'#FFA94D', route:'forum'       },
+  { name:'CERTIVADE', abbr:'CV', domain:'certivade.com',  slug:'global-trade-assoc', color:'#1864AB', accent:'#A5D8FF', route:'association' },
+  { name:'EXECVEX',   abbr:'EV', domain:'execvex.com',    slug:'executive-network',  color:'#3B5BDB', accent:'#BAC8FF', route:'executive'   },
+  { name:'SIGNALIX',  abbr:'SX', domain:'signalix.com',   slug:'market-radar',       color:'#A61E4D', accent:'#F783AC', route:'market-radar'},
 ]
 
 const NAV = [
@@ -769,8 +769,17 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                           {site.name.charAt(0)}
                         </div>
                         <div>
-                          <div className="syne" style={{ fontWeight:800, fontSize:15 }}>{site.name}</div>
-                          <div style={{ fontSize:11, color:'#475569' }}>{site.site_type}</div>
+                          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:'-0.03em' }}>
+                            {(() => {
+                              const pp = PORTALS.find(p => p.slug === site.slug)
+                              if (!pp) return site.name
+                              if (pp.name.includes('-')) return <><span style={{color:'#F1F5F9'}}>{pp.name.split('-')[0]}</span><span style={{color:pp.color}}>-</span><span style={{color:pp.accent}}>{pp.name.split('-')[1]}</span></>
+                              if (pp.name.endsWith('XX')) return <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-2)}</span><span style={{color:pp.color}}>XX</span></>
+                              const mid = Math.ceil(pp.name.length/2)
+                              return <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,mid)}</span><span style={{color:pp.color}}>{pp.name.slice(mid)}</span></>
+                            })()}
+                          </div>
+                          <div style={{ fontSize:10, color:site.primary_color, marginTop:2 }}>{PORTALS.find(p=>p.slug===site.slug)?.domain || site.site_type}</div>
                         </div>
                         <span className="badge bg" style={{ marginLeft:'auto' }}>● Live</span>
                       </div>
