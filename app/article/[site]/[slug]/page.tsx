@@ -68,7 +68,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const route = ROUTE_MAP[siteSlug] || 'news'
   const related = allArticles.filter((a: any) => a.slug !== slug).slice(0, 8)
   const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
-  const paragraphs = (article.body || '').split('\n\n').filter(Boolean)
+  // Normalize body: handle both real newlines and literal \n from DB
+  const rawBody = (article.body || '')
+    .replace(/\\n/g, '\n')   // literal \n → real newline
+    .replace(/\\t/g, ' ')    // literal \t → space
+    .trim()
+  const paragraphs = rawBody.split(/\n\n+/).filter(b => b.trim().length > 0)
   const BASE = 'https://rephuby.com'
 
   // JSON-LD Structured Data for SEO & AI agents
@@ -88,7 +93,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE}/article/${siteSlug}/${slug}` },
     keywords: article.tags?.join(', '),
     articleSection: article.category,
-    wordCount: (article.body || '').split(' ').length,
+    wordCount: rawBody.split(' ').length,
     timeRequired: `PT${readTime(article.body)}M`,
   }
 
@@ -225,7 +230,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                   return <ul key={i}>{items.map((item, j) => <li key={j}>{item.replace(/^[-*]\s*/, '')}</li>)}</ul>
                 }
                 if (para.toUpperCase() === para && para.length < 80 && para.trim().length > 3) return <h3 key={i}>{para}</h3>
-                return <p key={i}>{para}</p>
+                return <p key={i}>{para.replace(/\n/g, ' ').trim()}</p>
               })}
             </div>
 
