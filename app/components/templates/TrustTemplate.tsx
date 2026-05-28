@@ -77,7 +77,7 @@ export default function TrustTemplate({ articles = [], site, routePrefix, siteSl
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'28px 24px' }}>
         {/* Hero */}
         {hero && (
-          <Link href={`/${routePrefix}/${siteSlug}/${hero.slug}`} style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:32, marginBottom:36, paddingBottom:36, borderBottom:'1px solid #E8E8E8' }} className="trust-hero">
+          <Link href={`/article/${siteSlug}/${hero.slug}`} style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:32, marginBottom:36, paddingBottom:36, borderBottom:'1px solid #E8E8E8' }} className="trust-hero">
             <div>
               <div className="trust-tag" style={{ marginBottom:12 }}>{hero.category}</div>
               <div style={{ fontSize:34, fontWeight:800, lineHeight:1.2, color:DARK, marginBottom:14, letterSpacing:'-0.02em' }}>{hero.title}</div>
@@ -96,7 +96,7 @@ export default function TrustTemplate({ articles = [], site, routePrefix, siteSl
         <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.12em', textTransform:'uppercase', color:'#888', marginBottom:16 }}>Latest Reviews & Analysis</div>
         <div className="trust-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
           {cards.map((a: any) => (
-            <Link key={a.id} href={`/${routePrefix}/${siteSlug}/${a.slug}`} className="trust-card" style={{ display:'block' }}>
+            <Link key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trust-card" style={{ display:'block' }}>
               <div className="trust-tag" style={{ marginBottom:10 }}>{a.category}</div>
               <div style={{ fontSize:16, fontWeight:700, color:DARK, lineHeight:1.3, marginBottom:10 }}>{a.title}</div>
               <div style={{ display:'flex', gap:2, marginBottom:8 }}>

@@ -35,7 +35,10 @@ export default async function SitePage({
 }) {
   const { slug } = await params
   const sp = searchParams ? await searchParams : {}
-  const site = await getNewsSite(slug)
+  let site = await getNewsSite(slug)
+  if (!site && slug === 'global-trade-wire') {
+    site = { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire', slug:'global-trade-wire', primary_color:'#E03131', site_type:'news', tagline:'Global Trade & Markets Intelligence', is_live:true, seo_title:'Nex-Wire — Global Trade Intelligence' } as any
+  }
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
   const p = site.primary_color || '#c0392b'
