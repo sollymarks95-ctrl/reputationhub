@@ -72,6 +72,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podEpNum, setPodEpNum] = useState('')
   const [podSite, setPodSite] = useState('')
   const [podGuestGender, setPodGuestGender] = useState<'auto'|'male'|'female'>('auto')
+  const [podStatus, setPodStatus] = useState<{step:string;ok:boolean;msg:string}[]>([])
   const [podVideo, setPodVideo] = useState('')
   const [podDescriptUrl, setPodDescriptUrl] = useState('')
   const [podVideoLoading, setPodVideoLoading] = useState(false)
@@ -209,7 +210,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   async function generateFullPodcast(e: React.FormEvent) {
     e.preventDefault()
     if (!podClient) { alert('Select a client first'); return }
-    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('Generating script...')
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodStatus([]); setPodMsg('Generating script...')
     try {
       const scriptRes = await fetch('/api/admin/generate-script', {
         method: 'POST', headers: {'Content-Type':'application/json'},
@@ -754,9 +755,18 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                         <span style={{ fontSize:10, opacity:0.85 }}>Script → Audio → Descript</span>
                       </button>
                     </div>
-                    {podLoading && (
-                      <div style={{ padding:'10px 14px', background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.2)', borderRadius:8, fontSize:12, color:'#0EA5E9', display:'flex', alignItems:'center', gap:8 }}>
-                        <Spinner/> {podMsg || 'Generating...'}
+                    {/* Persistent step-by-step status — shows while loading AND after */}
+                    {podStatus.length > 0 && (
+                      <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, overflow:'hidden' }}>
+                        {podStatus.map((s, i) => (
+                          <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderBottom: i<podStatus.length-1 ? '1px solid rgba(255,255,255,0.05)' : 'none', background: !s.ok ? 'rgba(239,68,68,0.06)' : 'transparent' }}>
+                            {i === podStatus.length-1 && podLoading
+                              ? <div style={{ width:14, height:14, border:'2px solid rgba(14,165,233,0.3)', borderTopColor:'#0EA5E9', borderRadius:'50%', animation:'spin .7s linear infinite', flexShrink:0 }} />
+                              : <span style={{ fontSize:14, flexShrink:0 }}>{s.ok ? '✓' : '✗'}</span>
+                            }
+                            <span style={{ fontSize:12, color: s.ok ? '#94A3B8' : '#EF4444' }}>{s.msg}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                     <button type="submit" className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11, marginTop:4 }} disabled={podLoading}>

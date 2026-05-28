@@ -62,23 +62,39 @@ function cleanText(text: string): string {
     .replace(/\s{2,}/g, ' ').trim()
 }
 
-function parseScript(script: string): Array<{ speaker: 'host' | 'guest'; text: string }> {
+function parseScript(script: string, hostName = 'HOST', guestName = 'GUEST'): Array<{ speaker: 'host' | 'guest'; text: string }> {
   const lines: Array<{ speaker: 'host' | 'guest'; text: string }> = []
-  const parts = script.split(/\n(?=HOST:|GUEST:)/i)
+  // Match both "HOST:" style AND real name "David Hart:" style
+  const hostPattern = new RegExp(`^(HOST|${hostName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}):`, 'i')
+  const guestPattern = new RegExp(`^(GUEST|${guestName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}):`, 'i')
+  const anyNamePattern = /^([A-Z][a-z]+(?: [A-Z][a-z]+)*):/
+
+  // Split on lines that start with a speaker name
+  const parts = script.split(/\n(?=[A-Z])/)
+  
   for (const part of parts) {
     const t = part.trim()
     if (!t || t.length < 5) continue
-    if (/^HOST:/i.test(t)) {
-      const text = cleanText(t.replace(/^HOST:\s*/i, ''))
+    
+    if (hostPattern.test(t)) {
+      const text = cleanText(t.replace(hostPattern, ''))
       if (text.length > 10) lines.push({ speaker: 'host', text })
-    } else if (/^GUEST:/i.test(t)) {
-      const text = cleanText(t.replace(/^GUEST:\s*/i, ''))
+    } else if (guestPattern.test(t)) {
+      const text = cleanText(t.replace(guestPattern, ''))
       if (text.length > 10) lines.push({ speaker: 'guest', text })
+    } else if (anyNamePattern.test(t) && lines.length > 0) {
+      // Unknown name — alternate speakers based on position
+      const text = cleanText(t.replace(anyNamePattern, ''))
+      if (text.length > 10) {
+        const lastSpeaker = lines[lines.length - 1].speaker
+        lines.push({ speaker: lastSpeaker === 'host' ? 'guest' : 'host', text })
+      }
     } else if (lines.length > 0) {
       const cleaned = cleanText(t)
       if (cleaned.length > 5) lines[lines.length - 1].text += ' ' + cleaned
     }
   }
+
   if (!lines.some(l => l.speaker === 'guest')) {
     const sents = script.match(/[^.!?]+[.!?]+/g) || [script]
     return sents.map((s, i) => ({ speaker: i % 2 === 0 ? 'host' as const : 'guest' as const, text: cleanText(s) }))
@@ -109,7 +125,8 @@ export async function POST(req: NextRequest) {
     const guestVoice = getGuestVoice(guestName)
     console.log(`Host: Adam (always) | Guest "${guestName}": ${guestVoice.name} (${guestVoice.id})`)
 
-    const segments = parseScript(script)
+    const { hostName: hName = 'HOST', guestName: gName = 'GUEST' } = await req.json() as any
+    const segments = parseScript(script, hName, gName)
     const buffers: Buffer[] = []
 
     for (let i = 0; i < segments.length; i++) {
