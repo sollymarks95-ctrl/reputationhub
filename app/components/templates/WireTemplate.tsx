@@ -141,7 +141,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         {hero && (
           <div className="whero" style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:32,marginBottom:32,paddingBottom:28,borderBottom:'3px double #ddd'}}>
             <a href={`/article/${siteSlug}/${hero.slug}`} className="wcard" style={{display:'block'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover',marginBottom:16}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover',marginBottom:16}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
               <span className="wcat">{hero.category||'Analysis'}</span>
               <div className="whl" style={{fontSize:34,marginBottom:10}}>{hero.title}</div>
               <div style={{fontFamily:'Georgia,serif',fontSize:16,color:'#444',lineHeight:1.7}}>{hero.excerpt?.slice(0,200)}</div>
@@ -151,7 +151,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
               <div style={{fontFamily:'Inter,sans-serif',fontSize:10,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:'#999',marginBottom:10,paddingBottom:6,borderBottom:'2px solid #111'}}>Top Stories</div>
               {top.map((a:any,i:number)=>(
                 <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="wcard" style={{display:'flex',gap:10,paddingBottom:12,marginBottom:12,borderBottom:'1px solid #eee'}}>
-                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:80,height:56,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
+                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:80,height:56,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
                   <div>
                     <span className="wcat" style={{fontSize:9}}>{a.category}</span>
                     <div className="whl" style={{fontSize:15}}>{a.title}</div>
@@ -168,7 +168,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         <div className="wgrid" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:24,marginBottom:48}}>
           {grid.map((a:any,i:number)=>(
             <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="wcard" style={{display:'block'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+5)} alt={a.title} style={{width:'100%',height:130,objectFit:'cover',marginBottom:10}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+5)} alt={a.title} style={{width:'100%',height:130,objectFit:'cover',marginBottom:10}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
               <span className="wcat" style={{fontSize:9}}>{a.category}</span>
               <div className="whl" style={{fontSize:16,marginBottom:5}}>{a.title}</div>
               <div className="wmeta">{timeAgo(a.published_at)}</div>
