@@ -6,75 +6,60 @@ export const maxDuration = 300
 
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
-// ── SITE CONFIGS ──────────────────────────────────────────────────────────────
 const LIVE_SITES = [
   {
     id: '4d048bde-1dcd-4891-8434-a7960ab9d3ae',
     name: 'Nex-Wire Intelligence', slug: 'global-trade-wire', domain: 'nex-wire.com',
-    voice: 'David Hart, Senior Markets Editor',
+    author: 'David Hart', clientSlot: 4,
     topics: [
-      'EUR/USD outlook Federal Reserve ECB divergence 2026',
-      'gold price record high $4400 central bank buying 2026',
-      'Bitcoin $76000 support institutional flows ETF 2026',
-      'Strait of Hormuz oil market geopolitical risk 2026',
-      'US tariff trade policy emerging markets impact 2026',
-      'GBP/USD Bank of England rate decision 2026',
-      'China currency yuan devaluation trade war 2026',
-      'commodity markets oil copper agricultural 2026',
-      'forex volatility S&P 500 correlation analysis 2026',
-      'global trade supply chain disruption shipping 2026',
+      'EUR/USD exchange rate today latest',
+      'gold price today record high analysis',
+      'Bitcoin price today market analysis',
+      'oil price today Strait of Hormuz latest news',
+      'US Federal Reserve interest rate decision latest',
+      'GBP USD British pound exchange rate today',
+      'China trade policy latest news 2026',
+      'forex market volatility today analysis',
+      'S&P 500 stock market today performance',
+      'global trade news today latest',
     ],
-    // Article 5 (index 4) naturally mentions the client
-    clientSlot: 4,
   },
   {
     id: '48bed332-6525-4d76-aaa5-6d10a5112d77',
     name: 'Finvexx Markets', slug: 'finance-terminal', domain: 'finvexx.com',
-    voice: 'Marcus Webb, Chief Markets Analyst',
+    author: 'Marcus Webb', clientSlot: 5,
     topics: [
-      'S&P 500 technical analysis Q2 2026 support resistance',
-      'Federal Reserve rate hold 3.5% impact bond markets',
-      'gold all time high $4404 portfolio allocation strategy',
-      'Bitcoin institutional adoption BlackRock ETF flows 2026',
-      'corporate earnings Q2 2026 financial sector outlook',
-      'forex broker industry regulation CySEC FCA ASIC 2026',
-      'EUR/USD trade strategy divergence analysis 2026',
-      'hedge fund positioning risk-off rotation 2026',
-      'oil price $63 OPEC+ Hormuz strategic reserves 2026',
-      'emerging market currencies Indian rupee Brazilian real 2026',
+      'S&P 500 market analysis today',
+      'Federal Reserve monetary policy latest news',
+      'gold investment analysis today',
+      'Bitcoin ETF institutional flows latest',
+      'corporate earnings financial sector today',
+      'forex broker regulation news today',
+      'EUR USD technical analysis today',
+      'hedge fund market positioning latest',
+      'crude oil price forecast today',
+      'emerging market currencies news today',
     ],
-    clientSlot: 5,
   },
   {
     id: 'c0f14745-8189-444d-af09-39d7248fa319',
     name: 'Bizplezx Executive', slug: 'business-pulse', domain: 'bizplezx.com',
-    voice: 'Claire Sterling, Editorial Director',
+    author: 'Claire Sterling', clientSlot: 3,
     topics: [
-      'fintech digital banking transformation strategy 2026',
-      'AI automation financial services business impact 2026',
-      'M&A deal activity financial sector Q2 2026',
-      'startup venture capital fintech funding 2026',
-      'ESG sustainable finance investment trends 2026',
-      'regulated financial services growth strategy 2026',
-      'executive leadership CFO priorities 2026',
-      'digital asset institutional adoption corporate treasury',
-      'private equity financial services deals 2026',
-      'customer retention strategy financial services firms 2026',
+      'fintech banking industry news today',
+      'AI financial services latest developments',
+      'financial sector mergers acquisitions news today',
+      'fintech startup funding latest news',
+      'ESG sustainable finance news today',
+      'financial services regulation news today',
+      'executive leadership business strategy news',
+      'digital assets corporate treasury latest',
+      'private equity financial deals today',
+      'financial technology innovation news today',
     ],
-    clientSlot: 3,
   },
 ]
 
-// ── ACTIVE CLIENTS to weave in naturally ─────────────────────────────────────
-async function getActiveClients() {
-  const { data } = await supabase
-    .from('portal_clients')
-    .select('id, company_name')
-    .limit(10)
-  return data || []
-}
-
-// ── COVER IMAGES ──────────────────────────────────────────────────────────────
 const COVERS = [
   'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&auto=format&fit=crop&q=80',
@@ -85,50 +70,33 @@ const COVERS = [
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80',
 ]
 
 function slugify(s: string) {
-  const d = new Date(); const ts = `${d.getMonth()+1}-${d.getDate()}`
-  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60) + '-' + ts
+  const d = new Date()
+  const ts = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,55) + '-' + ts
 }
 
-// ── WRITE ONE ARTICLE ─────────────────────────────────────────────────────────
+async function getActiveClients() {
+  const { data } = await supabase.from('portal_clients').select('id, company_name').limit(10)
+  return data || []
+}
+
 async function writeArticle(
   siteName: string,
-  authorVoice: string,
-  topic: string,
-  clientMention?: string,   // if set, weave this company into the article naturally
+  author: string,
+  searchTopic: string,
+  clientName?: string,
 ): Promise<{ title:string; body:string; excerpt:string; category:string } | null> {
   const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
 
-  const clientInstruction = clientMention
-    ? `\n\nIMPORTANT: Naturally include ${clientMention} as an example, a quoted source, or a named market participant in the article. Make the mention feel organic and editorial — never promotional or advertorial. Example approaches: quote their spokesperson, cite their market data, mention them as an example of a firm navigating the topic.`
+  const clientLine = clientName
+    ? `\n\nAt the end of the article, include one natural sentence mentioning ${clientName} as an example of a firm operating in this space. Keep it factual and brief — one sentence only, no quotes, no hype.`
     : ''
-
-  const prompt = `Write a professional 750-900 word financial news article for ${siteName}.
-Author voice: ${authorVoice}
-Topic: ${topic}
-Today's date: ${today}
-
-REQUIREMENTS:
-- Start with a strong, specific headline (no "Breaking:", no clickbait)
-- First paragraph must hook the reader with the most newsworthy fact
-- Use REAL current data: Gold ~$4,404/oz, BTC ~$76,210, EUR/USD ~1.1124, Oil ~$63, S&P 500 ~5,842
-- Quote named sources (analysts, executives, regulatory officials — can be plausible)  
-- Include at least 2 specific statistics or data points
-- Natural paragraph breaks, no bullet points in the body
-- Professional financial journalism tone — not corporate marketing
-- End with an analytical conclusion or forward-looking statement
-- SEO: Include topic keywords naturally throughout${clientInstruction}
-
-OUTPUT FORMAT — respond with only valid JSON, no markdown fences:
-{"title":"...","category":"Markets|Analysis|Business|Crypto|Forex|Commodities","excerpt":"...one sentence...","body":"...full article text with \\n\\n between paragraphs..."}`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -141,31 +109,46 @@ OUTPUT FORMAT — respond with only valid JSON, no markdown fences:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        tools: [{ type:'web_search_20250305', name:'web_search' }],
-        messages: [{ role:'user', content: prompt }]
+        max_tokens: 2500,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a senior financial journalist writing for ${siteName}. Today is ${today}. Your job is to search for and report REAL, ACCURATE, VERIFIED financial news. Never invent data, prices, or quotes. Only write what you can verify from search results.`,
+        messages: [{
+          role: 'user',
+          content: `Search the web for the latest real news about: "${searchTopic}"
+
+Then write a 750-900 word professional financial news article using ONLY what you found in your search.
+
+RULES — non-negotiable:
+1. ONLY use real prices and data from your search results — no made-up numbers
+2. ONLY quote real institutions (Goldman Sachs, JPMorgan, Federal Reserve, ECB, Bloomberg, Reuters) — never invent quotes from fake people
+3. If you cite a statistic, it must come from a real source you found
+4. Bloomberg/Reuters quality writing — concise, factual, no hype
+5. Strong headline based on the real news you found
+6. No bullet points in the article body${clientLine}
+
+Return ONLY valid JSON with no markdown fences:
+{"title":"...","category":"Markets|Analysis|Business|Crypto|Forex|Commodities","excerpt":"one accurate sentence","body":"article text with newlines between paragraphs"}`
+        }]
       }),
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(90000),
     })
 
-    if (!res.ok) return null
+    if (!res.ok) { console.error('Claude error:', res.status); return null }
     const data = await res.json()
 
-    // Get the last text block (after any tool use)
-    const textBlocks = data.content?.filter((b: any) => b.type === 'text') || []
+    const textBlocks = (data.content || []).filter((b: any) => b.type === 'text')
     const raw = textBlocks[textBlocks.length - 1]?.text?.trim() || ''
+    const clean = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim()
 
-    // Parse JSON — strip any accidental fences
-    const clean = raw.replace(/^```json\s*/i,'').replace(/```\s*$/,'').trim()
     const parsed = JSON.parse(clean)
+    if (!parsed.title || !parsed.body) return null
     return parsed
   } catch (e) {
-    console.error('writeArticle error:', e)
+    console.error('writeArticle error for', searchTopic, ':', e)
     return null
   }
 }
 
-// ── MAIN CRON HANDLER ─────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret') || req.headers.get('x-cron-secret')
   if (secret !== process.env.CRON_SECRET && secret !== 'REDACTED_CRON_SECRET') {
@@ -173,6 +156,7 @@ export async function GET(req: NextRequest) {
   }
 
   const clients = await getActiveClients()
+  const clientName = clients[0]?.company_name || null
   const results: any[] = []
   let totalInserted = 0
 
@@ -181,17 +165,14 @@ export async function GET(req: NextRequest) {
 
     for (let i = 0; i < site.topics.length; i++) {
       const topic = site.topics[i]
+      const includeClient = (i === site.clientSlot && clientName) ? clientName : undefined
 
-      // On the client slot: weave in the first active client naturally
-      const clientMention = (i === site.clientSlot && clients.length > 0)
-        ? clients[0].company_name
-        : undefined
+      const article = await writeArticle(site.name, site.author, topic, includeClient)
+      if (!article) { console.log(`Skipped: ${topic}`); continue }
 
-      const article = await writeArticle(site.name, site.voice, topic, clientMention)
-      if (!article) continue
-
-      const slug = slugify(article.title || topic)
+      const slug = slugify(article.title)
       const cover = COVERS[Math.floor(Math.random() * COVERS.length)]
+      const wordCount = article.body.split(' ').length
 
       const { error } = await supabase.from('news_articles').insert({
         news_site_id: site.id,
@@ -200,33 +181,29 @@ export async function GET(req: NextRequest) {
         excerpt: article.excerpt || '',
         body: article.body || '',
         category: article.category || 'Markets',
-        author_name: site.voice.split(',')[0],
+        author_name: site.author,
         cover_image_url: cover,
         status: 'published',
         published_at: new Date().toISOString(),
-        is_featured: i === 0,   // first article of the day = featured
+        is_featured: i === 0,
         ai_generated: true,
-        read_time_minutes: Math.ceil((article.body?.split(' ').length || 750) / 200),
-        tags: clientMention
-          ? [clientMention, ...topic.split(' ').slice(0,3)]
+        read_time_minutes: Math.max(1, Math.ceil(wordCount / 200)),
+        tags: includeClient
+          ? [includeClient, ...topic.split(' ').slice(0,3)]
           : topic.split(' ').slice(0,4),
       })
 
       if (!error) { siteInserted++; totalInserted++ }
-      else console.error(`Insert error ${site.slug}:`, error.message)
+      else console.error(`DB error ${site.slug}:`, error.message)
 
-      // Small delay between articles to be kind to the API
-      await new Promise(r => setTimeout(r, 1500))
+      await new Promise(r => setTimeout(r, 2000))
     }
 
-    results.push({ site: site.domain, inserted: siteInserted, clientMentionAt: site.clientSlot + 1 })
+    results.push({ site: site.domain, inserted: siteInserted })
   }
 
   return NextResponse.json({
-    success: true,
-    totalInserted,
-    sites: results,
+    success: true, totalInserted, sites: results,
     runAt: new Date().toISOString(),
-    message: `${totalInserted} articles published. Each site has 1 natural client mention at article #${LIVE_SITES.map(s=>s.clientSlot+1).join('/')}.`
   })
 }
