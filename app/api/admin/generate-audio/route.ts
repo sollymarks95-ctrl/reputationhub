@@ -77,27 +77,22 @@ async function speak(text: string, voiceId: string, settings: object, apiKey: st
   } catch(e) { console.error('speak err:', e); return null }
 }
 
-// Process in parallel batches of 5 — fits 20-min podcast in ~120s
+// Process sequentially — one at a time to avoid ElevenLabs concurrent_limit_exceeded
 async function processBatch(
   segments: Array<{ speaker:'host'|'guest'; text:string }>,
   hostVoiceId: string,
   guestVoiceId: string,
   apiKey: string,
-  batchSize = 5
+  _batchSize = 1
 ): Promise<Buffer[]> {
   const results: Array<Buffer|null> = new Array(segments.length).fill(null)
-  for (let i = 0; i < segments.length; i += batchSize) {
-    const batch = segments.slice(i, i + batchSize)
-    const batchResults = await Promise.all(
-      batch.map((seg, j) => {
-        const voiceId = seg.speaker === 'host' ? hostVoiceId : guestVoiceId
-        const settings = seg.speaker === 'host' ? HOST_SETTINGS : GUEST_SETTINGS
-        return speak(seg.text, voiceId, settings, apiKey)
-      })
-    )
-    batchResults.forEach((buf, j) => { results[i + j] = buf })
-    // Brief pause between batches to avoid rate limits
-    if (i + batchSize < segments.length) await new Promise(r => setTimeout(r, 300))
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i]
+    const voiceId = seg.speaker === 'host' ? hostVoiceId : guestVoiceId
+    const settings = seg.speaker === 'host' ? HOST_SETTINGS : GUEST_SETTINGS
+    results[i] = await speak(seg.text, voiceId, settings, apiKey)
+    // Small pause between requests to stay within rate limits
+    if (i < segments.length - 1) await new Promise(r => setTimeout(r, 200))
   }
   return results.filter((b): b is Buffer => b !== null)
 }
@@ -125,7 +120,7 @@ export async function POST(req: NextRequest) {
     const segments = parseScript(script, hName, guestName)
     console.log(`${segments.length} segments — processing in parallel batches`)
 
-    const buffers = await processBatch(segments, hostVoiceId, guestVoice.id, elKey, 5)
+    const buffers = await processBatch(segments, hostVoiceId, guestVoice.id, elKey)
 
     if (buffers.length === 0) return NextResponse.json({ error:'No audio generated — check ElevenLabs key' }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
 
