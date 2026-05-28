@@ -519,6 +519,42 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
               <div style={{ display:'grid', gridTemplateColumns:'380px 1fr', gap:20, alignItems:'start' }}>
                 <div className="card" style={{ padding:22 }}>
                   <div className="syne" style={{ fontSize:15, fontWeight:800, marginBottom:16 }}>🎙 AI Podcast Studio</div>
+
+                  {/* Episode Templates - click to auto-fill everything */}
+                  <div style={{ marginBottom:16 }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:'#475569', letterSpacing:'.08em', textTransform:'uppercase', marginBottom:8 }}>Quick Episode Templates</div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                      {[
+                        { icon:'👔', label:'CEO Interview', title:'The Vision Behind {broker}: CEO Interview', guest:'James Richardson', role:'Chief Executive Officer', topic:'Company founding story, regulatory journey, why clients trust {broker}, 2026 growth strategy, what sets {broker} apart from competitors, message to potential clients' },
+                        { icon:'📈', label:'Q3 Market Update', title:'Q3 2026 Market Intelligence: What Traders Need to Know', guest:'Sarah Mitchell', role:'Chief Market Analyst', topic:'EUR/USD outlook, Bitcoin at $76k support levels, gold at $4,400 all-time highs, Fed rate hold at 3.5%, geopolitical risk from Strait of Hormuz, oil price drop, best trading opportunities this quarter' },
+                        { icon:'🔒', label:'Regulation & Trust', title:'Why Regulated Brokers Win in 2026', guest:'Dr. Michael Torres', role:'Head of Compliance', topic:'CySEC vs FCA vs ASIC regulation, why regulation matters for trader safety, {broker} compliance journey, client fund protection, how to verify a broker is legit, common scams to avoid' },
+                        { icon:'💹', label:'Forex Deep Dive', title:'Forex Trading Mastery: Strategies That Actually Work', guest:'Elena Volkov', role:'Senior Forex Strategist', topic:'EUR/USD technical analysis 2026, impact of Fed decisions on currency pairs, GBP outlook post-UK elections, USD strength thesis, carry trade opportunities, risk management for retail traders' },
+                        { icon:'₿', label:'Crypto & DeFi', title:'Bitcoin, Ethereum & the Future of Digital Assets', guest:'Alex Chen', role:'Head of Crypto Research', topic:'BTC at $76k — is this the floor?, Ethereum scaling solutions, institutional crypto adoption, how {broker} offers crypto CFDs safely, regulatory clarity in 2026, crypto vs traditional forex' },
+                        { icon:'🌍', label:'Emerging Markets', title:'Emerging Market Opportunities: Where Smart Money Is Moving', guest:'Priya Sharma', role:'EM Markets Director', topic:'India forex boom, Middle East trading growth, African markets opening up, Dubai financial hub expansion, how geopolitical shifts create trading opportunities, {broker} global expansion' },
+                        { icon:'🛡️', label:'Scam Fighter', title:'How to Spot a Fake Broker — The Complete Guide', guest:'Robert Lawson', role:'Financial Investigations Analyst', topic:'Warning signs of unregulated brokers, how to check FCA/CySEC registration, common withdrawal scam tactics, why {broker} is different, what to do if you\'ve been scammed, RegTech tools for safety' },
+                        { icon:'📊', label:'Trading Psychology', title:'The Mental Edge: Why Traders Fail and How to Win', guest:'Dr. Anna Williams', role:'Trading Psychologist', topic:'Why 70% of retail traders lose money, emotion vs strategy, the discipline framework used by hedge funds, how {broker} tools help manage risk, building a consistent trading routine, mindset of profitable traders' },
+                      ].map((t) => {
+                        const client = clients.find((c: any) => c.id === podClient)
+                        const brokerName = client?.company_name || 'our broker'
+                        return (
+                          <button key={t.label} type="button"
+                            className="btn b-ghost"
+                            style={{ justifyContent:'flex-start', gap:8, fontSize:11, padding:'8px 12px', textAlign:'left' }}
+                            onClick={() => {
+                              const filled = (s: string) => s.replace(/\{broker\}/g, brokerName)
+                              setPodTitle(filled(t.title))
+                              setPodGuest(t.guest)
+                              setPodRole(t.role)
+                              setPodTopic(filled(t.topic))
+                            }}>
+                            <span style={{ fontSize:16, flexShrink:0 }}>{t.icon}</span>
+                            <span style={{ fontWeight:700 }}>{t.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
                   <form onSubmit={generateScript}>
                     <div style={{ marginBottom:12 }}>
                       <label>Client</label>
@@ -528,15 +564,21 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       </select>
                     </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
-                      <div><label>Episode #</label><input className="inp" value={podEpNum} onChange={e => setPodEpNum(e.target.value)} placeholder="7" type="number" min="1" /></div>
+                      <div><label>Episode #</label><input className="inp" value={podEpNum} onChange={e => setPodEpNum(e.target.value)} placeholder="1" type="number" min="1" /></div>
                       <div><label>Duration (min)</label><input className="inp" value={podDuration} onChange={e => setPodDuration(e.target.value)} placeholder="20" type="number" /></div>
                     </div>
-                    <div style={{ marginBottom:10 }}><label>Episode Title</label><input className="inp" value={podTitle} onChange={e => setPodTitle(e.target.value)} placeholder="Q3 Market Outlook & Strategy" required /></div>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
-                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="Alex Chen" /></div>
-                      <div><label>Guest Role</label><input className="inp" value={podRole} onChange={e => setPodRole(e.target.value)} placeholder="CEO" /></div>
+                    <div style={{ marginBottom:10 }}>
+                      <label>Episode Title</label>
+                      <input className="inp" value={podTitle} onChange={e => setPodTitle(e.target.value)} placeholder="Click a template above or type your own title" required />
                     </div>
-                    <div style={{ marginBottom:14 }}><label>Topic / Key Points</label><textarea className="inp" value={podTopic} onChange={e => setPodTopic(e.target.value)} rows={3} placeholder={"EUR/USD outlook, US Fed policy impact,\nwhy our clients trust us, trading tools"} required /></div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
+                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="Auto-filled from template" /></div>
+                      <div><label>Guest Role</label><input className="inp" value={podRole} onChange={e => setPodRole(e.target.value)} placeholder="Auto-filled from template" /></div>
+                    </div>
+                    <div style={{ marginBottom:14 }}>
+                      <label>Topic / Key Points</label>
+                      <textarea className="inp" value={podTopic} onChange={e => setPodTopic(e.target.value)} rows={4} placeholder="Click a template above — it auto-fills with trending topics, market data, and talking points" required />
+                    </div>
                     <button type="submit" className="btn b-blue" style={{ width:'100%', justifyContent:'center' }} disabled={podLoading}>
                       {podLoading ? <><Spinner/> Writing Script...</> : '📝 Generate Podcast Script →'}
                     </button>
