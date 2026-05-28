@@ -25,7 +25,7 @@ async function descriptCall(path: string, body: object) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(120000),
+    signal: AbortSignal.timeout(60000),
   })
   if (!res.ok) {
     const err = await res.text()
@@ -111,7 +111,7 @@ Make the production look completely professional and broadcast-ready.`
     console.log('Descript agent job:', agentJobId)
 
     // ── STEP 3: Poll for agent completion ───────────────────────────────────
-    const agentResult = await pollJob(agentJobId, 240000)
+    const agentResult = await pollJob(agentJobId, 250000)
     console.log('Descript agent done:', agentResult.result?.status)
 
     const projectUrl = agentResult.result?.project_url || `https://web.descript.com/${projectId}`
@@ -127,7 +127,7 @@ Make the production look completely professional and broadcast-ready.`
       })
       const exportJobId = exportData.job_id
       if (exportJobId) {
-        const exportResult = await pollJob(exportJobId, 300000)
+        const exportResult = await pollJob(exportJobId, 250000)
         videoUrl = exportResult.result?.download_url || exportResult.result?.url || null
         console.log('Descript export URL:', videoUrl)
       }

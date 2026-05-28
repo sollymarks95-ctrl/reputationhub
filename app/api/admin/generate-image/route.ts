@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 300
 
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
@@ -39,7 +39,7 @@ export async function generateArticleImage(
         prompt: buildPrompt(title, category),
         n: 1, size: '1792x1024', quality: 'standard', style: 'natural',
       }),
-      signal: AbortSignal.timeout(55000),
+      signal: AbortSignal.timeout(270000),
     })
 
     if (!res.ok) { console.error('DALL-E error:', res.status); return null }
