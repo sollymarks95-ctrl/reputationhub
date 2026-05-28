@@ -28,7 +28,12 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   return {
     title: `${article.title} | ${site.name}`,
     alternates: { canonical: canonicalUrl },
-    icons: { icon: '/api/favicon' },
+    icons: {
+      icon: siteSlug === 'global-trade-wire' ? '/icon-nexwire.svg' :
+            siteSlug === 'finance-terminal'  ? '/icon-finvexx.svg' :
+            siteSlug === 'business-pulse'    ? '/icon-bizplezx.svg' :
+            '/icon-rephuby.svg',
+    },
     description: article.excerpt,
     keywords: article.tags?.join(', '),
     authors: [{ name: article.author_name || site.name }],

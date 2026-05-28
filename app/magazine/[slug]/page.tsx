@@ -15,9 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: 'Bizplezx delivers premium business strategy intelligence, executive insights, M&A analysis, and innovation briefings trusted by 25,000+ business leaders.',
     keywords: `${site.name}, business, strategy, leadership, corporate, intelligence, market analysis, intelligence`,
     robots: 'index, follow',
-    icons: {
-      icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='#6741D9'/><text y='.9em' font-size='60' font-family='Arial' font-weight='bold' fill='white' x='50%' text-anchor='middle' dominant-baseline='middle' dy='.1em'>B</text></svg>`,
-    },
+    icons: { icon: '/icon-bizplezx.svg', shortcut: '/icon-bizplezx.svg', apple: '/icon-bizplezx.svg' },
     alternates: { canonical: url },
     openGraph: {
       title: site.seo_title || site.name,
