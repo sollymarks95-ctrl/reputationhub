@@ -5,6 +5,10 @@ import { getSiteConfig } from '@/app/lib/podcast-config'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
+export async function OPTIONS() {
+  return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
+}
+
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -57,7 +61,7 @@ export async function POST(req: NextRequest) {
       clientId, podcastId, siteSlug = '',
     } = await req.json()
 
-    if (!audioUrl) return NextResponse.json({ error: 'audioUrl required' }, { status: 400 })
+    if (!audioUrl) return NextResponse.json({ error: 'audioUrl required' }, { status:400, headers:{"Access-Control-Allow-Origin":"*"} })
 
     const projectName = `TradingEdge - Ep${episodeNum}: ${episodeTitle.slice(0, 60)}`
 
@@ -157,6 +161,6 @@ Make the production look completely professional and broadcast-ready.`
     })
   } catch (e: any) {
     console.error('generate-video error:', e)
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    return NextResponse.json({ error: e.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
   }
 }
