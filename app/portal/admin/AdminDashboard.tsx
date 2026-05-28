@@ -656,7 +656,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
                       {[
                         { icon:'👔', label:'CEO Interview', title:'The Vision Behind {broker}: CEO Interview', guest:'James Richardson', role:'Chief Executive Officer', topic:'Company founding story, regulatory journey, why clients trust {broker}, 2026 growth strategy, what sets {broker} apart from competitors, message to potential clients' },
-                        { icon:'📈', label:'Q3 Market Update', title:'Q3 2026 Market Intelligence: What Traders Need to Know', guest:'Sarah Mitchell', role:'Chief Market Analyst', topic:'EUR/USD outlook, Bitcoin at $76k support levels, gold at $4,400 all-time highs, Fed rate hold at 3.5%, geopolitical risk from Strait of Hormuz, oil price drop, best trading opportunities this quarter' },
+                        { icon:'📈', label:'Q3 Market Update', title:'Q3 2026 Market Intelligence: What Traders Need to Know', guest:'Sarah Mitchell', role:'Chief Market Analyst', topic:'EUR/USD outlook and current exchange rates, Bitcoin latest price and institutional flows, gold at current highs, Federal Reserve latest rate decision, Strait of Hormuz geopolitical risk and oil impact, best trading opportunities this quarter' },
                         { icon:'🔒', label:'Regulation & Trust', title:'Why Regulated Brokers Win in 2026', guest:'Dr. Michael Torres', role:'Head of Compliance', topic:'CySEC vs FCA vs ASIC regulation, why regulation matters for trader safety, {broker} compliance journey, client fund protection, how to verify a broker is legit, common scams to avoid' },
                         { icon:'💹', label:'Forex Deep Dive', title:'Forex Trading Mastery: Strategies That Actually Work', guest:'Elena Volkov', role:'Senior Forex Strategist', topic:'EUR/USD technical analysis 2026, impact of Fed decisions on currency pairs, GBP outlook post-UK elections, USD strength thesis, carry trade opportunities, risk management for retail traders' },
                         { icon:'₿', label:'Crypto & DeFi', title:'Bitcoin, Ethereum & the Future of Digital Assets', guest:'Alex Chen', role:'Head of Crypto Research', topic:'BTC at $76k — is this the floor?, Ethereum scaling solutions, institutional crypto adoption, how {broker} offers crypto CFDs safely, regulatory clarity in 2026, crypto vs traditional forex' },
@@ -741,15 +741,15 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     {/* TWO OUTPUT OPTIONS */}
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:8 }}>
                       {/* OPTION 1: AUDIO PODCAST */}
-                      <button type="button" onClick={generateAudioPodcast} disabled={podLoading}
-                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:10, color:'#fff', cursor: podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+                      <button type="button" onClick={generateAudioPodcast} disabled={podLoading && !podScript}
+                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:10, color:'#fff', cursor: (podLoading&&!podScript)?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
                         <span style={{ fontSize:24 }}>🎙</span>
                         <span style={{ fontWeight:800, fontSize:13 }}>Audio Podcast</span>
                         <span style={{ fontSize:10, opacity:0.85 }}>Script → ElevenLabs → MP3</span>
                       </button>
                       {/* OPTION 2: VIDEO PODCAST */}
-                      <button type="button" onClick={generateVideoPodcast} disabled={podLoading}
-                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:10, color:'#fff', cursor: podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+                      <button type="button" onClick={generateVideoPodcast} disabled={podLoading && !podScript}
+                        style={{ padding:'14px 10px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:10, color:'#fff', cursor: (podLoading&&!podScript)?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
                         <span style={{ fontSize:24 }}>🎬</span>
                         <span style={{ fontWeight:800, fontSize:13 }}>Video Podcast</span>
                         <span style={{ fontSize:10, opacity:0.85 }}>Script → Audio → Descript</span>
@@ -774,9 +774,9 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     </button>
                   </form>
 
-                  {/* OUTPUT PANEL — always visible once something starts */}
+                  {/* PROGRESS & OUTPUT — top of panel when active */}
                   {(podStatus.length > 0 || podAudio || podVideo) && (
-                    <div style={{ marginTop:16, paddingTop:16, borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ marginBottom: podScript ? 16 : 0 }}>
 
                       {/* Step log */}
                       {podStatus.length > 0 && (
@@ -832,8 +832,30 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   )}
                 </div>
 
-                {/* Script editor */}
+                {/* Script panel — with action buttons inside */}
                 <div className="card" style={{ padding:22 }}>
+
+                  {/* ACTION BUTTONS — shown inside right panel after script is ready */}
+                  {podScript && !podLoading && (
+                    <div style={{ marginBottom:16, padding:14, background:'rgba(255,255,255,0.04)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)' }}>
+                      <div style={{ fontSize:10, fontWeight:800, color:'#475569', letterSpacing:'.1em', marginBottom:10, textTransform:'uppercase' }}>Script ready — generate output:</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                        <button onClick={generateAudioPodcast}
+                          style={{ padding:'12px 8px', background:'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:8, color:'#fff', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
+                          <span style={{ fontSize:20 }}>🎙</span>
+                          <span style={{ fontWeight:800, fontSize:12 }}>Audio Podcast</span>
+                          <span style={{ fontSize:10, opacity:.8 }}>ElevenLabs → MP3</span>
+                        </button>
+                        <button onClick={generateVideoPodcast}
+                          style={{ padding:'12px 8px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:8, color:'#fff', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
+                          <span style={{ fontSize:20 }}>🎬</span>
+                          <span style={{ fontWeight:800, fontSize:12 }}>Video Podcast</span>
+                          <span style={{ fontSize:10, opacity:.8 }}>Audio → Descript</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {!podScript && !podLoading ? (
                     <div style={{ padding:'60px 20px', textAlign:'center', color:'#475569' }}>
                       <div style={{ fontSize:40, marginBottom:12 }}>🎙</div>
