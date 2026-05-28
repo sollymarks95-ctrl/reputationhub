@@ -72,8 +72,16 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         .mnav button{font-family:Inter,sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:11px 14px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;white-space:nowrap}
         .mnav button.on,.mnav button:hover{color:${p};border-bottom-color:${p}}
         .flink{font-family:Inter,sans-serif;font-size:12px;color:#888}
-        .flink:hover{color:${p}}
-        @media(max-width:768px){.mhero{grid-template-columns:1fr!important}.m3{grid-template-columns:1fr!important}.m2{grid-template-columns:1fr!important}}
+        .flink:hover{color:${p}}.m2{grid-template-columns:1fr!important}}
+
+        @media(max-width:768px){
+          .mhero{grid-template-columns:1fr!important}
+          .m3{grid-template-columns:1fr!important}
+          .m2{grid-template-columns:1fr!important}
+          .mnav{overflow-x:auto;flex-wrap:nowrap}
+          .mnav button{white-space:nowrap}
+          h1{font-size:32px!important}
+        }
       `}</style>
 
       {/* Top stripe */}

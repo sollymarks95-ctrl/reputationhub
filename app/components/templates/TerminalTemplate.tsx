@@ -15,18 +15,32 @@ const IMGS = [
   'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&q=80',
   'https://images.unsplash.com/photo-1543286386-2e659306cd6c?w=800&q=80',
   'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?w=800&q=80',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&q=80',
+  'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&q=80',
+  'https://images.unsplash.com/photo-1569025591289-5c6ee7af7edf?w=800&q=80',
 ]
-const getImg = (a: any, i: number) => a?.cover_image_url || IMGS[i % IMGS.length]
+// Use slug to generate consistent unique image per article (not position-based)
+function slugHash(slug: string): number {
+  let h = 0
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) & 0xffffffff
+  return Math.abs(h)
+}
+const getImg = (a: any, i: number) => {
+  if (a?.cover_image_url && !a.cover_image_url.includes('placeholder')) return a.cover_image_url
+  const hash = a?.slug ? slugHash(a.slug) : i
+  return IMGS[hash % IMGS.length]
+}
 
 const TICKERS = [
-  { sym:'EUR/USD', price:'1.0842', chg:'+0.12%', up:true },
-  { sym:'GBP/USD', price:'1.2718', chg:'-0.08%', up:false },
-  { sym:'XAU/USD', price:'2,341.5', chg:'+0.94%', up:true },
-  { sym:'BTC/USD', price:'67,420', chg:'+2.31%', up:true },
-  { sym:'S&P 500', price:'5,287.6', chg:'+0.42%', up:true },
-  { sym:'WTI OIL', price:'78.34', chg:'-0.67%', up:false },
-  { sym:'USD/JPY', price:'157.42', chg:'+0.18%', up:true },
-  { sym:'NASDAQ', price:'18,724', chg:'+0.61%', up:true },
+  { sym:'EUR/USD', price:'1.1124', chg:'+0.18%', up:true },
+  { sym:'GBP/USD', price:'1.3482', chg:'+0.09%', up:true },
+  { sym:'XAU/USD', price:'4,404', chg:'-0.56%', up:false },
+  { sym:'BTC/USD', price:'76,210', chg:'-1.9%', up:false },
+  { sym:'S&P 500', price:'5,842.3', chg:'+0.31%', up:true },
+  { sym:'WTI OIL', price:'63.18', chg:'-4.8%', up:false },
+  { sym:'ETH/USD', price:'2,071', chg:'-1.9%', up:false },
+  { sym:'NASDAQ', price:'19,486', chg:'+0.44%', up:true },
 ]
 
 const SITE_META: Record<string, { name:string; domain:string; accent:string; desc:string }> = {
@@ -118,8 +132,16 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
         .nav-tab{font-family:IBM Plex Mono,monospace;font-size:12px;font-weight:700;padding:8px 16px;border:1px solid transparent;cursor:pointer;letter-spacing:.06em;color:#555;background:none;transition:all .2s}
         .nav-tab:hover{color:#C9D1D9;border-color:#30363D}
         .nav-tab.on{color:${accent};border-color:${accent}30;background:${accent}10}
-        .term-link:hover{color:${accent}}
-        @media(max-width:900px){.term-cols{grid-template-columns:1fr!important}.term-price{display:none!important}}
+        .term-link:hover{color:${accent}}}
+
+        @media(max-width:768px){
+          .term-cols{grid-template-columns:1fr!important}
+          .term-price{overflow-x:auto}
+          .term-price>div{grid-template-columns:repeat(4,1fr)!important}
+          nav{flex-wrap:wrap!important}
+          .nav-tab{font-size:10px!important;padding:6px 8px!important}
+          .tick-anim{animation-duration:20s}
+        }
       `}</style>
 
       {/* Ticker */}

@@ -15,7 +15,16 @@ const IMGS = [
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
   'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&q=80',
 ]
-const getImg = (a: any, i: number) => a?.cover_image_url || IMGS[i % IMGS.length]
+function slugHash(slug: string): number {
+  let h = 0
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) & 0xffffffff
+  return Math.abs(h)
+}
+const getImg = (a: any, i: number) => {
+  if (a?.cover_image_url && !a.cover_image_url.includes('unsplash.com/photo-1578574')) return a.cover_image_url
+  const hash = a?.slug ? slugHash(a.slug) : i
+  return IMGS[hash % IMGS.length]
+}
 
 const SITE_META: Record<string, {name:string;domain:string;color:string;tagline:string}> = {
   'global-trade-wire': {name:'Nex-Wire', domain:'nex-wire.com',   color:'#E03131', tagline:'Global Trade & Market Intelligence'},
@@ -74,8 +83,16 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         .tkr{animation:wtick 45s linear infinite;display:flex;gap:0;white-space:nowrap}
         @keyframes wtick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         .flink{font-family:Inter,sans-serif;font-size:12px;color:#666}
-        .flink:hover{color:${p}}
-        @media(max-width:768px){.whero{grid-template-columns:1fr!important}.wgrid{grid-template-columns:repeat(2,1fr)!important}}
+        .flink:hover{color:${p}}}
+
+        @media(max-width:768px){
+          .whero{grid-template-columns:1fr!important}
+          .wgrid{grid-template-columns:repeat(2,1fr)!important}
+          .wtop{grid-template-columns:1fr!important}
+          .snav{overflow-x:auto;flex-wrap:nowrap}
+          .snav button{font-size:10px!important;padding:8px 10px!important;white-space:nowrap}
+          h1{font-size:28px!important}
+        }
       `}</style>
 
       {/* Breaking ticker */}
