@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const url = `${BASE}/magazine/${slug}`
   return {
     title: site.seo_title || `${site.name} — Business Strategy Leadership Corporate Intelligence`,
-    description: site.tagline || `${site.name} provides professional intelligence on business strategy leadership corporate intelligence.`,
+    description: 'Bizplezx delivers premium business strategy intelligence, executive insights, M&A analysis, and innovation briefings trusted by 25,000+ business leaders.',
     keywords: `${site.name}, business, strategy, leadership, corporate, intelligence, market analysis, intelligence`,
     robots: 'index, follow',
     icons: {

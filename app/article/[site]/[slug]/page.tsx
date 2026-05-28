@@ -17,17 +17,25 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   if (!site) return {}
   const article = await getArticle(site.id, slug)
   if (!article) return {}
-  const BASE = 'https://rephuby.com'
+  const domainMap: Record<string,string> = {
+    'global-trade-wire': 'https://nex-wire.com',
+    'finance-terminal':  'https://finvexx.com',
+    'business-pulse':    'https://bizplezx.com',
+  }
+  const BASE = domainMap[siteSlug] || 'https://rephuby.com'
   const route = ROUTE_MAP[siteSlug] || 'news'
+  const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
   return {
     title: `${article.title} | ${site.name}`,
+    alternates: { canonical: canonicalUrl },
+    icons: { icon: '/api/favicon' },
     description: article.excerpt,
     keywords: article.tags?.join(', '),
     authors: [{ name: article.author_name || site.name }],
     openGraph: {
       title: article.title, description: article.excerpt,
       images: article.cover_image_url ? [{ url: article.cover_image_url, width: 1200, height: 630 }] : [],
-      type: 'article', publishedTime: article.published_at,
+      type: 'article', publishedTime: article.published_at, url: canonicalUrl,
       authors: [article.author_name || site.name], siteName: site.name,
     },
     twitter: { card: 'summary_large_image', title: article.title, description: article.excerpt, images: article.cover_image_url ? [article.cover_image_url] : [] },

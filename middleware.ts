@@ -28,7 +28,7 @@ const REPHUBY_REDIRECT: Record<string, string> = {
   '/magazine/business-pulse':  'https://bizplezx.com',
 }
 
-const SKIP = ['/_next','/_vercel','/api/','/portal','/legal','/search','/charts','/academy','/favicon','/logo','/llms','/sitemap','/robots','.well-known']
+const SKIP = ['/_next','/_vercel','/portal','/legal','/search','/charts','/academy','/logo','/llms','.well-known']
 
 export function middleware(req: NextRequest) {
   const host = (req.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
@@ -42,6 +42,14 @@ export function middleware(req: NextRequest) {
   // ── CUSTOM DOMAIN REQUEST ──────────────────────────────────────────────────
   const portal = DOMAIN_MAP[host]
   if (portal) {
+    // Favicon → serve domain-specific icon
+    if (pathname === '/favicon.ico' || pathname === '/favicon.svg') {
+      const url = req.nextUrl.clone()
+      url.pathname = '/api/favicon'
+      return NextResponse.rewrite(url)
+    }
+    // API routes and static pass through
+    if (pathname.startsWith('/api/')) return NextResponse.next()
     // Article pages pass through
     if (pathname.startsWith('/article/')) return NextResponse.next()
     // Already on portal path
