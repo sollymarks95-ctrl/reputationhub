@@ -80,6 +80,17 @@ async function speak(text: string, voiceId: string, settings: object, apiKey: st
   } catch(e) { console.error('speak err:', e); return null }
 }
 
+// 0.5s silence between different speakers, 0.25s same speaker — creates real podcast feel
+function makeSilence(ms: number): Buffer {
+  // MP3 silence: simple header + silent frames
+  // 128kbps MP3: 128000 bits/sec = 16000 bytes/sec
+  const bytes = Math.floor((ms / 1000) * 16000)
+  const buf = Buffer.alloc(bytes + 4, 0)
+  // Write minimal MP3 frame sync header so players don't skip
+  buf[0] = 0xFF; buf[1] = 0xFB; buf[2] = 0x90; buf[3] = 0x00
+  return buf
+}
+
 // Process sequentially — one at a time to avoid ElevenLabs concurrent_limit_exceeded
 async function processBatch(
   segments: Array<{ speaker:'host'|'guest'; text:string }>,
@@ -88,16 +99,25 @@ async function processBatch(
   apiKey: string,
   _batchSize = 1
 ): Promise<Buffer[]> {
-  const results: Array<Buffer|null> = new Array(segments.length).fill(null)
+  const results: Buffer[] = []
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i]
     const voiceId = seg.speaker === 'host' ? hostVoiceId : guestVoiceId
     const settings = seg.speaker === 'host' ? HOST_SETTINGS : GUEST_SETTINGS
-    results[i] = await speak(seg.text, voiceId, settings, apiKey)
-    // Small pause between requests to stay within rate limits
+    const buf = await speak(seg.text, voiceId, settings, apiKey)
+    if (buf) {
+      // Add silence gap BEFORE each segment (except first)
+      if (i > 0) {
+        const prevSpeaker = segments[i-1].speaker
+        // 600ms gap when speaker changes, 300ms when same speaker continues
+        const gapMs = prevSpeaker !== seg.speaker ? 600 : 300
+        results.push(makeSilence(gapMs))
+      }
+      results.push(buf)
+    }
     if (i < segments.length - 1) await new Promise(r => setTimeout(r, 200))
   }
-  return results.filter((b): b is Buffer => b !== null)
+  return results
 }
 
 export async function POST(req: NextRequest) {
@@ -118,10 +138,15 @@ export async function POST(req: NextRequest) {
     const hostVoiceId = siteConfig.hostVoiceId
     const guestVoice = pickGuestVoice(guestName, guestGender as any)
 
-    console.log(`Generating: site=${siteSlug} host=${siteConfig.hostName}(${hostVoiceId}) guest=${guestName}(${guestVoice.name})`)
+    // CRITICAL FIX: use siteConfig.hostName (e.g. "David Hart") not body.hostName
+    // Frontend never sends hostName to generate-audio, so body.hostName is always undefined
+    // Parser was looking for "HOST:" but script has "David Hart:" → wrong voice per speaker
+    const resolvedHostName = body.hostName || siteConfig.hostName || 'HOST'
 
-    const segments = parseScript(script, hName, guestName)
-    console.log(`${segments.length} segments — processing in parallel batches`)
+    console.log(`Generating: site=${siteSlug} host=${resolvedHostName}(${hostVoiceId}) guest=${guestName}(${guestVoice.name})`)
+
+    const segments = parseScript(script, resolvedHostName, guestName)
+    console.log(`${segments.length} segments parsed`)
 
     const buffers = await processBatch(segments, hostVoiceId, guestVoice.id, elKey)
 

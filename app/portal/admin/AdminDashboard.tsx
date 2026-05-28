@@ -181,7 +181,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       setPodSubTab('episodes')
       setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite, hostName:podHost }) })
       const ad = await ar.json()
       if (ad.audioUrl) {
         setPodAudio(ad.audioUrl)
@@ -206,7 +206,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       setPodSubTab('episodes')
       setPodMsg('🎙 Script ready. Generating audio...')
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite, hostName:podHost }) })
       const ad = await ar.json()
       if (!ad.audioUrl) { setPodMsg('Audio error: '+(ad.error||'unknown')); setPodLoading(false); return }
       setPodAudio(ad.audioUrl)
