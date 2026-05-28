@@ -1033,11 +1033,23 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   )}
 
                   {rankResult && (
-                    <div style={{ marginTop:14, padding:14, background:rankResult.position<=10?'rgba(16,185,129,0.1)':'rgba(245,158,11,0.1)', border:`1px solid ${rankResult.position<=10?'rgba(16,185,129,0.3)':'rgba(245,158,11,0.3)'}`, borderRadius:8 }}>
-                      <div className="syne" style={{ fontSize:28, fontWeight:900, color:rankResult.position<=3?'#10B981':rankResult.position<=10?'#F59E0B':'#EF4444' }}>#{rankResult.position}</div>
-                      <div style={{ fontSize:12, fontWeight:700, color:rankResult.improved?'#10B981':'#94A3B8' }}>{rankResult.improved?`▲ Improved from #${rankResult.previousPosition}`:`Was #${rankResult.previousPosition}`}</div>
-                      {rankResult.url && <div style={{ fontSize:10, color:'#64748b', marginTop:4, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{rankResult.url}</div>}
-                      {!rankResult.usedRealApi && <div style={{ fontSize:10, color:'#F59E0B', marginTop:6 }}>⚠ Demo data — SearchAPI key active, checking...</div>}
+                    <div style={{ marginTop:14, padding:14, background:rankResult.error?'rgba(239,68,68,0.1)':rankResult.found?'rgba(16,185,129,0.1)':'rgba(245,158,11,0.1)', border:`1px solid ${rankResult.error?'rgba(239,68,68,0.3)':rankResult.found?'rgba(16,185,129,0.3)':'rgba(245,158,11,0.3)'}`, borderRadius:8 }}>
+                      {rankResult.error ? (
+                        <div style={{ fontSize:13, color:'#EF4444', fontWeight:700 }}>❌ {rankResult.error}</div>
+                      ) : rankResult.found ? (
+                        <>
+                          <div className="syne" style={{ fontSize:28, fontWeight:900, color:rankResult.position<=3?'#10B981':rankResult.position<=10?'#F59E0B':'#EF4444' }}>#{rankResult.position}</div>
+                          {rankResult.previousPosition
+                            ? <div style={{ fontSize:12, fontWeight:700, color:rankResult.position<rankResult.previousPosition?'#10B981':'#94A3B8' }}>
+                                {rankResult.position<rankResult.previousPosition?`▲ Up from #${rankResult.previousPosition}`:rankResult.position>rankResult.previousPosition?`▼ Down from #${rankResult.previousPosition}`:`= Same as before #${rankResult.previousPosition}`}
+                              </div>
+                            : <div style={{ fontSize:12, color:'#64748B' }}>First check — no previous data</div>
+                          }
+                          {rankResult.url && <div style={{ fontSize:10, color:'#64748b', marginTop:4, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{rankResult.url}</div>}
+                        </>
+                      ) : (
+                        <div style={{ fontSize:13, color:'#F59E0B', fontWeight:700 }}>Not found in top 100 results</div>
+                      )}
                     </div>
                   )}
 

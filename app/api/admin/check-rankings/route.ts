@@ -128,12 +128,22 @@ export async function POST(req: NextRequest) {
       .update({ last_used_at: new Date().toISOString() })
       .eq('key_name', 'SEARCHAPI_KEY')
 
+    // Get previous position for the UI
+    const { data: prevData } = await supabase
+      .from('portal_rankings')
+      .select('previous_position')
+      .eq('client_id', clientId)
+      .eq('keyword', keyword)
+      .single()
+
     return NextResponse.json({
       keyword,
       domain: searchDomain,
       position: result?.position || 0,
+      previousPosition: prevData?.previous_position || null,
       url: result?.url || null,
       found: !!result,
+      usedRealApi: true,
       credits_used: 1,
     })
   } catch (e: any) {
