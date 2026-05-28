@@ -29,14 +29,31 @@ export function middleware(req: NextRequest) {
   const host = (req.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
   const { pathname } = req.nextUrl
 
-  // Always pass through Next.js internals and ALL static files
-  if (pathname.startsWith('/_next') || pathname.startsWith('/_vercel') || pathname.includes('.')) {
+  // Always pass through Next.js internals
+  if (pathname.startsWith('/_next') || pathname.startsWith('/_vercel')) {
+    return NextResponse.next()
+  }
+  // Pass static asset files but NOT sitemap.xml or robots.txt (we handle those)
+  if (pathname.includes('.') && pathname !== '/sitemap.xml' && pathname !== '/robots.txt') {
     return NextResponse.next()
   }
 
   // ── CUSTOM DOMAIN ──────────────────────────────────────────────────────────
   const portal = DOMAIN_MAP[host]
   if (portal) {
+    // Sitemap → serve domain-specific sitemap via API
+    if (pathname === '/sitemap.xml' || pathname === '/sitemap') {
+      const url = req.nextUrl.clone()
+      url.pathname = '/api/sitemap'
+      return NextResponse.rewrite(url)
+    }
+    // Robots.txt → serve domain-specific robots
+    if (pathname === '/robots.txt') {
+      return new NextResponse(
+        `User-agent: *\nAllow: /\nDisallow: /portal/\nDisallow: /api/\nSitemap: https://${host}/sitemap.xml\n`,
+        { headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'public, max-age=86400' } }
+      )
+    }
     if (pathname.startsWith('/api/'))    return NextResponse.next()
     if (pathname.startsWith('/article/'))return NextResponse.next()
     if (['/search','/legal','/portal','/charts'].some(p => pathname.startsWith(p))) return NextResponse.next()
