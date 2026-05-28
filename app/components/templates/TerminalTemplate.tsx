@@ -98,22 +98,6 @@ function Newsletter({ siteName, accent }: any) {
     </form>
   )
 }
-
-
-  // Set domain-specific favicon
-  React.useEffect(() => {
-    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement || document.createElement('link')
-    link.rel = 'icon'
-    link.href = '/icon-finvexx.svg'
-    document.head.appendChild(link)
-    // Also set shortcut icon
-    const shortcut = document.querySelector("link[rel='shortcut icon']") as HTMLLinkElement || document.createElement('link')
-    shortcut.rel = 'shortcut icon'
-    shortcut.href = '/icon-finvexx.svg'
-    document.head.appendChild(shortcut)
-    return () => {}
-  }, [])
-
 export default function TerminalTemplate({ articles = [], site, siteSlug, primaryColor }: any) {
   const [activeTab, setActiveTab] = useState('LIVE')
   const [clock, setClock] = useState('')

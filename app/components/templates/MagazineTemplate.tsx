@@ -67,22 +67,6 @@ function Newsletter({siteName,p}:any) {
       <button type="submit" style={{padding:'11px 22px',background:'#1A1A1A',color:'#fff',border:'none',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>Join Free →</button>
     </form>
 }
-
-
-  // Set domain-specific favicon
-  React.useEffect(() => {
-    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement || document.createElement('link')
-    link.rel = 'icon'
-    link.href = '/icon-bizplezx.svg'
-    document.head.appendChild(link)
-    // Also set shortcut icon
-    const shortcut = document.querySelector("link[rel='shortcut icon']") as HTMLLinkElement || document.createElement('link')
-    shortcut.rel = 'shortcut icon'
-    shortcut.href = '/icon-bizplezx.svg'
-    document.head.appendChild(shortcut)
-    return () => {}
-  }, [])
-
 export default function MagazineTemplate({ articles=[], site, siteSlug, primaryColor }:any) {
   const [section, setSection] = useState('All')
   const meta = SITE_META[siteSlug] || {name:site?.name||'Bizplezx',domain:'bizplezx.com',color:'#6741D9',tagline:'Business Intelligence'}
