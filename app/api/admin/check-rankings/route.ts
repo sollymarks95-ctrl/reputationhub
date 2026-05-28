@@ -1,66 +1,143 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-const OUR_DOMAINS = ['rephuby.com','finvex','nexwire','signalix','aurexhq','verivex','bizpedia','tradvex','certivade','execvex','invexhub','presxwire','bizplex']
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+async function getSearchApiKey(): Promise<string> {
+  // 1. Check env var first (fastest)
+  if (process.env.SEARCHAPI_KEY) return process.env.SEARCHAPI_KEY
+  if (process.env.SERPAPI_KEY) return process.env.SERPAPI_KEY
+  // 2. Fall back to Supabase
+  const { data } = await supabase
+    .from('system_api_keys')
+    .select('key_value')
+    .in('key_name', ['SEARCHAPI_KEY', 'SERPAPI_KEY'])
+    .eq('is_active', true)
+    .order('key_name')
+    .limit(1)
+    .single()
+  return data?.key_value || ''
+}
+
+async function checkRankWithSearchApi(keyword: string, domain: string, apiKey: string): Promise<{ position: number; url: string } | null> {
+  try {
+    const params = new URLSearchParams({
+      engine: 'google',
+      q: keyword,
+      api_key: apiKey,
+      num: '100',
+      gl: 'us',
+      hl: 'en',
+    })
+
+    const res = await fetch(`https://www.searchapi.io/api/v1/search?${params}`, {
+      signal: AbortSignal.timeout(20000),
+    })
+
+    if (!res.ok) {
+      console.error('SearchAPI error:', res.status, await res.text())
+      return null
+    }
+
+    const data = await res.json()
+    const results = data.organic_results || []
+
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i]
+      const url: string = r.link || r.url || ''
+      if (url.includes(domain) || (r.displayed_link || '').includes(domain)) {
+        return { position: i + 1, url }
+      }
+    }
+    return null
+  } catch (e) {
+    console.error('SearchAPI fetch error:', e)
+    return null
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { clientId, keyword } = await req.json()
-    if (!clientId || !keyword) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    const { clientId, keyword, domain } = await req.json()
 
-    const { data: apiKeyRow } = await supabase.from('system_api_keys').select('key_value').eq('key_name', 'SERPAPI_KEY').eq('is_active', true).single()
-    const apiKey = apiKeyRow?.key_value || process.env.SERPAPI_KEY
+    const apiKey = await getSearchApiKey()
+    if (!apiKey) {
+      return NextResponse.json({ error: 'SearchAPI key not configured' }, { status: 400 })
+    }
 
-    let position: number | null = null
-    let url: string | null = null
-    let allResults: any[] = []
-    let usedRealApi = false
+    // Get client domains if not provided
+    let searchDomain = domain
+    if (!searchDomain && clientId) {
+      const { data: client } = await supabase
+        .from('portal_clients')
+        .select('website')
+        .eq('id', clientId)
+        .single()
+      searchDomain = client?.website?.replace(/^https?:\/\/(www\.)?/, '') || ''
+    }
 
-    if (apiKey) {
-      try {
-        const r = await fetch(`https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(keyword)}&num=20&gl=gb&hl=en&api_key=${apiKey}`)
-        const d = await r.json()
-        allResults = d.organic_results || []
-        usedRealApi = true
-        allResults.forEach((res: any, i: number) => {
-          const link = (res.link || '').toLowerCase()
-          if (position === null && OUR_DOMAINS.some(d => link.includes(d))) {
-            position = i + 1; url = res.link
-          }
+    if (!keyword || !searchDomain) {
+      return NextResponse.json({ error: 'keyword and domain required' }, { status: 400 })
+    }
+
+    const result = await checkRankWithSearchApi(keyword, searchDomain, apiKey)
+
+    // Update or insert ranking in DB
+    if (clientId) {
+      const { data: existing } = await supabase
+        .from('portal_rankings')
+        .select('id, current_position')
+        .eq('client_id', clientId)
+        .eq('keyword', keyword)
+        .single()
+
+      const prevPosition = existing?.current_position || null
+      const newPosition = result?.position || 0
+
+      if (existing) {
+        await supabase.from('portal_rankings').update({
+          current_position: newPosition,
+          previous_position: prevPosition,
+          ranking_url: result?.url || null,
+          last_checked: new Date().toISOString(),
+        }).eq('id', existing.id)
+      } else {
+        await supabase.from('portal_rankings').insert({
+          client_id: clientId,
+          keyword,
+          current_position: newPosition,
+          previous_position: null,
+          ranking_url: result?.url || null,
+          last_checked: new Date().toISOString(),
         })
-        if (position === null) position = 99
-      } catch {}
+      }
+
+      // Log activity
+      if (prevPosition && newPosition > 0 && newPosition < prevPosition) {
+        await supabase.from('portal_activity').insert({
+          client_id: clientId,
+          type: 'rank_improved',
+          description: `"${keyword}" improved from #${prevPosition} to #${newPosition}`,
+        })
+      }
     }
 
-    if (!usedRealApi) {
-      // Demo: simulate improvement
-      const { data: prev } = await supabase.from('portal_rankings').select('current_position').eq('client_id', clientId).eq('keyword', keyword).single()
-      const prevPos = prev?.current_position || 20
-      position = Math.max(1, prevPos - Math.floor(Math.random() * 3))
-      url = `https://rephuby.com/news/global-trade-wire`
-    }
+    await supabase
+      .from('system_api_keys')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('key_name', 'SEARCHAPI_KEY')
 
-    const { data: prev } = await supabase.from('portal_rankings').select('current_position').eq('client_id', clientId).eq('keyword', keyword).single()
-    const prevPos = prev?.current_position || position || 99
-
-    await supabase.from('portal_rankings').upsert({
-      client_id: clientId, keyword, current_position: position,
-      previous_position: prevPos, best_position: Math.min(prevPos, position || 99),
-      ranking_url: url, checked_at: new Date().toISOString()
-    }, { onConflict: 'client_id,keyword' })
-
-    await supabase.from('ranking_history').insert({ client_id: clientId, keyword, position, url })
-
-    if (position !== null && prevPos !== null && position < prevPos) {
-      await supabase.from('portal_activity').insert({
-        client_id: clientId, type: 'rank_improved',
-        title: `"${keyword}" → #${position}`,
-        description: `Improved from #${prevPos} to #${position}${position <= 10 ? ' — Page 1!' : ''}`,
-      })
-    }
-
-    return NextResponse.json({ success: true, keyword, position, previousPosition: prevPos, url, improved: position !== null && position < prevPos, usedRealApi, allResults: allResults.slice(0, 5) })
+    return NextResponse.json({
+      keyword,
+      domain: searchDomain,
+      position: result?.position || 0,
+      url: result?.url || null,
+      found: !!result,
+      credits_used: 1,
+    })
   } catch (e: any) {
+    console.error('check-rankings error:', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
