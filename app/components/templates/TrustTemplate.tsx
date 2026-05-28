@@ -109,7 +109,7 @@ export default function TrustTemplate({ articles = [], site, routePrefix, siteSl
       </div>
 
       <footer style={{ background:DARK, color:'#555', padding:'20px', marginTop:40, fontFamily:'Inter,sans-serif', fontSize:11, textAlign:'center' }}>
-        VERIVEX · verivex.co · © {new Date().getFullYear()} RepHuby Intelligence Network
+        VERIVEX · verivex.co · © {new Date().getFullYear()} Financial Intelligence Network
       </footer>
     </div>
   )

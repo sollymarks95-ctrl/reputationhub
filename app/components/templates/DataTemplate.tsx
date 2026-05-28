@@ -150,7 +150,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
       </div>
 
       <footer style={{ background:'#1A1A1A', padding:'20px 24px', marginTop:30, fontFamily:'Inter,sans-serif', fontSize:11, color:'#555', textAlign:'center' }}>
-        {siteName} · {domain} · © {new Date().getFullYear()} RepHuby Intelligence Ltd
+        {siteName} · {domain} · © {new Date().getFullYear()} Financial Intelligence Ltd
       </footer>
     </div>
   )
