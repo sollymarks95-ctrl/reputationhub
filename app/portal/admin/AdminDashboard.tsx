@@ -61,6 +61,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podEpNum, setPodEpNum] = useState('')
   const [podSite, setPodSite] = useState('')
   const [podVideo, setPodVideo] = useState('')
+  const [podDescriptUrl, setPodDescriptUrl] = useState('')
   const [podVideoLoading, setPodVideoLoading] = useState(false)
   const [podTitle, setPodTitle] = useState('')
   const [podHost, setPodHost] = useState('James Richardson')
@@ -145,7 +146,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   async function generateFullPodcast(e: React.FormEvent) {
     e.preventDefault()
     if (!podClient) { alert('Select a client first'); return }
-    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodMsg('Generating script...')
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('Generating script...')
     try {
       const scriptRes = await fetch('/api/admin/generate-script', {
         method: 'POST', headers: {'Content-Type':'application/json'},
@@ -182,9 +183,14 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           const vidData = await vidRes.json()
           if (vidData.videoUrl) {
             setPodVideo(vidData.videoUrl)
-            setPodMsg('✅ Full podcast ready — audio + video + Descript production!')
+          }
+          if (vidData.projectUrl || vidData.descriptLink) {
+            setPodDescriptUrl(vidData.projectUrl || vidData.descriptLink)
+          }
+          if (vidData.success) {
+            setPodMsg('✅ Podcast complete — audio + Descript video production ready!')
           } else {
-            setPodMsg(`✓ Audio ready! Video: ${vidData.error || 'processing'} — download MP3 above`)
+            setPodMsg(`✓ Audio ready. Video: ${vidData.error || 'check Descript'} — MP3 available above`)
           }
         } catch (err) { setPodMsg('✓ Audio ready! Video generation failed — MP3 available above') }
         setPodVideoLoading(false)
@@ -690,7 +696,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
                             <a href={podAudio} download><button className="btn b-green" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ MP3</button></a>
                             <a href={podAudio} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Stream</button></a>
-                            <a href="https://web.descript.com" target="_blank" rel="noopener noreferrer"><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Descript</button></a>
+                            {podDescriptUrl ? (<a href={podDescriptUrl} target="_blank" rel="noopener noreferrer"><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Open in Descript</button></a>) : (<a href="https://web.descript.com" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Descript</button></a>)}
                           </div>
                           {/* VIDEO SECTION */}
                           {podVideoLoading && !podVideo && (
