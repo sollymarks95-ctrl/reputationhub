@@ -27,11 +27,14 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
   const p = client?.primary_color || '#0EA5E9'
 
   useEffect(() => {
-    try { setUser(JSON.parse(localStorage.getItem('portal_demo') || '{}')) } catch {}
+    try {
+      const s = localStorage.getItem('rh_admin') || localStorage.getItem('rephuby_session') || localStorage.getItem('portal_demo') || '{}'
+      setUser(JSON.parse(s))
+    } catch {}
   }, [])
 
   function logout() {
-    localStorage.removeItem('portal_demo')
+    localStorage.removeItem('portal_demo'); localStorage.removeItem('rh_admin'); localStorage.removeItem('rephuby_session')
     router.push('/portal')
   }
 
@@ -74,7 +77,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
       `}</style>
 
       {/* ── SIDEBAR ── */}
-      <aside className="sidebar" style={{ width:240, background:'linear-gradient(180deg,#111827,#0B0F19)', borderRight:'1px solid rgba(255,255,255,0.07)', display:'flex', flexDirection:'column', position:'fixed', top:0, bottom:0, left:0, zIndex:50 }}>
+      <aside className="sidebar" style={{ width:240, background:'linear-gradient(180deg,#111827,#0B0F19)', borderRight:'1px solid rgba(255,255,255,0.07)', display:'flex', flexDirection:'column', position:'fixed', top: isAdminUser ? 44 : 0, bottom:0, left:0, zIndex:50 }}>
         <div style={{ padding:'20px 16px', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
           <Link href="/">
             <div style={{ fontFamily:"'Syne',sans-serif", fontSize:22, fontWeight:900, letterSpacing:'-0.03em' }}>
@@ -122,8 +125,8 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
           ))}
         </nav>
 
-        {/* Admin switcher — only shown for admin user */}
-        {user?.role === 'superadmin' && (
+        {/* Admin switcher — shown for admin email */}
+        {(user?.role === 'superadmin' || user?.email === 'sollymarks95@gmail.com') && (
           <div style={{ padding:'8px 12px', borderTop:'1px solid rgba(255,255,255,0.07)' }}>
             <a href="/portal/admin" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.1))', border:'1px solid rgba(239,68,68,0.4)', borderRadius:8, textDecoration:'none', cursor:'pointer' }}>
               <span style={{ fontSize:18 }}>⚙️</span>
@@ -155,7 +158,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
       </aside>
 
       {/* ── MAIN CONTENT ── */}
-      <main style={{ marginLeft:240, flex:1, overflowY:'auto', minHeight:'100vh' }}>
+      <main style={{ marginLeft:240, flex:1, overflowY:'auto', minHeight:'100vh', marginTop: isAdminUser ? 44 : 0 }}>
 
         {/* TOP BAR */}
         <div style={{ position:'sticky', top:0, zIndex:40, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(255,255,255,0.07)', padding:'12px 28px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>

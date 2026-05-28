@@ -34,10 +34,15 @@ export default function PortalLogin() {
     const session = {
       email: cleanEmail,
       role: isAdmin ? 'superadmin' : 'client',
+      name: isAdmin ? 'Solly' : cleanEmail.split('@')[0],
       ts: Date.now()
     }
     try {
-      localStorage.setItem('rh_admin', JSON.stringify(session))
+      // Write to ALL possible keys so every component can read it
+      const val = JSON.stringify(session)
+      localStorage.setItem('rh_admin', val)
+      localStorage.setItem('rephuby_session', val)
+      localStorage.setItem('portal_demo', val)
       document.cookie = `rh_role=${isAdmin ? 'superadmin' : 'client'}; path=/; max-age=86400`
     } catch {}
 
