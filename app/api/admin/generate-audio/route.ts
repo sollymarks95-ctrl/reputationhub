@@ -20,8 +20,11 @@ async function getKey(name: string) {
   return data?.key_value || ''
 }
 
-const HOST_SETTINGS  = { stability:0.55, similarity_boost:0.85, style:0.35, use_speaker_boost:true }
-const GUEST_SETTINGS = { stability:0.42, similarity_boost:0.82, style:0.50, use_speaker_boost:true }
+// Lower stability = more expressive/natural, less robotic monotone
+// Lower similarity = more variation in tone and pace
+// Higher style = more personality and emphasis
+const HOST_SETTINGS  = { stability:0.30, similarity_boost:0.70, style:0.55, use_speaker_boost:true }
+const GUEST_SETTINGS = { stability:0.25, similarity_boost:0.65, style:0.65, use_speaker_boost:true }
 
 function cleanText(text: string) {
   return text

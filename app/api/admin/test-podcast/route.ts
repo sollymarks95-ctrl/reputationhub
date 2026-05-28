@@ -55,8 +55,8 @@ export async function GET() {
 
   log.push(`${ms()} Calling ElevenLabs — sequential (1 at a time)...`)
   const bufs: Buffer[] = new Array(segs.length)
-  const HS = {stability:0.55,similarity_boost:0.85,style:0.35,use_speaker_boost:true}
-  const GS = {stability:0.42,similarity_boost:0.82,style:0.50,use_speaker_boost:true}
+  const HS = {stability:0.30,similarity_boost:0.70,style:0.55,use_speaker_boost:true}
+  const GS = {stability:0.25,similarity_boost:0.65,style:0.65,use_speaker_boost:true}
   try {
     for (let i=0;i<segs.length;i++) {
       const seg=segs[i]
