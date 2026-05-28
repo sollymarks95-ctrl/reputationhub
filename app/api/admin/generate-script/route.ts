@@ -7,7 +7,7 @@ export const maxDuration = 120
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 export async function POST(req: NextRequest) {
-  const { clientId, topic, episode, duration = 8 } = await req.json()
+  const { clientId, topic, episode, duration = 8, hostName, hostRole, guestName, guestRole } = await req.json()
 
   const client = clientId
     ? (await supabase.from('portal_clients').select('*').eq('id', clientId).single()).data
@@ -16,23 +16,34 @@ export async function POST(req: NextRequest) {
   const companyName = client?.company_name || 'the firm'
   const industry = client?.industry || 'financial services'
 
+  const hostLabel = hostName || 'James Richardson'
+  const guestLabel = guestName || 'Alex Chen'
+  const hostJobTitle = hostRole || 'Show Host'  
+  const guestJobTitle = guestRole || 'Expert Analyst'
+
   const prompt = `Write a professional ${duration}-minute podcast episode script about: "${topic || `${companyName}'s market position and reputation`}"
 
 ${client ? `Company: ${companyName} | Industry: ${industry}` : ''}
+Host: ${hostLabel} (${hostJobTitle})
+Guest: ${guestLabel} (${guestJobTitle})
 
 FORMAT RULES (critical):
-- Two speakers: HOST (male, authoritative host) and GUEST (expert analyst/executive)
-- EVERY line MUST start with exactly "HOST:" or "GUEST:"
-- Natural conversation, not a lecture
-- Include real market context, specific statistics, named developments
+- Two speakers ONLY: always "HOST:" and "GUEST:" — never use their real names as speaker labels
+- EVERY line MUST start with exactly "HOST:" or "GUEST:" 
+- ${hostLabel} is the HOST — confident, sharp interviewer who sets the scene and asks great questions
+- ${guestLabel} is the GUEST — the expert who gives insightful data-driven answers
+- Natural flowing conversation — not Q&A style, they build on each other's points
+- Include REAL current data: BTC ~$76k, Gold ~$4,400/oz, EUR/USD 1.11, S&P 500 at 5,842
 - ${duration} minutes ≈ ${duration * 130} words total
-- Episode ${episode || 1} opener, main discussion, key takeaways, sign-off
+- Open with a strong hook, build through the episode, close with key takeaways
 
-STYLE: Bloomberg/Reuters podcast quality — professional but conversational. 
-The HOST asks sharp questions. The GUEST gives expert, data-driven answers.
-Make it feel like a REAL premium financial podcast.
+INTRO: HOST introduces the show, mentions ${guestLabel}'s name and title naturally in speech
+BODY: Deep discussion with specific data points, market examples, named companies/events
+CLOSE: HOST wraps up, thanks ${guestLabel} by name, signs off
 
-OUTPUT ONLY THE SCRIPT — no stage directions, no [brackets], no asterisks:`
+STYLE: Bloomberg/Reuters podcast quality — sharp, data-driven, genuinely interesting.
+
+OUTPUT ONLY THE SCRIPT — no stage directions, no brackets, no asterisks:`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {

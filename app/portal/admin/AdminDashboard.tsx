@@ -60,6 +60,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podClient, setPodClient] = useState('')
   const [podEpNum, setPodEpNum] = useState('')
   const [podTitle, setPodTitle] = useState('')
+  const [podHost, setPodHost] = useState('James Richardson')
+  const [podHostRole, setPodHostRole] = useState('Show Host')
   const [podGuest, setPodGuest] = useState('')
   const [podRole, setPodRole] = useState('')
   const [podTopic, setPodTopic] = useState('')
@@ -128,7 +130,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     e.preventDefault()
     setPodLoading(true); setPodScript(''); setPodMsg(''); setPodAudio('')
     const r = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, guestName: podGuest, guestRole: podRole, topic: podTopic, brokerName: getClientBrokerName(podClient), regulation: getClientRegulation(podClient), durationMinutes: parseInt(podDuration)||20 }) })
+      body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, brokerName: getClientBrokerName(podClient), regulation: getClientRegulation(podClient), durationMinutes: parseInt(podDuration)||20 }) })
     const d = await r.json()
     if (d.script) { setPodScript(d.script); setPodEpisodeId(d.episodeId || '') }
     else setPodMsg(d.error || 'Failed to generate script')
@@ -546,6 +548,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                               setPodGuest(t.guest)
                               setPodRole(t.role)
                               setPodTopic(filled(t.topic))
+                              if (!podHost) setPodHost('James Richardson')
                             }}>
                             <span style={{ fontSize:16, flexShrink:0 }}>{t.icon}</span>
                             <span style={{ fontWeight:700 }}>{t.label}</span>
@@ -564,6 +567,10 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       </select>
                     </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
+                      <div><label>Host Name</label><input className="inp" value={podHost} onChange={e => setPodHost(e.target.value)} placeholder="James Richardson" /></div>
+                      <div><label>Host Role / Title</label><input className="inp" value={podHostRole} onChange={e => setPodHostRole(e.target.value)} placeholder="Show Host" /></div>
+                    </div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
                       <div><label>Episode #</label><input className="inp" value={podEpNum} onChange={e => setPodEpNum(e.target.value)} placeholder="1" type="number" min="1" /></div>
                       <div><label>Duration (min)</label><input className="inp" value={podDuration} onChange={e => setPodDuration(e.target.value)} placeholder="20" type="number" /></div>
                     </div>
@@ -572,7 +579,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <input className="inp" value={podTitle} onChange={e => setPodTitle(e.target.value)} placeholder="Click a template above or type your own title" required />
                     </div>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
-                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="Auto-filled from template" /></div>
+                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="e.g. Alex Chen" /></div>
                       <div><label>Guest Role</label><input className="inp" value={podRole} onChange={e => setPodRole(e.target.value)} placeholder="Auto-filled from template" /></div>
                     </div>
                     <div style={{ marginBottom:14 }}>
