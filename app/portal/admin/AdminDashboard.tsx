@@ -85,6 +85,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podDuration, setPodDuration] = useState('20')
   const [podScript, setPodScript] = useState('')
   const [podLoading, setPodLoading] = useState(false)
+  const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
   const [podAudioLoading, setPodAudioLoading] = useState(false)
   const [podEpisodeId, setPodEpisodeId] = useState('')
   const [podAudio, setPodAudio] = useState('')
@@ -655,6 +656,22 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           {/* ══ PODCASTS ══ */}
           {tab === 'podcasts' && (
             <div style={{ animation:'slideIn .3s ease' }}>
+              {/* Sub-tab switcher */}
+              <div style={{ display:'flex', gap:8, marginBottom:20, background:'rgba(255,255,255,0.03)', borderRadius:10, padding:4, width:'fit-content', border:'1px solid rgba(255,255,255,0.07)' }}>
+                {[
+                  { id:'studio', label:'🎙 Studio', sub:'Create' },
+                  { id:'episodes', label:'📻 Episodes', sub:'Listen & Download' },
+                ].map(t => (
+                  <button key={t.id} type="button" onClick={() => setPodSubTab(t.id as any)}
+                    style={{ padding:'9px 22px', borderRadius:8, border:'none', cursor:'pointer', transition:'all .2s',
+                      background: podSubTab===t.id ? 'linear-gradient(135deg,#0EA5E9,#6366F1)' : 'transparent',
+                      color: podSubTab===t.id ? '#fff' : '#64748b', fontWeight: podSubTab===t.id ? 700 : 500, fontSize:13 }}>
+                    {t.label} <span style={{ fontSize:10, opacity:.75, marginLeft:4 }}>{t.sub}</span>
+                  </button>
+                ))}
+              </div>
+
+              {podSubTab === 'studio' && (
               <div style={{ display:'grid', gridTemplateColumns:'380px 1fr', gap:20, alignItems:'start' }}>
                 <div className="card" style={{ padding:22 }}>
                   <div className="syne" style={{ fontSize:15, fontWeight:800, marginBottom:16 }}>🎙 AI Podcast Studio</div>
@@ -907,25 +924,76 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                 </div>
               </div>
 
-              {/* Past episodes */}
-              {allPodcasts.length > 0 && (
-                <div className="card" style={{ padding:20, marginTop:20 }}>
-                  <div className="syne" style={{ fontSize:14, fontWeight:800, marginBottom:14 }}>Past Episodes</div>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:12 }}>
-                    {allPodcasts.map((ep: any, i: number) => (
-                      <div key={i} style={{ padding:'14px 16px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10 }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                          <span style={{ fontSize:11, color:'#475569', fontWeight:700 }}>EP.{ep.episode_number}</span>
-                          <span className={`badge ${ep.status==='published'?'bg':ep.status==='audio_ready'?'bb':ep.status==='script_ready'?'by':'br'}`}>{ep.status}</span>
+              )} {/* end studio tab */}
+
+              {/* ═══ EPISODES TAB ═══ */}
+              {podSubTab === 'episodes' && (
+                <div>
+                  {allPodcasts.length === 0 ? (
+                    <div style={{ textAlign:'center', padding:'80px 20px', color:'#475569' }}>
+                      <div style={{ fontSize:48, marginBottom:12 }}>🎙</div>
+                      <div style={{ fontSize:16, fontWeight:600, color:'#94A3B8', marginBottom:8 }}>No episodes yet</div>
+                      <div style={{ fontSize:13 }}>Go to the Studio tab and generate your first podcast episode.</div>
+                      <button onClick={() => setPodSubTab('studio')} style={{ marginTop:20, padding:'10px 24px', background:'linear-gradient(135deg,#0EA5E9,#6366F1)', border:'none', borderRadius:8, color:'#fff', fontWeight:700, cursor:'pointer', fontSize:13 }}>
+                        Open Studio →
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(400px,1fr))', gap:18 }}>
+                      {allPodcasts.map((ep: any, i: number) => (
+                        <div key={i} className="card" style={{ padding:24 }}>
+                          {/* Episode header */}
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
+                            <div>
+                              <div style={{ fontSize:11, color:'#475569', fontWeight:700, letterSpacing:'.06em' }}>EPISODE {ep.episode_number}</div>
+                              <div className="syne" style={{ fontSize:17, fontWeight:800, marginTop:4, lineHeight:1.2, color:'#F1F5F9' }}>{ep.title}</div>
+                            </div>
+                            <span className={`badge ${ep.status==='published'?'badge-green':ep.status==='generating'?'badge-gold':'badge-blue'}`} style={{ flexShrink:0, marginLeft:10 }}>
+                              {ep.status === 'generating' ? '⟳ Generating...' : ep.status === 'published' ? '✓ Published' : ep.status}
+                            </span>
+                          </div>
+
+                          {/* Guest + duration info */}
+                          <div style={{ display:'flex', gap:12, marginBottom:14, flexWrap:'wrap' }}>
+                            {ep.guest_name && <span style={{ fontSize:12, color:'#64748b' }}>👤 {ep.guest_name}</span>}
+                            {ep.host_name && <span style={{ fontSize:12, color:'#64748b' }}>🎙 {ep.host_name}</span>}
+                            {ep.duration_minutes > 0 && <span className="badge badge-blue">⏱ {ep.duration_minutes} min</span>}
+                          </div>
+
+                          {/* Audio player or placeholder */}
+                          {ep.mp3_url ? (
+                            <div style={{ marginBottom:14 }}>
+                              <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:8 }}>🎵 AUDIO</div>
+                              <audio controls style={{ width:'100%', borderRadius:8, outline:'none' }} src={ep.mp3_url}/>
+                              <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                                <a href={ep.mp3_url} download={`episode-${ep.episode_number}.mp3`} style={{ flex:1 }}>
+                                  <button style={{ width:'100%', padding:'8px', background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:6, color:'#10B981', fontWeight:700, cursor:'pointer', fontSize:11 }}>
+                                    ⬇ Download MP3
+                                  </button>
+                                </a>
+                                <a href={ep.mp3_url} target="_blank" rel="noopener noreferrer" style={{ flex:1 }}>
+                                  <button style={{ width:'100%', padding:'8px', background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', borderRadius:6, color:'#0EA5E9', fontWeight:700, cursor:'pointer', fontSize:11 }}>
+                                    🔗 Open in tab
+                                  </button>
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ height:52, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(255,255,255,0.03)', borderRadius:8, marginBottom:14, border:'1px dashed rgba(255,255,255,0.08)' }}>
+                              <span style={{ fontSize:12, color:'#475569' }}>
+                                {ep.status === 'generating' ? '⟳ Audio generating...' : '— No audio yet —'}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Created date */}
+                          <div style={{ fontSize:11, color:'#334155', marginTop:4 }}>
+                            {ep.published_at ? new Date(ep.published_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : ''}
+                          </div>
                         </div>
-                        <div style={{ fontWeight:600, fontSize:13, color:'#F1F5F9', marginBottom:4 }}>{ep.title}</div>
-                        <div style={{ fontSize:11, color:'#64748b' }}>{ep.guest_name} · {ep.duration_seconds ? `${Math.round(ep.duration_seconds/60)}min` : 'TBD'}</div>
-                        {ep.mp3_url && (
-                          <audio controls style={{ width:'100%', borderRadius:6, marginTop:8 }} src={ep.mp3_url}/>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
