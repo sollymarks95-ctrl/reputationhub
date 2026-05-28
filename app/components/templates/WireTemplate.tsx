@@ -3,36 +3,21 @@ import React, { useState } from 'react'
 
 
 const IMGS = [
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1569025591289-5c6ee7af7edf?w=1200&q=80',
-  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=1200&q=80',
-  'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1487611459768-bd414656ea10?w=1200&q=80',
-  'https://images.unsplash.com/photo-1509395062183-a6ef4b2a8cf4?w=1200&q=80',
-  'https://images.unsplash.com/photo-1621501103258-d8f5f2c74be0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=1200&q=80',
-  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80'
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80&fm=jpg',
 ]
 function slugHash(slug: string): number {
   let h = 0
@@ -40,7 +25,7 @@ function slugHash(slug: string): number {
   return Math.abs(h)
 }
 const getImg = (a: any, i: number) => {
-  if (a?.cover_image_url && !a.cover_image_url.includes('unsplash.com/photo-1578574')) return a.cover_image_url
+  if (a?.cover_image_url && a.cover_image_url.startsWith('http')) return a.cover_image_url
   const hash = a?.slug ? slugHash(a.slug) : i
   return IMGS[hash % IMGS.length]
 }
@@ -156,7 +141,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         {hero && (
           <div className="whero" style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:32,marginBottom:32,paddingBottom:28,borderBottom:'3px double #ddd'}}>
             <a href={`/article/${siteSlug}/${hero.slug}`} className="wcard" style={{display:'block'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover',marginBottom:16}}/>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover',marginBottom:16}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
               <span className="wcat">{hero.category||'Analysis'}</span>
               <div className="whl" style={{fontSize:34,marginBottom:10}}>{hero.title}</div>
               <div style={{fontFamily:'Georgia,serif',fontSize:16,color:'#444',lineHeight:1.7}}>{hero.excerpt?.slice(0,200)}</div>
@@ -166,7 +151,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
               <div style={{fontFamily:'Inter,sans-serif',fontSize:10,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:'#999',marginBottom:10,paddingBottom:6,borderBottom:'2px solid #111'}}>Top Stories</div>
               {top.map((a:any,i:number)=>(
                 <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="wcard" style={{display:'flex',gap:10,paddingBottom:12,marginBottom:12,borderBottom:'1px solid #eee'}}>
-                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:80,height:56,objectFit:'cover',flexShrink:0}}/>
+                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:80,height:56,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
                   <div>
                     <span className="wcat" style={{fontSize:9}}>{a.category}</span>
                     <div className="whl" style={{fontSize:15}}>{a.title}</div>
@@ -183,7 +168,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         <div className="wgrid" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:24,marginBottom:48}}>
           {grid.map((a:any,i:number)=>(
             <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="wcard" style={{display:'block'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+5)} alt={a.title} style={{width:'100%',height:130,objectFit:'cover',marginBottom:10}}/>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+5)} alt={a.title} style={{width:'100%',height:130,objectFit:'cover',marginBottom:10}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>>
               <span className="wcat" style={{fontSize:9}}>{a.category}</span>
               <div className="whl" style={{fontSize:16,marginBottom:5}}>{a.title}</div>
               <div className="wmeta">{timeAgo(a.published_at)}</div>

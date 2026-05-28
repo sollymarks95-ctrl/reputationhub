@@ -3,36 +3,21 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const IMGS = [
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1569025591289-5c6ee7af7edf?w=1200&q=80',
-  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=1200&q=80',
-  'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1487611459768-bd414656ea10?w=1200&q=80',
-  'https://images.unsplash.com/photo-1509395062183-a6ef4b2a8cf4?w=1200&q=80',
-  'https://images.unsplash.com/photo-1621501103258-d8f5f2c74be0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=1200&q=80',
-  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80'
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80&fm=jpg',
 ]
 // Use slug to generate consistent unique image per article (not position-based)
 function slugHash(slug: string): number {
@@ -41,7 +26,7 @@ function slugHash(slug: string): number {
   return Math.abs(h)
 }
 const getImg = (a: any, i: number) => {
-  if (a?.cover_image_url && !a.cover_image_url.includes('placeholder')) return a.cover_image_url
+  if (a?.cover_image_url && a.cover_image_url.startsWith('http')) return a.cover_image_url
   const hash = a?.slug ? slugHash(a.slug) : i
   return IMGS[hash % IMGS.length]
 }
@@ -222,7 +207,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             <div style={{background:'#0D1117',padding:22}}>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:accent,letterSpacing:'.1em',marginBottom:10,textTransform:'uppercase'}}>{hero.category} · FEATURED</div>
               <a href={`/article/${siteSlug}/${hero.slug}`} className="term-link">
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #1C2333'}}/>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
                 <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:20,fontWeight:700,color:'#F0F6FC',lineHeight:1.3,marginBottom:10}}>{hero.title}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:'#8B949E',lineHeight:1.6}}>{hero.excerpt?.slice(0,180)}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:10}}>{hero.author_name} · {timeAgo(hero.published_at)}</div>
@@ -240,7 +225,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:'#444D56',letterSpacing:'.1em',padding:'10px 16px',borderBottom:'1px solid #1C2333',textTransform:'uppercase'}}>{col.label}</div>
               {col.items.map((a: any, idx: number) => (
                 <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'12px 16px',borderBottom:'1px solid #0D1117'}}>
-                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}}/>
+                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
                   <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
                   <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4,marginBottom:4}}>{a.title}</div>
                   <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56'}}>{timeAgo(a.published_at)}</div>
@@ -255,7 +240,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'#1C2333',marginBottom:20}}>
             {articles.slice(19,27).map((a: any, i: number) => (
               <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'14px 16px',background:'#0D1117'}}>
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}}/>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
                 <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4}}>{a.title}</div>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:4}}>{timeAgo(a.published_at)}</div>

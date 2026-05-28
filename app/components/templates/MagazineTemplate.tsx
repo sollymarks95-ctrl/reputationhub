@@ -3,38 +3,23 @@ import React, { useState } from 'react'
 
 
 const IMGS = [
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=1200&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
-  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1569025591289-5c6ee7af7edf?w=1200&q=80',
-  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&q=80',
-  'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=1200&q=80',
-  'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=1200&q=80',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=1200&q=80',
-  'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80',
-  'https://images.unsplash.com/photo-1487611459768-bd414656ea10?w=1200&q=80',
-  'https://images.unsplash.com/photo-1509395062183-a6ef4b2a8cf4?w=1200&q=80',
-  'https://images.unsplash.com/photo-1621501103258-d8f5f2c74be0?w=1200&q=80',
-  'https://images.unsplash.com/photo-1551135049-8a33b5883817?w=1200&q=80',
-  'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80'
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=1200&q=80&fm=jpg',
+  'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80&fm=jpg',
 ]
-const getImg = (a:any, i:number) => a?.cover_image_url || IMGS[i % IMGS.length]
+const getImg = (a:any, i:number) => (a?.cover_image_url && a.cover_image_url.startsWith('http')) ? a.cover_image_url : IMGS[(a?.slug ? slugHash(a.slug) : i) % IMGS.length]
 
 const SITE_META: Record<string,{name:string;domain:string;color:string;tagline:string}> = {
   'business-pulse':    {name:'Bizplezx', domain:'bizplezx.com', color:'#6741D9', tagline:'Business Strategy & Innovation Intelligence'},
@@ -136,7 +121,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
               <div className="mmeta">By {hero.author_name||'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes||5} min read</div>
               <a href={`/article/${siteSlug}/${hero.slug}`} style={{display:'inline-block',marginTop:14,fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:700,color:p,borderBottom:`2px solid ${p}`,paddingBottom:2}}>Read Full Article →</a>
             </div>
-            <a href={`/article/${siteSlug}/${hero.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover'}}/></a>
+            <a href={`/article/${siteSlug}/${hero.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:340,objectFit:'cover'}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/></a>
           </div>
         )}
 
@@ -144,7 +129,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         <div className="m3" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:28,marginBottom:44,paddingBottom:36,borderBottom:'1px solid #ddd'}}>
           {(feat.length ? feat : articles.slice(1,4)).map((a:any,i:number)=>(
             <div key={a.id} className="mcard">
-              <a href={`/article/${siteSlug}/${a.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:'100%',height:190,objectFit:'cover',marginBottom:12}}/></a>
+              <a href={`/article/${siteSlug}/${a.slug}`}><img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title} style={{width:'100%',height:190,objectFit:'cover',marginBottom:12}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/></a>
               <span className="mcat">{a.category}</span>
               <a href={`/article/${siteSlug}/${a.slug}`}><div className="mhl" style={{fontSize:20,marginBottom:8}}>{a.title}</div></a>
               <div style={{fontFamily:'Georgia,serif',fontSize:13,color:'#555',lineHeight:1.6}}>{a.excerpt?.slice(0,110)}</div>
@@ -158,7 +143,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         <div className="m2" style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:18,marginBottom:44}}>
           {(list.length ? list : articles.slice(4,14)).map((a:any,i:number)=>(
             <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="mcard" style={{display:'flex',gap:14,paddingBottom:16,borderBottom:'1px solid #ddd'}}>
-              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+4)} alt={a.title} style={{width:96,height:68,objectFit:'cover',flexShrink:0}}/>
+              <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+4)} alt={a.title} style={{width:96,height:68,objectFit:'cover',flexShrink:0}} onError={(e:any)=>{e.currentTarget.src=IMGS[(Math.floor(Math.random()*IMGS.length))];}}/>
               <div>
                 <span className="mcat" style={{fontSize:9,marginBottom:4}}>{a.category}</span>
                 <div className="mhl" style={{fontSize:16,marginBottom:4}}>{a.title}</div>
