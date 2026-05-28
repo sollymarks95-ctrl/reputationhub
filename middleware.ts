@@ -15,6 +15,12 @@ const DOMAIN_MAP: Record<string, { route: string; slug: string; name: string }> 
   'certivade.com':   { route:'association',   slug:'global-trade-assoc', name:'Certivade'},
   'execvex.com':     { route:'executive',     slug:'executive-network',  name:'Execvex'  },
   'signalix.com':    { route:'market-radar',  slug:'market-radar',       name:'Signalix' },
+  // .co fallbacks (verified available)
+  'nexwire.co':      { route:'news',         slug:'global-trade-wire',  name:'Nexwire'  },
+  'bizplex.co':      { route:'magazine',      slug:'business-pulse',     name:'Bizplex'  },
+  'verivex.co':      { route:'reviews-hub',   slug:'trust-score',        name:'Verivex'  },
+  // aurexhq.com is available — buy at vercel.com/domains/search?q=aurexhq.com
+
   // .io fallbacks
   'nexwire.io':      { route:'news',         slug:'global-trade-wire',  name:'Nexwire'  },
   'finvex.io':       { route:'finance',       slug:'finance-terminal',   name:'Finvex'   },
