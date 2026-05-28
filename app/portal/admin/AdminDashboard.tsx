@@ -868,18 +868,16 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     </div>
                   )}
 
-                  {!podScript && !podLoading ? (
-                    <div style={{ padding:'60px 20px', textAlign:'center', color:'#475569' }}>
-                      <div style={{ fontSize:40, marginBottom:12 }}>🎙</div>
-                      <div style={{ fontSize:14 }}>Fill the form and click Generate Script to create a professional podcast episode script</div>
-                    </div>
-                  ) : podLoading ? (
-                    <div style={{ padding:'60px 20px', textAlign:'center' }}>
-                      <div style={{ width:36, height:36, border:'3px solid rgba(245,158,11,0.2)', borderTopColor:'#F59E0B', borderRadius:'50%', animation:'spin .7s linear infinite', margin:'0 auto 16px' }} />
-                      <div style={{ color:'#94A3B8', fontSize:14 }}>Claude is writing your podcast script...</div>
-                    </div>
-                  ) : (
+
+                  {podScript ? (
                     <>
+                      {/* Loading indicator while generating audio (script is already visible) */}
+                      {podLoading && (
+                        <div style={{ padding:'10px 14px', background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.2)', borderRadius:8, marginBottom:12, display:'flex', alignItems:'center', gap:10 }}>
+                          <div style={{ width:14,height:14,border:'2px solid rgba(14,165,233,0.3)',borderTopColor:'#0EA5E9',borderRadius:'50%',animation:'spin .7s linear infinite',flexShrink:0 }}/>
+                          <span style={{ fontSize:12, color:'#0EA5E9' }}>Generating audio — script locked for editing...</span>
+                        </div>
+                      )}
                       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
                         <div>
                           <div className="syne" style={{ fontSize:14, fontWeight:800 }}>Episode Script — {podScript.split(' ').length} words (~{Math.round(podScript.split(' ').length/130)} min)</div>
@@ -895,6 +893,16 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                         style={{ fontSize:12, lineHeight:1.7, fontFamily:'monospace' }}
                       />
                     </>
+                  ) : !podLoading ? (
+                    <div style={{ padding:'60px 20px', textAlign:'center', color:'#475569' }}>
+                      <div style={{ fontSize:40, marginBottom:12 }}>🎙</div>
+                      <div style={{ fontSize:14 }}>Fill the form and click Generate Script to create a professional podcast episode script</div>
+                    </div>
+                  ) : (
+                    <div style={{ padding:'60px 20px', textAlign:'center' }}>
+                      <div style={{ width:36, height:36, border:'3px solid rgba(245,158,11,0.2)', borderTopColor:'#F59E0B', borderRadius:'50%', animation:'spin .7s linear infinite', margin:'0 auto 16px' }} />
+                      <div style={{ color:'#94A3B8', fontSize:14 }}>Claude is writing your podcast script...</div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -912,6 +920,9 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                         </div>
                         <div style={{ fontWeight:600, fontSize:13, color:'#F1F5F9', marginBottom:4 }}>{ep.title}</div>
                         <div style={{ fontSize:11, color:'#64748b' }}>{ep.guest_name} · {ep.duration_seconds ? `${Math.round(ep.duration_seconds/60)}min` : 'TBD'}</div>
+                        {ep.mp3_url && (
+                          <audio controls style={{ width:'100%', borderRadius:6, marginTop:8 }} src={ep.mp3_url}/>
+                        )}
                       </div>
                     ))}
                   </div>
