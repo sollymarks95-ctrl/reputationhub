@@ -15,67 +15,85 @@ async function getKey(name: string): Promise<string> {
   return data?.key_value || ''
 }
 
-// ElevenLabs voices — ultra realistic
-const VOICES = {
-  host:  'pNInz6obpgDQGcFmaJgB',  // Adam — deep authoritative male
-  guest: '21m00Tcm4TlvDq8ikWAM',  // Rachel — confident professional female
+// ── HOST: Always the same voice (deep, authoritative) ─────────────────────
+const HOST_VOICE = {
+  id: 'pNInz6obpgDQGcFmaJgB',   // Adam - deep professional male
+  settings: { stability: 0.55, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
 }
 
-// Voice settings per speaker type for maximum naturalness
-const VOICE_SETTINGS = {
-  host: { stability: 0.42, similarity_boost: 0.82, style: 0.48, use_speaker_boost: true },
-  guest: { stability: 0.38, similarity_boost: 0.80, style: 0.55, use_speaker_boost: true },
+// ── GUEST voice pool — different voices for different guests ──────────────
+// Hash guest name → consistent voice every time (same guest = same voice)
+const GUEST_VOICES = [
+  { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel',   gender: 'f', desc: 'Professional, confident' },
+  { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh',     gender: 'm', desc: 'Warm, authoritative' },
+  { id: 'AZnzlk1XvdvUeBnXmlld', name: 'Domi',     gender: 'f', desc: 'Strong, clear' },
+  { id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold',   gender: 'm', desc: 'Deep, powerful' },
+  { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli',     gender: 'f', desc: 'Friendly, articulate' },
+  { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni',   gender: 'm', desc: 'Well-rounded, natural' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella',    gender: 'f', desc: 'Polished, composed' },
+  { id: 'oWAxZDx7w5VEj9dCyTzz', name: 'Grace',    gender: 'f', desc: 'Calm, measured' },
+  { id: '2EiwWnXFnvU5JabPnv8n', name: 'Clyde',    gender: 'm', desc: 'Deep, seasoned' },
+  { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel',   gender: 'm', desc: 'British, authoritative' },
+  { id: 'ThT5KcBeYPX3keUQqHPh', name: 'Dorothy',  gender: 'f', desc: 'Pleasant, clear' },
+  { id: 'wViXBPUzp2ZZixB1xQuM', name: 'Patrick',  gender: 'm', desc: 'Confident, smooth' },
+]
+
+// Deterministic hash — same guest name always gets same voice
+function hashName(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0x7fffffff
+  return h
 }
 
-// Natural reactions to inject between lines for realism
-const HOST_REACTIONS = ['Right.', 'Exactly.', 'Interesting.', 'Go on.', "That's a key point.", 'Absolutely.']
-const GUEST_REACTIONS = ["Yeah, and...", "Look,", "Here's the thing —", "Exactly right.", "And you know what's interesting?", "Right, so —"]
+function getGuestVoice(guestName: string) {
+  const idx = hashName(guestName.toLowerCase().trim()) % GUEST_VOICES.length
+  return GUEST_VOICES[idx]
+}
+
+const GUEST_SETTINGS = { stability: 0.42, similarity_boost: 0.82, style: 0.50, use_speaker_boost: true }
+
+// Natural reactions for realism
+const HOST_REACTIONS  = ['Right.', 'Exactly.', "That's a key point.", 'Go on.', 'Interesting.', 'Absolutely.']
+const GUEST_REACTIONS = ['Look,', "Here's the thing —", 'And you know what?', 'Right, so —', 'Exactly right.', "Yeah, and here's why —"]
 
 function cleanText(text: string): string {
   return text
     .replace(/^(HOST|GUEST)[:\s]*/i, '')
-    .replace(/\[([^\]]+)\]/g, '')
-    .replace(/\(([^)]+)\)/g, '')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/#{1,3}\s/g, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
+    .replace(/\[([^\]]+)\]/g, '').replace(/\(([^)]+)\)/g, '')
+    .replace(/\*([^*]+)\*/g, '$1').replace(/#{1,3}\s/g, '')
+    .replace(/\s{2,}/g, ' ').trim()
 }
 
 function parseScript(script: string): Array<{ speaker: 'host' | 'guest'; text: string }> {
   const lines: Array<{ speaker: 'host' | 'guest'; text: string }> = []
   const parts = script.split(/\n(?=HOST:|GUEST:)/i)
   for (const part of parts) {
-    const trimmed = part.trim()
-    if (!trimmed || trimmed.length < 5) continue
-    if (/^HOST:/i.test(trimmed)) {
-      const text = cleanText(trimmed.replace(/^HOST:\s*/i, ''))
+    const t = part.trim()
+    if (!t || t.length < 5) continue
+    if (/^HOST:/i.test(t)) {
+      const text = cleanText(t.replace(/^HOST:\s*/i, ''))
       if (text.length > 10) lines.push({ speaker: 'host', text })
-    } else if (/^GUEST:/i.test(trimmed)) {
-      const text = cleanText(trimmed.replace(/^GUEST:\s*/i, ''))
+    } else if (/^GUEST:/i.test(t)) {
+      const text = cleanText(t.replace(/^GUEST:\s*/i, ''))
       if (text.length > 10) lines.push({ speaker: 'guest', text })
     } else if (lines.length > 0) {
-      const cleaned = cleanText(trimmed)
+      const cleaned = cleanText(t)
       if (cleaned.length > 5) lines[lines.length - 1].text += ' ' + cleaned
     }
   }
   if (!lines.some(l => l.speaker === 'guest')) {
     const sents = script.match(/[^.!?]+[.!?]+/g) || [script]
-    return sents.map((s, i) => ({ speaker: i % 2 === 0 ? 'host' : 'guest', text: cleanText(s) }))
+    return sents.map((s, i) => ({ speaker: i % 2 === 0 ? 'host' as const : 'guest' as const, text: cleanText(s) }))
   }
   return lines.filter(l => l.text.length > 10)
 }
 
-async function speak(text: string, speaker: 'host' | 'guest', apiKey: string): Promise<Buffer | null> {
+async function speak(text: string, voiceId: string, settings: object, apiKey: string): Promise<Buffer | null> {
   try {
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICES[speaker]}`, {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: VOICE_SETTINGS[speaker],
-      }),
+      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: settings }),
       signal: AbortSignal.timeout(60000),
     })
     if (!res.ok) { console.error('EL error:', res.status, await res.text()); return null }
@@ -83,78 +101,36 @@ async function speak(text: string, speaker: 'host' | 'guest', apiKey: string): P
   } catch (e) { console.error('speak error:', e); return null }
 }
 
-// Post-process with Descript: Studio Sound + Captions + Video
-async function descriptProcess(audioUrl: string, title: string, transcriptHint: string, descriptKey: string): Promise<{ projectUrl?: string; projectId?: string } | null> {
-  try {
-    // Step 1: Import audio into Descript project
-    const importRes = await fetch('https://descriptapi.com/v1/jobs/import/project_media', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${descriptKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project_name: title,
-        add_media: { 'podcast_audio.mp3': { url: audioUrl } },
-        add_compositions: [{ name: title, clips: [{ media: 'podcast_audio.mp3' }] }]
-      }),
-      signal: AbortSignal.timeout(60000),
-    })
-    if (!importRes.ok) { console.error('Descript import error:', importRes.status); return null }
-    const importData = await importRes.json()
-    const projectId = importData.project_id
-    if (!projectId) return null
-    
-    // Wait for import to process
-    await new Promise(r => setTimeout(r, 8000))
-
-    // Step 2: Apply Studio Sound + captions via Underlord AI agent
-    const agentRes = await fetch('https://descriptapi.com/v1/jobs/agent', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${descriptKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project_id: projectId,
-        prompt: `This is a professional financial podcast called "${title}". 
-1. Apply Studio Sound to enhance audio quality, reduce background noise, and make both speakers sound like they are in a professional broadcast studio.
-2. Add clean, professional captions/subtitles in white text.
-3. Make sure the audio levels are balanced between the two speakers.
-4. The result should sound and look like a premium Bloomberg or CNBC podcast production.`
-      }),
-      signal: AbortSignal.timeout(120000),
-    })
-    if (!agentRes.ok) { console.error('Descript agent error:', agentRes.status); return null }
-    const agentData = await agentRes.json()
-    
-    return {
-      projectId,
-      projectUrl: agentData.result?.project_url || `https://web.descript.com/${projectId}`,
-    }
-  } catch (e) { console.error('Descript error:', e); return null }
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { script, podcastId, title, clientId } = await req.json()
+    const { script, podcastId, title, clientId, guestName = 'Sarah' } = await req.json()
     const elKey = await getKey('ELEVENLABS_KEY')
-    const descKey = await getKey('DESCRIPT_KEY')
-    if (!elKey) return NextResponse.json({ error: 'ElevenLabs key missing' }, { status: 400 })
-    if (!script) return NextResponse.json({ error: 'Script required' }, { status: 400 })
+    if (!elKey) return NextResponse.json({ error: 'ElevenLabs key not configured' }, { status: 400 })
+    if (!script)  return NextResponse.json({ error: 'Script required' }, { status: 400 })
+
+    const guestVoice = getGuestVoice(guestName)
+    console.log(`Host: Adam (always) | Guest "${guestName}": ${guestVoice.name} (${guestVoice.id})`)
 
     const segments = parseScript(script)
-    console.log(`Generating ${segments.length} segments...`)
-
-    // Generate all audio segments
     const buffers: Buffer[] = []
+
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i]
       if (seg.text.trim().length < 5) continue
-      
-      // Add subtle natural reactions between every 3-4 exchanges
-      if (i > 0 && i % 4 === 0 && seg.speaker !== segments[i-1].speaker) {
+
+      // Add natural micro-reactions every 4-5 exchanges
+      if (i > 0 && i % 5 === 0 && seg.speaker !== segments[i-1]?.speaker) {
         const reactions = seg.speaker === 'host' ? HOST_REACTIONS : GUEST_REACTIONS
         const reaction = reactions[Math.floor(Math.random() * reactions.length)]
-        const rb = await speak(reaction, seg.speaker, elKey)
+        const voiceId = seg.speaker === 'host' ? HOST_VOICE.id : guestVoice.id
+        const settings = seg.speaker === 'host' ? HOST_VOICE.settings : GUEST_SETTINGS
+        const rb = await speak(reaction, voiceId, { ...settings, stability: 0.35, style: 0.6 }, elKey)
         if (rb) buffers.push(rb)
       }
-      
-      const audio = await speak(seg.text, seg.speaker, elKey)
+
+      const voiceId = seg.speaker === 'host' ? HOST_VOICE.id : guestVoice.id
+      const settings = seg.speaker === 'host' ? HOST_VOICE.settings : GUEST_SETTINGS
+      const audio = await speak(seg.text, voiceId, settings, elKey)
       if (audio) buffers.push(audio)
     }
 
@@ -163,7 +139,6 @@ export async function POST(req: NextRequest) {
     const combined = Buffer.concat(buffers)
     const fileName = `podcast-${podcastId || Date.now()}-${Date.now().toString(36)}.mp3`
 
-    // Upload to Supabase Storage
     const { data: upload, error: uploadErr } = await sb.storage.from('podcasts')
       .upload(fileName, combined, { contentType: 'audio/mpeg', cacheControl: '31536000', upsert: true })
     if (uploadErr) return NextResponse.json({ error: uploadErr.message }, { status: 500 })
@@ -171,30 +146,16 @@ export async function POST(req: NextRequest) {
     const { data: urlData } = sb.storage.from('podcasts').getPublicUrl(fileName)
     const audioUrl = urlData.publicUrl
 
-    // Update DB
     if (podcastId) {
       await sb.from('podcast_scripts').update({
         audio_url: audioUrl, status: 'ready',
         duration_seconds: Math.round(combined.length / 24000),
       }).eq('id', podcastId)
     }
-
-    // Post-process with Descript in background (don't block response)
-    let descriptResult = null
-    if (descKey) {
-      const podTitle = title || 'Trading Edge Podcast'
-      descriptResult = await descriptProcess(audioUrl, podTitle, script.slice(0, 500), descKey)
-      if (descriptResult?.projectId && podcastId) {
-        await sb.from('podcast_scripts').update({
-          status: 'polished',
-        }).eq('id', podcastId)
-      }
-    }
-
     if (clientId) {
       await sb.from('portal_activity').insert({
         client_id: clientId, type: 'podcast_ready',
-        description: `Podcast: ${title || 'Episode'} — ${Math.round(combined.length / 1024)}KB`,
+        description: `Audio: "${title || 'Episode'}" — Host: Adam, Guest: ${guestVoice.name}`,
       })
     }
 
@@ -202,13 +163,10 @@ export async function POST(req: NextRequest) {
       success: true, audioUrl, fileName,
       segments: segments.length,
       sizeKb: Math.round(combined.length / 1024),
-      descript: descriptResult ? {
-        projectUrl: descriptResult.projectUrl,
-        projectId: descriptResult.projectId,
-        message: 'Studio Sound + captions applied in Descript',
-      } : null,
+      voices: { host: 'Adam (consistent)', guest: `${guestVoice.name} (matched to "${guestName}")` },
     })
   } catch (e: any) {
+    console.error('generate-audio error:', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
