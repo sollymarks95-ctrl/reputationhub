@@ -39,6 +39,17 @@ function timeAgo(d: string) {
 
 function Spinner() { return <div style={{ width:16, height:16, border:'2px solid rgba(255,255,255,0.2)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin 0.7s linear infinite', display:'inline-block' }} /> }
 
+const SITE_PODCAST_CONFIGS: Record<string, any> = {
+    'global-trade-wire': { showName:'Nex-Wire Intelligence', hostName:'David Hart', hostRole:'Senior Markets Editor, Nex-Wire' },
+    'finance-terminal':  { showName:'Finvexx Markets', hostName:'Marcus Webb', hostRole:'Chief Markets Analyst, Finvexx' },
+    'business-pulse':    { showName:'Bizplezx Executive', hostName:'Claire Sterling', hostRole:'Editorial Director, Bizplezx' },
+    'gold-markets-today':{ showName:'AurexHQ Commodities', hostName:'Richard Stone', hostRole:'Head of Commodities Research' },
+    'market-radar':      { showName:'Signalix Radar', hostName:'Jordan Blake', hostRole:'Lead Signals Analyst, Signalix' },
+    'invest-data':       { showName:'InvexHub Insights', hostName:'Michael Torres', hostRole:'Chief Investment Strategist' },
+    'trust-score':       { showName:'Verivex Verified', hostName:'Sophie Chen', hostRole:'Head of Research, Verivex' },
+    'executive-network': { showName:'Execvex Leadership', hostName:'Alexandra Ross', hostRole:'Executive Editor, Execvex' },
+  }
+
 export default function AdminDashboard({ clients, allContent, allRankings, allPodcasts, allActivity, sites, totalArticles, totalSubscribers }: any) {
   const [tab, setTab] = useState('overview')
   const [clock, setClock] = useState('')
@@ -60,6 +71,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podClient, setPodClient] = useState('')
   const [podEpNum, setPodEpNum] = useState('')
   const [podSite, setPodSite] = useState('')
+  const [podGuestGender, setPodGuestGender] = useState<'auto'|'male'|'female'>('auto')
   const [podVideo, setPodVideo] = useState('')
   const [podDescriptUrl, setPodDescriptUrl] = useState('')
   const [podVideoLoading, setPodVideoLoading] = useState(false)
@@ -154,7 +166,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
       setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest }) })
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })
       const ad = await ar.json()
       if (ad.audioUrl) {
         setPodAudio(ad.audioUrl)
@@ -176,7 +188,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
       setPodMsg('🎙 Script ready. Generating audio...')
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest }) })
+        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })
       const ad = await ar.json()
       if (!ad.audioUrl) { setPodMsg('Audio error: '+(ad.error||'unknown')); setPodLoading(false); return }
       setPodAudio(ad.audioUrl)
@@ -211,7 +223,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       // Now generate audio
       const audioRes = await fetch('/api/admin/generate-audio', {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ script: scriptData.script, podcastId: scriptData.podcastId, title: podTitle, clientId: podClient, guestName: podGuest })
+        body: JSON.stringify({ script: scriptData.script, podcastId: scriptData.podcastId, title: podTitle, clientId: podClient, guestName: podGuest, guestGender: podGuestGender, siteSlug: podSite })
       })
       const audioData = await audioRes.json()
       if (audioData.audioUrl) {
@@ -684,7 +696,11 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       </div>
                       <div>
                         <label>Publish to Portal</label>
-                        <select className="inp" value={podSite} onChange={e => setPodSite(e.target.value)}>
+                        <select className="inp" value={podSite} onChange={e => {
+                          setPodSite(e.target.value)
+                          const cfg = SITE_PODCAST_CONFIGS[e.target.value]
+                          if (cfg) { setPodHost(cfg.hostName); setPodHostRole(cfg.hostRole) }
+                        }}>
                           <option value="">— Select Site —</option>
                           {PORTALS.map(p => <option key={p.slug} value={p.slug}>{p.name} ({p.domain})</option>)}
                         </select>
@@ -702,9 +718,20 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <label>Episode Title</label>
                       <input className="inp" value={podTitle} onChange={e => setPodTitle(e.target.value)} placeholder="Click a template above or type your own title" required />
                     </div>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
-                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="e.g. Alex Chen" /></div>
-                      <div><label>Guest Role</label><input className="inp" value={podRole} onChange={e => setPodRole(e.target.value)} placeholder="Auto-filled from template" /></div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:8 }}>
+                      <div><label>Guest Name</label><input className="inp" value={podGuest} onChange={e => setPodGuest(e.target.value)} placeholder="e.g. Dr. Sarah Mitchell" /></div>
+                      <div><label>Guest Role / Title</label><input className="inp" value={podRole} onChange={e => setPodRole(e.target.value)} placeholder="e.g. Chief Analyst" /></div>
+                    </div>
+                    <div style={{ marginBottom:14 }}>
+                      <label>Guest Voice Gender <span style={{fontSize:10,color:'#475569'}}>(picks consistent ElevenLabs voice)</span></label>
+                      <div style={{ display:'flex', gap:8, marginTop:6 }}>
+                        {(['auto','male','female'] as const).map(g => (
+                          <button key={g} type="button" onClick={() => setPodGuestGender(g)}
+                            style={{ flex:1, padding:'7px', border:`1px solid ${podGuestGender===g?'#0EA5E9':'rgba(255,255,255,0.1)'}`, borderRadius:6, background:podGuestGender===g?'rgba(14,165,233,0.15)':'transparent', color:podGuestGender===g?'#0EA5E9':'#64748b', fontSize:12, fontWeight:600, cursor:'pointer' }}>
+                            {g==='auto'?'🎲 Auto':g==='male'?'👔 Male':'👩 Female'}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div style={{ marginBottom:14 }}>
                       <label>Topic / Key Points</label>

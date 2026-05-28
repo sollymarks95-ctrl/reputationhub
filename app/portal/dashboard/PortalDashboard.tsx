@@ -42,6 +42,8 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
   const totalViews = content.reduce((s: number, c: any) => s + (c.views || 0), 0)
   const latestReport = reports[0]
 
+  const isAdminUser = user?.role === 'superadmin' || user?.email === 'sollymarks95@gmail.com'
+
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'#0B0F19', fontFamily:"'DM Sans',sans-serif", color:'#F1F5F9' }}>
       <style>{`
