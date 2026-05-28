@@ -157,7 +157,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       setPodScript(d.script)
       setPodEpisodeId(d.podcastId || '')  // ← was d.episodeId (wrong key)
       const wc = d.stats?.wordCount || d.script.split(' ').length
-      const est = Math.round(wc/130)
+      const est = Math.round(wc/140)
       setPodStatus([{step:'script',ok:true,msg:`✅ Script ready — ${wc} words (~${est} min) · ${d.showName||''} · Click 🎙 or 🎬 below`}])
     } else {
       setPodStatus([{step:'script',ok:false,msg:'❌ '+(d.error||'Script generation failed')}])
@@ -899,7 +899,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       )}
                       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
                         <div>
-                          <div className="syne" style={{ fontSize:14, fontWeight:800 }}>Episode Script — {podScript.split(' ').length} words (~{Math.round(podScript.split(' ').length/130)} min)</div>
+                          <div className="syne" style={{ fontSize:14, fontWeight:800 }}>Episode Script — {podScript.split(' ').length} words (~{Math.round(podScript.split(' ').length/140)} min)</div>
                           <div style={{ fontSize:11, color:'#64748b' }}>Edit freely before generating audio</div>
                         </div>
                         <button className="btn b-ghost" style={{ fontSize:11 }} onClick={() => { navigator.clipboard.writeText(podScript) }}>📋 Copy</button>
