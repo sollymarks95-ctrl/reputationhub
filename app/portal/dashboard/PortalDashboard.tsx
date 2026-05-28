@@ -122,6 +122,20 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
           ))}
         </nav>
 
+        {/* Admin switcher — only shown for admin user */}
+        {user?.role === 'superadmin' && (
+          <div style={{ padding:'8px 12px', borderTop:'1px solid rgba(255,255,255,0.07)' }}>
+            <a href="/portal/admin" style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.1))', border:'1px solid rgba(239,68,68,0.4)', borderRadius:8, textDecoration:'none', cursor:'pointer' }}>
+              <span style={{ fontSize:18 }}>⚙️</span>
+              <div className="logo-text">
+                <div style={{ fontWeight:700, fontSize:13, color:'#EF4444' }}>Admin Dashboard</div>
+                <div style={{ fontSize:10, color:'#EF444480' }}>Switch to admin view</div>
+              </div>
+              <span style={{ marginLeft:'auto', fontSize:14, color:'#EF4444' }}>→</span>
+            </a>
+          </div>
+        )}
+
         {/* Bottom */}
         <div style={{ padding:'12px 16px', borderTop:'1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ fontSize:11, color:'#475569', marginBottom:6 }} className="logo-text">Account Manager</div>
