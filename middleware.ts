@@ -25,7 +25,7 @@ const REPHUBY_REDIRECT: Record<string, string> = {
   '/magazine/business-pulse':  'https://bizplezx.com',
 }
 
-export default function proxy(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const host = (req.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
   const { pathname } = req.nextUrl
 
