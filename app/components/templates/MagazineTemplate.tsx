@@ -19,6 +19,7 @@ const IMGS = [
   'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=1200&q=80&fm=jpg',
   'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=1200&q=80&fm=jpg',
 ]
+function slugHash(s:string){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))&0xffffffff;return Math.abs(h)}
 const getImg = (a:any, i:number) => (a?.cover_image_url && a.cover_image_url.startsWith('http')) ? a.cover_image_url : IMGS[(a?.slug ? slugHash(a.slug) : i) % IMGS.length]
 
 const SITE_META: Record<string,{name:string;domain:string;color:string;tagline:string}> = {
