@@ -251,9 +251,20 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           ))}
         </nav>
         <div style={{ padding:'10px 14px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+          {/* Client portal switcher */}
+          <a href="/portal/dashboard" style={{ display:'block', marginBottom:8, textDecoration:'none' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', background:'linear-gradient(135deg,rgba(14,165,233,0.18),rgba(14,165,233,0.06))', border:'1px solid rgba(14,165,233,0.35)', borderRadius:8, cursor:'pointer', transition:'all .2s' }}>
+              <span style={{ fontSize:15 }}>👤</span>
+              <div className="adm-label" style={{ flex:1 }}>
+                <div style={{ fontWeight:700, fontSize:12, color:'#0EA5E9' }}>Client Portal</div>
+                <div style={{ fontSize:9, color:'rgba(14,165,233,0.6)' }}>switch view</div>
+              </div>
+              <span style={{ color:'#0EA5E9', fontSize:12 }} className="adm-label">→</span>
+            </div>
+          </a>
           <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer">
             <button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', marginBottom:7, fontSize:11 }}>
-              <span className="adm-label">📱 Telegram Channel</span>
+              <span className="adm-label">📱 Telegram</span>
             </button>
           </a>
           <button onClick={() => { localStorage.removeItem('rephuby_session'); router.push('/portal') }}
