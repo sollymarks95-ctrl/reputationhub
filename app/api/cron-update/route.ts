@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { generateArticleImage } from '@/app/api/admin/generate-image/route'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -60,20 +61,6 @@ const LIVE_SITES = [
   },
 ]
 
-const COVERS = [
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1200&auto=format&fit=crop&q=80',
-]
 
 function slugify(s: string) {
   const d = new Date()
@@ -171,10 +158,10 @@ export async function GET(req: NextRequest) {
       if (!article) { console.log(`Skipped: ${topic}`); continue }
 
       const slug = slugify(article.title)
-      const cover = COVERS[Math.floor(Math.random() * COVERS.length)]
       const wordCount = article.body.split(' ').length
 
-      const { error } = await supabase.from('news_articles').insert({
+      // Insert article first (without image)
+      const { data: inserted, error } = await supabase.from('news_articles').insert({
         news_site_id: site.id,
         title: article.title,
         slug,
@@ -182,7 +169,7 @@ export async function GET(req: NextRequest) {
         body: article.body || '',
         category: article.category || 'Markets',
         author_name: site.author,
-        cover_image_url: cover,
+        cover_image_url: null,
         status: 'published',
         published_at: new Date().toISOString(),
         is_featured: i === 0,
@@ -191,12 +178,24 @@ export async function GET(req: NextRequest) {
         tags: includeClient
           ? [includeClient, ...topic.split(' ').slice(0,3)]
           : topic.split(' ').slice(0,4),
-      })
+      }).select('id').single()
 
-      if (!error) { siteInserted++; totalInserted++ }
-      else console.error(`DB error ${site.slug}:`, error.message)
+      if (!error && inserted) {
+        siteInserted++; totalInserted++
+        // Generate unique DALL-E image for this article
+        generateArticleImage(
+          article.title,
+          article.category || 'Markets',
+          inserted.id,
+          slug
+        ).then(url => {
+          if (url) console.log(`Image: ${slug.slice(0,30)} → ${url.slice(0,50)}`)
+        }).catch(e => console.error('Image gen err:', e))
+      } else if (error) {
+        console.error(`DB error ${site.slug}:`, error.message)
+      }
 
-      await new Promise(r => setTimeout(r, 2000))
+      await new Promise(r => setTimeout(r, 1500))
     }
 
     results.push({ site: site.domain, inserted: siteInserted })
