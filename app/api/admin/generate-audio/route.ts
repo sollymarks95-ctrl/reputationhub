@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -16,10 +17,6 @@ async function getKey(name: string): Promise<string> {
 }
 
 // ── HOST: Always the same voice (deep, authoritative) ─────────────────────
-const HOST_VOICE = {
-  id: 'pNInz6obpgDQGcFmaJgB',   // Adam - deep professional male
-  settings: { stability: 0.55, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
-}
 
 // ── GUEST voice pool — different voices for different guests ──────────────
 // Hash guest name → consistent voice every time (same guest = same voice)
@@ -50,6 +47,7 @@ function getGuestVoice(guestName: string) {
   return GUEST_VOICES[idx]
 }
 
+const HOST_SETTINGS  = { stability: 0.55, similarity_boost: 0.85, style: 0.35, use_speaker_boost: true }
 const GUEST_SETTINGS = { stability: 0.42, similarity_boost: 0.82, style: 0.50, use_speaker_boost: true }
 
 // Natural reactions for realism
@@ -103,7 +101,7 @@ async function speak(text: string, voiceId: string, settings: object, apiKey: st
 
 export async function POST(req: NextRequest) {
   try {
-    const { script, podcastId, title, clientId, guestName = 'Sarah' } = await req.json()
+    const { script, podcastId, title, clientId, guestName = 'Sarah', guestGender = 'auto', siteSlug = '' } = await req.json() as any
     const elKey = await getKey('ELEVENLABS_KEY')
     if (!elKey) return NextResponse.json({ error: 'ElevenLabs key not configured' }, { status: 400 })
     if (!script)  return NextResponse.json({ error: 'Script required' }, { status: 400 })
@@ -122,14 +120,15 @@ export async function POST(req: NextRequest) {
       if (i > 0 && i % 5 === 0 && seg.speaker !== segments[i-1]?.speaker) {
         const reactions = seg.speaker === 'host' ? HOST_REACTIONS : GUEST_REACTIONS
         const reaction = reactions[Math.floor(Math.random() * reactions.length)]
-        const voiceId = seg.speaker === 'host' ? HOST_VOICE.id : guestVoice.id
-        const settings = seg.speaker === 'host' ? HOST_VOICE.settings : GUEST_SETTINGS
-        const rb = await speak(reaction, voiceId, { ...settings, stability: 0.35, style: 0.6 }, elKey)
+        const voiceId = seg.speaker === 'host' ? hostVoiceId : guestVoice.id
+        const settings = seg.speaker === 'host' ? HOST_SETTINGS : GUEST_SETTINGS
+        const rbVoice = seg.speaker === 'host' ? hostVoiceId : guestVoice.id
+        const rb = await speak(reaction, rbVoice, { stability:0.35, similarity_boost:0.82, style:0.6, use_speaker_boost:true }, elKey)
         if (rb) buffers.push(rb)
       }
 
-      const voiceId = seg.speaker === 'host' ? HOST_VOICE.id : guestVoice.id
-      const settings = seg.speaker === 'host' ? HOST_VOICE.settings : GUEST_SETTINGS
+      const voiceId = seg.speaker === 'host' ? hostVoiceId : guestVoice.id
+      const settings = seg.speaker === 'host' ? HOST_SETTINGS : GUEST_SETTINGS
       const audio = await speak(seg.text, voiceId, settings, elKey)
       if (audio) buffers.push(audio)
     }
@@ -155,7 +154,7 @@ export async function POST(req: NextRequest) {
     if (clientId) {
       await sb.from('portal_activity').insert({
         client_id: clientId, type: 'podcast_ready',
-        description: `Audio: "${title || 'Episode'}" — Host: Adam, Guest: ${guestVoice.name}`,
+        description: `Audio: "${title || 'Episode'}" — Host: ${siteConfig.hostName} (${guestVoice.name})`,
       })
     }
 
@@ -163,7 +162,7 @@ export async function POST(req: NextRequest) {
       success: true, audioUrl, fileName,
       segments: segments.length,
       sizeKb: Math.round(combined.length / 1024),
-      voices: { host: 'Adam (consistent)', guest: `${guestVoice.name} (matched to "${guestName}")` },
+      voices: { host: `${siteConfig.hostName} — consistent for ${siteConfig.domain}`, guest: `${guestVoice.name} — matched to "${guestName}"` },
     })
   } catch (e: any) {
     console.error('generate-audio error:', e)

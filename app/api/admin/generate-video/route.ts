@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSiteConfig } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -50,10 +51,10 @@ export async function POST(req: NextRequest) {
   try {
     const {
       audioUrl, duration,
-      hostName = 'David', hostRole = 'Show Host',
+      hostName, hostRole,
       guestName = 'Sarah', guestRole = 'Expert Analyst',
       episodeTitle = 'Financial Intelligence', episodeNum = 1,
-      clientId, podcastId,
+      clientId, podcastId, siteSlug = '',
     } = await req.json()
 
     if (!audioUrl) return NextResponse.json({ error: 'audioUrl required' }, { status: 400 })
