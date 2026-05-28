@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { getSiteConfig } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
@@ -7,7 +8,7 @@ export const maxDuration = 120
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 export async function POST(req: NextRequest) {
-  const { clientId, topic, episode, duration = 20, hostName, hostRole, guestName, guestRole } = await req.json()
+  const { clientId, topic, episode, duration = 20, hostName, hostRole, guestName, guestRole, siteSlug = '' } = await req.json()
 
   const client = clientId
     ? (await supabase.from('portal_clients').select('*').eq('id', clientId).single()).data
@@ -15,55 +16,60 @@ export async function POST(req: NextRequest) {
 
   const company = client?.company_name || 'the firm'
   const industry = client?.industry || 'financial services'
-  const HOST = hostName || 'David'
-  const GUEST = guestName || 'Sarah'
-  const HOST_TITLE = hostRole || 'Host'
-  const GUEST_TITLE = guestRole || 'Expert'
 
-  // 130 words per minute, target 10% over for natural delivery padding
+  // Get site-specific show config
+  const siteCfg = getSiteConfig(siteSlug)
+  const SHOW_NAME = siteCfg.showName         // e.g. "Nex-Wire Intelligence"
+  const HOST = hostName || siteCfg.hostName  // e.g. "David Hart"
+  const HOST_TITLE = hostRole || siteCfg.hostRole
+  const GUEST = guestName || 'Sarah Mitchell'
+  const GUEST_TITLE = guestRole || 'Expert Analyst'
+
   const targetWords = Math.round(duration * 130 * 1.1)
 
-  const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script. This will be converted to audio so it must be EXACTLY ${targetWords} words (±50 words).
+  const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script for "${SHOW_NAME}".
+Target: EXACTLY ${targetWords} words (±100 words).
 
-SHOW: "Trading Edge" with ${HOST}, ${HOST_TITLE}
+SHOW: "${SHOW_NAME}" on ${siteCfg.domain}
+HOST: ${HOST}, ${HOST_TITLE}
 GUEST: ${GUEST}, ${GUEST_TITLE} at ${company}
-TOPIC: ${topic || `${company}'s market position and competitive advantage in ${industry}`}
-CONTEXT: ${industry} sector, 2026 market environment
+TOPIC: ${topic || company + ' — market position and competitive advantage in ' + industry}
 
-ABSOLUTE RULES:
-1. Format EVERY line as either "HOST:" or "GUEST:" — these are the ONLY valid prefixes
-2. NEVER write: "HOST said", "GUEST replied", [laughs], [pause], (background music), stage directions of ANY kind
-3. NEVER start audio with "HOST:" — the HOST's first line opens mid-conversation feeling, or with "Welcome back"
-4. Names are used naturally IN the dialogue, not as labels (e.g. GUEST says "Thanks for having me, ${HOST}" not "GUEST: [speaking warmly]")
-5. The conversation must flow like two smart people who KNOW each other — not a formal interview
-6. Use contractions: "we're", "it's", "that's" — not "we are", "it is"
-7. Include natural filler phrases that make it human: "Look,", "Here's the thing,", "Right, and that's exactly why...", "What's interesting is..."
-8. NO grammar errors, NO filler words like "um" or "uh", NO incomplete sentences
-9. Target word count: ${targetWords} words — count carefully, this is CRITICAL for timing
+FORMAT RULES — CRITICAL:
+1. Label EVERY line with the speaker's REAL NAME followed by a colon:
+   "${HOST}:" for the host
+   "${GUEST}:" for the guest
+   NEVER use "HOST:" or "GUEST:" — always use their actual names
+2. NO stage directions, NO [brackets], NO (parenthetical), NO asterisks
+3. The conversation flows like two professionals who know each other well
+4. Use natural contractions: "we're", "it's", "that's", "I've", "you've"
+5. Include natural transitions: "Look,", "Here's the thing,", "Right, and that's exactly...", "What's interesting is...", "Yeah, and..."
+6. ${HOST} opens with show name and introduces ${GUEST} naturally within the first paragraph
+7. ${GUEST} thanks ${HOST} by name in their first reply
+8. Word count: ${targetWords} words — this is CRITICAL for timing
 
-STRUCTURE (across ${duration} minutes):
-- First 2 min: Hook opening, introduce guest naturally, tease what's coming
-- Next ${Math.round(duration*0.6)} min: Deep substantive discussion with specific data, named companies, real market examples
-- Last 3 min: Key takeaways, forward-looking outlook, sign-off
-
-CURRENT MARKET CONTEXT to weave in naturally:
+MARKET CONTEXT (weave in naturally, use exact numbers):
 - Bitcoin at $76,210 (down from $126k ATH in Oct 2025)
-- Gold at $4,404/oz (record territory)
-- EUR/USD 1.1124, GBP/USD 1.3482
-- Fed rate hold at 3.5-3.75%
-- US-Iran Strait of Hormuz situation affecting oil (now $63)
-- S&P 500 at 5,842
+- Gold at $4,404/oz (all-time high territory)
+- EUR/USD 1.1124 — ECB hawkish, Fed holding at 3.5%
+- Oil at $63 despite Hormuz tensions
+- S&P 500 at 5,842, NASDAQ 19,486
 
-OUTPUT ONLY THE SCRIPT — start immediately with "HOST:" — no title, no description, no word count:`
+STRUCTURE:
+- 0-2 min: Strong hook, intro ${GUEST} naturally, tease episode
+- 2-${duration-3} min: Deep discussion with real data, named companies, market events  
+- ${duration-3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
+
+OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no preamble:`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':ANTHROPIC, 'anthropic-version':'2023-06-01' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,  // enough for 3000 words
-        messages: [{ role:'user', content: prompt }]
+        max_tokens: 8000,
+        messages: [{ role: 'user', content: prompt }]
       }),
       signal: AbortSignal.timeout(90000),
     })
@@ -71,12 +77,12 @@ OUTPUT ONLY THE SCRIPT — start immediately with "HOST:" — no title, no descr
     const data = await res.json()
     const script = data.content?.[0]?.text?.trim() || ''
     const wordCount = script.split(/\s+/).length
-    const hostLines = (script.match(/^HOST:/gm) || []).length
-    const guestLines = (script.match(/^GUEST:/gm) || []).length
+    const hostLines = (script.match(new RegExp('^' + HOST + ':', 'gm')) || []).length
+    const guestLines = (script.match(new RegExp('^' + GUEST + ':', 'gm')) || []).length
 
     const { data: saved } = await supabase.from('podcast_scripts').insert({
       client_id: clientId || null,
-      title: `Episode ${episode || 1}: ${topic || company + ' — ' + GUEST_TITLE + ' Interview'}`,
+      title: `${SHOW_NAME} — Episode ${episode || 1}: ${topic || GUEST_TITLE + ' Interview'}`,
       script,
       status: 'draft',
       episode_number: episode || 1,
@@ -86,6 +92,9 @@ OUTPUT ONLY THE SCRIPT — start immediately with "HOST:" — no title, no descr
     return NextResponse.json({
       success: true, script,
       podcastId: saved?.id,
+      showName: SHOW_NAME,
+      hostName: HOST,
+      guestName: GUEST,
       stats: { wordCount, hostLines, guestLines, estimatedMinutes: Math.round(wordCount / 130) },
     })
   } catch (e: any) {
