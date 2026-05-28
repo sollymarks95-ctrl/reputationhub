@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
   const GUEST = guestName || 'Sarah Mitchell'
   const GUEST_TITLE = guestRole || 'Expert Analyst'
 
-  const targetWords = Math.round(duration * 130 * 1.1)
-  const minWords = Math.round(duration * 120)
+  const targetWords = Math.round(duration * 140)
+  const minWords = Math.round(duration * 130)
 
   const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script for "${SHOW_NAME}".
 Target: EXACTLY ${targetWords} words (±100 words).
@@ -73,7 +73,7 @@ STRUCTURE:
 - ${duration - 3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
 
 WORD COUNT REQUIREMENT: This script MUST be at least ${minWords} words. Count carefully.
-A ${duration}-minute podcast at 130 words/minute = ${targetWords} words minimum.
+A ${duration}-minute podcast at 140 words/minute = ${targetWords} words minimum.
 Do NOT end early. Fill all ${duration} minutes of content.
 
 OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no preamble:`
@@ -129,7 +129,7 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
       showName: SHOW_NAME,
       hostName: HOST,
       guestName: GUEST,
-      stats: { wordCount, hostLines, guestLines, estimatedMinutes: Math.round(wordCount / 130) },
+      stats: { wordCount, hostLines, guestLines, estimatedMinutes: Math.round(wordCount / 140) },
     }, { headers: { "Access-Control-Allow-Origin": "*" } })
 
   } catch (e: any) {
