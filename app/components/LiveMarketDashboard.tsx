@@ -375,7 +375,14 @@ export default function LiveMarketDashboard({ articles, site, routePrefix, siteS
           <div className="rh-header-inner" style={{ display:'flex', alignItems:'center', gap:12, height:58, justifyContent:'space-between' }}>
             {/* Logo */}
             <Link href={`/${routePrefix}/${siteSlug}`}>
-              <div style={{ fontWeight:900, fontSize:24, color:p, letterSpacing:'-0.5px', whiteSpace:'nowrap', flexShrink:0 }}>{site.name}</div>
+              <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+                <div style={{ width:32, height:32, borderRadius:7, background:`linear-gradient(135deg,${p},${p}80)`, border:`1.5px solid ${p}60`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:11, color:'#fff', letterSpacing:'-0.02em' }}>
+                    {site.name.includes('-') ? site.name.split('-').map((pt: string)=>pt[0]).join('') : site.name.slice(0,2).toUpperCase()}
+                  </span>
+                </div>
+                <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:22, letterSpacing:'-0.04em', whiteSpace:'nowrap', color:'#111', lineHeight:1 }}>{site.name}</span>
+              </div>
             </Link>
 
             {/* Search */}

@@ -425,7 +425,10 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
                   {coverage.map((site: any, i: number) => (
                     <div key={i} style={{ background:'rgba(255,255,255,0.04)', border:`1px solid ${site.is_active?site.primary_color+'40':'rgba(255,255,255,0.06)'}`, borderLeft:`4px solid ${site.is_active?site.primary_color:'#334155'}`, borderRadius:10, padding:'14px 16px', display:'flex', gap:14, alignItems:'center' }}>
                       <div style={{ width:40, height:40, borderRadius:8, background:`linear-gradient(135deg,${site.primary_color}40,${site.primary_color}20)`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:16, color:site.primary_color, flexShrink:0 }}>
-                        {site.site_name?.charAt(0)}
+                        {(() => {
+                const abbrs: Record<string,string> = {'Nex-Wire':'NW','NEX-WIRE':'NW','Finvexx':'FX','FINVEXX':'FX','AurexHQ':'AX','AUREXHQ':'AX','Bizplex':'BP','BIZPLEX':'BP','Verivex':'VX','VERIVEX':'VX','Bizpedia':'BZ','BIZPEDIA':'BZ','PresxWire':'PW','PRESXWIRE':'PW','InvexHub':'IH','INVEXHUB':'IH','Tradvex':'TV','TRADVEX':'TV','Certivade':'CV','CERTIVADE':'CV','Execvex':'EV','EXECVEX':'EV','Signalix':'SX','SIGNALIX':'SX'}
+                return abbrs[site.site_name] || site.site_name?.slice(0,2)?.toUpperCase()
+              })()}
                       </div>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontWeight:700, fontSize:14, color:'#F1F5F9' }}>{site.site_name}</div>
