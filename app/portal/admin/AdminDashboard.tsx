@@ -60,6 +60,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podClient, setPodClient] = useState('')
   const [podEpNum, setPodEpNum] = useState('')
   const [podSite, setPodSite] = useState('')
+  const [podVideo, setPodVideo] = useState('')
+  const [podVideoLoading, setPodVideoLoading] = useState(false)
   const [podTitle, setPodTitle] = useState('')
   const [podHost, setPodHost] = useState('James Richardson')
   const [podHostRole, setPodHostRole] = useState('Show Host')
@@ -143,7 +145,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   async function generateFullPodcast(e: React.FormEvent) {
     e.preventDefault()
     if (!podClient) { alert('Select a client first'); return }
-    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodMsg('Generating script...')
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodMsg('Generating script...')
     try {
       const scriptRes = await fetch('/api/admin/generate-script', {
         method: 'POST', headers: {'Content-Type':'application/json'},
@@ -162,7 +164,30 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const audioData = await audioRes.json()
       if (audioData.audioUrl) {
         setPodAudio(audioData.audioUrl)
-        setPodMsg(`✓ Podcast complete! ${audioData.segments} segments, ${audioData.sizeKb}KB`)
+        setPodMsg(`✓ Audio complete — ${audioData.segments} segments, ${audioData.sizeKb}KB. Generating video...`)
+        // Step 3: Generate video
+        setPodVideoLoading(true)
+        try {
+          const vidRes = await fetch('/api/admin/generate-video', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              audioUrl: audioData.audioUrl,
+              hostName: podHost, hostRole: podHostRole,
+              guestName: podGuest, guestRole: podRole,
+              episodeTitle: podTitle, episodeNum: parseInt(podEpNum)||1,
+              clientId: podClient, podcastId: scriptData.podcastId,
+              duration: parseInt(podDuration)*60,
+            })
+          })
+          const vidData = await vidRes.json()
+          if (vidData.videoUrl) {
+            setPodVideo(vidData.videoUrl)
+            setPodMsg('✅ Full podcast ready — audio + video + Descript production!')
+          } else {
+            setPodMsg(`✓ Audio ready! Video: ${vidData.error || 'processing'} — download MP3 above`)
+          }
+        } catch (err) { setPodMsg('✓ Audio ready! Video generation failed — MP3 available above') }
+        setPodVideoLoading(false)
       } else {
         setPodMsg('Audio failed: ' + (audioData.error || 'unknown error'))
       }
@@ -667,6 +692,24 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                             <a href={podAudio} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Stream</button></a>
                             <a href="https://web.descript.com" target="_blank" rel="noopener noreferrer"><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Descript</button></a>
                           </div>
+                          {/* VIDEO SECTION */}
+                          {podVideoLoading && !podVideo && (
+                            <div style={{ marginTop:12, padding:'10px 14px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:6, display:'flex', alignItems:'center', gap:8, fontSize:11, color:'#818CF8' }}>
+                              <Spinner/> Rendering 1080p video (Shotstack)... takes ~2-5 min
+                            </div>
+                          )}
+                          {podVideo && (
+                            <div style={{ marginTop:12 }}>
+                              <div style={{ fontSize:10, fontWeight:700, color:'#818CF8', letterSpacing:'.08em', marginBottom:8, padding:'5px 10px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:4 }}>
+                                🎬 VIDEO PODCAST READY — 1920×1080 HD
+                              </div>
+                              <video controls style={{ width:'100%', borderRadius:6, maxHeight:300 }} src={podVideo}/>
+                              <div style={{ display:'flex', gap:6, marginTop:6 }}>
+                                <a href={podVideo} download style={{ flex:1 }}><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ Download MP4</button></a>
+                                <a href={podVideo} target="_blank" rel="noopener noreferrer" style={{ flex:1 }}><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Open Video</button></a>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
