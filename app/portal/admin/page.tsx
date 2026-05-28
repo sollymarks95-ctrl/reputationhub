@@ -8,7 +8,7 @@ const ALL_SITES = [
   { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'NEX-WIRE',   slug:'global-trade-wire',  primary_color:'#c0392b', site_type:'news'        },
   { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'FINVEXX',    slug:'finance-terminal',   primary_color:'#1a73e8', site_type:'finance'     },
   { id:'3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1', name:'AUREXHQ',   slug:'gold-markets-today', primary_color:'#d4a017', site_type:'commodities' },
-  { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'BIZPLEX',   slug:'business-pulse',     primary_color:'#7c3aed', site_type:'magazine'    },
+  { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'BIZPLEZX',   slug:'business-pulse',     primary_color:'#7c3aed', site_type:'magazine'    },
   { id:'6ae7e692-bce9-489d-b835-87dcba9ffc47', name:'VERIVEX',   slug:'trust-score',        primary_color:'#059669', site_type:'reviews'     },
   { id:'aa04790b-9aed-4fa9-867d-3481adc828c5', name:'BIZPEDIA',  slug:'company-pedia',      primary_color:'#0369a1', site_type:'wiki'        },
   { id:'104ceccb-e3d0-4979-85be-b7297abb7f90', name:'PRESXWIRE', slug:'press-central',      primary_color:'#dc2626', site_type:'pressroom'   },

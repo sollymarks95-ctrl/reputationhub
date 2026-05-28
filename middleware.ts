@@ -11,6 +11,8 @@ const DOMAIN_MAP: Record<string, { route: string; slug: string; name: string }> 
   // ── FUTURE PORTALS (add domain → connect here) ─────────────────────────
   'aurexhq.com':      { route:'commodities',  slug:'gold-markets-today',  name:'AurexHQ'  },
   'www.aurexhq.com':  { route:'commodities',  slug:'gold-markets-today',  name:'AurexHQ'  },
+  'bizplezx.com':     { route:'magazine',     slug:'business-pulse',      name:'Bizplezx' },
+  'www.bizplezx.com': { route:'magazine',     slug:'business-pulse',      name:'Bizplezx' },
   'bizplex.co':       { route:'magazine',     slug:'business-pulse',      name:'Bizplex'  },
   'www.bizplex.co':   { route:'magazine',     slug:'business-pulse',      name:'Bizplex'  },
   'verivex.co':       { route:'reviews-hub',  slug:'trust-score',         name:'Verivex'  },

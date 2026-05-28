@@ -5,7 +5,7 @@ const PORTALS = [
   { name:'NEX-WIRE',  domain:'nex-wire.com',    type:'Global Trade Intelligence', color:'#E03131', accent:'#FF6B6B', abbr:'NW', route:'news/global-trade-wire'          },
   { name:'FINVEXX',   domain:'finvexx.com',      type:'Financial Markets & Data',  color:'#1971C2', accent:'#74C0FC', abbr:'FX', route:'finance/finance-terminal'        },
   { name:'AUREXHQ',   domain:'aurexhq.com',      type:'Gold & Commodities',        color:'#B08700', accent:'#FFD43B', abbr:'AX', route:'commodities/gold-markets-today'  },
-  { name:'BIZPLEX',   domain:'bizplex.co',       type:'Business Strategy',         color:'#6741D9', accent:'#B197FC', abbr:'BP', route:'magazine/business-pulse'         },
+  { name:'BIZPLEZX',  domain:'bizplezx.com',      type:'Business Strategy',         color:'#6741D9', accent:'#B197FC', abbr:'BX', route:'magazine/business-pulse'         },
   { name:'VERIVEX',   domain:'verivex.co',       type:'Verified Reviews',          color:'#0CA678', accent:'#63E6BE', abbr:'VX', route:'reviews-hub/trust-score'         },
   { name:'BIZPEDIA',  domain:'bizpedia.com',     type:'Company Intelligence',      color:'#1864AB', accent:'#74C0FC', abbr:'BZ', route:'wiki/company-pedia'              },
   { name:'PRESXWIRE', domain:'presxwire.com',    type:'Press & Announcements',     color:'#C92A2A', accent:'#FF8787', abbr:'PW', route:'pressroom/press-central'         },

@@ -25,9 +25,9 @@ export const PORTAL_LOGOS: Record<string, {
     icon: '🥇', tagStyle: 'dot',
   },
   'business-pulse': {
-    wordmark: 'BIZPLEX', domain: 'bizplex.co',
+    wordmark: 'BIZPLEZX', domain: 'bizplezx.com',
     color: '#6741D9', accent: '#B197FC',
-    icon: '💼', tagStyle: 'plain',
+    icon: '💼', tagStyle: 'xx',
   },
   'trust-score': {
     wordmark: 'VERIVEX', domain: 'verivex.co',
