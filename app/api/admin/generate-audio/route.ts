@@ -125,7 +125,6 @@ export async function POST(req: NextRequest) {
     const guestVoice = getGuestVoice(guestName)
     console.log(`Host: Adam (always) | Guest "${guestName}": ${guestVoice.name} (${guestVoice.id})`)
 
-    const { hostName: hName = 'HOST', guestName: gName = 'GUEST' } = await req.json() as any
     const segments = parseScript(script, hName, gName)
     const buffers: Buffer[] = []
 

@@ -774,51 +774,57 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     </button>
                   </form>
 
-                  {/* Audio generation */}
-                  {podScript && (
+                  {/* OUTPUT PANEL — always visible once something starts */}
+                  {(podStatus.length > 0 || podAudio || podVideo) && (
                     <div style={{ marginTop:16, paddingTop:16, borderTop:'1px solid rgba(255,255,255,0.08)' }}>
-                      <label>Voice Style</label>
-                      <select className="inp" value={podVoice} onChange={e => setPodVoice(e.target.value)} style={{ marginBottom:10 }}>
-                        <option value="male_professional">Male — Professional (ElevenLabs/OpenAI)</option>
-                        <option value="female_professional">Female — Professional</option>
-                        <option value="male_authoritative">Male — Authoritative</option>
-                      </select>
-                      <button className="btn b-gold" style={{ width:'100%', justifyContent:'center' }} onClick={generateAudio} disabled={podAudioLoading}>
-                        {podAudioLoading ? <><Spinner/> Generating via ElevenLabs...</> : '🎙 Generate Podcast Audio (ElevenLabs) →'}
-                      </button>
-                      {podMsg && <div style={{ marginTop:8, padding:'8px 12px', background:'rgba(255,255,255,0.05)', borderRadius:6, fontSize:11, color:'#94A3B8' }}>{podMsg}</div>}
-                      {podAudio && (
-                        <div style={{ marginTop:10 }}>
-                          <div style={{ padding:'8px 12px', background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.25)', borderRadius:6, marginBottom:10 }}>
-                            <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:4 }}>✓ AUDIO READY — ELEVENLABS</div>
-                            <div style={{ display:'flex', gap:16 }}>
-                              <div style={{ fontSize:10, color:'#64748b' }}>🎤 Host: <span style={{color:'#0EA5E9',fontWeight:700}}>Adam</span> (always consistent)</div>
-                              <div style={{ fontSize:10, color:'#64748b' }}>🎤 Guest: <span style={{color:'#10B981',fontWeight:700}}>Auto-matched to name</span></div>
+
+                      {/* Step log */}
+                      {podStatus.length > 0 && (
+                        <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, overflow:'hidden', marginBottom:12 }}>
+                          {podStatus.map((s, i) => (
+                            <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'9px 14px', borderBottom: i<podStatus.length-1 ? '1px solid rgba(255,255,255,0.05)' : 'none', background:!s.ok?'rgba(239,68,68,0.06)':'transparent' }}>
+                              {i === podStatus.length-1 && podLoading
+                                ? <div style={{ width:13,height:13,border:'2px solid rgba(14,165,233,0.3)',borderTopColor:'#0EA5E9',borderRadius:'50%',animation:'spin .7s linear infinite',flexShrink:0,marginTop:1 }}/>
+                                : <span style={{fontSize:13,flexShrink:0,marginTop:1}}>{s.ok?'✅':'❌'}</span>
+                              }
+                              <span style={{ fontSize:12, color:s.ok?'#94A3B8':'#EF4444', lineHeight:1.4 }}>{s.msg}</span>
                             </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Audio player */}
+                      {podAudio && (
+                        <div style={{ marginBottom:12 }}>
+                          <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:8 }}>🎙 AUDIO PODCAST</div>
+                          <audio controls style={{ width:'100%', borderRadius:6, background:'#0B0F19', marginBottom:6 }} src={podAudio}/>
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6 }}>
+                            <a href={podAudio} download="podcast.mp3"><button className="btn b-green" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ Download MP3</button></a>
+                            <a href={podAudio} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Open in new tab</button></a>
                           </div>
-                          <audio controls style={{ width:'100%', borderRadius:6, background:'#0B0F19', marginBottom:8 }} src={podAudio}/>
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6 }}>
-                            <a href={podAudio} download><button className="btn b-green" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ MP3</button></a>
-                            <a href={podAudio} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Stream</button></a>
-                            {podDescriptUrl ? (<a href={podDescriptUrl} target="_blank" rel="noopener noreferrer"><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Open in Descript</button></a>) : (<a href="https://web.descript.com" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Descript</button></a>)}
-                          </div>
-                          {/* VIDEO SECTION */}
+                        </div>
+                      )}
+
+                      {/* Video output */}
+                      {(podVideo || podDescriptUrl || podVideoLoading) && (
+                        <div>
+                          <div style={{ fontSize:10, fontWeight:700, color:'#818CF8', letterSpacing:'.06em', marginBottom:8 }}>🎬 VIDEO PODCAST</div>
                           {podVideoLoading && !podVideo && (
-                            <div style={{ marginTop:12, padding:'10px 14px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:6, display:'flex', alignItems:'center', gap:8, fontSize:11, color:'#818CF8' }}>
-                              <Spinner/> Rendering 1080p video (Shotstack)... takes ~2-5 min
+                            <div style={{ padding:'10px 14px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:6, display:'flex', alignItems:'center', gap:8, fontSize:11, color:'#818CF8', marginBottom:8 }}>
+                              <div style={{ width:12,height:12,border:'2px solid rgba(99,102,241,0.3)',borderTopColor:'#818CF8',borderRadius:'50%',animation:'spin .7s linear infinite',flexShrink:0 }}/>
+                              Processing in Descript — Studio Sound + captions + export...
                             </div>
                           )}
                           {podVideo && (
-                            <div style={{ marginTop:12 }}>
-                              <div style={{ fontSize:10, fontWeight:700, color:'#818CF8', letterSpacing:'.08em', marginBottom:8, padding:'5px 10px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:4 }}>
-                                🎬 VIDEO PODCAST READY — 1920×1080 HD
-                              </div>
-                              <video controls style={{ width:'100%', borderRadius:6, maxHeight:300 }} src={podVideo}/>
-                              <div style={{ display:'flex', gap:6, marginTop:6 }}>
-                                <a href={podVideo} download style={{ flex:1 }}><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ Download MP4</button></a>
-                                <a href={podVideo} target="_blank" rel="noopener noreferrer" style={{ flex:1 }}><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Open Video</button></a>
-                              </div>
-                            </div>
+                            <>
+                              <video controls style={{ width:'100%', borderRadius:6, maxHeight:280, marginBottom:6 }} src={podVideo}/>
+                              <a href={podVideo} download="podcast.mp4"><button className="btn b-blue" style={{ width:'100%', justifyContent:'center', fontSize:11, marginBottom:6 }}>⬇️ Download MP4</button></a>
+                            </>
+                          )}
+                          {podDescriptUrl && (
+                            <a href={podDescriptUrl} target="_blank" rel="noopener noreferrer">
+                              <button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🎬 Open in Descript (Studio Sound applied)</button>
+                            </a>
                           )}
                         </div>
                       )}
