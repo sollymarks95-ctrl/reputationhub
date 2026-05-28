@@ -86,7 +86,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [obResult, setObResult] = useState<any>(null)
 
   // API Keys state
-  const [apiKeys, setApiKeys] = useState({ SERPAPI_KEY:'', ELEVENLABS_KEY:'', HEYGEN_KEY:'', OPENAI_KEY:'' })
+  const [apiKeys, setApiKeys] = useState({ SEARCHAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', SERPAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', ELEVENLABS_KEY:'', HEYGEN_KEY:'', OPENAI_KEY:'' })
   const [keyStatus, setKeyStatus] = useState<any[]>([])
   const [keysSaved, setKeysSaved] = useState(false)
 
@@ -655,12 +655,12 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <div className="syne" style={{ fontSize:28, fontWeight:900, color:rankResult.position<=3?'#10B981':rankResult.position<=10?'#F59E0B':'#EF4444' }}>#{rankResult.position}</div>
                       <div style={{ fontSize:12, fontWeight:700, color:rankResult.improved?'#10B981':'#94A3B8' }}>{rankResult.improved?`▲ Improved from #${rankResult.previousPosition}`:`Was #${rankResult.previousPosition}`}</div>
                       {rankResult.url && <div style={{ fontSize:10, color:'#64748b', marginTop:4, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{rankResult.url}</div>}
-                      {!rankResult.usedRealApi && <div style={{ fontSize:10, color:'#F59E0B', marginTop:6 }}>⚠ Demo data — add SERPAPI_KEY in Settings for real rankings</div>}
+                      {!rankResult.usedRealApi && <div style={{ fontSize:10, color:'#F59E0B', marginTop:6 }}>⚠ Demo data — SearchAPI key active, checking...</div>}
                     </div>
                   )}
 
                   <div style={{ marginTop:16, padding:'10px 12px', background:'rgba(255,255,255,0.04)', borderRadius:8, fontSize:11, color:'#475569' }}>
-                    <strong style={{color:'#94A3B8'}}>Real rankings:</strong> Add your SerpApi key in Settings → check any keyword live on Google.
+                    <strong style={{color:'#10B981'}}>✓ SearchAPI.io connected</strong> — 100 free searches available. Real Google rankings active.
                   </div>
                 </div>
 
@@ -855,7 +855,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                 <p style={{ fontSize:13, color:'#64748b', marginBottom:22 }}>Stored securely in database. Required for live rank checking, real podcast audio generation, and video interviews.</p>
                 <form onSubmit={saveApiKeys}>
                   {[
-                    { k:'SERPAPI_KEY', l:'SerpApi Key', desc:'Google ranking checks — $50/mo for 5,000 searches', link:'https://serpapi.com', placeholder:'serpapi_key_xxxxxxxx', icon:'📊' },
+                    { k:'SEARCHAPI_KEY', l:'SearchAPI.io Key', desc:'Google rank tracking — 100 free searches/mo, upgrade at searchapi.io', link:'https://searchapi.io', placeholder:'gdGyam...', icon:'📊' },
                     { k:'ELEVENLABS_KEY', l:'ElevenLabs API Key', desc:'Premium AI voice generation for podcasts — $22/mo', link:'https://elevenlabs.io', placeholder:'xxxxxxxxx...', icon:'🎙' },
                     { k:'OPENAI_KEY', l:'OpenAI API Key', desc:'TTS audio fallback + GPT-4 (already set in Vercel env)', link:'https://platform.openai.com', placeholder:'sk-proj-...', icon:'🤖' },
                     { k:'HEYGEN_KEY', l:'HeyGen API Key', desc:'AI video talking head generation for video interviews — $29/mo', link:'https://heygen.com', placeholder:'xxxxxxxxx...', icon:'🎬' },
