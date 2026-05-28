@@ -1,6 +1,19 @@
 'use client'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+
+
+const IMGS = [
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800&q=80',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&q=80',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=800&q=80',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=800&q=80',
+]
+const img = (a: any, i: number) => a.cover_image_url || IMGS[i % IMGS.length]
 
 const TICKERS = [
   { sym:'EUR/USD', price:'1.0842', chg:'+0.12%', up:true },
@@ -18,6 +31,24 @@ function timeAgo(d: string) {
   if (s < 3600) return `${Math.floor(s/60)}m`
   if (s < 86400) return `${Math.floor(s/3600)}h`
   return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short' })
+}
+
+
+function Newsletter({ siteId, siteName, accent }: any) {
+  const [email, setEmail] = React.useState('')
+  const [done, setDone] = React.useState(false)
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    try { await fetch('/api/newsletter', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, siteId, siteName }) }) } catch {}
+    setDone(true)
+  }
+  return done
+    ? <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:12, color:accent, padding:'10px 14px', border:`1px solid ${accent}`, borderRadius:2 }}>✓ SUBSCRIBED — DAILY BRIEFING ACTIVE</div>
+    : <form onSubmit={submit} style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+        <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="your@email.com" required
+          style={{ flex:1, padding:'9px 14px', background:'#1C2333', border:'1px solid #30363D', color:'#C9D1D9', fontFamily:'IBM Plex Mono,monospace', fontSize:12, outline:'none', minWidth:200 }} />
+        <button type="submit" style={{ padding:'9px 18px', background:accent, color:'#000', border:'none', fontFamily:'IBM Plex Mono,monospace', fontWeight:700, fontSize:12, cursor:'pointer' }}>SUBSCRIBE</button>
+      </form>
 }
 
 export default function TerminalTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor }: any) {
@@ -104,9 +135,9 @@ export default function TerminalTemplate({ articles = [], site, routePrefix, sit
         <div style={{ display:'grid', gridTemplateColumns:'1.5fr 1fr 1fr 1fr', gap:1, background:'#1C2333' }}>
           {/* Hero */}
           {hero && (
-            <Link href={`/${routePrefix}/${siteSlug}/${hero.slug}`} style={{ display:'block', background:'#0D1117', padding:20 }}>
+            <Link href={`/article/${siteSlug}/${hero.slug}`} style={{ display:'block', background:'#0D1117', padding:20 }}>
               <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:9, fontWeight:700, color:accent, letterSpacing:'.1em', marginBottom:8, textTransform:'uppercase' }}>{hero.category} · FEATURED</div>
-              {hero.cover_image_url && <img src={hero.cover_image_url} alt={hero.title} style={{ width:'100%', height:200, objectFit:'cover', marginBottom:14, border:`1px solid #1C2333` }} />}
+              {hero.cover_image_url && <img src={img(hero,0)} alt={hero.title} style={{ width:'100%', height:200, objectFit:'cover', marginBottom:14, border:`1px solid #1C2333` }} />}
               <div style={{ fontFamily:'IBM Plex Sans,sans-serif', fontSize:20, fontWeight:700, color:'#F0F6FC', lineHeight:1.3, marginBottom:10 }}>{hero.title}</div>
               <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:12, color:'#8B949E', lineHeight:1.6 }}>{hero.excerpt?.slice(0,200)}</div>
               <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:10, color:'#444D56', marginTop:10 }}>{hero.author_name} · {timeAgo(hero.published_at)}</div>
@@ -119,7 +150,7 @@ export default function TerminalTemplate({ articles = [], site, routePrefix, sit
                 {ci===0?'LATEST':ci===1?'ANALYSIS':'SIGNALS'}
               </div>
               {col.map((a: any) => (
-                <Link key={a.id} href={`/${routePrefix}/${siteSlug}/${a.slug}`} className="term-row" style={{ display:'block', padding:'12px 16px', borderBottom:'1px solid #0D1117' }}>
+                <Link key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="term-row" style={{ display:'block', padding:'12px 16px', borderBottom:'1px solid #0D1117' }}>
                   <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:9, color:accent, marginBottom:4, letterSpacing:'.06em' }}>{a.category?.toUpperCase()}</div>
                   <div style={{ fontFamily:'IBM Plex Sans,sans-serif', fontSize:13, fontWeight:600, color:'#C9D1D9', lineHeight:1.4, marginBottom:4 }}>{a.title}</div>
                   <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:10, color:'#444D56' }}>{timeAgo(a.published_at)}</div>
@@ -129,6 +160,14 @@ export default function TerminalTemplate({ articles = [], site, routePrefix, sit
           ))}
         </div>
       </div>
+
+
+        {/* Newsletter */}
+        <div style={{ background:'#0D1117', border:`1px solid ${accent}30`, padding:'24px', marginTop:24 }}>
+          <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:13, fontWeight:700, color:accent, marginBottom:6, letterSpacing:'.06em' }}>▸ SUBSCRIBE TO DAILY INTELLIGENCE BRIEFING</div>
+          <div style={{ fontFamily:'IBM Plex Mono,monospace', fontSize:11, color:'#8B949E', marginBottom:14 }}>Market signals, analysis and data — delivered 07:00 UTC every trading day</div>
+          <Newsletter siteId={site?.id} siteName={siteName} accent={accent} />
+        </div>
 
       {/* Footer */}
       <div style={{ background:'#0D1117', borderTop:'1px solid #1C2333', padding:'20px 24px', marginTop:30, fontFamily:'IBM Plex Mono,monospace', fontSize:11, color:'#444D56', textAlign:'center' }}>

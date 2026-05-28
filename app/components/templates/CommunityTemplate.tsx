@@ -100,7 +100,7 @@ export default function CommunityTemplate({ articles = [], site, routePrefix, si
                     <span style={{ fontSize:11, color:'#878A8C' }}>{timeAgo(a.published_at)}</span>
                     {a.category && <span className="comm-tag" style={{ background:flair.bg, color:flair.color }}>{a.category}</span>}
                   </div>
-                  <Link href={`/${routePrefix}/${siteSlug}/${a.slug}`}>
+                  <Link href={`/article/${siteSlug}/${a.slug}`}>
                     <div style={{ fontSize:18, fontWeight:700, color:'#1C1C1C', lineHeight:1.3, marginBottom:8 }}>{a.title}</div>
                   </Link>
                   {i === 0 && a.cover_image_url && (

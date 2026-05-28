@@ -35,7 +35,11 @@ export default async function SitePage({
 }) {
   const { slug } = await params
   const sp = searchParams ? await searchParams : {}
-  const site = await getNewsSite(slug)
+  let site = await getNewsSite(slug)
+  // Fallback for custom domain routing (bizplezx.com)
+  if (!site && slug === 'business-pulse') {
+    site = { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'Bizplezx', slug:'business-pulse', primary_color:'#6741D9', site_type:'magazine', tagline:'Business Strategy & Innovation Intelligence', is_live:true, seo_title:'Bizplezx — Business Strategy & Leadership Intelligence' } as any
+  }
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
   const p = site.primary_color || '#7c3aed'

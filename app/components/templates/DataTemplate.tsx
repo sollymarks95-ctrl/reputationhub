@@ -88,7 +88,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         <div className="data-layout" style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:28, marginBottom:28 }}>
           {/* Hero */}
           {hero && (
-            <Link href={`/${routePrefix}/${siteSlug}/${hero.slug}`} className="data-link" style={{ display:'block', background:'#fff', border:'1px solid #E5E0D5', padding:24 }}>
+            <Link href={`/article/${siteSlug}/${hero.slug}`} className="data-link" style={{ display:'block', background:'#fff', border:'1px solid #E5E0D5', padding:24 }}>
               {hero.cover_image_url && <img src={hero.cover_image_url} alt={hero.title} style={{ width:'100%', height:280, objectFit:'cover', marginBottom:18, border:'1px solid #E5E0D5' }} />}
               <div className="data-cat">{hero.category}</div>
               <div className="data-hl" style={{ fontSize:28, marginBottom:12 }}>{hero.title}</div>
@@ -104,7 +104,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
               Latest Reports
             </div>
             {side.map((a: any) => (
-              <Link key={a.id} href={`/${routePrefix}/${siteSlug}/${a.slug}`} className="data-link data-row" style={{ display:'flex', gap:12, padding:'12px 14px', background:'#fff', border:'1px solid #E5E0D5', borderTop:'none' }}>
+              <Link key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="data-link data-row" style={{ display:'flex', gap:12, padding:'12px 14px', background:'#fff', border:'1px solid #E5E0D5', borderTop:'none' }}>
                 {a.cover_image_url && <img src={a.cover_image_url} alt={a.title} style={{ width:60, height:44, objectFit:'cover', flexShrink:0, border:'1px solid #E5E0D5' }} />}
                 <div>
                   <div className="data-cat" style={{ fontSize:9, marginBottom:3 }}>{a.category}</div>
@@ -134,7 +134,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
               {table.map((a: any, i: number) => (
                 <tr key={a.id} className="data-row" style={{ borderBottom:'1px solid #E5E0D5', fontSize:13 }}>
                   <td style={{ padding:'10px 14px', maxWidth:360 }}>
-                    <Link href={`/${routePrefix}/${siteSlug}/${a.slug}`} style={{ fontWeight:600, color:'#1A1A1A' }}>{a.title}</Link>
+                    <Link href={`/article/${siteSlug}/${a.slug}`} style={{ fontWeight:600, color:'#1A1A1A' }}>{a.title}</Link>
                   </td>
                   <td style={{ padding:'10px 14px', whiteSpace:'nowrap' }}>
                     <span style={{ fontSize:10, fontWeight:700, color:p, background:p+'15', padding:'2px 8px', borderRadius:2 }}>{a.category}</span>

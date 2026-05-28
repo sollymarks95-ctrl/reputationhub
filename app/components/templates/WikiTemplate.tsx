@@ -60,7 +60,7 @@ export default function WikiTemplate({ articles = [], site, routePrefix, siteSlu
               </div>
               <div style={{ display:'flex', gap:24 }}>
                 <div style={{ flex:1 }}>
-                  <Link href={`/${routePrefix}/${siteSlug}/${hero.slug}`}>
+                  <Link href={`/article/${siteSlug}/${hero.slug}`}>
                     <h1 style={{ fontFamily:'Linux Libertine,Georgia,serif', fontSize:28, fontWeight:700, color:'#202122', marginBottom:10, lineHeight:1.3 }}>{hero.title}</h1>
                   </Link>
                   <div className="wiki-toc">
@@ -71,7 +71,7 @@ export default function WikiTemplate({ articles = [], site, routePrefix, siteSlu
                   </div>
                   <div style={{ fontFamily:'Source Sans 3,sans-serif', fontSize:15, color:'#202122', lineHeight:1.7 }}>
                     {hero.excerpt?.slice(0,400)}
-                    <Link href={`/${routePrefix}/${siteSlug}/${hero.slug}`} className="wiki-link" style={{ fontSize:13, marginLeft:8 }}>[Read more →]</Link>
+                    <Link href={`/article/${siteSlug}/${hero.slug}`} className="wiki-link" style={{ fontSize:13, marginLeft:8 }}>[Read more →]</Link>
                   </div>
                 </div>
                 {hero.cover_image_url && (
@@ -94,7 +94,7 @@ export default function WikiTemplate({ articles = [], site, routePrefix, siteSlu
                 <div key={a.id} className="wiki-article" style={{ display:'flex', gap:16, padding:'8px 6px', borderBottom:'1px solid #F0F0F0' }}>
                   {a.cover_image_url && <img src={a.cover_image_url} alt={a.title} style={{ width:60, height:44, objectFit:'cover', border:'1px solid #A2A9B1', flexShrink:0 }} />}
                   <div>
-                    <Link href={`/${routePrefix}/${siteSlug}/${a.slug}`} className="wiki-link" style={{ fontWeight:600, fontSize:15 }}>{a.title}</Link>
+                    <Link href={`/article/${siteSlug}/${a.slug}`} className="wiki-link" style={{ fontWeight:600, fontSize:15 }}>{a.title}</Link>
                     <div style={{ fontFamily:'Source Sans 3,sans-serif', fontSize:12, color:'#555', marginTop:2 }}>
                       {a.author_name} · {fmtDate(a.published_at)} · {a.read_time_minutes || 4} min read
                     </div>
