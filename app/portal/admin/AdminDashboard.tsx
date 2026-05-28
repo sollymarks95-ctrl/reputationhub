@@ -86,7 +86,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [obResult, setObResult] = useState<any>(null)
 
   // API Keys state
-  const [apiKeys, setApiKeys] = useState({ SEARCHAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', SERPAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', ELEVENLABS_KEY:'', HEYGEN_KEY:'', OPENAI_KEY:'' })
+  const [apiKeys, setApiKeys] = useState({ SEARCHAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', SERPAPI_KEY:'gdGyamHuvxB2PsEBFBHbozWx', ELEVENLABS_KEY:'sk_0ef4f63227ad68a735dbbc14cdf18bf5f7ae06fa2789f1eb', HEYGEN_KEY:'', OPENAI_KEY:'' })
   const [keyStatus, setKeyStatus] = useState<any[]>([])
   const [keysSaved, setKeysSaved] = useState(false)
 
@@ -552,13 +552,19 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                         <option value="male_authoritative">Male — Authoritative</option>
                       </select>
                       <button className="btn b-gold" style={{ width:'100%', justifyContent:'center' }} onClick={generateAudio} disabled={podAudioLoading}>
-                        {podAudioLoading ? <><Spinner/> Generating Audio...</> : '🎵 Generate Audio →'}
+                        {podAudioLoading ? <><Spinner/> Generating via ElevenLabs...</> : '🎙 Generate Podcast Audio (ElevenLabs) →'}
                       </button>
                       {podMsg && <div style={{ marginTop:8, padding:'8px 12px', background:'rgba(255,255,255,0.05)', borderRadius:6, fontSize:11, color:'#94A3B8' }}>{podMsg}</div>}
                       {podAudio && (
                         <div style={{ marginTop:10 }}>
+                          <div style={{ fontSize:10, fontWeight:700, color:'#10B981', letterSpacing:'.08em', marginBottom:8, padding:'5px 10px', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:4 }}>
+                            ✓ ELEVENLABS — 2 PROFESSIONAL VOICES (HOST + GUEST)
+                          </div>
                           <audio controls style={{ width:'100%', borderRadius:6, background:'#0B0F19' }} src={podAudio}/>
-                          <a href={podAudio} target="_blank" rel="noopener noreferrer"><button className="btn b-green" style={{ width:'100%', justifyContent:'center', marginTop:8, fontSize:12 }}>⬇️ Download MP3</button></a>
+                          <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                            <a href={podAudio} download style={{ flex:1 }}><button className="btn b-green" style={{ width:'100%', justifyContent:'center', fontSize:12 }}>⬇️ Download MP3</button></a>
+                            <a href={podAudio} target="_blank" rel="noopener noreferrer" style={{ flex:1 }}><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:12 }}>🔗 Open URL</button></a>
+                          </div>
                         </div>
                       )}
                     </div>
