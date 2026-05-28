@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
   const GUEST_TITLE = guestRole || 'Expert Analyst'
 
   const targetWords = Math.round(duration * 130 * 1.1)
+  const minWords = Math.round(duration * 120)  // hard floor
 
   const prompt = `You are writing a premium ${duration}-MINUTE financial podcast script for "${SHOW_NAME}".
 Target: EXACTLY ${targetWords} words (±100 words).
@@ -58,6 +59,10 @@ STRUCTURE:
 - 2-${duration-3} min: Deep discussion with real data, named companies, market events  
 - ${duration-3}-${duration} min: Key takeaways, ${GUEST}'s predictions, sign-off
 
+WORD COUNT REQUIREMENT: This script MUST be at least ${minWords} words. Count carefully.
+A {duration}-minute podcast at 130 words/minute = {targetWords} words minimum.
+Do NOT end early. Fill all {duration} minutes of content.
+
 OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no preamble:`
 
   try {
@@ -71,7 +76,7 @@ OUTPUT ONLY THE SCRIPT — start immediately with "${HOST}:" — no title, no pr
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
+        max_tokens: 12000,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         system: 'You are writing a financial podcast script. Always search for real current market prices and news before writing. Only use verified, accurate data.',
         messages: [{ role: 'user', content: prompt }]

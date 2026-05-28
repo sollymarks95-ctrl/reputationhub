@@ -145,12 +145,21 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
 
   async function generateScript(e: React.FormEvent) {
     e.preventDefault()
-    setPodLoading(true); setPodScript(''); setPodMsg(''); setPodAudio('')
+    const mins = parseInt(podDuration) || 20
+    setPodLoading(true); setPodScript(''); setPodMsg(`✍️ Writing ${mins}-minute script...`); setPodAudio(''); setPodStatus([{step:'script',ok:true,msg:`✍️ Writing ${mins}-min script with Claude (searching for real market data)...`}])
     const r = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ clientId: podClient, episodeNumber: parseInt(podEpNum)||1, title: podTitle, hostName: podHost, hostRole: podHostRole, guestName: podGuest, guestRole: podRole, topic: podTopic, brokerName: getClientBrokerName(podClient), regulation: getClientRegulation(podClient), durationMinutes: parseInt(podDuration)||20 , siteSlug:podSite }) })
+      body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:mins, siteSlug:podSite }) })
     const d = await r.json()
-    if (d.script) { setPodScript(d.script); setPodEpisodeId(d.episodeId || '') }
-    else setPodMsg(d.error || 'Failed to generate script')
+    if (d.script) {
+      setPodScript(d.script)
+      setPodEpisodeId(d.podcastId || '')  // ← was d.episodeId (wrong key)
+      const wc = d.stats?.wordCount || d.script.split(' ').length
+      const est = Math.round(wc/130)
+      setPodStatus([{step:'script',ok:true,msg:`✅ Script ready — ${wc} words (~${est} min) · ${d.showName||''} · Click 🎙 or 🎬 below`}])
+    } else {
+      setPodStatus([{step:'script',ok:false,msg:'❌ '+(d.error||'Script generation failed')}])
+    }
+    setPodMsg('')
     setPodLoading(false)
   }
 
@@ -835,24 +844,27 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                 {/* Script panel — with action buttons inside */}
                 <div className="card" style={{ padding:22 }}>
 
-                  {/* ACTION BUTTONS — shown inside right panel after script is ready */}
-                  {podScript && !podLoading && (
-                    <div style={{ marginBottom:16, padding:14, background:'rgba(255,255,255,0.04)', borderRadius:10, border:'1px solid rgba(255,255,255,0.1)' }}>
-                      <div style={{ fontSize:10, fontWeight:800, color:'#475569', letterSpacing:'.1em', marginBottom:10, textTransform:'uppercase' }}>Script ready — generate output:</div>
-                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                        <button onClick={generateAudioPodcast}
-                          style={{ padding:'12px 8px', background:'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:8, color:'#fff', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                          <span style={{ fontSize:20 }}>🎙</span>
-                          <span style={{ fontWeight:800, fontSize:12 }}>Audio Podcast</span>
-                          <span style={{ fontSize:10, opacity:.8 }}>ElevenLabs → MP3</span>
+                  {/* PROMINENT ACTION BUTTONS — right panel, always visible after script */}
+                  {podScript && (
+                    <div style={{ marginBottom:16, padding:16, background:'linear-gradient(135deg,rgba(16,185,129,0.08),rgba(99,102,241,0.08))', borderRadius:12, border:'1px solid rgba(255,255,255,0.12)' }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'#94A3B8', marginBottom:12, display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ color:'#10B981' }}>✅</span> Script ready — now generate:
+                      </div>
+                      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                        <button onClick={generateAudioPodcast} disabled={podLoading}
+                          style={{ padding:'14px 10px', background: podLoading ? '#1E293B' : 'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:10, color:'#fff', cursor:podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:5, transition:'opacity .2s', opacity: podLoading ? 0.5 : 1 }}>
+                          <span style={{ fontSize:22 }}>🎙</span>
+                          <span style={{ fontWeight:800, fontSize:13 }}>Audio Podcast</span>
+                          <span style={{ fontSize:10, opacity:.85 }}>Script → ElevenLabs → MP3</span>
                         </button>
-                        <button onClick={generateVideoPodcast}
-                          style={{ padding:'12px 8px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:8, color:'#fff', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                          <span style={{ fontSize:20 }}>🎬</span>
-                          <span style={{ fontWeight:800, fontSize:12 }}>Video Podcast</span>
-                          <span style={{ fontSize:10, opacity:.8 }}>Audio → Descript</span>
+                        <button onClick={generateVideoPodcast} disabled={podLoading}
+                          style={{ padding:'14px 10px', background: podLoading ? '#1E293B' : 'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:10, color:'#fff', cursor:podLoading?'not-allowed':'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:5, transition:'opacity .2s', opacity: podLoading ? 0.5 : 1 }}>
+                          <span style={{ fontSize:22 }}>🎬</span>
+                          <span style={{ fontWeight:800, fontSize:13 }}>Video Podcast</span>
+                          <span style={{ fontSize:10, opacity:.85 }}>Audio → Descript → MP4</span>
                         </button>
                       </div>
+                      {podLoading && <div style={{ marginTop:10, fontSize:11, color:'#64748b', textAlign:'center' }}>⏳ Generating — please wait...</div>}
                     </div>
                   )}
 
