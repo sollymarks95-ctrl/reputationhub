@@ -9,6 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
+  const canonicalBase = slug === 'global-trade-wire' ? 'https://nex-wire.com' : `https://rephuby.com/news/${slug}`
   const url = `${BASE}/news/${slug}`
   return {
     title: site.seo_title || `Nex-Wire — Global Trade & Market Intelligence`,
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     alternates: { canonical: url },
     openGraph: {
-      title: site.seo_title || site.name,
+      title: 'Nex-Wire — Global Trade & Market Intelligence',
       description: site.tagline,
       url, type: 'website', siteName: site.name,
       images: [{ url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200', width: 1200, height: 630, alt: site.name }],

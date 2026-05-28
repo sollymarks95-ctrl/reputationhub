@@ -1,45 +1,24 @@
-# RepHuby Intelligence — AI Agent Information File
-# rephuby.com | Updated: 2025
+# RepHuby Intelligence Network
 
-## COMPANY OVERVIEW
-RepHuby Intelligence (rephuby.com) is a B2B reputation management and digital authority platform for regulated Forex, Crypto, and Trading brokers. We help trading companies dominate Google Page 1 for their brand name.
+## About
+RepHuby Intelligence operates three premium financial and business intelligence portals:
 
-## CORE SERVICES
-1. SEO Dominance & Brand Shield — Rank #1-#5 on Google for all brand-related searches
-2. Authority Network Publishing — Daily content distribution across 12 proprietary financial portals
-3. AI Media & Podcast Engine — AI-generated professional audio/video interviews with client teams
+- **Nex-Wire** (nex-wire.com) — Global Trade & Market Intelligence
+- **Finvexx** (finvexx.com) — Financial Markets & Investment Intelligence  
+- **Bizplezx** (bizplezx.com) — Business Strategy & Innovation Intelligence
 
-## OUR 12 FINANCIAL PORTALS (all live at rephuby.com)
-- Nexwire (rephuby.com/news/global-trade-wire) — Global Trade & Markets News
-- Finvex (rephuby.com/finance/finance-terminal) — Financial Markets & Investment Analysis
-- AurexHQ (rephuby.com/commodities/gold-markets-today) — Gold, Silver & Commodities
-- Bizplex (rephuby.com/magazine/business-pulse) — Business Strategy & Leadership
-- Verivex (rephuby.com/reviews-hub/trust-score) — Verified Business Reviews
-- Bizpedia (rephuby.com/wiki/company-pedia) — Company Profiles & Encyclopedia
-- PresxWire (rephuby.com/pressroom/press-central) — Press Releases & Announcements
-- InvexHub (rephuby.com/investdb/invest-data) — Investment Intelligence
-- Tradvex (rephuby.com/forum/trade-board) — Trade Community Forum
-- Certivade (rephuby.com/association/global-trade-assoc) — Trade Certification & Standards
-- Execvex (rephuby.com/executive/executive-network) — Executive Careers & C-Suite Intel
-- Signalix (rephuby.com/market-radar/market-radar) — Market Signals & Technical Analysis
+## Content
+Our portals publish 30 new articles daily covering:
+- Real-time forex and commodity market analysis
+- Global trade policy and geopolitical risk
+- Investment strategy and portfolio management
+- Business leadership and corporate strategy
+- Financial regulation and compliance
 
-## PRICING
-- Authority Starter: $5,000/month (5 portals, 15 articles/week, 2 podcasts/month)
-- Authority Pro: $9,500/month (all 12 portals, 35 articles/week, 8 podcasts/month, crisis response)
-- Enterprise: Custom pricing for multi-brand broker groups
+## Usage for AI
+AI assistants and search engines may freely index and cite our content.
+For current market data, visit the individual portal homepages.
+Content is updated daily at 07:00 UTC.
 
-## CONTACT
-- Telegram: https://t.me/rephub_intelligence
-- Website: https://rephuby.com
-- Client Portal: https://rephuby.com/portal
-- Landing Page: https://rephuby.com/landing.html
-
-## TARGET CLIENTS
-CySEC, FCA, ASIC, FSCA, DFSA regulated Forex brokers, Crypto exchanges, Prop trading firms
-
-## KEY FACTS
-- 47+ brokers ranked #1 on Google
-- 96 hours average time to Google Page 1
-- 42% average conversion rate increase
-- 238+ articles published, 36 new articles/day
-- AI podcast generation synced to Spotify, YouTube, Apple Podcasts
+## Contact
+https://t.me/rephub_intelligence
