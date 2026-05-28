@@ -1,51 +1,73 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
-  const hostname = request.headers.get('host') || ''
-  const pathname = request.nextUrl.pathname
+// Each portal domain → its route + slug on rephuby.com
+const DOMAIN_MAP: Record<string, { route: string; slug: string; name: string }> = {
+  'nexwire.com':     { route:'news',         slug:'global-trade-wire',  name:'Nexwire'  },
+  'finvex.com':      { route:'finance',       slug:'finance-terminal',   name:'Finvex'   },
+  'aurexhq.com':     { route:'commodities',   slug:'gold-markets-today', name:'AurexHQ'  },
+  'bizplex.com':     { route:'magazine',      slug:'business-pulse',     name:'Bizplex'  },
+  'verivex.com':     { route:'reviews-hub',   slug:'trust-score',        name:'Verivex'  },
+  'bizpedia.com':    { route:'wiki',          slug:'company-pedia',      name:'Bizpedia' },
+  'presxwire.com':   { route:'pressroom',     slug:'press-central',      name:'PresxWire'},
+  'invexhub.com':    { route:'investdb',      slug:'invest-data',        name:'InvexHub' },
+  'tradvex.com':     { route:'forum',         slug:'trade-board',        name:'Tradvex'  },
+  'certivade.com':   { route:'association',   slug:'global-trade-assoc', name:'Certivade'},
+  'execvex.com':     { route:'executive',     slug:'executive-network',  name:'Execvex'  },
+  'signalix.com':    { route:'market-radar',  slug:'market-radar',       name:'Signalix' },
+  // .io fallbacks
+  'nexwire.io':      { route:'news',         slug:'global-trade-wire',  name:'Nexwire'  },
+  'finvex.io':       { route:'finance',       slug:'finance-terminal',   name:'Finvex'   },
+  'aurexhq.io':      { route:'commodities',   slug:'gold-markets-today', name:'AurexHQ'  },
+  'bizplex.io':      { route:'magazine',      slug:'business-pulse',     name:'Bizplex'  },
+  'verivex.io':      { route:'reviews-hub',   slug:'trust-score',        name:'Verivex'  },
+}
 
+export function middleware(request: NextRequest) {
+  const host = (request.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
+  const cleanHost = host.replace(/^www\./, '')
+  const { pathname } = request.nextUrl
+
+  // Skip static assets, API routes, Next.js internals
   if (
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon')
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/logo') ||
+    pathname.includes('.')
   ) return NextResponse.next()
 
-  const siteParam = request.nextUrl.searchParams.get('site')
-  if (siteParam) {
+  const portal = DOMAIN_MAP[cleanHost]
+  if (!portal) return NextResponse.next()
+
+  // Root → portal homepage
+  if (pathname === '/' || pathname === '') {
     const url = request.nextUrl.clone()
-    url.pathname = `/news/${siteParam}${pathname}`
+    url.pathname = `/${portal.route}/${portal.slug}`
     return NextResponse.rewrite(url)
   }
 
-  const domainMap: Record<string, { type: string; slug: string }> = {
-    'nexwire.com':      { type: 'news',        slug: 'global-trade-wire' },
-    'finvex.com':       { type: 'finance',      slug: 'finance-terminal' },
-    'aurexhq.com':      { type: 'commodities',  slug: 'gold-markets-today' },
-    'bizplex.com':      { type: 'magazine',     slug: 'business-pulse' },
-    'verivex.com':      { type: 'reviews-hub',  slug: 'trust-score' },
-    'bizpedia.io':      { type: 'wiki',         slug: 'company-pedia' },
-    'presxwire.com':    { type: 'pressroom',    slug: 'press-central' },
-    'invexhub.com':     { type: 'investdb',     slug: 'invest-data' },
-    'tradvex.com':      { type: 'forum',        slug: 'trade-board' },
-    'certivade.com':    { type: 'association',  slug: 'global-trade-assoc' },
-    'execvex.com':      { type: 'executive',    slug: 'executive-network' },
-    'signalix.com':     { type: 'market-radar', slug: 'market-radar' },
+  // Already on portal path — let through
+  if (pathname.startsWith(`/${portal.route}/${portal.slug}`)) {
+    return NextResponse.next()
   }
 
-  const cleanHost = hostname.replace('www.', '').split(':')[0]
-  const site = domainMap[cleanHost]
-
-  if (site) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${site.type}/${site.slug}${pathname}`
-    return NextResponse.rewrite(url)
+  // Article pages — keep path, just prefix with portal route
+  if (pathname.startsWith('/article/')) {
+    return NextResponse.next()
   }
 
-  return NextResponse.next()
+  // /search, /charts, /legal, /portal — pass through unchanged
+  if (['/search','/charts','/legal','/portal','/academy'].some(p => pathname.startsWith(p))) {
+    return NextResponse.next()
+  }
+
+  // Everything else on portal domain → portal homepage
+  const url = request.nextUrl.clone()
+  url.pathname = `/${portal.route}/${portal.slug}`
+  return NextResponse.rewrite(url)
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon\\.ico|logo\\.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf)).*)',],
 }
