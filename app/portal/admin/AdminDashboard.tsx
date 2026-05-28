@@ -177,6 +177,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const sd = await sr.json()
       if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
+      // Switch to Episodes tab immediately so user can watch progress there
+      setPodSubTab('episodes')
       setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite }) })
@@ -184,6 +186,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       if (ad.audioUrl) {
         setPodAudio(ad.audioUrl)
         setPodMsg(`✅ Audio podcast ready! Host: ${ad.voices?.host} · Guest: ${ad.voices?.guest}`)
+        // Refresh episodes list to show the new episode with audio player
+        router.refresh()
       } else { setPodMsg('Audio error: '+(ad.error||'unknown')) }
     } catch(e:any) { setPodMsg('Error: '+e.message) }
     setPodLoading(false)
@@ -279,7 +283,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
 
   async function generateAudio() {
     if (!podScript) return
-    setPodAudioLoading(true); setPodMsg('')
+    setPodAudioLoading(true); setPodMsg(''); setPodSubTab('episodes')
     const r = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ episodeId: podEpisodeId, script: podScript, voiceId: podVoice }) })
     const d = await r.json()
@@ -931,7 +935,28 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
               {/* ═══ EPISODES TAB ═══ */}
               {podSubTab === 'episodes' && (
                 <div>
-                  {allPodcasts.length === 0 ? (
+                  {/* Live generating banner — shows while audio is being created */}
+                  {podLoading && (
+                    <div style={{ marginBottom:18, padding:20, background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.3)', borderRadius:12, display:'flex', alignItems:'center', gap:16 }}>
+                      <div style={{ width:36, height:36, borderRadius:'50%', border:'3px solid #0EA5E9', borderTopColor:'transparent', animation:'spin 1s linear infinite', flexShrink:0 }} />
+                      <div>
+                        <div style={{ fontWeight:700, color:'#0EA5E9', fontSize:14 }}>Generating your podcast episode...</div>
+                        <div style={{ fontSize:12, color:'#64748B', marginTop:3 }}>{podMsg || 'Processing with ElevenLabs — this takes 1-2 minutes'}</div>
+                      </div>
+                    </div>
+                  )}
+                  {/* Audio ready banner */}
+                  {podAudio && !podLoading && (
+                    <div style={{ marginBottom:18, padding:20, background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.3)', borderRadius:12 }}>
+                      <div style={{ fontWeight:700, color:'#10B981', fontSize:14, marginBottom:10 }}>✅ Episode ready — listen now</div>
+                      <audio controls style={{ width:'100%', borderRadius:6 }} src={podAudio}/>
+                      <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                        <a href={podAudio} download="podcast.mp3" style={{ flex:1 }}><button className="btn b-green" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>⬇️ Download MP3</button></a>
+                        <a href={podAudio} target="_blank" rel="noopener noreferrer" style={{ flex:1 }}><button className="btn b-ghost" style={{ width:'100%', justifyContent:'center', fontSize:11 }}>🔗 Open in new tab</button></a>
+                      </div>
+                    </div>
+                  )}
+                  {allPodcasts.length === 0 && !podLoading ? (
                     <div style={{ textAlign:'center', padding:'80px 20px', color:'#475569' }}>
                       <div style={{ fontSize:48, marginBottom:12 }}>🎙</div>
                       <div style={{ fontSize:16, fontWeight:600, color:'#94A3B8', marginBottom:8 }}>No episodes yet</div>
