@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+
+export const runtime = 'nodejs'
 const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
   'nex-wire.com':     { route:'news',        slug:'global-trade-wire'   },
   'www.nex-wire.com': { route:'news',        slug:'global-trade-wire'   },
