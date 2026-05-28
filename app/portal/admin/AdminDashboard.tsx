@@ -3,19 +3,20 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+// publicUrl: the real URL to show clients. rephubyUrl: internal admin/content URL
 const PORTALS = [
-  { name:'NEX-WIRE',  abbr:'NW', domain:'nex-wire.com',   slug:'global-trade-wire',  color:'#E03131', accent:'#FF6B6B', route:'news'        },
-  { name:'FINVEXX',   abbr:'FX', domain:'finvexx.com',    slug:'finance-terminal',   color:'#1971C2', accent:'#74C0FC', route:'finance'     },
-  { name:'AUREXHQ',   abbr:'AX', domain:'aurexhq.com',    slug:'gold-markets-today', color:'#B08700', accent:'#FFD43B', route:'commodities' },
-  { name:'BIZPLEZX',  abbr:'BX', domain:'bizplezx.com',   slug:'business-pulse',     color:'#6741D9', accent:'#B197FC', route:'magazine'    },
-  { name:'VERIVEX',   abbr:'VX', domain:'verivex.co',     slug:'trust-score',        color:'#0CA678', accent:'#63E6BE', route:'reviews-hub' },
-  { name:'BIZPEDIA',  abbr:'BZ', domain:'bizpedia.com',   slug:'company-pedia',      color:'#1864AB', accent:'#74C0FC', route:'wiki'        },
-  { name:'PRESXWIRE', abbr:'PW', domain:'presxwire.com',  slug:'press-central',      color:'#C92A2A', accent:'#FF8787', route:'pressroom'   },
-  { name:'INVEXHUB',  abbr:'IH', domain:'invexhub.com',   slug:'invest-data',        color:'#0B6E4F', accent:'#63E6BE', route:'investdb'    },
-  { name:'TRADVEX',   abbr:'TV', domain:'tradvex.com',    slug:'trade-board',        color:'#D9480F', accent:'#FFA94D', route:'forum'       },
-  { name:'CERTIVADE', abbr:'CV', domain:'certivade.com',  slug:'global-trade-assoc', color:'#1864AB', accent:'#A5D8FF', route:'association' },
-  { name:'EXECVEX',   abbr:'EV', domain:'execvex.com',    slug:'executive-network',  color:'#3B5BDB', accent:'#BAC8FF', route:'executive'   },
-  { name:'SIGNALIX',  abbr:'SX', domain:'signalix.com',   slug:'market-radar',       color:'#A61E4D', accent:'#F783AC', route:'market-radar'},
+  { name:'NEX-WIRE',  abbr:'NW', domain:'nex-wire.com',   slug:'global-trade-wire',  color:'#E03131', accent:'#FF6B6B', route:'news',         publicUrl:'https://nex-wire.com',    live:true  },
+  { name:'FINVEXX',   abbr:'FX', domain:'finvexx.com',    slug:'finance-terminal',   color:'#1971C2', accent:'#74C0FC', route:'finance',       publicUrl:'https://finvexx.com',     live:true  },
+  { name:'BIZPLEZX',  abbr:'BX', domain:'bizplezx.com',   slug:'business-pulse',     color:'#6741D9', accent:'#B197FC', route:'magazine',      publicUrl:'https://bizplezx.com',    live:true  },
+  { name:'AUREXHQ',   abbr:'AX', domain:'aurexhq.com',    slug:'gold-markets-today', color:'#B08700', accent:'#FFD43B', route:'commodities',   publicUrl:'https://rephuby.com/commodities/gold-markets-today', live:false },
+  { name:'VERIVEX',   abbr:'VX', domain:'verivex.co',     slug:'trust-score',        color:'#0CA678', accent:'#63E6BE', route:'reviews-hub',   publicUrl:'https://rephuby.com/reviews-hub/trust-score',       live:false },
+  { name:'BIZPEDIA',  abbr:'BZ', domain:'bizpedia.com',   slug:'company-pedia',      color:'#1864AB', accent:'#74C0FC', route:'wiki',          publicUrl:'https://rephuby.com/wiki/company-pedia',            live:false },
+  { name:'PRESXWIRE', abbr:'PW', domain:'presxwire.com',  slug:'press-central',      color:'#C92A2A', accent:'#FF8787', route:'pressroom',     publicUrl:'https://rephuby.com/pressroom/press-central',       live:false },
+  { name:'INVEXHUB',  abbr:'IH', domain:'invexhub.com',   slug:'invest-data',        color:'#0B6E4F', accent:'#63E6BE', route:'investdb',      publicUrl:'https://rephuby.com/investdb/invest-data',          live:false },
+  { name:'TRADVEX',   abbr:'TV', domain:'tradvex.com',    slug:'trade-board',        color:'#D9480F', accent:'#FFA94D', route:'forum',         publicUrl:'https://rephuby.com/forum/trade-board',             live:false },
+  { name:'CERTIVADE', abbr:'CV', domain:'certivade.com',  slug:'global-trade-assoc', color:'#1864AB', accent:'#A5D8FF', route:'association',   publicUrl:'https://rephuby.com/association/global-trade-assoc',live:false },
+  { name:'EXECVEX',   abbr:'EV', domain:'execvex.com',    slug:'executive-network',  color:'#3B5BDB', accent:'#BAC8FF', route:'executive',     publicUrl:'https://rephuby.com/executive/executive-network',   live:false },
+  { name:'SIGNALIX',  abbr:'SX', domain:'signalix.com',   slug:'market-radar',       color:'#A61E4D', accent:'#F783AC', route:'market-radar',  publicUrl:'https://rephuby.com/market-radar/market-radar',     live:false },
 ]
 
 const NAV = [
@@ -187,6 +188,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const page1 = allRankings.filter((r: any) => r.current_position > 0 && r.current_position <= 10).length
   const totalViews = allContent.reduce((s: number, c: any) => s + (c.views || 0), 0)
 
+
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'#0B0F19', fontFamily:"'DM Sans',system-ui,sans-serif", color:'#F1F5F9' }}>
       <style>{`
@@ -310,12 +312,12 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     {sites.map((s: any) => {
                       const p = PORTALS.find(p => p.slug === s.slug)
                       return (
-                        <Link key={s.id} href={`https://rephuby.com/${p?.route||'news'}/${s.slug}`} target="_blank">
+                        <a key={s.id} href={PORTALS.find(pp=>pp.slug===s.slug)?.publicUrl || `https://rephuby.com/${p?.route||'news'}/${s.slug}`} target="_blank" rel="noopener noreferrer">
                           <div style={{ padding:'10px 12px', background:'rgba(255,255,255,0.03)', border:`1px solid ${s.primary_color}30`, borderLeft:`3px solid ${s.primary_color}`, borderRadius:8 }}>
                             <div style={{ fontWeight:700, fontSize:12, color:'#F1F5F9' }}>{s.name}</div>
                             <div style={{ fontSize:10, color:'#10B981', marginTop:2 }}>● Live</div>
                           </div>
-                        </Link>
+                        </a>
                       )
                     })}
                   </div>
@@ -762,36 +764,48 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           {/* ══ PORTALS ══ */}
           {tab === 'portals' && (
             <div style={{ animation:'slideIn .3s ease' }}>
+              <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
+                <span className="badge bg">✓ 3 Live Custom Domains</span>
+                <span className="badge bb">9 on rephuby.com — buy domain to go live</span>
+              </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
-                {sites.map((site: any) => {
-                  const p = PORTALS.find(p => p.slug === site.slug)
+                {PORTALS.map((pp) => {
                   return (
-                    <div key={site.id} className="card" style={{ padding:20 }}>
-                      <div style={{ display:'flex', gap:12, alignItems:'center', marginBottom:14 }}>
-                        <div style={{ width:42, height:42, borderRadius:9, background:`${site.primary_color}30`, border:`1px solid ${site.primary_color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:18, color:site.primary_color }}>
-                          {site.name.charAt(0)}
+                    <div key={pp.slug} className="card" style={{ padding:20, position:'relative', overflow:'hidden', border: pp.live ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
+                      <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, background:`${pp.color}10`, borderRadius:'50%', filter:'blur(30px)', pointerEvents:'none' }} />
+                      <div style={{ display:'flex', gap:12, alignItems:'center', marginBottom:12 }}>
+                        <div style={{ width:52, height:52, borderRadius:12, background:`linear-gradient(145deg,${pp.color},${pp.color}90)`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:`0 4px 20px ${pp.color}50`, position:'relative', overflow:'hidden' }}>
+                          <div style={{ position:'absolute', top:0, left:0, right:0, height:'45%', background:'rgba(255,255,255,0.15)', borderRadius:'12px 12px 50% 50%' }} />
+                          <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, color:'#fff', letterSpacing:'-0.02em', position:'relative', zIndex:1 }}>{pp.abbr}</span>
                         </div>
-                        <div>
-                          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:'-0.03em' }}>
-                            {(() => {
-                              const pp = PORTALS.find(p => p.slug === site.slug)
-                              if (!pp) return site.name
-                              if (pp.name.includes('-')) return <><span style={{color:'#F1F5F9'}}>{pp.name.split('-')[0]}</span><span style={{color:pp.color}}>-</span><span style={{color:pp.accent}}>{pp.name.split('-')[1]}</span></>
-                              if (pp.name.endsWith('XX')) return <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-2)}</span><span style={{color:pp.color}}>XX</span></>
-                              const mid = Math.ceil(pp.name.length/2)
-                              return <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,mid)}</span><span style={{color:pp.color}}>{pp.name.slice(mid)}</span></>
-                            })()}
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:900,fontSize:17,letterSpacing:'-0.03em',lineHeight:1,display:'flex',alignItems:'center',flexWrap:'wrap',gap:0}}>
+                            {pp.name.includes('-') ? (
+                              <><span style={{color:'#F1F5F9'}}>{pp.name.split('-')[0]}</span><span style={{color:pp.color}}>-</span><span style={{color:pp.accent}}>{pp.name.split('-')[1]}</span></>
+                            ) : pp.name.slice(-2) === 'XX' ? (
+                              <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-2)}</span><span style={{color:pp.color}}>XX</span></>
+                            ) : (
+                              <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-3)}</span><span style={{color:pp.color}}>{pp.name.slice(-3)}</span></>
+                            )}
                           </div>
-                          <div style={{ fontSize:10, color:site.primary_color, marginTop:2 }}>{PORTALS.find(p=>p.slug===site.slug)?.domain || site.site_type}</div>
+                          <div style={{ fontSize:10, fontWeight:600, color: pp.live ? '#10B981' : '#475569', marginTop:3 }}>
+                            {pp.live ? '🌐 ' : ''}{pp.domain}
+                          </div>
                         </div>
-                        <span className="badge bg" style={{ marginLeft:'auto' }}>● Live</span>
+                        <span className={pp.live ? 'badge bg' : 'badge bb'} style={{ flexShrink:0, fontSize:10 }}>
+                          {pp.live ? '✓ LIVE' : 'rephuby'}
+                        </span>
                       </div>
-                      <div style={{ fontSize:12, color:'#64748b', marginBottom:12 }}>/{p?.route}/{site.slug}</div>
+                      <div style={{ fontSize:10, color:'#334155', marginBottom:12, fontFamily:'monospace', background:'rgba(255,255,255,0.04)', padding:'4px 8px', borderRadius:4 }}>
+                        {pp.live ? pp.publicUrl.replace('https://','') : 'rephuby.com/' + pp.route + '/' + pp.slug}
+                      </div>
                       <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                        <Link href={`https://rephuby.com/${p?.route||'news'}/${site.slug}`} target="_blank">
-                          <button className="btn b-ghost" style={{ fontSize:11 }}>View Site ↗</button>
-                        </Link>
-                        <button className="btn b-blue" style={{ fontSize:11 }} onClick={() => { setGenPortal(site.slug); setTab('content') }}>Write Article</button>
+                        <a href={pp.publicUrl} target="_blank" rel="noopener noreferrer">
+                          <button className={pp.live ? 'btn b-green' : 'btn b-ghost'} style={{ fontSize:11 }}>
+                            {pp.live ? '🌐 Live Site ↗' : 'View Site ↗'}
+                          </button>
+                        </a>
+                        <button className="btn b-blue" style={{ fontSize:11 }} onClick={() => { setGenPortal(pp.slug); setTab('content') }}>✍️ Write Article</button>
                       </div>
                     </div>
                   )
@@ -800,7 +814,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
             </div>
           )}
 
-          {/* ══ SUBSCRIBERS ══ */}
+                    {/* ══ SUBSCRIBERS ══ */}
           {tab === 'subs' && (
             <div style={{ animation:'slideIn .3s ease' }}>
               <div className="card" style={{ overflow:'hidden' }}>

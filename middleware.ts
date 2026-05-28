@@ -1,65 +1,71 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const DOMAIN_MAP: Record<string, { route: string; slug: string; name: string }> = {
-  // ── PURCHASED DOMAINS ──────────────────────────────────────────────────
-  'finvexx.com':      { route:'finance',      slug:'finance-terminal',    name:'Finvex'   },
-  'www.finvexx.com':  { route:'finance',      slug:'finance-terminal',    name:'Finvex'   },
-  'nex-wire.com':     { route:'news',         slug:'global-trade-wire',   name:'Nexwire'  },
-  'www.nex-wire.com': { route:'news',         slug:'global-trade-wire',   name:'Nexwire'  },
-
-  // ── FUTURE PORTALS (add domain → connect here) ─────────────────────────
-  'aurexhq.com':      { route:'commodities',  slug:'gold-markets-today',  name:'AurexHQ'  },
-  'www.aurexhq.com':  { route:'commodities',  slug:'gold-markets-today',  name:'AurexHQ'  },
-  'bizplezx.com':     { route:'magazine',     slug:'business-pulse',      name:'Bizplezx' },
-  'www.bizplezx.com': { route:'magazine',     slug:'business-pulse',      name:'Bizplezx' },
-  'bizplex.co':       { route:'magazine',     slug:'business-pulse',      name:'Bizplex'  },
-  'www.bizplex.co':   { route:'magazine',     slug:'business-pulse',      name:'Bizplex'  },
-  'verivex.co':       { route:'reviews-hub',  slug:'trust-score',         name:'Verivex'  },
-  'www.verivex.co':   { route:'reviews-hub',  slug:'trust-score',         name:'Verivex'  },
-  'bizpedia.com':     { route:'wiki',         slug:'company-pedia',       name:'Bizpedia' },
-  'presxwire.com':    { route:'pressroom',    slug:'press-central',       name:'PresxWire'},
-  'invexhub.com':     { route:'investdb',     slug:'invest-data',         name:'InvexHub' },
-  'tradvex.com':      { route:'forum',        slug:'trade-board',         name:'Tradvex'  },
-  'certivade.com':    { route:'association',  slug:'global-trade-assoc',  name:'Certivade'},
-  'execvex.com':      { route:'executive',    slug:'executive-network',   name:'Execvex'  },
-  'signalix.com':     { route:'market-radar', slug:'market-radar',        name:'Signalix' },
+// Custom domains → portal route mapping
+const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
+  'nex-wire.com':     { route:'news',        slug:'global-trade-wire'   },
+  'www.nex-wire.com': { route:'news',        slug:'global-trade-wire'   },
+  'finvexx.com':      { route:'finance',     slug:'finance-terminal'    },
+  'www.finvexx.com':  { route:'finance',     slug:'finance-terminal'    },
+  'bizplezx.com':     { route:'magazine',    slug:'business-pulse'      },
+  'www.bizplezx.com': { route:'magazine',    slug:'business-pulse'      },
+  // Future domains — add as they're purchased
+  'aurexhq.com':      { route:'commodities', slug:'gold-markets-today'  },
+  'www.aurexhq.com':  { route:'commodities', slug:'gold-markets-today'  },
+  'bizpedia.com':     { route:'wiki',        slug:'company-pedia'       },
+  'presxwire.com':    { route:'pressroom',   slug:'press-central'       },
+  'invexhub.com':     { route:'investdb',    slug:'invest-data'         },
+  'tradvex.com':      { route:'forum',       slug:'trade-board'         },
+  'certivade.com':    { route:'association', slug:'global-trade-assoc'  },
+  'execvex.com':      { route:'executive',   slug:'executive-network'   },
+  'signalix.com':     { route:'market-radar',slug:'market-radar'        },
 }
 
-export function middleware(request: NextRequest) {
-  const host = (request.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
-  const { pathname } = request.nextUrl
+// Portals that HAVE custom domains — public access via rephuby.com paths should redirect
+const REPHUBY_REDIRECT: Record<string, string> = {
+  '/news/global-trade-wire':   'https://nex-wire.com',
+  '/finance/finance-terminal': 'https://finvexx.com',
+  '/magazine/business-pulse':  'https://bizplezx.com',
+}
 
-  // Skip internals
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/favicon') ||
-    pathname.includes('.')
-  ) return NextResponse.next()
+const SKIP = ['/_next','/_vercel','/api/','/portal','/legal','/search','/charts','/academy','/favicon','/logo','/llms','/sitemap','/robots','.well-known']
 
+export function middleware(req: NextRequest) {
+  const host = (req.headers.get('host') || '').toLowerCase().replace(/:\d+$/, '')
+  const { pathname } = req.nextUrl
+
+  // Skip Next.js internals and static files
+  if (SKIP.some(s => pathname.startsWith(s)) || pathname.includes('.')) {
+    return NextResponse.next()
+  }
+
+  // ── CUSTOM DOMAIN REQUEST ──────────────────────────────────────────────────
   const portal = DOMAIN_MAP[host]
-  if (!portal) return NextResponse.next()
-
-  // Root → portal homepage
-  if (pathname === '/' || pathname === '') {
-    const url = request.nextUrl.clone()
+  if (portal) {
+    // Article pages pass through
+    if (pathname.startsWith('/article/')) return NextResponse.next()
+    // Already on portal path
+    if (pathname.startsWith(`/${portal.route}/${portal.slug}`)) return NextResponse.next()
+    // Other portal-safe paths
+    if (['/search','/charts','/legal','/portal'].some(p => pathname.startsWith(p))) return NextResponse.next()
+    // Rewrite root + everything else → portal homepage
+    const url = req.nextUrl.clone()
     url.pathname = `/${portal.route}/${portal.slug}`
     return NextResponse.rewrite(url)
   }
 
-  // Already on correct path
-  if (pathname.startsWith(`/${portal.route}/${portal.slug}`)) return NextResponse.next()
+  // ── REPHUBY.COM REQUEST ────────────────────────────────────────────────────
+  // If someone accesses rephuby.com/news/global-trade-wire → redirect to nex-wire.com
+  const redirectDomain = REPHUBY_REDIRECT[pathname] ||
+    Object.entries(REPHUBY_REDIRECT).find(([path]) => pathname.startsWith(path))?.[1]
 
-  // Article, search, legal, portal — pass through
-  if (['/article/','/search','/charts','/legal','/portal','/academy'].some(p => pathname.startsWith(p))) {
-    return NextResponse.next()
+  if (redirectDomain && (host === 'rephuby.com' || host === 'www.rephuby.com' || host.includes('vercel.app'))) {
+    // Don't redirect article pages — those are served internally for the cron/admin
+    if (pathname.startsWith('/article/')) return NextResponse.next()
+    return NextResponse.redirect(redirectDomain, { status: 301 })
   }
 
-  // Everything else → portal homepage
-  const url = request.nextUrl.clone()
-  url.pathname = `/${portal.route}/${portal.slug}`
-  return NextResponse.rewrite(url)
+  return NextResponse.next()
 }
 
 export const config = {
