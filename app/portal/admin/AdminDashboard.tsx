@@ -69,6 +69,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
 
   // Podcast state
   const [podClient, setPodClient] = useState('')
+  // Auto-select first client on load
+  React.useEffect(() => { if (clients?.length && !podClient) { setPodClient(clients[0].id) } }, [clients])
   const [podEpNum, setPodEpNum] = useState('')
   const [podSite, setPodSite] = useState('')
   const [podGuestGender, setPodGuestGender] = useState<'auto'|'male'|'female'>('auto')
