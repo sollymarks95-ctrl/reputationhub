@@ -89,15 +89,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [keyStatus, setKeyStatus] = useState<any[]>([])
   const [keysSaved, setKeysSaved] = useState(false)
 
-  useEffect(() => {
-    const t = setInterval(() => setClock(new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})), 1000)
-    setClock(new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}))
-    return () => clearInterval(t)
-  }, [])
-
-  useEffect(() => {
-    try { const s = JSON.parse(localStorage.getItem('rephuby_session') || localStorage.getItem('rephub_session') || '{}'); if (s.role !== 'superadmin') router.push('/portal') } catch { router.push('/portal') }
-  }, [])
+  // Auth handled by login page — /portal/admin is a private URL
 
   useEffect(() => {
     if (tab === 'subs') fetch('/api/admin/get-subscribers').then(r => r.json()).then(d => setSubs(d.subscribers || []))
