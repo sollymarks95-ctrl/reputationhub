@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as any
     const { script, podcastId, title, clientId } = body
+    const episodeNumber: number = parseInt(body.episodeNumber) || 1
     const guestName: string = body.guestName || 'Sarah'
     const guestGender: string = body.guestGender || 'auto'
     const siteSlug: string = body.siteSlug || ''
@@ -142,16 +143,18 @@ export async function POST(req: NextRequest) {
       if (existing?.id) {
         await sb.from('portal_podcasts').update({ mp3_url: audioUrl, status:'published', script: script?.substring(0,500) }).eq('id', existing.id)
       } else {
+        // Count existing episodes for this client to auto-number
+        const { count } = await sb.from('portal_podcasts').select('*', { count:'exact', head:true }).eq('client_id', clientId)
         await sb.from('portal_podcasts').insert({
           client_id: clientId,
+          episode_number: episodeNumber || (count||0) + 1,
           title: title || 'Podcast Episode',
-          description: `AI podcast with ${guestName||'guest'}`,
+          description: `AI podcast — ${siteConfig.hostName} × ${guestName||'Guest'}`,
           duration_minutes: Math.round((combined.length / 1024 / 128) * 8 / 60) || 20,
           status: 'published',
           mp3_url: audioUrl,
           host_name: siteConfig.hostName,
           guest_name: guestName || 'Guest',
-          script: script?.substring(0,500),
           published_at: new Date().toISOString()
         })
       }
