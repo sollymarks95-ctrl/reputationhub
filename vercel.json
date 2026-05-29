@@ -3,7 +3,7 @@
   "buildCommand": "npx next build",
   "outputDirectory": ".next",
   "crons": [
-    { "path": "/api/cron-update?secret=rephuby-cron-2025-secure", "schedule": "0 7 * * *" },
-    { "path": "/api/admin/regenerate-images?secret=rephuby-cron-2025-secure&limit=50", "schedule": "0 8 * * *" }
+    { "path": "/api/cron-update?secret=rephuby-cron-2025-secure", "schedule": "0 20 * * *" },
+    { "path": "/api/admin/regenerate-images?secret=rephuby-cron-2025-secure&limit=50", "schedule": "30 20 * * *" }
   ]
 }
