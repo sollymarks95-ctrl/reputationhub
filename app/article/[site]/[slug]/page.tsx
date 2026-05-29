@@ -1,6 +1,7 @@
 import { getNewsSite, getArticle, getLatestArticles, timeAgo } from '@/lib/news'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import ArticleImage from '@/app/components/ArticleImage'
 import type { Metadata } from 'next'
 import NewsletterInline from '@/app/components/NewsletterInline'
 
@@ -357,7 +358,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* COVER IMAGE */}
             {article.cover_image_url && (
               <figure style={{ marginBottom:26 }}>
-                <img referrerPolicy="no-referrer" src={article.cover_image_url} alt={article.title} style={{ width:'100%', maxHeight:480, objectFit:'cover', display:'block', borderRadius:4 }} loading="eager" onError={(e:any)=>{e.currentTarget.style.display='none'}} />
+                <ArticleImage src={article.cover_image_url} alt={article.title} style={{ width:'100%', maxHeight:480, objectFit:'cover', display:'block', borderRadius:4 }} />
                 <figcaption style={{ fontSize:11, color:'#9ca3af', marginTop:6, fontFamily:'sans-serif', fontStyle:'italic', textAlign:'center' }}>
                   {site.name} Editorial · {article.category || 'News'}
                 </figcaption>

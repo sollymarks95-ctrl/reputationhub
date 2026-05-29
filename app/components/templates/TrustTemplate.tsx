@@ -315,7 +315,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             <div style={{ fontSize:12, fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#86efac', marginBottom:12 }}>TRUST REPORT 2025</div>
             <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10, lineHeight:1.3 }}>Our new Trust Report has landed!</h3>
             <p style={{ fontSize:14, color:'#bbf7d0', lineHeight:1.6, marginBottom:24 }}>Find out which actions we've taken to protect traders and promote trust on our platform.</p>
-            <a href="/legal/privacy" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.12)', backdropFilter:'blur(4px)', border:'1.5px solid rgba(255,255,255,0.3)', color:'#fff', padding:'10px 22px', borderRadius:100, fontWeight:700, fontSize:13, textDecoration:'none', transition:'background .2s' }}>
+            <a href="/for-businesses" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.12)', backdropFilter:'blur(4px)', border:'1.5px solid rgba(255,255,255,0.3)', color:'#fff', padding:'10px 22px', borderRadius:100, fontWeight:700, fontSize:13, textDecoration:'none', transition:'background .2s' }}>
               Take a look
             </a>
           </div>
