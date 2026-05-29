@@ -235,7 +235,7 @@ export async function GET(req: NextRequest) {
             content_type: contentType,
             published_at: new Date().toISOString(),
             views: 0,
-            backlink_value: Math.floor(Math.random()*30)+55,
+            backlink_value: 65,
             status: 'live',
           }).then(() => {}).catch(() => {})
         }
