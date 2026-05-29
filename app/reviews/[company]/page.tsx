@@ -52,8 +52,9 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
   const [showForm, setShowForm] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitMsg, setSubmitMsg] = useState('')
   const [filterRating, setFilterRating] = useState(0)
-  const [form, setForm] = useState({ reviewer_name:'', reviewer_location:'', rating:0, title:'', review_text:'', trading_experience:'intermediate' })
+  const [form, setForm] = useState({ reviewer_name:'', reviewer_email:'', reviewer_location:'', rating:0, title:'', review_text:'', trading_experience:'intermediate' })
 
   useEffect(() => {
     Promise.all([
@@ -78,9 +79,9 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
     if (!form.rating) return alert('Please select a star rating')
     if (form.review_text.length < 50) return alert('Review must be at least 50 characters')
     setSubmitting(true)
-    const res = await fetch('/api/reviews', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...form, company_name: companyName, company_slug: company }) })
+    const res = await fetch('/api/reviews/submit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...form, company_name: companyName, company_slug: company }) })
     const d = await res.json()
-    if (d.success) { setSubmitted(true); setShowForm(false); setForm({ reviewer_name:'', reviewer_location:'', rating:0, title:'', review_text:'', trading_experience:'intermediate' }) }
+    if (d.success) { setSubmitted(true); setShowForm(false); setSubmitMsg(d.message||''); setForm({ reviewer_name:'', reviewer_email:'', reviewer_location:'', rating:0, title:'', review_text:'', trading_experience:'intermediate' }) }
     else alert(d.error || 'Error submitting')
     setSubmitting(false)
   }
@@ -159,7 +160,7 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
         {submitted && (
           <div style={{ background:'#f0fdf8', border:`1px solid ${GREEN}`, borderRadius:8, padding:16, marginBottom:20, display:'flex', gap:12 }}>
             <span style={{ fontSize:20 }}>✅</span>
-            <div><div style={{ fontWeight:700, color:GREEN }}>Review submitted!</div><div style={{ fontSize:13, color:'#555' }}>Your review will appear after moderation (within 24h).</div></div>
+            <div><div style={{ fontWeight:700, color:GREEN }}>Check your email!</div><div style={{ fontSize:13, color:'#555' }}>{submitMsg || 'Verification email sent. Click the link to publish your review.'}</div></div>
           </div>
         )}
 
@@ -179,6 +180,10 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }} className="grid2">
                 <div><label style={{ display:'block', fontWeight:600, fontSize:13, marginBottom:6 }}>Name *</label><input className="inp" placeholder="e.g. James R." value={form.reviewer_name} onChange={e=>setForm(f=>({...f,reviewer_name:e.target.value}))} required/></div>
                 <div><label style={{ display:'block', fontWeight:600, fontSize:13, marginBottom:6 }}>Location</label><input className="inp" placeholder="e.g. London, UK" value={form.reviewer_location} onChange={e=>setForm(f=>({...f,reviewer_location:e.target.value}))}/></div>
+              </div>
+              <div style={{ marginBottom:14 }}>
+                <label style={{ display:'block', fontWeight:600, fontSize:13, marginBottom:6 }}>Email * <span style={{ fontWeight:400, color:'#94A3B8' }}>(to verify your review — not shown publicly)</span></label>
+                <input className="inp" type="email" placeholder="your@email.com" value={form.reviewer_email} onChange={e=>setForm(f=>({...f,reviewer_email:e.target.value}))} required/>
               </div>
               <div style={{ marginBottom:14 }}><label style={{ display:'block', fontWeight:600, fontSize:13, marginBottom:6 }}>Review Title *</label><input className="inp" placeholder="Summarise your experience" value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} required/></div>
               <div style={{ marginBottom:14 }}>
