@@ -24,6 +24,15 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     ? [DOMAIN_SITEMAPS[host]]
     : Object.values(DOMAIN_SITEMAPS)
 
+  const isRephuby = host === 'rephuby.com' || host === 'www.rephuby.com'
+
+  if (isRephuby) {
+    return {
+      rules: [{ userAgent: '*', disallow: '/' }],
+      // rephuby.com is internal infrastructure — not for indexing
+    }
+  }
+
   return {
     rules: [
       {

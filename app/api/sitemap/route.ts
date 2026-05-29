@@ -128,8 +128,8 @@ export async function GET(req: NextRequest) {
     }
 
   } else {
-    // rephuby.com — minimal, just the homepage
-    urls.push(urlEntry('https://rephuby.com/', today, '1.0', 'daily'))
+    // rephuby.com — internal infrastructure, nothing to index
+    // Return empty sitemap
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
