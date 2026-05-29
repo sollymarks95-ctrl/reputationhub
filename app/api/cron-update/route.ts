@@ -50,11 +50,18 @@ const LIVE_SITES = [
 ]
 
 const PORTAL_URLS: Record<string,string> = {
-  'nex-wire.com':  'https://nex-wire.com',
-  'finvexx.com':   'https://finvexx.com',
-  'bizplezx.com':  'https://bizplezx.com',
-  'aurexhq.com':   'https://aurexhq.com',
-  'verivex.co':    'https://verivex.co',
+  'nex-wire.com':   'https://nex-wire.com',
+  'finvexx.com':    'https://finvexx.com',
+  'bizplezx.com':   'https://bizplezx.com',
+  'aurexhq.com':    'https://aurexhq.com',
+  'verivex.co':     'https://verivex.co',
+  'signalix.com':   'https://signalix.com',
+  'tradvex.com':    'https://tradvex.com',
+  'invexhub.com':   'https://invexhub.com',
+  'presxwire.com':  'https://presxwire.com',
+  'bizpedia.com':   'https://bizpedia.com',
+  'certivade.com':  'https://certivade.com',
+  'execvex.com':    'https://execvex.com',
 }
 
 function slugify(s: string) {
