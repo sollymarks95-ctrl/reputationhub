@@ -72,8 +72,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     'global-trade-wire':  { name:'Nex-Wire',   url:'https://nex-wire.com' },
     'finance-terminal':   { name:'Finvexx',     url:'https://finvexx.com' },
     'business-pulse':     { name:'Bizplezx',    url:'https://bizplezx.com' },
-    'gold-markets-today': { name:'AurexHQ',     url:'https://rephuby.com/commodities/gold-markets-today' },
-    'trust-score':        { name:'Verivex',     url:'https://rephuby.com/reviews-hub/trust-score' },
+    'gold-markets-today': { name:'AurexHQ',     url:'https://aurexhq.com' },
+    'trust-score':        { name:'Verivex',     url:'https://verivex.co' },
     'company-pedia':      { name:'Bizpedia',    url:'https://rephuby.com/wiki/company-pedia' },
     'press-central':      { name:'PresxWire',   url:'https://rephuby.com/pressroom/press-central' },
     'invest-data':        { name:'InvexHub',    url:'https://rephuby.com/investdb/invest-data' },
@@ -129,26 +129,24 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     }
   }
 
-  // Resolve portal info for cross-portal articles
+  // Resolve portal info for cross-portal articles (no require() inside map!)
+  const SITE_ID_MAP: Record<string,string> = {
+    '4d048bde-1dcd-4891-8434-a7960ab9d3ae': 'global-trade-wire',
+    '48bed332-6525-4d76-aaa5-6d10a5112d77': 'finance-terminal',
+    'c0f14745-8189-444d-af09-39d7248fa319': 'business-pulse',
+    '3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1': 'gold-markets-today',
+    '6ae7e692-bce9-489d-b835-87dcba9ffc47': 'trust-score',
+    'aa04790b-9aed-4fa9-867d-3481adc828c5': 'company-pedia',
+    '104ceccb-e3d0-4979-85be-b7297abb7f90': 'press-central',
+    '1cd6688f-bec9-4d1b-a024-80952bf31a21': 'invest-data',
+    'd020965e-d84d-4c9e-a068-d3b90f6902d0': 'trade-board',
+    '1972c09e-a68e-4997-b2a8-00756ead609c': 'global-trade-assoc',
+    '64a6087d-480f-4040-9df1-ad020faf5796': 'executive-network',
+    '27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22': 'market-radar',
+  }
   const resolvedCrossPortal = crossPortalArticles.map((a: any) => {
-    const { createClient: _ } = require('@supabase/supabase-js')
-    // Match site ID to portal slug
-    const siteEntry = Object.entries({
-      '4d048bde-1dcd-4891-8434-a7960ab9d3ae': 'global-trade-wire',
-      '48bed332-6525-4d76-aaa5-6d10a5112d77': 'finance-terminal',
-      'c0f14745-8189-444d-af09-39d7248fa319': 'business-pulse',
-      '3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1': 'gold-markets-today',
-      '6ae7e692-bce9-489d-b835-87dcba9ffc47': 'trust-score',
-      'aa04790b-9aed-4fa9-867d-3481adc828c5': 'company-pedia',
-      '104ceccb-e3d0-4979-85be-b7297abb7f90': 'press-central',
-      '1cd6688f-bec9-4d1b-a024-80952bf31a21': 'invest-data',
-      'd020965e-d84d-4c9e-a068-d3b90f6902d0': 'trade-board',
-      '1972c09e-a68e-4997-b2a8-00756ead609c': 'global-trade-assoc',
-      '64a6087d-480f-4040-9df1-ad020faf5796': 'executive-network',
-      '27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22': 'market-radar',
-    }).find(([id]) => id === a.news_site_id)
-    if (!siteEntry) return null
-    const [,portalSlug] = siteEntry
+    const portalSlug = SITE_ID_MAP[a.news_site_id]
+    if (!portalSlug) return null
     const portalInfo = PORTAL_URLS[portalSlug]
     if (!portalInfo) return null
     return { title: a.title, url: `${portalInfo.url}/article/${portalSlug}/${a.slug}`, portal: portalInfo.name }
@@ -157,8 +155,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const p = site.primary_color || '#c0392b'
   const route = ROUTE_MAP[siteSlug] || 'news'
   // On custom domains (nex-wire.com etc), use "/" for home — not the internal route path
-  const { headers } = await import('next/headers')
-  const hdrs = await headers()
+  const hdrs = await (await import('next/headers')).headers()
   const homeUrl = hdrs.get('x-custom-domain') === 'true' ? '/' : `/${route}/${siteSlug}`
   const related = allArticles.filter((a: any) => a.slug !== slug).slice(0, 8)
   const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
@@ -173,6 +170,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     'global-trade-wire': 'https://nex-wire.com',
     'finance-terminal':  'https://finvexx.com',
     'business-pulse':    'https://bizplezx.com',
+    'gold-markets-today':'https://aurexhq.com',
+    'trust-score':       'https://verivex.co',
   }
   const BASE = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`

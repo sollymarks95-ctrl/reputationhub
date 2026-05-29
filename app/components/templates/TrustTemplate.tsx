@@ -1,4 +1,5 @@
 'use client'
+import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
@@ -307,7 +308,13 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         <div style={{ maxWidth:1200, margin:'24px auto 0', paddingTop:20, borderTop:'1px solid #1e293b', textAlign:'center', fontSize:12 }}>
           © 2025 Verivex Trust Intelligence · verivex.co · Reviews moderated for authenticity
         </div>
+        <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
+          {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
+            <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
+          ))}
+        </div>
       </footer>
+      <CookieBanner primaryColor='#00B67A' />
     </div>
   )
 }

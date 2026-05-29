@@ -1,4 +1,5 @@
 'use client'
+import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
 
 function fmtDate(d: string) { return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) }
@@ -152,6 +153,20 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
       <footer style={{ background:'#1A1A1A', padding:'20px 24px', marginTop:30, fontFamily:'Inter,sans-serif', fontSize:11, color:'#555', textAlign:'center' }}>
         {siteName} · {domain} · © {new Date().getFullYear()} Financial Intelligence Ltd
       </footer>
+    </div>
+
+      {/* Legal footer */}
+      <footer style={{ background:'#1a1a1a', color:'#666', padding:'20px 24px', marginTop:32, textAlign:'center', fontSize:12 }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+          <span>© 2025 {site?.name || 'AurexHQ'} · All content for informational purposes only · Not financial advice</span>
+          <div style={{ display:'flex', gap:16 }}>
+            {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['Cookies','/legal/cookies']].map(([l,h])=>(
+              <a key={l} href={h} style={{ color:'#888', textDecoration:'none' }}>{l}</a>
+            ))}
+          </div>
+        </div>
+      </footer>
+      <CookieBanner primaryColor={primaryColor || '#B08700'} />
     </div>
   )
 }
