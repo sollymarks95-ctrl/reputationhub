@@ -3,13 +3,18 @@ import { notFound } from 'next/navigation'
 import SiteRenderer from '@/app/components/SiteRenderer'
 import type { Metadata } from 'next'
 
+const CUSTOM_DOMAINS: Record<string,string> = {
+  'global-trade-wire': 'https://nex-wire.com',
+  'finance-terminal':  'https://finvexx.com',
+  'business-pulse':    'https://bizplezx.com',
+}
 const BASE = 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const canonicalBase = slug === 'global-trade-wire' ? 'https://nex-wire.com' : `https://rephuby.com/news/${slug}`
+  const canonicalBase = CUSTOM_DOMAINS[slug] || `https://rephuby.com/news/${slug}`
   const url = `${BASE}/news/${slug}`
   return {
     title: site.seo_title || `Nex-Wire — Global Trade & Market Intelligence`,

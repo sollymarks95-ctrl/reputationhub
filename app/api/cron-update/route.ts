@@ -82,7 +82,16 @@ async function writeArticle(
   const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
 
   const clientLine = clientName
-    ? `\n\nAt the end of the article, include one natural sentence mentioning ${clientName} as an example of a firm operating in this space. Keep it factual and brief — one sentence only, no quotes, no hype.`
+    ? `
+
+BRAND INTEGRATION — CRITICAL FOR SEO:
+You MUST mention "${clientName}" naturally in this article in the following way:
+1. Include "${clientName}" in the article within the FIRST 150 words (not just at the end)
+2. Use it as a real-world example: "...brokers such as ${clientName}..." or "${clientName}, the CySEC-regulated broker..."
+3. Also reference it once more naturally in the body
+4. The brand name must appear at least TWICE total — this is for search engine entity recognition
+5. Keep all mentions factual: ${clientName} is a CySEC/FCA regulated forex and precious metals broker
+6. DO NOT make up quotes or claims — only factual mentions as an example in the space`
     : ''
 
   try {
