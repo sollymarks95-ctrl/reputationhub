@@ -1,4 +1,4 @@
-// Pure Web API middleware — no next/server imports, Edge Runtime compatible
+import { NextResponse, NextRequest } from 'next/server'
 
 const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
   'nex-wire.com':     { route:'news',        slug:'global-trade-wire'   },
@@ -19,36 +19,45 @@ const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
   'signalix.com':     { route:'market-radar',slug:'market-radar'        },
 }
 
-export default function middleware(request: Request) {
-  const url = new URL(request.url)
+export default function middleware(request: NextRequest) {
   const host = request.headers.get('host')?.replace(':443','').replace(':80','') || ''
-  const pathname = url.pathname
+  const pathname = request.nextUrl.pathname
 
   const portal = DOMAIN_MAP[host]
+  if (!portal) return NextResponse.next()
 
-  if (portal) {
-    // Custom domain: rewrite to internal portal route
-    if (pathname.startsWith('/api/')) return undefined // pass through APIs
-    if (pathname.startsWith('/article/')) return undefined
-    if (['/search','/legal','/portal','/charts'].some(p => pathname.startsWith(p))) return undefined
-    if (pathname === '/sitemap.xml' || pathname === '/sitemap') {
-      url.pathname = '/api/sitemap'
-      return Response.redirect(url, 307)
-    }
-    if (pathname === '/robots.txt') return undefined
+  // Always pass through these paths
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/article/') ||
+    pathname.startsWith('/search') ||
+    pathname.startsWith('/legal') ||
+    pathname.startsWith('/portal') ||
+    pathname.startsWith('/charts') ||
+    pathname === '/robots.txt' ||
+    pathname === '/favicon.ico'
+  ) return NextResponse.next()
 
-    // Rewrite root and all sub-paths to portal route
-    const newPath = (pathname === '/' || pathname === '')
-      ? `/${portal.route}/${portal.slug}`
-      : `/${portal.route}/${portal.slug}${pathname}`
-    url.pathname = newPath
-    return Response.redirect(url, 307)
+  // Sitemap — rewrite to API (not redirect, to avoid loop)
+  if (pathname === '/sitemap.xml' || pathname === '/sitemap') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/api/sitemap'
+    return NextResponse.rewrite(url)
   }
 
-  // rephuby.com — pass everything through
-  return undefined
+  // Already on the internal route — don't rewrite again (prevents loop)
+  if (pathname.startsWith(`/${portal.route}/`)) return NextResponse.next()
+
+  // Rewrite root and sub-paths to internal portal route (REWRITE not REDIRECT)
+  const url = request.nextUrl.clone()
+  url.pathname = pathname === '/' || pathname === ''
+    ? `/${portal.route}/${portal.slug}`
+    : `/${portal.route}/${portal.slug}${pathname}`
+
+  return NextResponse.rewrite(url)
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|map)).*)'],
+  matcher: ['/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|map)).*)'],
 }
