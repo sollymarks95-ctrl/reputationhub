@@ -11,7 +11,7 @@ const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 // Hardcoded core portals (always run, never removed)
-const CORE_SITES = [[
+const CORE_SITES = [
   { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire Intelligence', slug:'global-trade-wire', domain:'nex-wire.com', author:'David Hart', topics:[
     'EUR/USD exchange rate today analysis','gold price today market update','Federal Reserve interest rate decision latest','global trade breaking news today','oil price Brent crude today','Bitcoin cryptocurrency market today',
     'GBP USD British pound analysis today','S&P 500 stock market today','China trade economic policy latest','forex market volatility today','emerging markets currency outlook today','US dollar index DXY today',
@@ -116,14 +116,14 @@ async function getCrossPortalLinks(clientName: string, excludeSiteId: string) {
     .limit(3)
   if (!data || data.length === 0) return []
   return data.map((a:any) => {
-    const site = LIVE_SITES.find(s => s.id === a.news_site_id)
+    const site = CORE_SITES.find((s:any) => s.id === a.news_site_id)
     if (!site) return null
     const base = PORTAL_URLS[site.domain] || 'https://rephuby.com'
     return { title: a.title, url: `${base}/article/${site.slug}/${a.slug}`, portal: site.name }
   }).filter(Boolean) as any[]
 }
 
-async function writeArticle(site: typeof LIVE_SITES[0], topic: string, client: any, crossLinks: any[]): Promise<any> {
+async function writeArticle(site: any, topic: string, client: any, crossLinks: any[]): Promise<any> {
   const today = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
   const base = PORTAL_URLS[site.domain] || 'https://rephuby.com'
 
@@ -281,7 +281,7 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    message: `Batch ${batch} complete — ${totalInserted} articles across ${LIVE_SITES.length} portals`,
+    message: `Batch ${batch} complete — ${totalInserted} articles across ${ALL_SITES.length} portals`,
     results,
     timestamp: new Date().toISOString(),
   })
