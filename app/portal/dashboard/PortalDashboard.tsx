@@ -47,7 +47,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
   }
 
   const page1 = rankings.filter((r: any) => r.current_position <= 10).length
-  const totalViews = content.reduce((s: number, c: any) => s + (c.views || 0), 0)
+  const totalViews = content.reduce((s: number, c: any) => s + ((c.news_articles?.views ?? c.views || 0), 0)
   const totalArticles = content.length
   const latestReport = reports[0]
   const avgRating = reviews.length ? (reviews.reduce((s:number,r:any)=>s+r.rating,0)/reviews.length).toFixed(1) : '0'
@@ -337,7 +337,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
                         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                           <span style={{ fontSize:11, color:p, fontWeight:700 }}>{c.portal_name}</span>
                           <span style={{ fontSize:11, color:'#475569' }}>· {timeAgo(c.published_at)}</span>
-                          <span style={{ fontSize:11, color:'#64748b' }}>· {c.views?.toLocaleString()} views</span>
+                          <span style={{ fontSize:11, color:'#64748b' }}>· {(c.news_articles?.views ?? c.views)?.toLocaleString()} views</span>
                         </div>
                       </div>
                       <a href={c.article_url} target="_blank" style={{ fontSize:11, color:p, fontWeight:700, whiteSpace:'nowrap' }}>Live ↗</a>
@@ -477,7 +477,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
                             </span>
                           </td>
                           <td style={{ padding:'12px 14px', color:'#64748b', fontSize:12, whiteSpace:'nowrap' }}>{timeAgo(c.published_at)}</td>
-                          <td style={{ padding:'12px 14px', textAlign:'right', fontWeight:700, color:'#94A3B8' }}>{c.views?.toLocaleString()}</td>
+                          <td style={{ padding:'12px 14px', textAlign:'right', fontWeight:700, color:'#94A3B8' }}>{(c.news_articles?.views ?? c.views ?? 0).toLocaleString()}</td>
                           <td style={{ padding:'12px 14px' }}>
                             <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                               <div style={{ flex:1, height:4, background:'rgba(255,255,255,0.08)', borderRadius:2, overflow:'hidden', minWidth:60 }}>
