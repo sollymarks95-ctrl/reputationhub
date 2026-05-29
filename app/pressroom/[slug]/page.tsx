@@ -7,28 +7,40 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'global-trade-wire': 'https://nex-wire.com',
   'finance-terminal':  'https://finvexx.com',
   'business-pulse':    'https://bizplezx.com',
+  'gold-markets-today':'https://aurexhq.com',
+  'trust-score':       'https://verivex.co',
 }
 const BASE = 'https://rephuby.com'
+function siteBase(slug: string) { return CUSTOM_DOMAINS[slug] || BASE }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const url = `${BASE}/pressroom/${slug}`
+  const canonicalBase = CUSTOM_DOMAINS[slug] || BASE
+  const url = canonicalBase
+  const seoTitle = site.seo_title || `${site.name} — ${site.tagline || 'Intelligence & Analysis'}`
+  const seoDesc = site.tagline || `${site.name} delivers real-time intelligence, analysis and market data.`
+  const seoKw = `${site.name}, finance, markets, intelligence, analysis, ${slug.replace(/-/g,' ')}`
   return {
-    title: site.seo_title || `${site.name} — Corporate Press Releases Market Announcements`,
-    description: site.tagline || `${site.name} provides professional intelligence on corporate press releases market announcements.`,
-    keywords: `${site.name}, corporate, press, releases, market, announcements, market analysis, intelligence`,
+    title: seoTitle,
+    description: seoDesc,
+    keywords: seoKw,
     robots: 'index, follow',
     alternates: { canonical: url },
     openGraph: {
-      title: site.seo_title || site.name,
-      description: site.tagline,
+      title: seoTitle,
+      description: seoDesc,
       url, type: 'website', siteName: site.name,
-      images: [{ url: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200', width: 1200, height: 630, alt: site.name }],
+      images: [{ url: site.logo_url || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200', width: 1200, height: 630, alt: site.name }],
+      locale: 'en_GB',
     },
-    twitter: { card: 'summary_large_image', title: site.name, description: site.tagline },
-    other: { 'application-name': site.name, 'news_keywords': 'Corporate Press Releases Market Announcements' },
+    twitter: { card: 'summary_large_image', title: seoTitle, description: seoDesc },
+    other: {
+      'application-name': site.name,
+      'theme-color': site.primary_color || '#dc2626',
+      'news_keywords': site.tagline || 'Finance Intelligence Markets',
+    },
   }
 }
 
@@ -52,7 +64,7 @@ export default async function SitePage({
       '@type': 'NewsMediaOrganization',
       name: site.name,
       description: site.tagline,
-      url: `${BASE}/pressroom/${slug}`,
+      url: siteBase(slug),
       logo: { '@type': 'ImageObject', url: `${BASE}/logo.png`, width: 280, height: 60 },
       publishingPrinciples: `${BASE}/legal/about`,
       ethicsPolicy: `${BASE}/legal/terms`,
@@ -64,13 +76,13 @@ export default async function SitePage({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: site.name,
-      url: `${BASE}/pressroom/${slug}`,
+      url: siteBase(slug),
       description: site.tagline,
       inLanguage: 'en-GB',
       publisher: { '@type': 'Organization', name: 'RepHuby Intelligence Ltd', url: BASE },
       potentialAction: {
         '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/search?q={search_term_string}` },
+        target: { '@type': 'EntryPoint', urlTemplate: `${siteBase(slug)}/search?q={search_term_string}` },
         'query-input': 'required name=search_term_string',
       },
     },

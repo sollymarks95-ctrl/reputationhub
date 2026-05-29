@@ -18,9 +18,12 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   const article = await getArticle(site.id, slug)
   if (!article) return {}
   const domainMap: Record<string,string> = {
-    'global-trade-wire': 'https://nex-wire.com',
-    'finance-terminal':  'https://finvexx.com',
-    'business-pulse':    'https://bizplezx.com',
+    'global-trade-wire':  'https://nex-wire.com',
+    'finance-terminal':   'https://finvexx.com',
+    'business-pulse':     'https://bizplezx.com',
+    'gold-markets-today': 'https://aurexhq.com',
+    'trust-score':        'https://verivex.co',
+    'global-trade-assoc': 'https://certivade.com',
   }
   const BASE = domainMap[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
