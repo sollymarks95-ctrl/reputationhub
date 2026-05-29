@@ -568,8 +568,8 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   <form onSubmit={onboardClient}>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                       {[
-                        {k:'companyName',l:'Broker / Company Name *',ph:'e.g. Apex Markets FX',full:false},
-                        {k:'websiteUrl',l:'Website URL',ph:'https://www.apexmarketsfx.com',full:false},
+                        {k:'companyName',l:'Broker / Company Name *',ph:'e.g. eToro',full:false},
+                        {k:'websiteUrl',l:'Website URL',ph:'https://www.etorofx.com',full:false},
                         {k:'regulation',l:'Regulation',ph:'e.g. CySEC / FCA / ASIC',full:false},
                         {k:'ceoName',l:'CEO / Key Contact Name',ph:'e.g. Alex Chen',full:false},
                         {k:'accountManager',l:'Account Manager',ph:'Sarah Chen — RepHuby',full:false},
@@ -596,7 +596,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       </div>
                       <div style={{ gridColumn:'1/-1' }}>
                         <label>Brand Keywords (one per line — or leave blank for auto-generation)</label>
-                        <textarea className="inp" value={ob.keywords} onChange={e => setOb({...ob,keywords:e.target.value})} placeholder={"apex markets review\napex markets scam\napex markets legit"} rows={4} />
+                        <textarea className="inp" value={ob.keywords} onChange={e => setOb({...ob,keywords:e.target.value})} placeholder={"etoro review\netoro scam\netoro legit"} rows={4} />
                       </div>
                       <div style={{ gridColumn:'1/-1' }}>
                         <label>Negative URLs to Bury (one per line — links currently ranking that we need to push down)</label>
@@ -1088,7 +1088,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   </div>
                   <div style={{ marginBottom:12 }}>
                     <label>Single Keyword</label>
-                    <input className="inp" value={rankKw} onChange={e => setRankKw(e.target.value)} placeholder="apex markets review" />
+                    <input className="inp" value={rankKw} onChange={e => setRankKw(e.target.value)} placeholder="etoro review" />
                   </div>
                   <div style={{ display:'flex', gap:8, marginBottom:16 }}>
                     <button className="btn b-blue" style={{ flex:1, justifyContent:'center' }} onClick={checkSingleRanking} disabled={rankChecking || !rankClient || !rankKw}>
