@@ -6,16 +6,16 @@ const GREEN = '#00B67A'
 
 // Hardcoded logo map — reliable Wikipedia SVGs and company CDNs
 const LOGO_MAP: Record<string, string> = {
-  'etoro': 'https://logo.clearbit.com/etoro.com',
-  'binance': 'https://logo.clearbit.com/binance.com',
-  'coinbase': 'https://logo.clearbit.com/coinbase.com',
-  'interactive-brokers': 'https://logo.clearbit.com/interactivebrokers.com',
-  'plus500': 'https://logo.clearbit.com/plus500.com',
-  'xm': 'https://logo.clearbit.com/xm.com',
-  'ic-markets': 'https://logo.clearbit.com/icmarkets.com',
-  'pepperstone': 'https://logo.clearbit.com/pepperstone.com',
-  'ftmo': 'https://logo.clearbit.com/ftmo.com',
-  'myforexfunds': 'https://logo.clearbit.com/myforexfunds.com',
+  'etoro': '/api/logo/etoro.com',
+  'binance': '/api/logo/binance.com',
+  'coinbase': '/api/logo/coinbase.com',
+  'interactive-brokers': '/api/logo/interactivebrokers.com',
+  'plus500': '/api/logo/plus500.com',
+  'xm': '/api/logo/xm.com',
+  'ic-markets': '/api/logo/icmarkets.com',
+  'pepperstone': '/api/logo/pepperstone.com',
+  'ftmo': '/api/logo/ftmo.com',
+  'myforexfunds': '/api/logo/myforexfunds.com',
 }
 
 const COLORS: Record<string, string> = {
@@ -48,7 +48,7 @@ function CompanyLogo({ slug, name, size = 80 }: any) {
   const color = COLORS[slug] || GREEN
   return src && !err ? (
     <div style={{ width:size, height:size, borderRadius:12, overflow:'hidden', border:'1px solid #E2E8F0', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:8 }}>
-      <img src={src} alt={name} referrerPolicy="no-referrer" style={{ width:size-16, height:size-16, objectFit:'contain' }} onError={() => setErr(true)} />
+      <img src={src} alt={name} style={{ width:size-16, height:size-16, objectFit:'contain' }} onError={() => setErr(true)} />
     </div>
   ) : (
     <div style={{ width:size, height:size, borderRadius:12, background:color, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.35 }}>
