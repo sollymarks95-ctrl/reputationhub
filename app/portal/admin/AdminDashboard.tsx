@@ -50,7 +50,7 @@ const SITE_PODCAST_CONFIGS: Record<string, any> = {
     'executive-network': { showName:'Execvex Leadership', hostName:'Alexandra Ross', hostRole:'Executive Editor, Execvex' },
   }
 
-export default function AdminDashboard({ clients, allContent, allRankings, allPodcasts, allActivity, sites, totalArticles, totalSubscribers }: any) {
+export default function AdminDashboard({ clients, allContent, allRankings, allPodcasts, allActivity, sites, totalArticles, totalSubscribers, allReviews = [], pendingReviews: initialPending = [], businessInquiries = [] }: any) {
   const [tab, setTab] = useState('overview')
   const [clock, setClock] = useState('')
   const [subs, setSubs] = useState<any[]>([])
@@ -490,42 +490,115 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
 
         <div style={{ padding:'24px' }}>
 
-          {/* ══ REVIEWS MODERATION ══ */}
+          {/* ══ REVIEWS MONITOR ══ */}
           {tab === 'reviews' && (
             <div>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-                <h2 style={{ fontSize:20, fontWeight:700 }}>⭐ Review Moderation <span style={{ fontSize:13, fontWeight:400, color:'#64748B' }}>(Verivex)</span></h2>
-                <button onClick={loadPendingReviews} className="btn b-blue" style={{ fontSize:12 }}>🔄 Load Pending</button>
+              {/* Stats row */}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
+                {[
+                  ['Total Reviews', allReviews.length, '#10B981'],
+                  ['Pending', (initialPending.length > 0 && pendingReviews.length === 0 ? initialPending : pendingReviews).length, '#F59E0B'],
+                  ['eToro Reviews', allReviews.filter((r:any)=>r.company_slug==='etoro').length, '#00C853'],
+                  ['Avg eToro Rating', (()=>{ const et = allReviews.filter((r:any)=>r.company_slug==='etoro'); return et.length ? (et.reduce((s:number,r:any)=>s+r.rating,0)/et.length).toFixed(1)+'★' : 'N/A' })(), '#6366F1'],
+                ].map(([label,val,color]) => (
+                  <div key={label as string} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:16, textAlign:'center' }}>
+                    <div style={{ fontSize:24, fontWeight:900, color: color as string }}>{val}</div>
+                    <div style={{ fontSize:11, color:'#64748B', marginTop:4 }}>{label as string}</div>
+                  </div>
+                ))}
               </div>
-              {reviewsLoading && <div style={{ textAlign:'center', padding:40, color:'#64748B' }}>Loading...</div>}
-              {!reviewsLoading && pendingReviews.length === 0 && (
-                <div style={{ textAlign:'center', padding:60, color:'#475569', border:'1px dashed #334155', borderRadius:12 }}>
-                  <div style={{ fontSize:32, marginBottom:8 }}>✅</div>
-                  <div style={{ fontWeight:600 }}>No pending reviews</div>
-                  <div style={{ fontSize:13, marginTop:4 }}>Click "Load Pending" to check for new submissions</div>
+
+              {/* eToro position spotlight */}
+              <div style={{ background:'linear-gradient(135deg,#00C85315,#00C85305)', border:'1px solid #00C85330', borderRadius:12, padding:20, marginBottom:20 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div>
+                    <div style={{ fontWeight:800, fontSize:16, color:'#00C853', marginBottom:4 }}>🏆 eToro — Client Position</div>
+                    <div style={{ fontSize:13, color:'#94A3B8' }}>
+                      {(()=>{ const et=allReviews.filter((r:any)=>r.company_slug==='etoro'); const avg=et.length?et.reduce((s:number,r:any)=>s+r.rating,0)/et.length:0; return `${et.length} reviews · ${avg.toFixed(1)}★ avg · ${et.filter((r:any)=>r.is_pinned).length} pinned (featured)` })()}
+                    </div>
+                  </div>
+                  <div style={{ textAlign:'right' }}>
+                    <div style={{ fontSize:32, fontWeight:900, color:'#00C853' }}>
+                      {(()=>{ const et=allReviews.filter((r:any)=>r.company_slug==='etoro'); return et.length ? (et.reduce((s:number,r:any)=>s+r.rating,0)/et.length).toFixed(1) : 'N/A' })()}
+                    </div>
+                    <div style={{ fontSize:11, color:'#64748B' }}>TrustScore</div>
+                  </div>
                 </div>
-              )}
-              {pendingReviews.map(r => (
-                <div key={r.id} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, padding:20, marginBottom:12 }}>
+              </div>
+
+              {/* Platform breakdown */}
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:20, marginBottom:20 }}>
+                <h3 style={{ fontSize:15, fontWeight:700, marginBottom:14 }}>📊 All Platform Rankings</h3>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8 }}>
+                  {['etoro','ic-markets','pepperstone','ftmo','binance','coinbase','xm','interactive-brokers','plus500','myforexfunds'].map(slug => {
+                    const revs = allReviews.filter((r:any)=>r.company_slug===slug);
+                    const avg = revs.length ? revs.reduce((s:number,r:any)=>s+r.rating,0)/revs.length : 0;
+                    const isClient = slug === 'etoro';
+                    return (
+                      <div key={slug} style={{ background: isClient?'rgba(0,200,83,0.08)':'rgba(255,255,255,0.03)', border:`1px solid ${isClient?'#00C85330':'rgba(255,255,255,0.06)'}`, borderRadius:8, padding:12, textAlign:'center' }}>
+                        <div style={{ fontSize:13, fontWeight:isClient?800:600, color:isClient?'#00C853':'#94A3B8', marginBottom:4 }}>{slug.split('-')[0].toUpperCase()}</div>
+                        <div style={{ fontSize:18, fontWeight:900, color:avg>=4?'#10B981':avg>=3?'#F59E0B':'#EF4444' }}>{avg>0?avg.toFixed(1):'—'}</div>
+                        <div style={{ fontSize:10, color:'#475569' }}>{revs.length} reviews</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Pending moderation */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <h3 style={{ fontSize:16, fontWeight:700 }}>⏳ Pending Moderation ({(initialPending.length > 0 && pendingReviews.length === 0 ? initialPending : pendingReviews).length})</h3>
+                <button onClick={loadPendingReviews} className="btn b-blue" style={{ fontSize:12 }}>🔄 Refresh</button>
+              </div>
+              {((initialPending.length > 0 && pendingReviews.length === 0 ? initialPending : pendingReviews).length === 0) ? (
+                <div style={{ textAlign:'center', padding:32, color:'#475569', border:'1px dashed #334155', borderRadius:12, marginBottom:20 }}>
+                  <div style={{ fontWeight:600 }}>No pending reviews ✅</div>
+                </div>
+              ) : (initialPending.length > 0 && pendingReviews.length === 0 ? initialPending : pendingReviews).map((r: any) => (
+                <div key={r.id} style={{ background:'rgba(245,158,11,0.06)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:10, padding:18, marginBottom:10 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                     <div>
                       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                        <span style={{ fontWeight:700, fontSize:15 }}>{r.title}</span>
-                        <span style={{ background:r.rating >= 4 ? '#10B98120' : '#EF444420', color: r.rating >= 4 ? '#10B981' : '#EF4444', padding:'2px 8px', borderRadius:4, fontSize:11, fontWeight:700 }}>
-                          {'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)} {r.rating}/5
+                        <span style={{ fontWeight:700, fontSize:14 }}>{r.title}</span>
+                        <span style={{ background:r.rating>=4?'#10B98120':'#EF444420', color:r.rating>=4?'#10B981':'#EF4444', padding:'2px 8px', borderRadius:4, fontSize:11, fontWeight:700 }}>
+                          {'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}
                         </span>
+                        {r.verified_email && <span style={{ fontSize:10, background:'#10B98115', color:'#10B981', padding:'2px 6px', borderRadius:4 }}>Email Verified</span>}
                       </div>
-                      <div style={{ fontSize:12, color:'#64748B' }}>{r.reviewer_name} · {r.reviewer_location} · {r.trading_experience}</div>
-                      <div style={{ fontSize:11, color:'#475569', marginTop:2 }}>Company: <strong style={{ color:'#94A3B8' }}>{r.company_name}</strong> · Submitted: {new Date(r.created_at).toLocaleDateString()}</div>
+                      <div style={{ fontSize:12, color:'#64748B' }}>{r.reviewer_name} · {r.reviewer_location||'Unknown'} · {new Date(r.created_at).toLocaleDateString()}</div>
+                      <div style={{ fontSize:11, color:'#F59E0B', marginTop:2 }}>Platform: <strong>{r.company_name}</strong></div>
                     </div>
                     <div style={{ display:'flex', gap:8, flexShrink:0 }}>
                       <button onClick={() => moderateReview(r.id, 'approved')} className="btn b-green" style={{ fontSize:11, padding:'6px 14px' }}>✅ Approve</button>
                       <button onClick={() => moderateReview(r.id, 'rejected')} className="btn b-ghost" style={{ fontSize:11, padding:'6px 14px', color:'#EF4444', borderColor:'#EF4444' }}>❌ Reject</button>
                     </div>
                   </div>
-                  <p style={{ fontSize:13, color:'#94A3B8', lineHeight:1.7, background:'rgba(0,0,0,0.2)', padding:'10px 14px', borderRadius:6 }}>{r.review_text}</p>
+                  <p style={{ fontSize:13, color:'#94A3B8', lineHeight:1.6, background:'rgba(0,0,0,0.2)', padding:'10px 14px', borderRadius:6 }}>{r.review_text}</p>
                 </div>
               ))}
+
+              {/* Business inquiries */}
+              {businessInquiries.length > 0 && (
+                <div style={{ marginTop:24 }}>
+                  <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>🏢 Business Inquiries ({businessInquiries.length})</h3>
+                  {businessInquiries.map((b: any) => (
+                    <div key={b.id} style={{ background:'rgba(99,102,241,0.06)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:10, padding:16, marginBottom:10 }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                        <div>
+                          <div style={{ fontWeight:700, fontSize:14, marginBottom:4 }}>{b.company} <span style={{ fontSize:11, background:'#6366F120', color:'#818CF8', padding:'2px 8px', borderRadius:4, marginLeft:8 }}>{b.plan}</span></div>
+                          <div style={{ fontSize:12, color:'#64748B' }}>{b.contact_name} · {b.email}{b.phone?` · ${b.phone}`:''}</div>
+                          {b.website && <div style={{ fontSize:12, color:'#6366F1', marginTop:2 }}>{b.website}</div>}
+                          {b.message && <div style={{ fontSize:12, color:'#94A3B8', marginTop:4 }}>{b.message}</div>}
+                        </div>
+                        <div style={{ fontSize:11, color:'#475569', textAlign:'right', flexShrink:0 }}>
+                          <div style={{ marginBottom:4 }}>{new Date(b.created_at).toLocaleDateString()}</div>
+                          <span style={{ background:b.status==='pending'?'#F59E0B20':'#10B98120', color:b.status==='pending'?'#F59E0B':'#10B981', padding:'2px 8px', borderRadius:4, fontWeight:600 }}>{b.status}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
