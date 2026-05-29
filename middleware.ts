@@ -31,6 +31,7 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/article/') ||
+    pathname.startsWith('/faq/') ||
     pathname.startsWith('/search') ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/portal') ||
