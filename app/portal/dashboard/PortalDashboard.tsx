@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 const NAV = [
   { icon:'🏠', label:'Dashboard',   id:'overview'  },
+  { icon:'⭐', label:'Reviews',     id:'reviews'   },
   { icon:'📊', label:'Rankings',    id:'rankings'  },
   { icon:'📰', label:'Content',     id:'content'   },
   { icon:'🎙', label:'Podcasts',    id:'podcasts'  },
@@ -19,7 +20,7 @@ function timeAgo(d: string) {
   return `${Math.floor(s/86400)}d ago`
 }
 
-export default function PortalDashboard({ client, rankings, content, podcasts, activity, reports, coverage }: any) {
+export default function PortalDashboard({ client, rankings, content, podcasts, activity, reports, coverage, reviews = [] }: any) {
   const [tab, setTab] = useState('overview')
   const [user, setUser] = useState<any>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -167,6 +168,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
           <div>
             <h1 style={{ fontFamily:"'Syne',sans-serif", fontSize:20, fontWeight:800 }}>
               {tab === 'overview' && '🏠 Dashboard Overview'}
+              {tab === 'reviews' && '⭐ Verivex Reviews'}
               {tab === 'rankings' && '📊 Google Rankings'}
               {tab === 'content' && '📰 Published Content'}
               {tab === 'podcasts' && '🎙 AI Podcasts'}
@@ -188,7 +190,56 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
         <div style={{ padding:'28px' }}>
 
           {/* ══ OVERVIEW ══════════════════════════════════════════════ */}
-          {tab === 'overview' && (
+                    {tab === 'reviews' && (
+            <div>
+              {/* Review stats */}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+                {[
+                  { label:'Total Reviews', value:reviews.length, color:'#10B981' },
+                  { label:'Average Rating', value: reviews.length ? (reviews.reduce((s:number,r:any)=>s+r.rating,0)/reviews.length).toFixed(1)+'★' : 'N/A', color:'#F59E0B' },
+                  { label:'5★ Reviews', value:reviews.filter((r:any)=>r.rating===5).length, color:'#6366F1' },
+                  { label:'Verified Reviews', value:reviews.filter((r:any)=>r.verified_email).length, color:'#0EA5E9' },
+                ].map((s:any) => (
+                  <div key={s.label} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:'20px 18px' }}>
+                    <div style={{ fontSize:24, fontWeight:800, color:s.color, marginBottom:4 }}>{s.value}</div>
+                    <div style={{ fontSize:12, color:'#94A3B8' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Reviews list */}
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, overflow:'hidden' }}>
+                <div style={{ padding:'16px 20px', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div style={{ fontWeight:700, fontSize:14 }}>eToro — All Verivex Reviews</div>
+                  <a href="https://verivex.co/reviews/etoro" target="_blank" rel="noreferrer" style={{ fontSize:12, color:'#0EA5E9', textDecoration:'none' }}>View on Verivex →</a>
+                </div>
+                {reviews.length === 0 ? (
+                  <div style={{ padding:40, textAlign:'center', color:'#64748B' }}>No reviews yet</div>
+                ) : reviews.map((r:any) => (
+                  <div key={r.id} style={{ padding:'16px 20px', borderBottom:'1px solid rgba(255,255,255,0.06)', display:'flex', gap:16, alignItems:'flex-start' }}>
+                    <div style={{ flexShrink:0 }}>
+                      <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#10B981,#0EA5E9)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:14 }}>
+                        {(r.reviewer_name||'A')[0].toUpperCase()}
+                      </div>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6, flexWrap:'wrap' }}>
+                        <span style={{ fontWeight:700, fontSize:13 }}>{r.reviewer_name || 'Anonymous'}</span>
+                        <span style={{ color:'#F59E0B', fontSize:13 }}>{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</span>
+                        {r.verified_email && <span style={{ fontSize:10, background:'rgba(16,185,129,0.15)', color:'#10B981', padding:'2px 8px', borderRadius:4, fontWeight:600 }}>✓ Verified</span>}
+                        {r.is_pinned && <span style={{ fontSize:10, background:'rgba(99,102,241,0.15)', color:'#6366F1', padding:'2px 8px', borderRadius:4, fontWeight:600 }}>📌 Featured</span>}
+                        <span style={{ fontSize:11, color:'#64748B', marginLeft:'auto' }}>{new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</span>
+                      </div>
+                      <div style={{ fontSize:13, fontWeight:700, color:'#F1F5F9', marginBottom:4 }}>{r.title}</div>
+                      <div style={{ fontSize:12, color:'#94A3B8', lineHeight:1.6 }}>{r.body?.slice(0,200)}{(r.body||'').length>200?'...':''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+{tab === 'overview' && (
             <div style={{ animation:'slideIn .3s ease' }}>
               {/* KPI Row */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
