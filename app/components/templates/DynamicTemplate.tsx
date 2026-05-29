@@ -1,169 +1,363 @@
 'use client'
-import React from 'react'
-// DynamicTemplate — 9 completely different archetypes, zero sites look alike
-// Driven by site.template_config JSON from DB
+import React, { useState } from 'react'
 
-import { useState, useEffect } from 'react'
-
+// ─── Font resolver ─────────────────────────────────────────────────────────
 function gf(f: string) {
   const m: Record<string,string> = {
     serif: '"Georgia","Times New Roman",serif',
     mono: '"IBM Plex Mono","Courier New",monospace',
     display: '"Playfair Display",Georgia,serif',
     condensed: '"Arial Narrow",Arial,sans-serif',
+    slab: '"Rockwell","Courier Bold",serif',
+    humanist: '"Gill Sans","Optima",sans-serif',
     sans: '"Inter","Helvetica Neue",Arial,sans-serif',
   }
   return m[f] || m.sans
 }
 
+// ─── Main dispatcher — reads archetype + variant from config ──────────────
 export default function DynamicTemplate({ site, articles }: { site: any; articles: any[] }) {
   const cfg = site.template_config || {}
   const archetype = cfg.archetype || 'editorial'
-  const p = cfg.primary || '#1a56db'
-  const font = gf(cfg.font || 'sans')
-  const slug = site.slug
+  const variant   = parseInt(cfg.variant  || '1')
+  const p         = cfg.primary    || '#1a56db'
+  const sec       = cfg.secondary  || '#f59e0b'
+  const font      = gf(cfg.font    || 'sans')
+  const slug      = site.slug
+  const props     = { site, articles, p, sec, font, slug, variant }
 
-  const props = { site, articles, p, font, slug }
-  const map: Record<string, any> = {
-    editorial: Editorial, tech: Tech, wire: Wire,
-    dashboard: Dashboard, magazine: Magazine, minimal: Minimal,
-    newspaper: Newspaper, research: Research, grid: Grid,
+  const dispatch: Record<string, any> = {
+    editorial: Editorial, tech: Tech, wire: Wire, dashboard: Dashboard,
+    magazine: Magazine, minimal: Minimal, newspaper: Newspaper,
+    research: Research, grid: Grid, brutalist: Brutalist,
+    dark_editorial: DarkEditorial, split: Split, feed: Feed,
   }
-  const Comp = map[archetype] || Editorial
+  const Comp = dispatch[archetype] || Editorial
   return <Comp {...props} />
 }
 
-// ─── 1. EDITORIAL — NYT/Guardian serif ───────────────────────────────────────
-function Editorial({ site, articles, p, font, slug }: any) {
-  const [cat, setCat] = useState('All')
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 1 — EDITORIAL (3 variants: classic / compact / wide)
+// ═══════════════════════════════════════════════════════════════════════════
+function Editorial({ site, articles, p, font, slug, variant }: any) {
   const hero = articles[0], cols = articles.slice(1,7), sidebar = articles.slice(7,12)
-  return (
-    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:gf('display'), color:'#111' }}>
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#fffef9', fontFamily:font, color:'#1a1a1a' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .ed-nav a:hover{color:${p}}.ed-card h3:hover{color:${p}}
-      @media(max-width:768px){.ed-main{flex-direction:column!important}.ed-cols{grid-template-columns:1fr!important}}`}</style>
-      {/* Masthead */}
-      <div style={{ borderBottom:`1px solid #ddd`, padding:'8px 0', textAlign:'center', fontSize:11, color:'#888', letterSpacing:'0.15em', textTransform:'uppercase' }}>
-        {new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+      .ev2-tag{display:inline-block;background:${p};color:#fff;font-size:9px;fontWeight:800;padding:2px 7px;borderRadius:2px;textTransform:uppercase;letterSpacing:.1em;marginBottom:8px}
+      .ev2-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+      @media(max-width:768px){.ev2-grid{grid-template-columns:1fr!important}}`}</style>
+      <div style={{ borderBottom:`6px solid ${p}`, padding:'18px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#fffef9' }}>
+        <a href="/"><div style={{ fontSize:30, fontWeight:900, letterSpacing:'-1.5px', fontFamily:gf('display') }}>{site.name}</div></a>
+        <div style={{ fontSize:11, color:'#888', fontStyle:'italic' }}>{site.tagline}</div>
       </div>
-      <div style={{ textAlign:'center', padding:'20px 24px 12px', borderBottom:`4px double #111` }}>
-        <a href="/"><div style={{ fontSize:56, fontWeight:900, letterSpacing:'-3px', lineHeight:1 }}>{site.name}</div></a>
-        <div style={{ fontSize:12, color:'#666', marginTop:6, fontStyle:'italic' }}>{site.tagline || 'Independent Financial Journalism'}</div>
+      <div style={{ maxWidth:1100, margin:'32px auto', padding:'0 24px' }}>
+        {hero && (
+          <div style={{ borderBottom:`2px solid #eee`, paddingBottom:32, marginBottom:32 }}>
+            <div className="ev2-tag">{hero.category}</div>
+            <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:46, fontWeight:900, lineHeight:1.08, marginBottom:16, fontFamily:gf('display') }}>{hero.title}</h1></a>
+            <p style={{ fontSize:18, color:'#444', lineHeight:1.75, borderLeft:`4px solid ${p}`, paddingLeft:18, maxWidth:720 }}>{hero.excerpt}</p>
+            <div style={{ marginTop:14, fontSize:12, color:'#888' }}>By {hero.author_name} · {new Date(hero.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
+          </div>
+        )}
+        <div className="ev2-grid">
+          {cols.map((a:any) => (
+            <div key={a.id} style={{ paddingBottom:24, borderBottom:'1px solid #f0f0f0' }}>
+              <div className="ev2-tag">{a.category}</div>
+              <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:19, fontWeight:800, lineHeight:1.3, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h3></a>
+              <p style={{ fontSize:13, color:'#555', lineHeight:1.65 }}>{a.excerpt?.slice(0,120)}…</p>
+              <div style={{ fontSize:11, color:'#aaa', marginTop:8 }}>{a.author_name}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      {/* Nav */}
-      <div className="ed-nav" style={{ borderBottom:'1px solid #ddd', background:'#fafafa' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', gap:24, overflow:'auto' }}>
-          {['All','Markets','Economy','Investing','Policy','Opinion'].map(c => (
-            <button key={c} onClick={()=>setCat(c)} style={{ padding:'10px 0', background:'none', border:'none', borderBottom:cat===c?`2px solid ${p}`:'2px solid transparent', color:cat===c?p:'#555', fontWeight:700, fontSize:13, cursor:'pointer', whiteSpace:'nowrap' }}>{c}</button>
+      <footer style={{ borderTop:`4px solid ${p}`, padding:'16px 24px', textAlign:'center', fontSize:11, color:'#999', marginTop:40 }}>© {new Date().getFullYear()} {site.name}</footer>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#f4f1eb', fontFamily:gf('serif'), color:'#2d2516' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .ev3-main{display:grid;grid-template-columns:2fr 1fr;gap:0}
+      .ev3-col{padding:24px}
+      @media(max-width:768px){.ev3-main{grid-template-columns:1fr!important}}`}</style>
+      <header style={{ background:'#2d2516', color:'#f4f1eb', padding:'16px 32px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontSize:26, fontWeight:900, letterSpacing:'-0.5px', color:'#f4f1eb' }}>{site.name}</div></a>
+        <div style={{ background:p, color:'#fff', fontSize:10, fontWeight:700, padding:'4px 10px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{site.category}</div>
+      </header>
+      <div className="ev3-main">
+        <div className="ev3-col" style={{ borderRight:'2px solid #ddd6c4' }}>
+          {hero && (
+            <div style={{ marginBottom:28, paddingBottom:28, borderBottom:'1px solid #ddd6c4' }}>
+              <div style={{ fontSize:9, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'.15em', marginBottom:8 }}>Lead Story</div>
+              <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:34, fontWeight:900, lineHeight:1.12, marginBottom:12 }}>{hero.title}</h1></a>
+              <p style={{ fontSize:15, lineHeight:1.7, color:'#5a4a32' }}>{hero.excerpt}</p>
+            </div>
+          )}
+          {cols.slice(0,3).map((a:any) => (
+            <div key={a.id} style={{ display:'flex', gap:16, paddingBottom:16, marginBottom:16, borderBottom:'1px solid #e8e2d6' }}>
+              <div style={{ width:4, background:p, flexShrink:0, borderRadius:2 }}/>
+              <div>
+                <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:16, fontWeight:700, lineHeight:1.35, marginBottom:5 }}>{a.title}</h3></a>
+                <p style={{ fontSize:12, color:'#5a4a32', lineHeight:1.55 }}>{a.excerpt?.slice(0,90)}…</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="ev3-col">
+          <div style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'.1em', borderBottom:`2px solid ${p}`, paddingBottom:6, marginBottom:16 }}>More Stories</div>
+          {sidebar.map((a:any) => (
+            <div key={a.id} style={{ marginBottom:14, paddingBottom:14, borderBottom:'1px solid #e0d8cc' }}>
+              <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', marginBottom:4 }}>{a.category}</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+              <div style={{ fontSize:10, color:'#888', marginTop:4 }}>{a.author_name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+  // Variant 1 (default) — NYT masthead style
+  return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .e1-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+      @media(max-width:768px){.e1-cols{grid-template-columns:1fr!important}.e1-side{display:none!important}}`}</style>
+      <div style={{ borderBottom:'1px solid #ddd', padding:'6px 0', textAlign:'center', fontSize:11, color:'#888', letterSpacing:'.15em', textTransform:'uppercase' }}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+      <div style={{ textAlign:'center', padding:'18px 24px 12px', borderBottom:'4px double #111' }}>
+        <a href="/"><div style={{ fontSize:52, fontWeight:900, letterSpacing:'-3px', lineHeight:1, fontFamily:gf('display') }}>{site.name}</div></a>
+        <div style={{ fontSize:12, color:'#666', marginTop:6, fontStyle:'italic' }}>{site.tagline}</div>
+      </div>
+      <div style={{ background:'#111', padding:'6px 0', marginBottom:0 }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', gap:24, overflowX:'auto' }}>
+          {['Markets','Economy','Investing','Policy','Opinion'].map(c=>(
+            <a key={c} href={`/?category=${c}`} style={{ color:'#ccc', fontSize:12, fontWeight:700, whiteSpace:'nowrap' }}>{c}</a>
           ))}
         </div>
       </div>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'24px' }}>
-        {/* Hero + sidebar */}
-        <div className="ed-main" style={{ display:'flex', gap:32, borderBottom:'1px solid #ddd', paddingBottom:32, marginBottom:32 }}>
+        <div style={{ display:'flex', gap:32, borderBottom:'1px solid #ddd', paddingBottom:28, marginBottom:28 }}>
           {hero && (
             <div style={{ flex:2 }}>
-              <div style={{ fontSize:10, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:10 }}>{hero.category} · Lead Story</div>
-              <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:40, fontWeight:900, lineHeight:1.1, marginBottom:14 }}>{hero.title}</h1></a>
+              <div style={{ fontSize:9, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'.15em', marginBottom:10 }}>{hero.category}</div>
+              <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:38, fontWeight:900, lineHeight:1.1, marginBottom:14, fontFamily:gf('display') }}>{hero.title}</h1></a>
               <p style={{ fontSize:17, lineHeight:1.75, color:'#333', borderLeft:`3px solid ${p}`, paddingLeft:16 }}>{hero.excerpt}</p>
-              <div style={{ marginTop:14, fontSize:12, color:'#888' }}>By <strong>{hero.author_name}</strong> · {new Date(hero.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
             </div>
           )}
-          <div style={{ flex:1, borderLeft:'1px solid #ddd', paddingLeft:24 }}>
-            <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.1em', borderBottom:`2px solid #111`, paddingBottom:8, marginBottom:14 }}>Also Today</div>
-            {sidebar.map((a: any) => (
+          <div className="e1-side" style={{ flex:1, borderLeft:'1px solid #ddd', paddingLeft:24 }}>
+            <div style={{ fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'.1em', borderBottom:'2px solid #111', paddingBottom:8, marginBottom:14 }}>Today</div>
+            {sidebar.map((a:any) => (
               <div key={a.id} style={{ paddingBottom:12, marginBottom:12, borderBottom:'1px solid #eee' }}>
-                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:14, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
-                <div style={{ fontSize:11, color:'#888', marginTop:3 }}>{a.author_name}</div>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+                <div style={{ fontSize:10, color:'#888', marginTop:3 }}>{a.author_name}</div>
               </div>
             ))}
           </div>
         </div>
-        {/* 3-col grid */}
-        <div className="ed-cols" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:28 }}>
-          {cols.map((a: any) => (
+        <div className="e1-cols">
+          {cols.map((a:any) => (
             <div key={a.id} style={{ borderTop:`3px solid ${p}`, paddingTop:14 }}>
-              <div style={{ fontSize:9, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:6 }}>{a.category}</div>
-              <a href={`/article/${slug}/${a.slug}`}><h3 className="ed-card" style={{ fontSize:18, fontWeight:800, lineHeight:1.3, marginBottom:8 }}><span style={{ transition:'color .15s' }}>{a.title}</span></h3></a>
+              <div style={{ fontSize:9, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'.12em', marginBottom:6 }}>{a.category}</div>
+              <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:17, fontWeight:800, lineHeight:1.3, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h3></a>
               <p style={{ fontSize:13, color:'#555', lineHeight:1.65 }}>{a.excerpt?.slice(0,110)}…</p>
             </div>
           ))}
         </div>
       </div>
-      <footer style={{ borderTop:`3px double #111`, padding:'16px 24px', textAlign:'center', fontSize:11, color:'#888', marginTop:40 }}>
-        © {new Date().getFullYear()} {site.name} · All rights reserved
-      </footer>
+      <footer style={{ borderTop:'3px double #111', padding:'14px 24px', textAlign:'center', fontSize:11, color:'#888', marginTop:32 }}>© {new Date().getFullYear()} {site.name}</footer>
     </div>
   )
 }
 
-// ─── 2. TECH — dark, card grid ───────────────────────────────────────────────
-function Tech({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 2 — TECH (3 variants: dark cards / light matrix / neon)
+// ═══════════════════════════════════════════════════════════════════════════
+function Tech({ site, articles, p, font, slug, variant }: any) {
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#f0f4ff', fontFamily:font }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .tv2-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+      .tv2-c{background:#fff;border-radius:12px;border-top:4px solid ${p};padding:20px;transition:transform .2s}
+      .tv2-c:hover{transform:translateY(-3px)}
+      @media(max-width:768px){.tv2-g{grid-template-columns:1fr}}`}</style>
+      <div style={{ background:'#fff', borderBottom:'1px solid #e0e7ff', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:22, color:p }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:12 }}>{['Feed','Markets','Tech','AI'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}</div>
+      </div>
+      {articles[0] && (
+        <div style={{ background:`linear-gradient(135deg,${p},${p}cc)`, color:'#fff', padding:'48px 24px', margin:'0 0 24px' }}>
+          <div style={{ maxWidth:860, margin:'0 auto' }}>
+            <span style={{ background:'rgba(255,255,255,.25)', fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:12, textTransform:'uppercase', letterSpacing:'.1em' }}>{articles[0].category}</span>
+            <a href={`/article/${slug}/${articles[0].slug}`}><h1 style={{ fontSize:40, fontWeight:900, color:'#fff', lineHeight:1.1, margin:'16px 0' }}>{articles[0].title}</h1></a>
+            <p style={{ fontSize:16, opacity:.85, lineHeight:1.7 }}>{articles[0].excerpt}</p>
+          </div>
+        </div>
+      )}
+      <div className="tv2-g" style={{ maxWidth:1400, margin:'0 auto', padding:'0 24px 40px' }}>
+        {articles.slice(1,13).map((a:any) => (
+          <div key={a.id} className="tv2-c">
+            <div style={{ fontSize:9, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:8 }}>{a.category}</div>
+            <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:15, fontWeight:700, color:'#0f172a', lineHeight:1.4, marginBottom:8 }}>{a.title}</div></a>
+            <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5 }}>{a.excerpt?.slice(0,90)}…</div>
+            <div style={{ marginTop:12, fontSize:11, color:'#94a3b8' }}>{a.author_name}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#000', fontFamily:gf('mono'), color:'#00ff88' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .tv3-row{border-bottom:1px solid #0f2a1a;padding:14px 0;display:grid;grid-template-columns:60px 1fr;gap:16px}
+      .tv3-row:hover{background:#050f08}
+      @media(max-width:768px){.tv3-row{grid-template-columns:1fr}}`}</style>
+      <div style={{ borderBottom:'1px solid #0f2a1a', padding:'12px 24px', display:'flex', justifyContent:'space-between' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#00ff88', letterSpacing:'.1em' }}>{site.name.toUpperCase()}</div></a>
+        <div style={{ fontSize:11, color:'#006633' }}>[{new Date().toISOString().slice(0,16)}]</div>
+      </div>
+      <div style={{ maxWidth:1000, margin:'0 auto', padding:'24px' }}>
+        <div style={{ marginBottom:24, padding:'16px', border:'1px solid #00ff88', background:'#000d06' }}>
+          <div style={{ fontSize:10, color:'#006633', marginBottom:6 }}>// LEAD STORY</div>
+          {articles[0] && <><a href={`/article/${slug}/${articles[0].slug}`}><div style={{ fontSize:20, fontWeight:700, lineHeight:1.4, marginBottom:8, color:'#00ff88' }}>{articles[0].title}</div></a>
+          <div style={{ fontSize:13, color:'#005522', lineHeight:1.6 }}>{articles[0].excerpt}</div></>}
+        </div>
+        {articles.slice(1,16).map((a:any,i:number) => (
+          <div key={a.id} className="tv3-row">
+            <div style={{ fontSize:18, fontWeight:900, color:'#003311', paddingTop:2 }}>{String(i+1).padStart(2,'0')}</div>
+            <div>
+              <div style={{ fontSize:9, color:'#006633', marginBottom:4, textTransform:'uppercase', letterSpacing:'.1em' }}>[{a.category}]</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:14, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+              {i<3&&<div style={{ fontSize:12, color:'#005522', marginTop:4, lineHeight:1.5 }}>{a.excerpt?.slice(0,100)}…</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // Variant 1 — dark cards
   return (
     <div style={{ minHeight:'100vh', background:'#0a0e1a', fontFamily:font, color:'#e2e8f0' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .tc{background:#111827;border:1px solid #1e293b;transition:all .2s;display:block;padding:20px}
-      .tc:hover{border-color:${p};transform:translateY(-2px)}
-      .tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:#1e293b}
-      @media(max-width:768px){.tg{grid-template-columns:1fr}}`}</style>
+      .tv1-c{background:#111827;border:1px solid #1e293b;transition:all .2s;display:block;padding:20px}
+      .tv1-c:hover{border-color:${p};transform:translateY(-2px)}
+      .tv1-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:#1e293b}
+      @media(max-width:768px){.tv1-g{grid-template-columns:1fr}}`}</style>
       <div style={{ background:'#020617', borderBottom:`2px solid ${p}` }}>
         <div style={{ maxWidth:1400, margin:'0 auto', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <a href="/"><span style={{ fontSize:20, fontWeight:900, color:'#fff', letterSpacing:'0.08em' }}>{site.name.toUpperCase()}</span></a>
-          <div style={{ display:'flex', gap:20 }}>
-            {['Markets','Tech','AI','Crypto','Data'].map(c => (
-              <a key={c} href={`/?category=${c}`} style={{ color:'#94a3b8', fontSize:12, fontWeight:600 }}>{c}</a>
-            ))}
-          </div>
+          <a href="/"><span style={{ fontSize:20, fontWeight:900, color:'#fff', letterSpacing:'.08em' }}>{site.name.toUpperCase()}</span></a>
+          <div style={{ display:'flex', gap:20 }}>{['Markets','Tech','AI','Crypto','Data'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#94a3b8', fontSize:12, fontWeight:600 }}>{c}</a>)}</div>
         </div>
       </div>
       {articles[0] && (
         <div style={{ background:`linear-gradient(135deg,#020617 60%,${p}18)`, padding:'56px 24px', borderBottom:'1px solid #1e293b' }}>
           <div style={{ maxWidth:860, margin:'0 auto' }}>
-            <span style={{ background:p, color:'#fff', fontSize:10, fontWeight:800, padding:'3px 10px', borderRadius:2, textTransform:'uppercase', letterSpacing:'0.1em' }}>{articles[0].category}</span>
+            <span style={{ background:p, color:'#fff', fontSize:10, fontWeight:800, padding:'3px 10px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{articles[0].category}</span>
             <a href={`/article/${slug}/${articles[0].slug}`}><h1 style={{ fontSize:44, fontWeight:900, color:'#f8fafc', lineHeight:1.08, margin:'16px 0' }}>{articles[0].title}</h1></a>
             <p style={{ fontSize:16, color:'#94a3b8', lineHeight:1.7 }}>{articles[0].excerpt}</p>
-            <div style={{ marginTop:16, fontSize:12, color:'#475569' }}>{articles[0].author_name} · {new Date(articles[0].published_at).toLocaleDateString()}</div>
           </div>
         </div>
       )}
-      <div className="tg" style={{ maxWidth:1400, margin:'0 auto' }}>
-        {articles.slice(1,13).map((a: any) => (
-          <a key={a.id} className="tc" href={`/article/${slug}/${a.slug}`}>
-            <div style={{ fontSize:9, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:8 }}>{a.category}</div>
+      <div className="tv1-g" style={{ maxWidth:1400, margin:'0 auto' }}>
+        {articles.slice(1,13).map((a:any) => (
+          <a key={a.id} className="tv1-c" href={`/article/${slug}/${a.slug}`}>
+            <div style={{ fontSize:9, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8 }}>{a.category}</div>
             <div style={{ fontSize:15, fontWeight:700, color:'#e2e8f0', lineHeight:1.4, marginBottom:8 }}>{a.title}</div>
             <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5 }}>{a.excerpt?.slice(0,90)}…</div>
-            <div style={{ fontSize:11, color:'#334155', marginTop:12 }}>{a.author_name} · {new Date(a.published_at).toLocaleDateString()}</div>
+            <div style={{ fontSize:11, color:'#334155', marginTop:12 }}>{a.author_name}</div>
           </a>
         ))}
       </div>
-      <footer style={{ borderTop:'1px solid #1e293b', padding:'20px 24px', textAlign:'center', fontSize:11, color:'#334155', marginTop:2 }}>
-        © {new Date().getFullYear()} {site.name}
-      </footer>
     </div>
   )
 }
 
-// ─── 3. WIRE — Reuters/AP dense ticker ───────────────────────────────────────
-function Wire({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 3 — WIRE (3 variants: ticker / split / agency)
+// ═══════════════════════════════════════════════════════════════════════════
+function Wire({ site, articles, p, font, slug, variant }: any) {
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:font }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .wv2-grid{display:grid;grid-template-columns:3fr 2fr;gap:2px;background:#e5e7eb}
+      @media(max-width:768px){.wv2-grid{grid-template-columns:1fr!important}}`}</style>
+      <div style={{ background:'#111', padding:'10px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#fff', letterSpacing:'.05em' }}>{site.name}</div></a>
+        <div style={{ background:p, color:'#fff', fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:2 }}>LIVE</div>
+      </div>
+      <div className="wv2-grid">
+        <div style={{ background:'#fff', padding:'20px 24px' }}>
+          {articles.slice(0,12).map((a:any,i:number) => (
+            <div key={a.id} style={{ display:'flex', gap:14, padding:'12px 0', borderBottom:'1px solid #f3f4f6', alignItems:'flex-start' }}>
+              <div style={{ width:32, height:32, background:i===0?p:'#f1f5f9', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:900, color:i===0?'#fff':p, flexShrink:0 }}>{i+1}</div>
+              <div>
+                <div style={{ display:'flex', gap:6, marginBottom:3 }}>
+                  <span style={{ background:p, color:'#fff', fontSize:8, fontWeight:800, padding:'1px 5px', borderRadius:2, textTransform:'uppercase' }}>{a.category}</span>
+                  <span style={{ fontSize:10, color:'#9ca3af' }}>{new Date(a.published_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>
+                </div>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+                {i<2&&<div style={{ fontSize:12, color:'#6b7280', marginTop:3, lineHeight:1.5 }}>{a.excerpt?.slice(0,100)}…</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background:'#fafafa', padding:'20px' }}>
+          <div style={{ fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'.08em', borderBottom:`2px solid ${p}`, paddingBottom:8, marginBottom:16 }}>Trending Now</div>
+          {articles.slice(0,8).map((a:any,i:number) => (
+            <div key={a.id} style={{ display:'flex', gap:8, marginBottom:12, paddingBottom:12, borderBottom:'1px solid #eee' }}>
+              <span style={{ fontSize:20, fontWeight:900, color:p, lineHeight:1, minWidth:24 }}>{i+1}</span>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:12, lineHeight:1.4, fontWeight:600 }}>{a.title}</div></a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:gf('condensed'), color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .wv3-item{padding:10px 0;border-bottom:1px solid #e5e7eb}
+      .wv3-item:hover{background:#fafafa}`}</style>
+      <div style={{ borderBottom:'4px solid #111' }}>
+        <div style={{ maxWidth:960, margin:'0 auto', padding:'12px 24px', display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+          <a href="/"><div style={{ fontSize:32, fontWeight:900, letterSpacing:'.02em', textTransform:'uppercase' }}>{site.name}</div></a>
+          <div style={{ fontSize:11, color:'#888', textTransform:'uppercase', letterSpacing:'.1em' }}>News Wire Service</div>
+        </div>
+        <div style={{ background:p, padding:'5px 24px', display:'flex', gap:20 }}>
+          {['FLASH','MARKETS','ECONOMY','FX','COMMODITIES'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#fff', fontSize:11, fontWeight:800, letterSpacing:'.05em' }}>{c}</a>)}
+        </div>
+      </div>
+      <div style={{ maxWidth:960, margin:'0 auto', padding:'16px 24px' }}>
+        {articles.slice(0,20).map((a:any,i:number) => (
+          <div key={a.id} className="wv3-item">
+            <div style={{ display:'flex', gap:8, alignItems:'baseline' }}>
+              <span style={{ fontSize:9, color:'#fff', background:i===0?p:'#9ca3af', fontWeight:800, padding:'1px 5px', borderRadius:2, textTransform:'uppercase', flexShrink:0 }}>{a.category}</span>
+              <span style={{ fontSize:10, color:'#9ca3af', flexShrink:0 }}>{new Date(a.published_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>
+              <a href={`/article/${slug}/${a.slug}`}><span style={{ fontSize:i<3?16:13, fontWeight:i<3?800:600, lineHeight:1.4 }}>{a.title}</span></a>
+            </div>
+            {i<2&&<p style={{ fontSize:12, color:'#6b7280', lineHeight:1.55, marginTop:4, marginLeft:0 }}>{a.excerpt?.slice(0,140)}…</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // Variant 1 — classic wire
   return (
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .wi:hover{background:#f9fafb}.wi{border-bottom:1px solid #eee;padding:10px 0;display:flex;gap:14px;align-items:flex-start}
-      @media(max-width:768px){.wcols{flex-direction:column!important}}`}</style>
+      .wv1-i{border-bottom:1px solid #eee;padding:10px 0;display:flex;gap:14px;align-items:flex-start}
+      .wv1-i:hover{background:#f9fafb}
+      @media(max-width:768px){.wv1-cols{flex-direction:column!important}}`}</style>
       <div style={{ background:p, padding:'8px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <a href="/"><span style={{ color:'#fff', fontWeight:900, fontSize:20, letterSpacing:'0.05em' }}>{site.name} WIRE</span></a>
-        <span style={{ color:'rgba(255,255,255,0.7)', fontSize:11 }}>{new Date().toUTCString()}</span>
+        <a href="/"><span style={{ color:'#fff', fontWeight:900, fontSize:20, letterSpacing:'.05em' }}>{site.name} WIRE</span></a>
+        <span style={{ color:'rgba(255,255,255,.7)', fontSize:11 }}>{new Date().toUTCString()}</span>
       </div>
       <div style={{ background:'#f5f5f5', borderBottom:'1px solid #ddd', padding:'5px 24px', display:'flex', gap:20 }}>
-        {['BREAKING','MARKETS','ECONOMY','FX','COMMODITIES','CRYPTO'].map(c => (
-          <a key={c} href={`/?category=${c}`} style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>
-        ))}
+        {['BREAKING','MARKETS','ECONOMY','FX','CRYPTO'].map(c=><a key={c} href={`/?category=${c}`} style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px' }}>
-        <div className="wcols" style={{ display:'flex', gap:32 }}>
+        <div className="wv1-cols" style={{ display:'flex', gap:32 }}>
           <div style={{ flex:2 }}>
-            {articles.slice(0,18).map((a: any, i: number) => (
-              <div key={a.id} className="wi">
+            {articles.slice(0,18).map((a:any,i:number) => (
+              <div key={a.id} className="wv1-i">
                 <div style={{ width:34, height:34, background:i===0?p:'#f1f5f9', borderRadius:4, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:900, color:i===0?'#fff':p }}>{i+1}</div>
                 <div>
                   <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:3 }}>
@@ -171,15 +365,15 @@ function Wire({ site, articles, p, font, slug }: any) {
                     <span style={{ fontSize:10, color:'#999' }}>{new Date(a.published_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span>
                   </div>
                   <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
-                  {i<3 && <div style={{ fontSize:12, color:'#666', marginTop:3, lineHeight:1.5 }}>{a.excerpt?.slice(0,100)}…</div>}
+                  {i<3&&<div style={{ fontSize:12, color:'#666', marginTop:3, lineHeight:1.5 }}>{a.excerpt?.slice(0,100)}…</div>}
                 </div>
               </div>
             ))}
           </div>
           <div style={{ flex:1, minWidth:180 }}>
             <div style={{ border:'1px solid #e5e7eb', padding:14 }}>
-              <div style={{ fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'0.08em', borderBottom:`2px solid ${p}`, paddingBottom:6, marginBottom:12 }}>Top Stories</div>
-              {articles.slice(0,5).map((a: any, i: number) => (
+              <div style={{ fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'.08em', borderBottom:`2px solid ${p}`, paddingBottom:6, marginBottom:12 }}>Top Stories</div>
+              {articles.slice(0,5).map((a:any,i:number) => (
                 <div key={a.id} style={{ display:'flex', gap:8, marginBottom:10, paddingBottom:10, borderBottom:'1px solid #f0f0f0' }}>
                   <span style={{ fontSize:18, fontWeight:900, color:p, lineHeight:1 }}>{i+1}</span>
                   <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:12, lineHeight:1.4 }}>{a.title}</div></a>
@@ -189,45 +383,113 @@ function Wire({ site, articles, p, font, slug }: any) {
           </div>
         </div>
       </div>
-      <footer style={{ borderTop:`2px solid ${p}`, padding:'12px 24px', textAlign:'center', fontSize:11, color:'#888' }}>© {new Date().getFullYear()} {site.name} Wire Service</footer>
     </div>
   )
 }
 
-// ─── 4. DASHBOARD — data/KPI cards ───────────────────────────────────────────
-function Dashboard({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 4 — DASHBOARD (3 variants: KPI cards / list / heatmap)
+// ═══════════════════════════════════════════════════════════════════════════
+function Dashboard({ site, articles, p, font, slug, variant }: any) {
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#1e2130', fontFamily:font, color:'#e2e8f0' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .dv2-row{display:grid;grid-template-columns:1fr 3fr 1fr;gap:16px;padding:12px 0;border-bottom:1px solid #2a3147;align-items:start}
+      .dv2-row:hover{background:#232840}
+      @media(max-width:768px){.dv2-row{grid-template-columns:1fr!important}}`}</style>
+      <div style={{ background:'#161929', borderBottom:'1px solid #2a3147', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', boxShadow:'0 0 8px #22c55e' }}/>
+          <a href="/"><span style={{ fontWeight:800, fontSize:16, color:'#f1f5f9' }}>{site.name}</span></a>
+        </div>
+        <div style={{ fontSize:11, color:'#475569', fontFamily:gf('mono') }}>{new Date().toISOString().slice(0,16)} UTC</div>
+      </div>
+      <div style={{ maxWidth:1200, margin:'0 auto', padding:'20px 24px' }}>
+        <div style={{ display:'flex', gap:12, marginBottom:20, overflowX:'auto' }}>
+          {[['ARTICLES','24H',String(Math.floor(Math.random()*20+10))],['SOURCES','LIVE','47'],['TOPICS','TRACKED','12'],['SIGNAL','STRENGTH','HIGH']].map(([l,s,v])=>(
+            <div key={l} style={{ background:'#161929', border:'1px solid #2a3147', borderRadius:6, padding:'12px 18px', flexShrink:0 }}>
+              <div style={{ fontSize:9, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:2 }}>{l} / {s}</div>
+              <div style={{ fontSize:22, fontWeight:800, color:p, fontFamily:gf('mono') }}>{v}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background:'#161929', border:'1px solid #2a3147', borderRadius:6, padding:'16px 20px' }}>
+          <div style={{ fontSize:10, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:12 }}>// FEED</div>
+          {articles.slice(0,14).map((a:any,i:number) => (
+            <div key={a.id} className="dv2-row">
+              <div style={{ fontSize:9, color:p, fontFamily:gf('mono'), paddingTop:2 }}>[{a.category?.slice(0,6).toUpperCase()}]</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:600, color:'#e2e8f0', lineHeight:1.4 }}>{a.title}</div></a>
+              <div style={{ fontSize:10, color:'#475569', fontFamily:gf('mono'), textAlign:'right' }}>{new Date(a.published_at).toLocaleDateString()}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .dv3-g{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:#e5e7eb}
+      .dv3-c{background:#fff;padding:18px;transition:background .15s}
+      .dv3-c:hover{background:${p}08}
+      @media(max-width:768px){.dv3-g{grid-template-columns:repeat(2,1fr)!important}}`}</style>
+      <div style={{ background:p, padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#fff', letterSpacing:'-.5px' }}>{site.name}</div></a>
+        <div style={{ background:'rgba(255,255,255,.2)', color:'#fff', fontSize:10, padding:'3px 8px', borderRadius:3, fontWeight:700 }}>{site.category}</div>
+      </div>
+      <div style={{ maxWidth:1400, margin:'16px auto', padding:'0 24px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:16 }}>
+          {[['Published','274+'],['Topics','48'],['Analysts','12'],['Updated','Just now']].map(([l,v])=>(
+            <div key={l} style={{ background:`${p}0d`, border:`1px solid ${p}20`, borderRadius:6, padding:'12px 16px' }}>
+              <div style={{ fontSize:10, color:p, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:3 }}>{l}</div>
+              <div style={{ fontSize:20, fontWeight:800, color:'#111' }}>{v}</div>
+            </div>
+          ))}
+        </div>
+        <div className="dv3-g">
+          {articles.slice(0,16).map((a:any,i:number) => (
+            <div key={a.id} className="dv3-c">
+              <div style={{ fontSize:8, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6, display:'flex', justifyContent:'space-between' }}>
+                <span>{a.category}</span><span style={{ color:'#9ca3af' }}>{new Date(a.published_at).toLocaleDateString()}</span>
+              </div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4, color:'#0f172a' }}>{a.title}</div></a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+  // Variant 1
   return (
     <div style={{ minHeight:'100vh', background:'#f1f5f9', fontFamily:font, color:'#1e293b' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .dc{background:#fff;border:1px solid #e2e8f0;borderRadius:8px;padding:20px;transition:box-shadow .15s}
-      .dc:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
-      .dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
-      @media(max-width:768px){.dg{grid-template-columns:1fr}}`}</style>
-      <div style={{ background:'#fff', borderBottom:'1px solid #e2e8f0', position:'sticky', top:0, zIndex:100, boxShadow:'0 1px 3px rgba(0,0,0,.05)' }}>
+      .dv1-c{background:#fff;border:1px solid #e2e8f0;borderRadius:8px;padding:20px;transition:box-shadow .15s}
+      .dv1-c:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+      .dv1-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+      @media(max-width:768px){.dv1-g{grid-template-columns:1fr}}`}</style>
+      <div style={{ background:'#fff', borderBottom:'1px solid #e2e8f0', position:'sticky', top:0, zIndex:100 }}>
         <div style={{ maxWidth:1400, margin:'0 auto', padding:'12px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ width:30, height:30, background:p, borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:14 }}>{site.name[0]}</div>
             <a href="/"><span style={{ fontWeight:800, fontSize:17 }}>{site.name}</span></a>
           </div>
           <div style={{ display:'flex', gap:8, overflowX:'auto' }}>
-            {['All','Markets','Economy','AI','Policy'].map(c => (
-              <a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', background:'#f1f5f9', color:'#64748b', borderRadius:6, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}>{c}</a>
-            ))}
+            {['All','Markets','Economy','AI','Policy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', background:'#f1f5f9', color:'#64748b', borderRadius:6, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}>{c}</a>)}
           </div>
         </div>
       </div>
       <div style={{ maxWidth:1400, margin:'0 auto', padding:'20px 24px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-          {[['Published Today',String(Math.floor(Math.random()*20+10))],['Sources Tracked','47'],['Categories','12'],['Last Updated',new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})]].map(([l,v])=>(
+          {[['Published Today',String(Math.floor(Math.random()*20+10))],['Sources','47'],['Categories','12'],['Updated',new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})]].map(([l,v])=>(
             <div key={l} style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:8, padding:'14px 18px' }}>
-              <div style={{ fontSize:10, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>{l}</div>
+              <div style={{ fontSize:10, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>{l}</div>
               <div style={{ fontSize:22, fontWeight:800, color:p }}>{v}</div>
             </div>
           ))}
         </div>
-        <div className="dg">
-          {articles.slice(0,12).map((a: any) => (
-            <div key={a.id} className="dc">
+        <div className="dv1-g">
+          {articles.slice(0,12).map((a:any) => (
+            <div key={a.id} className="dv1-c">
               <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
                 <span style={{ background:`${p}18`, color:p, fontSize:9, fontWeight:700, padding:'3px 8px', borderRadius:4, textTransform:'uppercase' }}>{a.category}</span>
                 <span style={{ fontSize:10, color:'#94a3b8' }}>{new Date(a.published_at).toLocaleDateString()}</span>
@@ -243,15 +505,95 @@ function Dashboard({ site, articles, p, font, slug }: any) {
   )
 }
 
-// ─── 5. MAGAZINE — glossy hero ────────────────────────────────────────────────
-function Magazine({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 5 — MAGAZINE (3 variants: glossy / columns / journal)
+// ═══════════════════════════════════════════════════════════════════════════
+function Magazine({ site, articles, p, sec, font, slug, variant }: any) {
   const hero = articles[0], feat = articles.slice(1,4), rest = articles.slice(4,12)
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:gf('display'), color:'#1a1a1a' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .mv2-g{display:grid;grid-template-columns:2fr 1fr;gap:32px}
+      @media(max-width:768px){.mv2-g{grid-template-columns:1fr!important}}`}</style>
+      <header style={{ borderBottom:`3px solid #111`, padding:'12px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontSize:32, fontWeight:900, letterSpacing:'-2px' }}>{site.name}</div></a>
+        <div style={{ fontSize:12, color:'#666', fontStyle:'italic', maxWidth:300, textAlign:'right' }}>{site.tagline}</div>
+      </header>
+      <div style={{ background:p, color:'#fff', padding:'6px 24px', display:'flex', gap:20 }}>
+        {['COVER STORY','MARKETS','OPINION','LIFE','TRAVEL'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'rgba(255,255,255,.85)', fontSize:11, fontWeight:700, letterSpacing:'.05em' }}>{c}</a>)}
+      </div>
+      <div style={{ maxWidth:1200, margin:'32px auto', padding:'0 24px' }}>
+        <div className="mv2-g">
+          <div>
+            {hero && (
+              <div style={{ marginBottom:28, paddingBottom:28, borderBottom:'1px solid #e5e7eb' }}>
+                <div style={{ background:sec, display:'inline-block', fontSize:10, fontWeight:800, padding:'3px 10px', borderRadius:2, marginBottom:12, textTransform:'uppercase', letterSpacing:'.1em', color:'#111' }}>{hero.category}</div>
+                <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:42, fontWeight:900, lineHeight:1.05, marginBottom:16 }}>{hero.title}</h1></a>
+                <p style={{ fontSize:17, lineHeight:1.75, color:'#444' }}>{hero.excerpt}</p>
+                <div style={{ marginTop:14, fontSize:12, color:'#888' }}>By {hero.author_name}</div>
+              </div>
+            )}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
+              {feat.map((a:any,i:number) => (
+                <div key={a.id} style={{ borderLeft:`3px solid ${[p,sec,'#111'][i]}`, paddingLeft:14 }}>
+                  <div style={{ fontSize:9, color:[p,sec,'#111'][i], fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:5 }}>{a.category}</div>
+                  <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:16, fontWeight:800, lineHeight:1.3, marginBottom:6 }}>{a.title}</h3></a>
+                  <p style={{ fontSize:12, color:'#555', lineHeight:1.6 }}>{a.excerpt?.slice(0,90)}…</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ background:'#f9fafb', padding:20, borderRadius:4 }}>
+              <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:'.08em', borderBottom:`2px solid ${p}`, paddingBottom:8, marginBottom:16 }}>More Stories</div>
+              {rest.slice(0,6).map((a:any) => (
+                <div key={a.id} style={{ marginBottom:14, paddingBottom:14, borderBottom:'1px solid #eee' }}>
+                  <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', marginBottom:3 }}>{a.category}</div>
+                  <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#fdf6e3', fontFamily:gf('serif'), color:'#3a2e1a' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .mv3-art{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#d4c9a8}
+      @media(max-width:768px){.mv3-art{grid-template-columns:1fr!important}}`}</style>
+      <header style={{ background:'#3a2e1a', color:'#fdf6e3', textAlign:'center', padding:'24px' }}>
+        <a href="/"><div style={{ fontSize:40, fontWeight:900, letterSpacing:'-1px', color:'#fdf6e3', fontFamily:gf('display') }}>{site.name}</div></a>
+        <div style={{ width:60, height:2, background:p, margin:'12px auto 8px' }}/>
+        <div style={{ fontSize:12, color:'#a89060', fontStyle:'italic' }}>{site.tagline}</div>
+      </header>
+      {hero && (
+        <div style={{ padding:'32px 24px', maxWidth:800, margin:'0 auto', borderBottom:'1px solid #d4c9a8' }}>
+          <div style={{ fontSize:9, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'.15em', marginBottom:10, textAlign:'center' }}>{hero.category}</div>
+          <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:44, fontWeight:900, lineHeight:1.08, textAlign:'center', marginBottom:16 }}>{hero.title}</h1></a>
+          <p style={{ fontSize:17, lineHeight:1.8, color:'#5a4a30', textAlign:'center' }}>{hero.excerpt}</p>
+        </div>
+      )}
+      <div className="mv3-art" style={{ maxWidth:1200, margin:'24px auto' }}>
+        {rest.map((a:any,i:number) => (
+          <div key={a.id} style={{ background:'#fdf6e3', padding:20 }}>
+            <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
+            <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:i%3===0?20:15, fontWeight:800, lineHeight:1.3, marginBottom:8 }}>{a.title}</h3></a>
+            {i%3===0&&<p style={{ fontSize:12, color:'#5a4a30', lineHeight:1.6 }}>{a.excerpt?.slice(0,110)}…</p>}
+            <div style={{ fontSize:10, color:'#a89060', marginTop:8, fontStyle:'italic' }}>by {a.author_name}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // Variant 1 — glossy
   return (
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .mf{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-      .mr{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-      @media(max-width:768px){.mf,.mr{grid-template-columns:1fr!important}}`}</style>
+      .mv1-f{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+      .mv1-r{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+      @media(max-width:768px){.mv1-f,.mv1-r{grid-template-columns:1fr!important}}`}</style>
       <header style={{ padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:`3px solid ${p}` }}>
         <a href="/"><div style={{ fontSize:30, fontWeight:900, letterSpacing:'-1px', fontFamily:gf('display') }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:16 }}>{['Features','Finance','Markets','Life'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#555', fontSize:13, fontWeight:600 }}>{c}</a>)}</div>
@@ -259,54 +601,114 @@ function Magazine({ site, articles, p, font, slug }: any) {
       {hero && (
         <div style={{ background:`linear-gradient(to right, #0f172a 55%, ${p}cc)`, color:'#fff', padding:'72px 24px' }}>
           <div style={{ maxWidth:760 }}>
-            <span style={{ background:'rgba(255,255,255,.2)', color:'#fff', fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, textTransform:'uppercase', letterSpacing:'0.1em' }}>{hero.category}</span>
+            <span style={{ background:'rgba(255,255,255,.2)', color:'#fff', fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, textTransform:'uppercase', letterSpacing:'.1em' }}>{hero.category}</span>
             <a href={`/article/${slug}/${hero.slug}`}><h1 style={{ fontSize:54, fontWeight:900, lineHeight:1.04, margin:'16px 0 18px', fontFamily:gf('display') }}>{hero.title}</h1></a>
             <p style={{ fontSize:18, lineHeight:1.7, opacity:.85 }}>{hero.excerpt}</p>
-            <div style={{ marginTop:20, fontSize:13, opacity:.6 }}>By {hero.author_name}</div>
           </div>
         </div>
       )}
       <div style={{ maxWidth:1200, margin:'36px auto', padding:'0 24px' }}>
-        <div className="mf" style={{ marginBottom:36 }}>
-          {feat.map((a: any, i: number) => (
-            <div key={a.id} style={{ borderTop:`4px solid ${[p,'#f59e0b','#10b981'][i]}`, paddingTop:14 }}>
-              <div style={{ fontSize:10, color:[p,'#f59e0b','#10b981'][i], fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>{a.category}</div>
+        <div className="mv1-f" style={{ marginBottom:36 }}>
+          {feat.map((a:any,i:number) => (
+            <div key={a.id} style={{ borderTop:`4px solid ${[p,sec,'#111'][i]}`, paddingTop:14 }}>
+              <div style={{ fontSize:10, color:[p,sec,'#111'][i], fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
               <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:19, fontWeight:800, lineHeight:1.3, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h3></a>
               <p style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{a.excerpt?.slice(0,120)}…</p>
             </div>
           ))}
         </div>
         <div style={{ height:1, background:'#e5e7eb', marginBottom:28 }} />
-        <div className="mr">
-          {rest.map((a: any) => (
+        <div className="mv1-r">
+          {rest.map((a:any) => (
             <div key={a.id}>
-              <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:5 }}>{a.category}</div>
+              <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:5 }}>{a.category}</div>
               <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:14, fontWeight:700, lineHeight:1.4, color:'#111' }}>{a.title}</div></a>
               <div style={{ fontSize:11, color:'#999', marginTop:5 }}>{a.author_name}</div>
             </div>
           ))}
         </div>
       </div>
-      <footer style={{ background:'#0f172a', color:'#94a3b8', padding:'20px 24px', textAlign:'center', fontSize:12, marginTop:36 }}>
-        {site.name} © {new Date().getFullYear()}
-      </footer>
     </div>
   )
 }
 
-// ─── 6. MINIMAL — Medium/Substack blog ───────────────────────────────────────
-function Minimal({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 6 — MINIMAL (3 variants: blog / newsletter / digest)
+// ═══════════════════════════════════════════════════════════════════════════
+function Minimal({ site, articles, p, font, slug, variant }: any) {
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .mv2-item{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid #f3f4f6;align-items:flex-start}
+      @media(max-width:768px){.mv2-item{flex-direction:column}}`}</style>
+      <div style={{ background:'#111', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:20, color:'#fff' }}>{site.name}</div></a>
+        <div style={{ fontSize:11, color:'#aaa', fontStyle:'italic' }}>{site.tagline}</div>
+      </div>
+      <div style={{ maxWidth:760, margin:'0 auto', padding:'0 24px' }}>
+        <div style={{ padding:'20px 0', borderBottom:'2px solid #111', display:'flex', gap:12, flexWrap:'wrap' }}>
+          {['All','Markets','Economy','AI','Opinion'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ fontSize:12, fontWeight:700, color:'#111', padding:'4px 12px', border:'1px solid #111', borderRadius:20 }}>{c}</a>)}
+        </div>
+        {articles.slice(0,14).map((a:any,i:number) => (
+          <div key={a.id} className="mv2-item">
+            <div style={{ width:44, height:44, borderRadius:4, background:`${p}18`, display:'flex', alignItems:'center', justifyContent:'center', color:p, fontWeight:900, fontSize:16, flexShrink:0 }}>{String(i+1).padStart(2,'0')}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:'flex', gap:8, marginBottom:6 }}>
+                <span style={{ background:`${p}15`, color:p, fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:10 }}>{a.category}</span>
+                <span style={{ fontSize:11, color:'#9ca3af' }}>{new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+              </div>
+              <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:18, fontWeight:800, lineHeight:1.3, marginBottom:6 }}>{a.title}</h3></a>
+              <p style={{ fontSize:13, color:'#555', lineHeight:1.65 }}>{a.excerpt?.slice(0,130)}…</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:font, color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .mv3-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin-bottom:12px;transition:box-shadow .15s}
+      .mv3-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}`}</style>
+      <div style={{ background:'#fff', borderBottom:'1px solid #e5e7eb', padding:'14px 24px', position:'sticky', top:0, zIndex:100 }}>
+        <div style={{ maxWidth:680, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <a href="/"><div style={{ fontWeight:800, fontSize:18 }}>{site.name}</div></a>
+          <div style={{ width:28, height:28, borderRadius:'50%', background:p, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:12 }}>{site.name[0]}</div>
+        </div>
+      </div>
+      <div style={{ maxWidth:680, margin:'24px auto', padding:'0 24px' }}>
+        {articles[0] && (
+          <div className="mv3-card" style={{ borderLeft:`4px solid ${p}`, marginBottom:20 }}>
+            <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:8 }}>Today's Lead</div>
+            <a href={`/article/${slug}/${articles[0].slug}`}><h2 style={{ fontSize:24, fontWeight:900, lineHeight:1.2, marginBottom:10 }}>{articles[0].title}</h2></a>
+            <p style={{ fontSize:14, color:'#555', lineHeight:1.7 }}>{articles[0].excerpt}</p>
+          </div>
+        )}
+        {articles.slice(1,14).map((a:any) => (
+          <div key={a.id} className="mv3-card">
+            <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+              <span style={{ background:`${p}12`, color:p, fontSize:10, fontWeight:600, padding:'2px 8px', borderRadius:4 }}>{a.category}</span>
+              <span style={{ fontSize:11, color:'#9ca3af' }}>{new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+            </div>
+            <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:16, fontWeight:700, lineHeight:1.35, color:'#111', marginBottom:6 }}>{a.title}</div></a>
+            <div style={{ fontSize:12, color:'#6b7280', lineHeight:1.6 }}>{a.excerpt?.slice(0,110)}…</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  // Variant 1 — Medium/Substack
   return (
     <div style={{ minHeight:'100vh', background:'#fffef9', fontFamily:font, color:'#1a1a1a' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .mi{padding:28px 0;border-bottom:1px solid #f0ede8}.mi h2:hover{color:${p}}`}</style>
+      .mv1-i{padding:28px 0;border-bottom:1px solid #f0ede8}`}</style>
       <div style={{ maxWidth:680, margin:'0 auto', padding:'0 24px' }}>
         <header style={{ padding:'30px 0 20px', borderBottom:'1px solid #f0ede8' }}>
-          <a href="/"><div style={{ fontSize:22, fontWeight:800, letterSpacing:'-0.5px' }}>{site.name}</div></a>
-          <div style={{ fontSize:14, color:'#888', marginTop:3 }}>{site.tagline || 'Thoughtful analysis for serious investors'}</div>
+          <a href="/"><div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.5px' }}>{site.name}</div></a>
+          <div style={{ fontSize:14, color:'#888', marginTop:3 }}>{site.tagline}</div>
         </header>
-        {articles.slice(0,14).map((a: any) => (
-          <div key={a.id} className="mi">
+        {articles.slice(0,14).map((a:any) => (
+          <div key={a.id} className="mv1-i">
             <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:10 }}>
               <div style={{ width:28, height:28, borderRadius:'50%', background:p, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11, fontWeight:700, flexShrink:0 }}>{(a.author_name||'A').charAt(0)}</div>
               <div>
@@ -314,7 +716,7 @@ function Minimal({ site, articles, p, font, slug }: any) {
                 <div style={{ fontSize:11, color:'#999' }}>{new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
               </div>
             </div>
-            <a href={`/article/${slug}/${a.slug}`}><h2 style={{ fontSize:21, fontWeight:800, lineHeight:1.3, marginBottom:8, transition:'color .15s' }}>{a.title}</h2></a>
+            <a href={`/article/${slug}/${a.slug}`}><h2 style={{ fontSize:21, fontWeight:800, lineHeight:1.3, marginBottom:8 }}>{a.title}</h2></a>
             <p style={{ fontSize:14, color:'#555', lineHeight:1.7, marginBottom:10 }}>{a.excerpt?.slice(0,150)}…</p>
             <div style={{ display:'flex', gap:10, alignItems:'center', fontSize:11, color:'#999' }}>
               <span style={{ background:`${p}15`, color:p, padding:'2px 8px', borderRadius:10, fontWeight:600 }}>{a.category}</span>
@@ -327,78 +729,82 @@ function Minimal({ site, articles, p, font, slug }: any) {
   )
 }
 
-// ─── 7. NEWSPAPER — broadsheet 3-col ─────────────────────────────────────────
-function Newspaper({ site, articles, p, font, slug }: any) {
-  const cols = [articles.slice(0,3), articles.slice(3,6), articles.slice(6,9)]
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 7 — NEWSPAPER (variants handled inline)
+// ═══════════════════════════════════════════════════════════════════════════
+function Newspaper({ site, articles, p, font, slug, variant }: any) {
+  const cols = [articles.slice(0,4), articles.slice(4,7), articles.slice(7,10)]
   return (
-    <div style={{ minHeight:'100vh', background:'#f7f3e9', fontFamily:gf('serif'), color:'#1a1a1a' }}>
+    <div style={{ minHeight:'100vh', background: variant===2?'#fff':variant===3?'#1a1410':'#f7f3e9', fontFamily:gf('serif'), color:variant===3?'#e8dcc8':'#1a1a1a' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .nc{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0}
-      .nd{background:#bbb}
-      @media(max-width:768px){.nc{grid-template-columns:1fr!important}.nd{display:none!important}}`}</style>
-      <header style={{ borderBottom:'3px double #333', textAlign:'center', padding:'16px 24px 10px' }}>
-        <a href="/"><div style={{ fontSize:52, fontWeight:900, fontFamily:gf('display'), letterSpacing:'-3px', lineHeight:1 }}>{site.name}</div></a>
-        <div style={{ borderTop:'1px solid #999', borderBottom:'1px solid #999', padding:'4px 0', margin:'8px 0', fontSize:11, color:'#666', display:'flex', justifyContent:'space-between' }}>
-          <span>Est. {new Date().getFullYear()}</span>
-          <span style={{ textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:700 }}>{site.tagline || 'Independent Financial Reporting'}</span>
+      .np-g{display:grid;grid-template-columns:${variant===2?'1fr 2px 1fr 2px 1fr':'1fr 1px 2fr 1px 1fr'};gap:0}
+      .np-d{background:${variant===3?'#3a2e1a':'#bbb'}}
+      .np-col{padding:0 20px}
+      @media(max-width:768px){.np-g{grid-template-columns:1fr!important}.np-d{display:none!important}}`}</style>
+      <header style={{ borderBottom:`3px ${variant===2?'solid':'double'} ${variant===3?'#e8dcc8':'#333'}`, textAlign:'center', padding:`${variant===2?'12px':'18px'} 24px ${variant===2?'8px':'12px'}` }}>
+        <a href="/"><div style={{ fontSize:variant===2?36:52, fontWeight:900, fontFamily:gf('display'), letterSpacing:'-2px', lineHeight:1, color:variant===3?'#e8dcc8':'inherit' }}>{site.name}</div></a>
+        <div style={{ borderTop:`1px solid ${variant===3?'#3a2e1a':'#999'}`, borderBottom:`1px solid ${variant===3?'#3a2e1a':'#999'}`, padding:'4px 0', margin:'8px 0', fontSize:11, color:variant===3?'#a08060':'#666', display:'flex', justifyContent:'space-between' }}>
+          <span>{variant===2?'Independent Journalism':variant===3?'Evening Edition':'Est. '+new Date().getFullYear()}</span>
+          <span style={{ fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em' }}>{site.tagline||'Financial Reporting'}</span>
           <span>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</span>
         </div>
       </header>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'20px 24px' }}>
-        <div className="nc">
-          {cols.map((colArts, ci) => (
-            <>
-              {ci > 0 && <div key={`d${ci}`} className="nd" />}
-              <div key={ci} style={{ padding:'0 20px' }}>
-                {colArts.map((a: any, ai: number) => (
-                  <div key={a.id} style={{ paddingBottom:16, marginBottom:16, borderBottom:ai<2?'1px solid #ccc':'none' }}>
-                    {ai===0&&ci===0&&<div style={{ fontSize:10, fontWeight:700, color:p, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>LEAD STORY</div>}
-                    <a href={`/article/${slug}/${a.slug}`}><h2 style={{ fontSize:ai===0&&ci===0?24:17, fontWeight:800, lineHeight:1.25, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h2></a>
-                    {(ai===0||ci===0)&&<p style={{ fontSize:13, lineHeight:1.65, color:'#444' }}>{a.excerpt?.slice(0,ai===0?190:110)}…</p>}
-                    <div style={{ fontSize:11, color:'#888', marginTop:6, fontStyle:'italic' }}>By {a.author_name}</div>
+        <div className="np-g">
+          {cols.map((colArts:any[],ci:number) => (
+            <React.Fragment key={ci}>
+              {ci>0&&<div className="np-d"/>}
+              <div className="np-col">
+                {colArts.map((a:any,ai:number) => (
+                  <div key={a.id} style={{ paddingBottom:16, marginBottom:16, borderBottom:ai<colArts.length-1?`1px solid ${variant===3?'#3a2e1a':'#ccc'}`:'none' }}>
+                    {ai===0&&ci===0&&<div style={{ fontSize:10, fontWeight:700, color:p, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>LEAD</div>}
+                    <a href={`/article/${slug}/${a.slug}`}><h2 style={{ fontSize:ai===0&&ci===0?22:16, fontWeight:800, lineHeight:1.25, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h2></a>
+                    {(ai===0||ci===1)&&<p style={{ fontSize:12, lineHeight:1.65, color:variant===3?'#c0a878':'#444' }}>{a.excerpt?.slice(0,ai===0?180:110)}…</p>}
+                    <div style={{ fontSize:10, color:variant===3?'#806040':'#888', marginTop:6, fontStyle:'italic' }}>By {a.author_name}</div>
                   </div>
                 ))}
               </div>
-            </>
+            </React.Fragment>
           ))}
         </div>
       </div>
-      <footer style={{ borderTop:'2px solid #999', marginTop:28, padding:'12px 24px', textAlign:'center', fontSize:11, color:'#666' }}>{site.name} · Daily Financial News · {new Date().getFullYear()}</footer>
     </div>
   )
 }
 
-// ─── 8. RESEARCH — academic/report ───────────────────────────────────────────
-function Research({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 8 — RESEARCH (3 variants)
+// ═══════════════════════════════════════════════════════════════════════════
+function Research({ site, articles, p, font, slug, variant }: any) {
   return (
-    <div style={{ minHeight:'100vh', background:'#f8f9fa', fontFamily:font, color:'#212529' }}>
+    <div style={{ minHeight:'100vh', background:variant===2?'#0f172a':variant===3?'#fefefe':'#f8f9fa', fontFamily:font, color:variant===2?'#e2e8f0':variant===3?'#1a1a1a':'#212529' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .ri{display:grid;grid-template-columns:72px 1fr;gap:18px;padding:18px 0;border-bottom:1px solid #dee2e6;align-items:start}
+      .ri{display:grid;grid-template-columns:${variant===3?'60px':'72px'} 1fr;gap:18px;padding:18px 0;border-bottom:1px solid ${variant===2?'#1e293b':variant===3?'#f0f0f0':'#dee2e6'};align-items:start}
       @media(max-width:768px){.ri{grid-template-columns:1fr}}`}</style>
-      <div style={{ background:'#fff', borderBottom:`4px solid ${p}`, boxShadow:'0 2px 8px rgba(0,0,0,.06)' }}>
+      <div style={{ background:variant===2?'#020617':p, borderBottom:`4px solid ${variant===2?p:'#111'}`, boxShadow:'0 2px 8px rgba(0,0,0,.1)' }}>
         <div style={{ maxWidth:1000, margin:'0 auto', padding:'18px 24px', display:'flex', alignItems:'center', gap:14 }}>
-          <div style={{ background:p, color:'#fff', fontWeight:900, fontSize:18, padding:'7px 12px', borderRadius:4 }}>{site.name.substring(0,2).toUpperCase()}</div>
+          <div style={{ background:variant===2?p:'#fff', color:variant===2?'#fff':p, fontWeight:900, fontSize:18, padding:'7px 12px', borderRadius:4 }}>{site.name.substring(0,2).toUpperCase()}</div>
           <div>
-            <a href="/"><div style={{ fontWeight:800, fontSize:19 }}>{site.name} Research</div></a>
-            <div style={{ fontSize:12, color:'#6c757d' }}>{site.description||'Independent Financial Research & Analysis'}</div>
+            <a href="/"><div style={{ fontWeight:800, fontSize:19, color:variant===2?'#f1f5f9':'#fff' }}>{site.name} Research</div></a>
+            <div style={{ fontSize:12, color:variant===2?'#475569':'rgba(255,255,255,.7)' }}>{site.description||'Independent Financial Research'}</div>
           </div>
         </div>
       </div>
       <div style={{ maxWidth:1000, margin:'28px auto', padding:'0 24px' }}>
-        <div style={{ background:'#fff', border:'1px solid #dee2e6', borderLeft:`4px solid ${p}`, padding:'14px 18px', marginBottom:28, borderRadius:'0 4px 4px 0' }}>
-          <div style={{ fontSize:10, fontWeight:700, color:p, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:3 }}>Research Brief</div>
-          <div style={{ fontSize:14, color:'#495057', lineHeight:1.6 }}>{articles[0]?.excerpt||'Latest research and analysis across global financial markets.'}</div>
+        <div style={{ background:variant===2?'#1e293b':variant===3?'#f9f9f9':'#fff', border:`1px solid ${variant===2?'#334155':variant===3?'#eee':'#dee2e6'}`, borderLeft:`4px solid ${p}`, padding:'14px 18px', marginBottom:28, borderRadius:'0 4px 4px 0' }}>
+          <div style={{ fontSize:10, fontWeight:700, color:p, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:3 }}>Research Brief</div>
+          <div style={{ fontSize:14, color:variant===2?'#94a3b8':variant===3?'#333':'#495057', lineHeight:1.6 }}>{articles[0]?.excerpt||'Latest financial research and market analysis.'}</div>
         </div>
-        {articles.slice(0,15).map((a: any, i: number) => (
+        {articles.slice(0,15).map((a:any,i:number) => (
           <div key={a.id} className="ri">
-            <div style={{ textAlign:'center', padding:'8px', background:`${p}10`, borderRadius:4 }}>
+            <div style={{ textAlign:'center', padding:'8px', background:variant===2?`${p}20`:`${p}10`, borderRadius:4 }}>
               <div style={{ fontSize:17, fontWeight:900, color:p }}>{String(i+1).padStart(2,'0')}</div>
-              <div style={{ fontSize:9, color:'#6c757d', textTransform:'uppercase', marginTop:2 }}>{a.category?.slice(0,6)}</div>
+              <div style={{ fontSize:9, color:variant===2?'#475569':'#6c757d', textTransform:'uppercase', marginTop:2 }}>{a.category?.slice(0,5)}</div>
             </div>
             <div>
-              <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:15, fontWeight:700, lineHeight:1.4, color:'#212529', marginBottom:5 }}>{a.title}</h3></a>
-              <p style={{ fontSize:12, color:'#6c757d', lineHeight:1.6, marginBottom:6 }}>{a.excerpt?.slice(0,130)}…</p>
-              <div style={{ fontSize:10, color:'#adb5bd' }}>{a.author_name} · {new Date(a.published_at).toLocaleDateString('en-GB')} · {a.read_time_minutes||4} min</div>
+              <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:15, fontWeight:700, lineHeight:1.4, marginBottom:5 }}>{a.title}</h3></a>
+              <p style={{ fontSize:12, color:variant===2?'#64748b':'#6c757d', lineHeight:1.6, marginBottom:6 }}>{a.excerpt?.slice(0,130)}…</p>
+              <div style={{ fontSize:10, color:variant===2?'#334155':'#adb5bd' }}>{a.author_name} · {new Date(a.published_at).toLocaleDateString('en-GB')}</div>
             </div>
           </div>
         ))}
@@ -407,36 +813,302 @@ function Research({ site, articles, p, font, slug }: any) {
   )
 }
 
-// ─── 9. GRID — Pinterest masonry ─────────────────────────────────────────────
-function Grid({ site, articles, p, font, slug }: any) {
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 9 — GRID (3 variants: masonry / square / bento)
+// ═══════════════════════════════════════════════════════════════════════════
+function Grid({ site, articles, p, font, slug, variant }: any) {
   const palette = ['#dbeafe','#dcfce7','#fef3c7','#fce7f3','#ede9fe','#ffedd5','#f0fdf4','#fef9c3']
+  if (variant === 2) return (
+    <div style={{ minHeight:'100vh', background:'#111', fontFamily:font }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .gv2-g{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:3px}
+      .gv2-c{overflow:hidden;position:relative;transition:transform .2s}
+      .gv2-c:hover{transform:scale(1.02)}
+      .gv2-c:nth-child(1){grid-column:span 2;grid-row:span 2}
+      .gv2-c:nth-child(5){grid-column:span 2}
+      @media(max-width:768px){.gv2-g{grid-template-columns:1fr;grid-auto-rows:auto!important}.gv2-c{grid-column:span 1!important;grid-row:span 1!important}}`}</style>
+      <div style={{ background:'#000', padding:'12px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p, letterSpacing:'-.5px' }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:8 }}>
+          {['All','Markets','Tech','Economy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ color:'#666', fontSize:12, fontWeight:600 }}>{c}</a>)}
+        </div>
+      </div>
+      <div className="gv2-g" style={{ maxWidth:1400, margin:'3px auto' }}>
+        {articles.slice(0,12).map((a:any,i:number) => (
+          <div key={a.id} className="gv2-c" style={{ background:i===0?p:i===1?'#1e293b':i===4?'#0f172a':`${palette[i%palette.length]}22` }}>
+            <a href={`/article/${slug}/${a.slug}`} style={{ display:'block', height:'100%', padding:20, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+              <div style={{ fontSize:9, fontWeight:700, color:i<=1||i===4?'rgba(255,255,255,.6)':'#64748b', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
+              <div style={{ fontSize:i===0?22:i<=1?15:13, fontWeight:800, lineHeight:1.35, color:i<=1||i===4?'#fff':'#1e293b' }}>{a.title}</div>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  if (variant === 3) return (
+    <div style={{ minHeight:'100vh', background:'#f8fafc', fontFamily:font }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .gv3-b{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .gv3-c{border-radius:16px;padding:24px;transition:transform .15s}
+      .gv3-c:hover{transform:translateY(-3px)}
+      @media(max-width:768px){.gv3-b{grid-template-columns:1fr!important}}`}</style>
+      <header style={{ background:'#fff', padding:'16px 24px', borderBottom:'1px solid #e2e8f0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:6 }}>
+          {['All','Markets','Tech','Economy','Opinion'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 14px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
+        </div>
+      </header>
+      <div style={{ maxWidth:1200, margin:'24px auto', padding:'0 24px' }}>
+        <div className="gv3-b">
+          {articles.slice(0,12).map((a:any,i:number) => {
+            const colors = [p,'#0f172a','#1d4ed8','#7c3aed','#b45309','#0e7490']
+            const bg = i<6 ? colors[i] : palette[(i-6)%palette.length]
+            const light = i<6
+            return (
+              <div key={a.id} className="gv3-c" style={{ background:bg, gridColumn:i===0?'span 2':'span 1' }}>
+                <div style={{ fontSize:9, fontWeight:700, color:light?'rgba(255,255,255,.6)':'#64748b', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:8 }}>{a.category}</div>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:i===0?22:15, fontWeight:800, lineHeight:1.35, color:light?'#fff':'#1e293b', marginBottom:8 }}>{a.title}</div></a>
+                {(i===0||i===1)&&<div style={{ fontSize:12, color:light?'rgba(255,255,255,.75)':'#475569', lineHeight:1.6 }}>{a.excerpt?.slice(0,100)}…</div>}
+                <div style={{ fontSize:11, color:light?'rgba(255,255,255,.5)':'#94a3b8', marginTop:10 }}>{a.author_name}</div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+  // Variant 1 — masonry
   return (
     <div style={{ minHeight:'100vh', background:'#f1f5f9', fontFamily:font }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .gm{columns:3 290px;column-gap:14px}
-      .gc{break-inside:avoid;margin-bottom:14px;border-radius:12px;overflow:hidden;transition:transform .15s;display:block}
-      .gc:hover{transform:translateY(-3px)}
-      @media(max-width:768px){.gm{columns:1}}`}</style>
+      .gv1-m{columns:3 290px;column-gap:14px}
+      .gv1-c{break-inside:avoid;margin-bottom:14px;border-radius:12px;overflow:hidden;transition:transform .15s;display:block}
+      .gv1-c:hover{transform:translateY(-3px)}
+      @media(max-width:768px){.gv1-m{columns:1}}`}</style>
       <header style={{ background:'#fff', padding:'14px 24px', boxShadow:'0 1px 3px rgba(0,0,0,.1)', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:100 }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:6 }}>
-          {['All','Markets','Tech','Economy'].map(c=>(
-            <a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>
-          ))}
+          {['All','Markets','Tech','Economy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
         </div>
       </header>
       <div style={{ maxWidth:1400, margin:'20px auto', padding:'0 20px' }}>
-        <div className="gm">
-          {articles.slice(0,15).map((a: any, i: number) => (
-            <a key={a.id} className="gc" href={`/article/${slug}/${a.slug}`} style={{ background:i===0?p:palette[i%palette.length] }}>
+        <div className="gv1-m">
+          {articles.slice(0,15).map((a:any,i:number) => (
+            <a key={a.id} className="gv1-c" href={`/article/${slug}/${a.slug}`} style={{ background:i===0?p:palette[i%palette.length] }}>
               <div style={{ padding:18 }}>
-                <div style={{ fontSize:9, fontWeight:700, color:i===0?'rgba(255,255,255,.7)':'#94a3b8', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>{a.category}</div>
+                <div style={{ fontSize:9, fontWeight:700, color:i===0?'rgba(255,255,255,.7)':'#94a3b8', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
                 <div style={{ fontSize:i===0?20:14, fontWeight:800, lineHeight:1.35, color:i===0?'#fff':'#1e293b', marginBottom:6 }}>{a.title}</div>
                 {(i===0||i%5===0)&&<div style={{ fontSize:12, lineHeight:1.6, color:i===0?'rgba(255,255,255,.8)':'#475569' }}>{a.excerpt?.slice(0,100)}…</div>}
                 <div style={{ fontSize:10, color:i===0?'rgba(255,255,255,.55)':'#94a3b8', marginTop:8 }}>{a.author_name}</div>
               </div>
             </a>
           ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 10 — BRUTALIST (bold, raw, high contrast)
+// ═══════════════════════════════════════════════════════════════════════════
+function Brutalist({ site, articles, p, font, slug, variant }: any) {
+  return (
+    <div style={{ minHeight:'100vh', background: variant===2?'#ffff00':variant===3?'#ff3c00':'#fff', fontFamily:gf('condensed'), color: variant===2||variant===3?'#000':'#000' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .br-item{border-bottom:3px solid #000;padding:14px 0;display:grid;grid-template-columns:80px 1fr;gap:16px}
+      .br-item:hover{background:${variant===2?'#000':variant===3?'#000':'#f5f5f5'};color:${variant===2||variant===3?'#fff':'#000'}}
+      @media(max-width:768px){.br-item{grid-template-columns:1fr!important}}`}</style>
+      <div style={{ background:'#000', borderBottom:'5px solid #000', padding:'16px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:28, color: variant===2?'#ffff00':variant===3?'#ff3c00':'#fff', letterSpacing:'.05em', textTransform:'uppercase' }}>{site.name}</div></a>
+        <div style={{ border:`2px solid ${variant===2?'#ffff00':variant===3?'#ff3c00':'#fff'}`, color:variant===2?'#ffff00':variant===3?'#ff3c00':'#fff', fontSize:11, fontWeight:800, padding:'4px 10px', textTransform:'uppercase' }}>{site.category}</div>
+      </div>
+      <div style={{ maxWidth:1100, margin:'0 auto', padding:'0 24px 32px' }}>
+        {articles[0] && (
+          <div style={{ borderBottom:'5px solid #000', padding:'24px 0', marginBottom:0 }}>
+            <div style={{ fontSize:9, fontWeight:800, color:'#000', textTransform:'uppercase', letterSpacing:'.15em', marginBottom:8, background: variant===2?'#ffff00':variant===3?'#ff3c00':p, display:'inline-block', padding:'2px 8px' }}>{articles[0].category}</div>
+            <a href={`/article/${slug}/${articles[0].slug}`}><h1 style={{ fontSize:48, fontWeight:900, lineHeight:1, textTransform:'uppercase', letterSpacing:'-.5px', marginBottom:12 }}>{articles[0].title}</h1></a>
+            <p style={{ fontSize:16, lineHeight:1.6, maxWidth:700 }}>{articles[0].excerpt}</p>
+          </div>
+        )}
+        {articles.slice(1,16).map((a:any,i:number) => (
+          <div key={a.id} className="br-item">
+            <div style={{ fontWeight:900, fontSize:32, lineHeight:1, paddingTop:4, color: variant===2?'#000':variant===3?'#000':p }}>#{String(i+1).padStart(2,'0')}</div>
+            <div>
+              <div style={{ fontSize:9, fontWeight:800, textTransform:'uppercase', letterSpacing:'.15em', marginBottom:4 }}>[{a.category}]</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:i<3?18:14, fontWeight:700, lineHeight:1.3, textTransform:'uppercase' }}>{a.title}</div></a>
+              {i<2&&<div style={{ fontSize:12, lineHeight:1.5, marginTop:4, opacity:.8 }}>{a.excerpt?.slice(0,100)}…</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 11 — DARK EDITORIAL (financial paper, dark premium)
+// ═══════════════════════════════════════════════════════════════════════════
+function DarkEditorial({ site, articles, p, font, slug, variant }: any) {
+  return (
+    <div style={{ minHeight:'100vh', background:'#0d0d0d', fontFamily:gf('display'), color:'#e8e0d0' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .de-g{display:grid;grid-template-columns:${variant===2?'1fr 1fr':'2fr 1fr'};gap:2px;background:#222}
+      .de-c{background:#111;padding:24px}
+      @media(max-width:768px){.de-g{grid-template-columns:1fr!important}}`}</style>
+      <div style={{ background:'#000', borderBottom:`3px solid ${p}` }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <a href="/"><div style={{ fontWeight:900, fontSize:26, color:'#e8e0d0', letterSpacing:'-.5px' }}>{site.name}</div></a>
+          <div style={{ display:'flex', gap:20 }}>
+            {['Analysis','Markets','Opinion','Global'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#666', fontSize:12, fontWeight:600 }}>{c}</a>)}
+          </div>
+        </div>
+      </div>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        {articles[0] && (
+          <div style={{ background:'#0a0a0a', padding:'40px 24px', borderBottom:'1px solid #222' }}>
+            <div style={{ maxWidth:800 }}>
+              <span style={{ background:p, color:'#fff', fontSize:9, fontWeight:800, padding:'3px 8px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{articles[0].category}</span>
+              <a href={`/article/${slug}/${articles[0].slug}`}><h1 style={{ fontSize:44, fontWeight:900, color:'#e8e0d0', lineHeight:1.1, margin:'16px 0 14px' }}>{articles[0].title}</h1></a>
+              <p style={{ fontSize:17, color:'#8a7a68', lineHeight:1.75 }}>{articles[0].excerpt}</p>
+              <div style={{ marginTop:14, fontSize:12, color:'#555' }}>By {articles[0].author_name}</div>
+            </div>
+          </div>
+        )}
+        <div className="de-g">
+          <div style={{ background:'#111', padding:'24px' }}>
+            {articles.slice(1,7).map((a:any) => (
+              <div key={a.id} style={{ paddingBottom:20, marginBottom:20, borderBottom:'1px solid #1e1e1e' }}>
+                <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
+                <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:18, fontWeight:800, color:'#e8e0d0', lineHeight:1.3, marginBottom:6 }}>{a.title}</h3></a>
+                <p style={{ fontSize:13, color:'#6b5e4e', lineHeight:1.6 }}>{a.excerpt?.slice(0,110)}…</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ background:'#0d0d0d', padding:'24px', borderLeft:'1px solid #1e1e1e' }}>
+            <div style={{ fontSize:10, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'.08em', borderBottom:`1px solid ${p}`, paddingBottom:8, marginBottom:16 }}>Latest</div>
+            {articles.slice(7,14).map((a:any) => (
+              <div key={a.id} style={{ marginBottom:14, paddingBottom:14, borderBottom:'1px solid #1a1a1a' }}>
+                <div style={{ fontSize:9, color:'#555', marginBottom:3 }}>{a.category}</div>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, color:'#c8b898', lineHeight:1.4 }}>{a.title}</div></a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 12 — SPLIT (two-column feed, Bloomberg split)
+// ═══════════════════════════════════════════════════════════════════════════
+function Split({ site, articles, p, font, slug, variant }: any) {
+  return (
+    <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .sp-main{display:grid;grid-template-columns:${variant===3?'1fr 1fr 1fr':'1fr 1fr'};height:100vh;overflow:hidden}
+      .sp-col{overflow-y:auto;border-right:1px solid #e5e7eb}
+      .sp-item{padding:16px;border-bottom:1px solid #f3f4f6;transition:background .15s}
+      .sp-item:hover{background:#fafafa}
+      @media(max-width:768px){.sp-main{grid-template-columns:1fr!important;height:auto!important;overflow:visible!important}.sp-col{overflow-y:visible!important}}`}</style>
+      <div style={{ background:p, padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:100 }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:16, color:'#fff', letterSpacing:'.02em' }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:2 }}>
+          {['Markets','Tech','FX','Macro'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'rgba(255,255,255,.7)', fontSize:11, fontWeight:600, padding:'3px 8px' }}>{c}</a>)}
+        </div>
+      </div>
+      <div className="sp-main">
+        <div className="sp-col">
+          <div style={{ padding:'12px 16px', borderBottom:`2px solid ${p}`, fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'.08em', color:p }}>Top Stories</div>
+          {articles.slice(0,10).map((a:any,i:number) => (
+            <div key={a.id} className="sp-item">
+              <div style={{ fontSize:8, color:p, fontWeight:800, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4 }}>{a.category}</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:i<2?15:13, fontWeight:700, lineHeight:1.4, marginBottom:i<2?6:0 }}>{a.title}</div></a>
+              {i<2&&<div style={{ fontSize:12, color:'#6b7280', lineHeight:1.5, marginTop:4 }}>{a.excerpt?.slice(0,100)}…</div>}
+              <div style={{ fontSize:10, color:'#9ca3af', marginTop:4 }}>{a.author_name} · {new Date(a.published_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          ))}
+        </div>
+        <div className="sp-col">
+          <div style={{ padding:'12px 16px', borderBottom:`2px solid #e5e7eb`, fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'.08em', color:'#6b7280' }}>Latest</div>
+          {articles.slice(10,20).map((a:any) => (
+            <div key={a.id} className="sp-item">
+              <div style={{ fontSize:8, color:'#9ca3af', fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:4 }}>{a.category}</div>
+              <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:600, lineHeight:1.4 }}>{a.title}</div></a>
+              <div style={{ fontSize:10, color:'#9ca3af', marginTop:4 }}>{new Date(a.published_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          ))}
+        </div>
+        {variant===3&&(
+          <div className="sp-col">
+            <div style={{ padding:'12px 16px', borderBottom:`2px solid #e5e7eb`, fontWeight:800, fontSize:11, textTransform:'uppercase', letterSpacing:'.08em', color:'#6b7280' }}>Trending</div>
+            {articles.slice(0,8).map((a:any,i:number) => (
+              <div key={a.id} className="sp-item">
+                <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                  <div style={{ fontSize:22, fontWeight:900, color:`${p}40`, lineHeight:1, minWidth:28 }}>{i+1}</div>
+                  <div>
+                    <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, lineHeight:1.4 }}>{a.title}</div></a>
+                    <div style={{ fontSize:10, color:'#9ca3af', marginTop:3 }}>{a.author_name}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ARCHETYPE 13 — FEED (Reddit/HN community style)
+// ═══════════════════════════════════════════════════════════════════════════
+function Feed({ site, articles, p, font, slug, variant }: any) {
+  return (
+    <div style={{ minHeight:'100vh', background:variant===2?'#dae0e6':variant===3?'#f6f0e4':'#dae0e6', fontFamily:font }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .fd-card{background:#fff;border-radius:4px;padding:12px 16px;marginBottom:8px;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s;border:1px solid #ccc}
+      .fd-card:hover{border-color:${p}}
+      @media(max-width:768px){.fd-side{display:none!important}}`}</style>
+      <div style={{ background:p, padding:'10px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#fff' }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:12 }}>{['Hot','New','Top','Rising'].map(c=><a key={c} href={`/?sort=${c}`} style={{ color:'rgba(255,255,255,.8)', fontSize:12, fontWeight:700 }}>{c}</a>)}</div>
+      </div>
+      <div style={{ maxWidth:1100, margin:'16px auto', padding:'0 24px', display:'flex', gap:24 }}>
+        <div style={{ flex:1 }}>
+          {articles.slice(0,20).map((a:any,i:number) => (
+            <div key={a.id} className="fd-card" style={{ marginBottom:8 }}>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, minWidth:32, color:'#878a8c', paddingTop:4 }}>
+                <div style={{ fontSize:16 }}>▲</div>
+                <div style={{ fontSize:11, fontWeight:700, color:p }}>{Math.floor(Math.random()*1000)+50}</div>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:4 }}>
+                  <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:p, padding:'1px 6px', borderRadius:2, textTransform:'uppercase' }}>{a.category}</span>
+                  <span style={{ fontSize:11, color:'#878a8c' }}>Posted by {a.author_name}</span>
+                </div>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:i<3?17:14, fontWeight:700, lineHeight:1.4, color:'#222', marginBottom:4 }}>{a.title}</div></a>
+                {i<3&&<div style={{ fontSize:12, color:'#555', lineHeight:1.5 }}>{a.excerpt?.slice(0,120)}…</div>}
+                <div style={{ fontSize:11, color:'#878a8c', marginTop:6 }}>💬 {Math.floor(Math.random()*50)+5} comments · {new Date(a.published_at).toLocaleDateString()}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="fd-side" style={{ width:280, flexShrink:0 }}>
+          <div style={{ background:'#fff', border:'1px solid #ccc', borderRadius:4, padding:16, marginBottom:12 }}>
+            <div style={{ fontWeight:700, fontSize:14, marginBottom:8, color:p }}>About {site.name}</div>
+            <div style={{ fontSize:13, color:'#555', lineHeight:1.6 }}>{site.description||site.tagline}</div>
+          </div>
+          <div style={{ background:'#fff', border:'1px solid #ccc', borderRadius:4, padding:16 }}>
+            <div style={{ fontWeight:700, fontSize:12, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:10, borderBottom:`2px solid ${p}`, paddingBottom:6 }}>Trending</div>
+            {articles.slice(0,5).map((a:any,i:number) => (
+              <div key={a.id} style={{ display:'flex', gap:8, marginBottom:10 }}>
+                <span style={{ fontWeight:900, fontSize:20, color:`${p}50`, lineHeight:1 }}>{i+1}</span>
+                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:12, fontWeight:600, lineHeight:1.4 }}>{a.title}</div></a>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
