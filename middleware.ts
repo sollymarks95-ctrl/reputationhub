@@ -25,6 +25,11 @@ export default function middleware(request: NextRequest) {
 
   const portal = DOMAIN_MAP[host]
   if (!portal) {
+    // Main app domain — serve normally (portal dashboard, login, etc.)
+    const mainDomains = ['rephuby.com', 'www.rephuby.com', 'localhost', '127.0.0.1']
+    if (mainDomains.some(d => host.includes(d)) || host.endsWith('.vercel.app')) {
+      return NextResponse.next()
+    }
     // Unknown domain → try universal DB-driven site renderer
     // Any domain added to news_sites table will work instantly
     if (pathname === '/' || pathname === '') {
