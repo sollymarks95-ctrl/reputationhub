@@ -28,7 +28,7 @@ function CompanyLogo({ slug, name, size = 48, logoUrl }: any) {
     <div style={{ width:size, height:size, borderRadius:8, overflow:'hidden', border:'1px solid #eee', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
       <img src={src} alt={name}
         style={{ width:size-8, height:size-8, objectFit:'contain', display:'block' }}
-        onError={() => setErr(true)} />
+        referrerPolicy='no-referrer' crossOrigin='anonymous' onError={() => setErr(true)} />
     </div>
   ) : (
     <div style={{ width:size, height:size, borderRadius:8, background:GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.35 }}>
