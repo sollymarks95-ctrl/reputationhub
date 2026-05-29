@@ -44,7 +44,7 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
             {/* Logo — served via our proxy for reliability */}
             <div style={{ width:56, height:56, borderRadius:10, overflow:'hidden', border:'1px solid #E2E8F0', flexShrink:0, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
               {company.logo_url && !imgErr ? (
-                <img src={company.logo_url} alt={company.name}
+                <img src={company.logo_url} alt={company.name} referrerPolicy="no-referrer" crossOrigin="anonymous"
                   style={{ width:48, height:48, objectFit:'contain', display:'block' }}
                   onError={() => setImgErr(true)} />
               ) : (
