@@ -110,7 +110,13 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
                 {companyInfo?.is_verified && <span style={{ background:`${GREEN}15`, color:GREEN, fontSize:12, fontWeight:700, padding:'3px 10px', borderRadius:100, border:`1px solid ${GREEN}40` }}>✓ Verified</span>}
               </div>
               {companyInfo?.regulation && <div style={{ fontSize:13, color:'#888', marginBottom:8 }}>{companyInfo.regulation}</div>}
-              {companyInfo?.description && <div style={{ fontSize:14, color:'#555', lineHeight:1.6 }}>{companyInfo.description}</div>}
+              {companyInfo?.description && <div style={{ fontSize:14, color:'#555', lineHeight:1.6, marginBottom:8 }}>{companyInfo.description}</div>}
+              {companyInfo?.website && (
+                <a href={companyInfo.website} target="_blank" rel="noopener noreferrer"
+                  style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:13, color:'#0EA5E9', fontWeight:600, marginTop:4 }}>
+                  🌐 {companyInfo.website.replace('https://www.','').replace('https://','')} ↗
+                </a>
+              )}
             </div>
             <div style={{ textAlign:'center', background:`${GREEN}08`, border:`1px solid ${GREEN}30`, borderRadius:12, padding:'20px 28px', flexShrink:0 }}>
               <div style={{ fontSize:48, fontWeight:900, color:GREEN, lineHeight:1 }}>{avgRating > 0 ? avgRating.toFixed(1) : '—'}</div>
