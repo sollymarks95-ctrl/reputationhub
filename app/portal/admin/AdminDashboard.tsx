@@ -21,6 +21,7 @@ const PORTALS = [
 
 const NAV = [
   { icon:'🏠', label:'Overview',    id:'overview'  },
+  { icon:'⭐', label:'Reviews',     id:'reviews'   },
   { icon:'➕', label:'Onboard Client', id:'onboard' },
   { icon:'👥', label:'Clients',     id:'clients'   },
   { icon:'✍️', label:'Generate Content', id:'content' },

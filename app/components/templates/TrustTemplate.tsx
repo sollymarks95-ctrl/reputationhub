@@ -49,8 +49,6 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
                   src={company.logo_url}
                   alt={company.name}
                   width={48} height={48}
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
                   style={{ width:48, height:48, objectFit:'contain', display:'block', maxWidth:'100%' }}
                   onError={(e) => {
                     const t = e.currentTarget
