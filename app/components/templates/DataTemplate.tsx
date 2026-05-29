@@ -1,7 +1,6 @@
 'use client'
 import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
-import { useState } from 'react'
 
 function fmtDate(d: string) { return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) }
 
@@ -22,19 +21,32 @@ function timeAgo(d: string) {
   return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
 }
 
-const NAV_TABS = ['Overview','Prices','Analysis','Reports','Standards','Archive']
+const NAV_LINKS = [
+  { label:'Overview',         category:null },
+  { label:'Gold',             category:'Gold' },
+  { label:'Silver',           category:'Silver' },
+  { label:'Precious Metals',  category:'Precious Metals' },
+  { label:'Industrial Metals',category:'Industrial Metals' },
+  { label:'Energy',           category:'Energy Commodities' },
+  { label:'Markets',          category:'Markets' },
+  { label:'Commodities',      category:'Commodities' },
+]
 
-export default function DataTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor }: any) {
-  const [activeTab, setActiveTab] = useState('Overview')
+export default function DataTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor, searchParams }: any) {
+  const activeCategory = (searchParams as any)?.category || null
   const p = primaryColor || '#B08700'
   const isAurex = siteSlug === 'gold-markets-today'
   const siteName = site?.name || (isAurex ? 'AUREXHQ' : 'CERTIVADE')
   const domain = isAurex ? 'aurexhq.com' : 'certivade.com'
   const tagline = isAurex ? 'Precious Metals & Commodities Intelligence' : 'Trade Standards & Regulatory Intelligence'
 
-  const hero = articles[0]
-  const side = articles.slice(1, 7)
-  const table = articles.slice(7, 20)
+  // Filter articles by active category if set
+  const filtered = activeCategory
+    ? articles.filter((a: any) => a.category === activeCategory)
+    : articles
+  const hero = filtered[0]
+  const side = filtered.slice(1, 7)
+  const table = filtered.slice(7, 20)
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F8F6F0', color:'#2D2D2D', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
@@ -92,16 +104,31 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         </div>
       </div>
 
-      {/* Nav bar */}
-      <div style={{ background:'#fff', borderBottom:'1px solid #E5E0D5', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
-        <div style={{ maxWidth:1300, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', gap:0 }}>
-          {NAV_TABS.map(n => (
-            <button key={n} className={`nav-tab${activeTab===n?' active':''}`} onClick={() => setActiveTab(n)}>
-              {n}
-            </button>
-          ))}
+      {/* Nav bar — real category links */}
+      <div style={{ background:'#fff', borderBottom:'1px solid #E5E0D5', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.04)', overflowX:'auto' }}>
+        <div style={{ maxWidth:1300, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', gap:0, minWidth:'max-content' }}>
+          {NAV_LINKS.map(nav => {
+            const isActive = nav.category === activeCategory
+            const href = nav.category ? `/${routePrefix}/${siteSlug}?category=${encodeURIComponent(nav.category)}` : `/${routePrefix}/${siteSlug}`
+            return (
+              <Link key={nav.label} href={href} style={{
+                fontWeight: isActive ? 700 : 600,
+                fontSize: 12,
+                color: isActive ? p : '#666',
+                padding: '12px 16px',
+                borderBottom: `2px solid ${isActive ? p : 'transparent'}`,
+                whiteSpace: 'nowrap',
+                letterSpacing: '.03em',
+                textDecoration: 'none',
+                transition: 'color .15s, border-color .15s',
+                display: 'inline-block',
+              }}>
+                {nav.label}
+              </Link>
+            )
+          })}
           <div style={{ flex:1 }}/>
-          <div style={{ fontSize:11, color:'#888', borderLeft:'1px solid #E5E0D5', paddingLeft:16, marginLeft:8 }}>
+          <div style={{ fontSize:11, color:'#888', borderLeft:'1px solid #E5E0D5', paddingLeft:16, marginLeft:8, whiteSpace:'nowrap' }}>
             {articles.length} articles
           </div>
         </div>
