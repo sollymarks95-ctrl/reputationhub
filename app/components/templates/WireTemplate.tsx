@@ -201,6 +201,16 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
             </div>
           </div>
           <div style={{borderTop:'1px solid #222',paddingTop:16,fontFamily:'Inter,sans-serif',fontSize:11,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
+
+            {/* Cross-portal intelligence network */}
+            <div style={{borderTop:'1px solid #1e293b',paddingTop:16,marginTop:16}}>
+              <div style={{fontSize:10,fontWeight:700,color:'#666',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
+              <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+                {[['Finvexx','https://finvexx.com','Markets'],['Bizplexz','https://bizplexz.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
+                  <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#888',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
+                ))}
+              </div>
+            </div>
             <span>© {new Date().getFullYear()} {meta.domain} · All Rights Reserved</span>
             <span style={{color:'#444',maxWidth:560}}>Risk Warning: Financial markets carry substantial risk. Past performance does not guarantee future results. Always seek professional financial advice.</span>
           </div>
