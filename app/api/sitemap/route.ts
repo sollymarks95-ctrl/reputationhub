@@ -76,6 +76,14 @@ export async function GET(req: NextRequest) {
       urls.push(urlEntry(`${base}/faq/${c}`, today, '0.9', 'weekly'))
     }
 
+    // 3. VERIVEX: review pages per company (verivex.co/reviews/[slug])
+    if (siteSlug === 'trust-score') {
+      const REVIEW_COMPANIES = ['etoro','ic-markets','pepperstone','xm','ftmo','binance','coinbase','interactive-brokers','plus500','myforexfunds']
+      for (const cs of REVIEW_COMPANIES) {
+        urls.push(urlEntry(`${base}/reviews/${cs}`, today, '0.8', 'daily'))
+      }
+    }
+
     // 3. SEARCH PAGE
     urls.push(urlEntry(`${base}/search`, today, '0.5', 'monthly'))
 
