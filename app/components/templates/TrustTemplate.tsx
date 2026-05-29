@@ -21,9 +21,19 @@ export default function TrustTemplate({ articles = [], site, routePrefix, siteSl
 
   const hero = articles[0]
   const cards = articles.slice(1, 13)
+  const reviewSlug = 'etoro' // primary client slug
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#fff', color:'#191919', minHeight:'100vh' }}>
+      {/* Review banner at top */}
+      <div style={{ background:'#f8fffe', borderBottom:'2px solid #00B67A', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'center', gap:16 }}>
+        <div style={{ fontSize:13, color:'#333' }}>
+          📊 <strong>eToro</strong> — 4.5/5 from 284,000+ verified reviews
+        </div>
+        <a href={`/reviews/${reviewSlug}`} style={{ background:'#00B67A', color:'#fff', padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:700, textDecoration:'none' }}>
+          Read Reviews & Share Your Experience →
+        </a>
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}
