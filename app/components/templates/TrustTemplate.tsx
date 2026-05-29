@@ -178,7 +178,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
       {/* eToro top banner */}
       <div style={{ background:'linear-gradient(135deg,#004f35,#00B67A)', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
         <span style={{ fontSize:13, color:'#fff' }}>📊 <strong>eToro</strong> — 4.5★ · FCA / CySEC / ASIC Regulated · 284,000+ verified reviews</span>
-        <a href="/reviews/etoro" style={{ background:'#fff', color:GREEN, padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:800 }}>Read Reviews →</a>
+        <a href="/reviews" style={{ background:'#fff', color:GREEN, padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:800 }}>Read Reviews →</a>
       </div>
 
       {/* Header */}
@@ -193,8 +193,8 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             <input className="srch" placeholder="Search broker or platform..." value={search} onChange={e=>setSearch(e.target.value)} />
           </div>
           <div className="hide-m" style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <a href="/reviews/etoro" style={{ fontSize:13, color:'#475569', padding:'8px 14px', border:'1px solid #E2E8F0', borderRadius:8 }}>For Businesses</a>
-            <a href="/reviews/etoro" style={{ fontSize:13, fontWeight:700, color:'#fff', padding:'9px 18px', borderRadius:8, background:GREEN }}>✍️ Write a Review</a>
+            <a href="/reviews" style={{ fontSize:13, color:'#475569', padding:'8px 14px', border:'1px solid #E2E8F0', borderRadius:8 }}>For Businesses</a>
+            <a href="/reviews" style={{ fontSize:13, fontWeight:700, color:'#fff', padding:'9px 18px', borderRadius:8, background:GREEN }}>✍️ Write a Review</a>
           </div>
         </div>
         {/* Category tabs */}
@@ -217,7 +217,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
               <div style={{ fontSize:11, fontWeight:700, color:GREEN, letterSpacing:'.1em', textTransform:'uppercase', marginBottom:10 }}>Independent · Verified · Trusted</div>
               <h1 style={{ fontSize:36, fontWeight:900, lineHeight:1.1, marginBottom:12 }}>Find a Broker<br/>You Can Trust</h1>
               <p style={{ fontSize:15, color:'#94A3B8', maxWidth:420, lineHeight:1.7 }}>Real reviews from real traders. Every platform independently verified against FCA, CySEC and ASIC regulatory registers.</p>
-              <a href="/reviews/etoro" style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:20, background:GREEN, color:'#fff', padding:'12px 24px', borderRadius:8, fontWeight:700, fontSize:14 }}>
+              <a href="/reviews" style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:20, background:GREEN, color:'#fff', padding:'12px 24px', borderRadius:8, fontWeight:700, fontSize:14 }}>
                 Browse All Reviews
               </a>
             </div>
@@ -360,20 +360,14 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             <h2 style={{ fontSize:32, fontWeight:900, color:'#0F172A', lineHeight:1.15, marginBottom:14, letterSpacing:'-0.02em' }}>Help millions make the right choice</h2>
             <p style={{ fontSize:15, color:'#6B7280', lineHeight:1.7, marginBottom:28 }}>Share your experience on Verivex, where reviews make a real difference for traders worldwide.</p>
             <div style={{ display:'flex', alignItems:'center', gap:20, flexWrap:'wrap' }}>
-              <a href="/reviews/etoro" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0F172A', color:'#fff', padding:'13px 28px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
+              <a href="/reviews" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0F172A', color:'#fff', padding:'13px 28px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
                 Write a review
               </a>
               <div style={{ width:1, height:28, background:'#D1D5DB' }}/>
               <div style={{ display:'flex', gap:10 }}>
-                {[
-                  { label:'G', color:'#4285F4', bg:'#fff', border:'#E5E7EB' },
-                  { label:'f', color:'#1877F2', bg:'#1877F2', tc:'#fff', border:'#1877F2' },
-                  { label:'🍎', color:'#000', bg:'#fff', border:'#E5E7EB' },
-                ].map(s => (
-                  <div key={s.label} title="Sign in" style={{ width:40, height:40, borderRadius:'50%', background:(s as any).bg||'#fff', border:`1.5px solid ${(s as any).border||'#E5E7EB'}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:16, fontWeight:800, color:(s as any).tc||s.color }}>
-                    {s.label}
-                  </div>
-                ))}
+                <a href="/reviews/etoro#write-review" title="Sign in with Google" style={{ width:40, height:40, borderRadius:'50%', background:'#fff', border:'1.5px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:15, fontWeight:900, color:'#4285F4', textDecoration:'none' }}>G</a>
+                <a href="/reviews/etoro#write-review" title="Sign in with Facebook" style={{ width:40, height:40, borderRadius:'50%', background:'#1877F2', border:'1.5px solid #1877F2', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:15, fontWeight:900, color:'#fff', textDecoration:'none' }}>f</a>
+                <a href="/reviews/etoro#write-review" title="Sign in with Apple" style={{ width:40, height:40, borderRadius:'50%', background:'#fff', border:'1.5px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:18, textDecoration:'none' }}>🍎</a>
               </div>
             </div>
           </div>
