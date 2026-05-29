@@ -67,11 +67,92 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const { site: siteSlug, slug } = await params
   const site = await getNewsSite(siteSlug)
   if (!site) notFound()
+
+  const PORTAL_URLS: Record<string,{name:string,url:string}> = {
+    'global-trade-wire':  { name:'Nex-Wire',   url:'https://nex-wire.com' },
+    'finance-terminal':   { name:'Finvexx',     url:'https://finvexx.com' },
+    'business-pulse':     { name:'Bizplezx',    url:'https://bizplezx.com' },
+    'gold-markets-today': { name:'AurexHQ',     url:'https://rephuby.com/commodities/gold-markets-today' },
+    'trust-score':        { name:'Verivex',     url:'https://rephuby.com/reviews-hub/trust-score' },
+    'company-pedia':      { name:'Bizpedia',    url:'https://rephuby.com/wiki/company-pedia' },
+    'press-central':      { name:'PresxWire',   url:'https://rephuby.com/pressroom/press-central' },
+    'invest-data':        { name:'InvexHub',    url:'https://rephuby.com/investdb/invest-data' },
+    'trade-board':        { name:'Tradvex',     url:'https://rephuby.com/forum/trade-board' },
+    'global-trade-assoc': { name:'Certivade',   url:'https://rephuby.com/association/global-trade-assoc' },
+    'executive-network':  { name:'Execvex',     url:'https://rephuby.com/executive/executive-network' },
+    'market-radar':       { name:'Signalix',    url:'https://rephuby.com/market-radar/market-radar' },
+  }
+
   const [article, allArticles] = await Promise.all([
     getArticle(site.id, slug),
     getLatestArticles(site.id, 24)
   ])
   if (!article) notFound()
+
+  // Auto cross-portal: find articles on OTHER portals that share tags or mention same brands
+  const { createClient } = await import('@supabase/supabase-js')
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const tags = article.tags || []
+  const bodyLowerFull = (article.body||'').toLowerCase()
+
+  // Find cross-portal articles — same tags OR same brand mentions
+  let crossPortalArticles: any[] = []
+  if (tags.length > 0 || bodyLowerFull.includes('apex markets')) {
+    const { data: crossData } = await sb.from('news_articles')
+      .select('title, slug, news_site_id')
+      .neq('news_site_id', site.id)
+      .eq('status', 'published')
+      .overlaps('tags', tags.length > 0 ? tags : ['Apex Markets FX'])
+      .limit(6)
+    if (crossData && crossData.length > 0) {
+      crossPortalArticles = crossData.map((a: any) => {
+        const portalSlug = Object.keys(PORTAL_URLS).find(k => {
+          // match by news_site_id — we'd need to look it up, use slug from tags for now
+          return false
+        })
+        return { ...a, portalInfo: null }
+      })
+    }
+    // Fallback: search by brand mention
+    if (crossPortalArticles.length === 0 && bodyLowerFull.includes('apex markets')) {
+      const { data: brandData } = await sb.from('news_articles')
+        .select('title, slug, news_site_id')
+        .neq('news_site_id', site.id)
+        .ilike('body', '%Apex Markets FX%')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+        .limit(6)
+      crossPortalArticles = brandData || []
+    }
+  }
+
+  // Resolve portal info for cross-portal articles
+  const resolvedCrossPortal = crossPortalArticles.map((a: any) => {
+    const { createClient: _ } = require('@supabase/supabase-js')
+    // Match site ID to portal slug
+    const siteEntry = Object.entries({
+      '4d048bde-1dcd-4891-8434-a7960ab9d3ae': 'global-trade-wire',
+      '48bed332-6525-4d76-aaa5-6d10a5112d77': 'finance-terminal',
+      'c0f14745-8189-444d-af09-39d7248fa319': 'business-pulse',
+      '3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1': 'gold-markets-today',
+      '6ae7e692-bce9-489d-b835-87dcba9ffc47': 'trust-score',
+      'aa04790b-9aed-4fa9-867d-3481adc828c5': 'company-pedia',
+      '104ceccb-e3d0-4979-85be-b7297abb7f90': 'press-central',
+      '1cd6688f-bec9-4d1b-a024-80952bf31a21': 'invest-data',
+      'd020965e-d84d-4c9e-a068-d3b90f6902d0': 'trade-board',
+      '1972c09e-a68e-4997-b2a8-00756ead609c': 'global-trade-assoc',
+      '64a6087d-480f-4040-9df1-ad020faf5796': 'executive-network',
+      '27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22': 'market-radar',
+    }).find(([id]) => id === a.news_site_id)
+    if (!siteEntry) return null
+    const [,portalSlug] = siteEntry
+    const portalInfo = PORTAL_URLS[portalSlug]
+    if (!portalInfo) return null
+    return { title: a.title, url: `${portalInfo.url}/article/${portalSlug}/${a.slug}`, portal: portalInfo.name }
+  }).filter(Boolean)
 
   const p = site.primary_color || '#c0392b'
   const route = ROUTE_MAP[siteSlug] || 'news'
@@ -327,6 +408,21 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 </div>
               </div>
             </div>
+
+            {/* CROSS-PORTAL COVERAGE — auto-links to other portals covering same brand/topic */}
+            {resolvedCrossPortal.length > 0 && (
+              <div style={{ marginTop:24, background:'#fff', border:'1px solid #e5e7eb', borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', fontFamily:'sans-serif' }}>
+                <div style={{ fontSize:11, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>📡 Also Covered Across Our Network</div>
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  {resolvedCrossPortal.map((item: any, i: number) => (
+                    <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom: i < resolvedCrossPortal.length-1 ? '1px solid #f3f4f6' : 'none', textDecoration:'none' }}>
+                      <span style={{ fontSize:13, color:'#111', fontWeight:500, lineHeight:1.4, flex:1, marginRight:12 }}>{item.title}</span>
+                      <span style={{ fontSize:10, fontWeight:700, color:p, background:`${p}12`, padding:'3px 8px', borderRadius:3, whiteSpace:'nowrap', flexShrink:0 }}>{item.portal}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* MORE ARTICLES */}
             {related.length > 0 && (
