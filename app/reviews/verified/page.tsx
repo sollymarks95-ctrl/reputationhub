@@ -1,5 +1,6 @@
 'use client'
-import { useSearchParams, Suspense } from 'react'
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 function Content() {
   const p = useSearchParams()

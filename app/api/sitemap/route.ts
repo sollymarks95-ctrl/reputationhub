@@ -53,6 +53,9 @@ function newsEntry(loc: string, title: string, pubDate: string, pubName: string,
 }
 
 export async function GET(req: NextRequest) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return new Response('<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', { headers: { 'Content-Type': 'application/xml' } })
+  }
   const host = (req.headers.get('host') || '').replace(/:\d+$/,'').replace(/^www\./,'')
   const cfg = DOMAIN_MAP[host]
   const today = new Date().toISOString().split('T')[0]
