@@ -41,7 +41,13 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
 
   const page1 = rankings.filter((r: any) => r.current_position <= 10).length
   const totalViews = content.reduce((s: number, c: any) => s + (c.views || 0), 0)
+  const totalArticles = content.length
   const latestReport = reports[0]
+  const avgRating = reviews.length ? (reviews.reduce((s:number,r:any)=>s+r.rating,0)/reviews.length).toFixed(1) : '0'
+  const totalReviews = reviews.length
+  const positiveReviews = reviews.filter((r:any)=>r.rating>=4).length
+  const activeSites = coverage.filter((s:any)=>s.is_active).length
+  const suppressedNegatives = activity.filter((a:any)=>a.type==='suppression').length
 
   const isAdminUser = user?.role === 'superadmin' || user?.email === 'sollymarks95@gmail.com'
 
@@ -244,10 +250,10 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
               {/* KPI Row */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:24 }}>
                 {[
-                  { label:'Articles Published', value:content.length, sub:'Across 12 portals', icon:'📰', color:'#0EA5E9', change:'+47 this month' },
-                  { label:'Keywords on Page 1', value:page1, sub:`of ${rankings.length} tracked`, icon:'🎯', color:'#10B981', change:`+${page1-2} vs last month` },
-                  { label:'Total Content Views', value:totalViews.toLocaleString(), sub:'Organic reach', icon:'👁', color:'#F59E0B', change:'+284K this month' },
-                  { label:'Podcasts Published', value:podcasts.filter((p:any)=>p.status==='published').length, sub:'Episodes live', icon:'🎙', color:'#818CF8', change:`Ep${podcasts.filter((p:any)=>p.status!=='generating').length} latest` },
+                  { label:'Articles Published', value:content.length, sub:`Across ${activeSites} portals`, icon:'📰', color:'#0EA5E9', change:`${coverage.filter((s:any)=>s.is_active).length} sites active` },
+                  { label:'Keywords on Page 1', value:page1, sub:`of ${rankings.length} tracked`, icon:'🎯', color:'#10B981', change:`${rankings.filter((r:any)=>r.current_position===1).length} in #1 position` },
+                  { label:'Verivex Reviews', value:totalReviews, sub:`${avgRating}★ average rating`, icon:'⭐', color:'#F59E0B', change:`${positiveReviews} positive (${totalReviews ? Math.round(positiveReviews/totalReviews*100) : 0}%)` },
+                  { label:'Negative Suppressed', value:suppressedNegatives, sub:'Results pushed down', icon:'🛡', color:'#818CF8', change:'Page 1 protected' },
                 ].map(k => (
                   <div key={k.label} className="card metric-card">
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
