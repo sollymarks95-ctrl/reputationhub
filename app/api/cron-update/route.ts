@@ -10,8 +10,8 @@ const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 // Service role key bypasses RLS
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
-// 5 live portals — 30 topics each (5 batches × 6 articles/day)
-const LIVE_SITES = [
+// Hardcoded core portals (always run, never removed)
+const CORE_SITES = [[
   { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire Intelligence', slug:'global-trade-wire', domain:'nex-wire.com', author:'David Hart', topics:[
     'EUR/USD exchange rate today analysis','gold price today market update','Federal Reserve interest rate decision latest','global trade breaking news today','oil price Brent crude today','Bitcoin cryptocurrency market today',
     'GBP USD British pound analysis today','S&P 500 stock market today','China trade economic policy latest','forex market volatility today','emerging markets currency outlook today','US dollar index DXY today',
@@ -48,6 +48,34 @@ const LIVE_SITES = [
     'social trading copy trading regulation','CFD leverage regulation update today','forex regulation global update today','binary options regulation today','trading app regulation news today','financial advisor regulation today',
   ]},
 ]
+
+// Dynamically load ALL active sites from DB and merge with core portals
+async function getAllSites() {
+  const db = getDb()
+  const { data: dbSites } = await db
+    .from('news_sites')
+    .select('id,name,slug,domain,topics,template_config')
+    .eq('is_active', true)
+    .not('topics', 'is', null)
+    .limit(200)
+  
+  if (!dbSites || dbSites.length === 0) return CORE_SITES
+  
+  const coreSlugSet = new Set(CORE_SITES.map((s: any) => s.slug))
+  
+  const dynamicSites = dbSites
+    .filter((s: any) => !coreSlugSet.has(s.slug) && s.topics && s.topics.length > 0)
+    .map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      domain: s.domain,
+      author: 'Editorial Team',
+      topics: s.topics || [],
+    }))
+  
+  return [...CORE_SITES, ...dynamicSites]
+}
 
 const PORTAL_URLS: Record<string,string> = {
   'nex-wire.com':   'https://nex-wire.com',
@@ -167,7 +195,8 @@ export async function GET(req: NextRequest) {
   const results: any[] = []
   let totalInserted = 0
 
-  for (const site of LIVE_SITES) {
+  const ALL_SITES = await getAllSites()
+  for (const site of ALL_SITES) {
     let siteInserted = 0
     const batchTopics = site.topics.slice(batchStart, batchEnd)
 
