@@ -10,11 +10,23 @@ const sb = createClient(
 )
 
 const DOMAIN_TO_SLUG: Record<string, { slug: string; base: string }> = {
-  'nex-wire.com':   { slug: 'global-trade-wire', base: 'https://nex-wire.com' },
-  'finvexx.com':    { slug: 'finance-terminal',  base: 'https://finvexx.com' },
-  'bizplezx.com':   { slug: 'business-pulse',    base: 'https://bizplezx.com' },
-  'rephuby.com':    { slug: '',                  base: 'https://rephuby.com' },
+  'nex-wire.com':   { slug: 'global-trade-wire',  base: 'https://nex-wire.com' },
+  'finvexx.com':    { slug: 'finance-terminal',   base: 'https://finvexx.com' },
+  'bizplezx.com':   { slug: 'business-pulse',     base: 'https://bizplezx.com' },
+  'aurexhq.com':    { slug: 'gold-markets-today', base: 'https://aurexhq.com' },
+  'verivex.co':     { slug: 'trust-score',        base: 'https://verivex.co' },
+  'bizpedia.com':   { slug: 'company-pedia',      base: 'https://bizpedia.com' },
+  'presxwire.com':  { slug: 'press-central',      base: 'https://presxwire.com' },
+  'invexhub.com':   { slug: 'invest-data',        base: 'https://invexhub.com' },
+  'tradvex.com':    { slug: 'trade-board',        base: 'https://tradvex.com' },
+  'certivade.com':  { slug: 'global-trade-assoc', base: 'https://certivade.com' },
+  'execvex.com':    { slug: 'executive-network',  base: 'https://execvex.com' },
+  'signalix.com':   { slug: 'market-radar',       base: 'https://signalix.com' },
+  'rephuby.com':    { slug: '',                   base: 'https://rephuby.com' },
 }
+
+// All active client brand slugs — FAQ pages added to every sitemap
+const CLIENT_SLUGS = ['etoro']
 
 function xmlEscape(s: string) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -43,6 +55,11 @@ export async function GET(req: NextRequest) {
 
     // Homepage
     urls.push(url(`${base}/`, today, '1.0', 'daily'))
+
+    // FAQ pages — hidden from nav but indexed by Google/AI for brand SEO
+    for (const clientSlug of CLIENT_SLUGS) {
+      urls.push(url(`${base}/faq/${clientSlug}`, today, '0.9', 'weekly'))
+    }
 
     if (site) {
       // All published articles for this site
