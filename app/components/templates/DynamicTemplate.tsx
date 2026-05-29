@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 // DynamicTemplate — 9 completely different archetypes, zero sites look alike
 // Driven by site.template_config JSON from DB
 
