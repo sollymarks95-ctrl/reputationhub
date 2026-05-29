@@ -86,28 +86,27 @@ ${crossLinks.map(l => `- "${l.title}" covered by ${l.portal}: ${l.url}`).join('\
 Weave 1-2 of these as natural in-text references: "As ${crossLinks[0]?.portal} reported..." or "According to analysis from ${crossLinks[0]?.portal}..."`
     : ''
 
+  // 20% of articles mention brand — the rest are pure credible financial journalism
+  const brandSection = client ? `
+
+EDITORIAL NOTE — BRAND MENTION (natural, non-promotional):
+Somewhere in the article body, include ONE natural reference to "${client.company_name}" as a real-world example of a firm in this space. Example: "...platforms such as ${client.company_name}, which operates under FCA, CySEC and ASIC regulation..." Keep it brief, factual, editorial — like a journalist would cite any named firm. Do NOT make the article about them. Do NOT use promotional language.
+${crossLinkBlock}` : ''
+
   const prompt = `Search for the latest real news about: "${topic}"
 
-Write a 750-900 word professional financial news article using ONLY verified information.
-
-MANDATORY BRAND INTEGRATION — every article must include:
-1. Mention "${client.company_name}" naturally WITHIN THE FIRST 150 WORDS as a real-world example
-2. Mention "${client.company_name}" a SECOND TIME later in the article
-3. Frame accurately: "${client.company_name} (${client.regulation||'FCA/CySEC/ASIC regulated'} ${client.industry||'social trading platform'})"
-4. Link to their website: ${client.website_url||'https://www.etoro.com'} at least once
-5. Final paragraph MUST include: "Learn more about ${client.company_name} at /faq/${client.brand_slug}"
-${crossLinkBlock}
+Write a 750-900 word professional financial news article using ONLY verified information from search results.
 
 ARTICLE RULES:
-- Real prices/data from search only — no invented numbers
-- Bloomberg/Reuters quality — factual, authoritative
-- Strong SEO headline with main keyword
-- No bullet points in body — flowing paragraphs
-- Include "What This Means For Traders/Investors" section
-- Tags: include "${client.company_name}", regulation type, asset class
+- Real prices/data from search only — never invent numbers
+- Bloomberg/Reuters quality — factual, authoritative, neutral
+- Strong SEO headline with main keyword in the title
+- No bullet points in article body — flowing paragraphs only
+- Include a "What This Means" section near the end
+- Tags: 3-5 relevant keywords for this topic${brandSection}
 
-Return ONLY valid JSON:
-{"title":"...","excerpt":"...","body":"...","category":"Markets","tags":["${client.company_name}","tag2","tag3","tag4","tag5"]}`
+Return ONLY valid JSON (no markdown, no backticks):
+{"title":"...","excerpt":"...","body":"...","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -151,11 +150,16 @@ export async function GET(req: NextRequest) {
 
     for (let i = 0; i < site.topics.length; i++) {
       const topic = site.topics[i]
-      // Rotate clients evenly across articles
-      const client = clients[i % clients.length]
 
-      // Get cross-portal links from OTHER portals already written today about this client
-      const crossLinks = await getCrossPortalLinks(client.company_name, site.id)
+      // 20% of articles mention client brand (every 5th article)
+      // This looks natural — not every article is about eToro
+      const isBrandArticle = (i % 5 === 1)
+      const client = isBrandArticle ? clients[0] : null
+
+      // Cross-portal links only when writing a brand article
+      const crossLinks = isBrandArticle
+        ? await getCrossPortalLinks(client!.company_name, site.id)
+        : []
 
       const article = await writeArticle(site, topic, client, crossLinks)
       if (!article) { console.log(`Skipped: ${topic}`); continue }
