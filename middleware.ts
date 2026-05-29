@@ -38,7 +38,7 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith('/portal') ||
     pathname.startsWith('/charts') ||
     pathname.startsWith('/for-businesses') ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' || pathname === '/sw.js'
   ) return NextResponse.next()
 
   // Robots.txt — serve dynamic per-domain file with AI crawler rules

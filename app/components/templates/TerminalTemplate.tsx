@@ -78,7 +78,7 @@ function Newsletter({ siteName, accent }: any) {
   return (
     <form onSubmit={sub} style={{display:'flex',gap:6,flexWrap:'wrap'}}>
       <input value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="your@email.com" required
-        style={{flex:1,padding:'8px 14px',background:'#1C2333',border:'1px solid #30363D',color:'#C9D1D9',fontFamily:'IBM Plex Mono,monospace',fontSize:12,outline:'none',minWidth:180}}/>
+        style={{flex:1,padding:'8px 14px',background:'#ffffff',border:'1px solid #e5e7eb',color:'#1a1a2e',fontFamily:'IBM Plex Mono,monospace',fontSize:12,outline:'none',minWidth:180}}/>
       <button type="submit" style={{padding:'8px 18px',background:accent,color:'#000',border:'none',fontFamily:'IBM Plex Mono,monospace',fontWeight:700,fontSize:12,cursor:'pointer'}}>SUBSCRIBE</button>
     </form>
   )
@@ -117,7 +117,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
   }
 
   return (
-    <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",background:'#0A0E17',color:'#C9D1D9',minHeight:'100vh'}}>
+    <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",background:'#f8fafc',color:'#1a1a2e',minHeight:'100vh'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}
@@ -141,15 +141,15 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
       `}</style>
 
       {/* Ticker */}
-      <div style={{background:'#0D1117',borderBottom:`1px solid ${accent}20`,overflow:'hidden',height:34,display:'flex',alignItems:'center'}}>
+      <div style={{background:'#f8fafc',borderBottom:`1px solid ${accent}20`,overflow:'hidden',height:34,display:'flex',alignItems:'center'}}>
         <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,fontWeight:700,color:accent,padding:'0 16px',borderRight:`1px solid ${accent}20`,flexShrink:0,height:'100%',display:'flex',alignItems:'center',letterSpacing:'.08em'}}>
           {meta.domain.toUpperCase().split('.')[0]}<span className="blink" style={{marginLeft:3}}>▮</span>
         </div>
         <div style={{overflow:'hidden',flex:1}}>
           <div className="tick-anim" style={{display:'flex',whiteSpace:'nowrap'}}>
             {[...TICKERS,...TICKERS].map((t,i) => (
-              <span key={i} style={{padding:'0 20px',borderRight:'1px solid #1C2333',fontSize:11,display:'inline-flex',gap:10,alignItems:'center'}}>
-                <span style={{color:'#8B949E'}}>{t.sym}</span>
+              <span key={i} style={{padding:'0 20px',borderRight:'1px solid #e5e7eb',fontSize:11,display:'inline-flex',gap:10,alignItems:'center'}}>
+                <span style={{color:'#6b7280'}}>{t.sym}</span>
                 <span className={t.up?'up':'dn'} style={{fontWeight:700}}>{t.price}</span>
                 <span className={t.up?'up':'dn'} style={{fontSize:10}}>{t.chg}</span>
               </span>
@@ -159,20 +159,20 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
       </div>
 
       {/* Header */}
-      <div style={{background:'#0D1117',borderBottom:'1px solid #1C2333',padding:'10px 24px'}}>
+      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'10px 24px'}}>
         <div style={{maxWidth:1400,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}>
           <div style={{display:'flex',alignItems:'center',gap:16}}>
             {/* Clickable logo → homepage */}
             <a href="/" style={{display:'flex',flexDirection:'column'}}>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:26,fontWeight:700,letterSpacing:'-0.02em',lineHeight:1}}>
-                <span style={{color:'#C9D1D9'}}>{meta.name.slice(0,-2)}</span>
+                <span style={{color:'#1a1a2e'}}>{meta.name.slice(0,-2)}</span>
                 <span style={{color:accent}}>{meta.name.slice(-2)}</span>
               </div>
-              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:'#444D56',letterSpacing:'.04em',marginTop:2}}>{meta.domain}</div>
+              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:'#f1f5f9',letterSpacing:'.04em',marginTop:2}}>{meta.domain}</div>
             </a>
-            <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:`${accent}80`,borderLeft:'1px solid #1C2333',paddingLeft:14,lineHeight:1.6}}>
+            <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:`${accent}80`,borderLeft:'1px solid #e5e7eb',paddingLeft:14,lineHeight:1.6}}>
               <div style={{color:accent}}>{clock}</div>
-              <div style={{color:'#444D56'}}>{meta.desc}</div>
+              <div style={{color:'#f1f5f9'}}>{meta.desc}</div>
             </div>
           </div>
           <nav style={{display:'flex',gap:4}}>
@@ -184,11 +184,11 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
       </div>
 
       {/* Price board */}
-      <div className="term-price" style={{background:'#0D1117',borderBottom:'1px solid #1C2333'}}>
+      <div className="term-price" style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb'}}>
         <div style={{maxWidth:1400,margin:'0 auto',display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:0}}>
           {TICKERS.map((t,i) => (
-            <div key={i} style={{padding:'10px 16px',borderRight:'1px solid #1C2333',textAlign:'center'}}>
-              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:'#444D56',marginBottom:3,letterSpacing:'.08em'}}>{t.sym}</div>
+            <div key={i} style={{padding:'10px 16px',borderRight:'1px solid #e5e7eb',textAlign:'center'}}>
+              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:'#f1f5f9',marginBottom:3,letterSpacing:'.08em'}}>{t.sym}</div>
               <div className={t.up?'up':'dn'} style={{fontFamily:'IBM Plex Mono,monospace',fontSize:14,fontWeight:700}}>{t.price}</div>
               <div className={t.up?'up':'dn'} style={{fontSize:10}}>{t.chg}</div>
             </div>
@@ -198,17 +198,17 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
       {/* Main content */}
       <div style={{maxWidth:1400,margin:'0 auto',padding:'20px 24px'}}>
-        <div className="term-cols" style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr',gap:1,background:'#1C2333',marginBottom:20}}>
+        <div className="term-cols" style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr',gap:1,background:'#ffffff',marginBottom:20}}>
 
           {/* Hero */}
           {hero && (
-            <div style={{background:'#0D1117',padding:22}}>
+            <div style={{background:'#f8fafc',padding:22}}>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:accent,letterSpacing:'.1em',marginBottom:10,textTransform:'uppercase'}}>{hero.category} · FEATURED</div>
               <a href={`/article/${siteSlug}/${hero.slug}`} className="term-link">
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
-                <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:20,fontWeight:700,color:'#F0F6FC',lineHeight:1.3,marginBottom:10}}>{hero.title}</div>
-                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:'#8B949E',lineHeight:1.6}}>{hero.excerpt?.slice(0,180)}</div>
-                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:10}}>{hero.author_name} · {timeAgo(hero.published_at)}</div>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title} style={{width:'100%',height:220,objectFit:'cover',marginBottom:14,border:'1px solid #e5e7eb'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
+                <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:20,fontWeight:700,color:'#111827',lineHeight:1.3,marginBottom:10}}>{hero.title}</div>
+                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:'#6b7280',lineHeight:1.6}}>{hero.excerpt?.slice(0,180)}</div>
+                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#f1f5f9',marginTop:10}}>{hero.author_name} · {timeAgo(hero.published_at)}</div>
               </a>
             </div>
           )}
@@ -219,14 +219,14 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             {label:'ANALYSIS', items: col2.length ? col2 : articles.slice(7,13)},
             {label:'SIGNALS',  items: col3.length ? col3 : articles.slice(13,19)},
           ].map((col) => (
-            <div key={col.label} style={{background:'#0D1117'}}>
-              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:'#444D56',letterSpacing:'.1em',padding:'10px 16px',borderBottom:'1px solid #1C2333',textTransform:'uppercase'}}>{col.label}</div>
+            <div key={col.label} style={{background:'#f8fafc'}}>
+              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:'#f1f5f9',letterSpacing:'.1em',padding:'10px 16px',borderBottom:'1px solid #e5e7eb',textTransform:'uppercase'}}>{col.label}</div>
               {col.items.map((a: any, idx: number) => (
-                <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'12px 16px',borderBottom:'1px solid #0D1117'}}>
-                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
+                <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'12px 16px',borderBottom:'1px solid #e5e7eb'}}>
+                  <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a, idx+1)} alt={a.title} style={{width:'100%',height:80,objectFit:'cover',marginBottom:8,border:'1px solid #e5e7eb'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
                   <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
-                  <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4,marginBottom:4}}>{a.title}</div>
-                  <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56'}}>{timeAgo(a.published_at)}</div>
+                  <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#1a1a2e',lineHeight:1.4,marginBottom:4}}>{a.title}</div>
+                  <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#f1f5f9'}}>{timeAgo(a.published_at)}</div>
                 </a>
               ))}
             </div>
@@ -235,52 +235,52 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
         {/* More articles grid */}
         {articles.slice(19).length > 0 && (
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'#1C2333',marginBottom:20}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'#ffffff',marginBottom:20}}>
             {articles.slice(19,27).map((a: any, i: number) => (
-              <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'14px 16px',background:'#0D1117'}}>
-                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #1C2333'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
+              <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trow term-link" style={{display:'block',padding:'14px 16px',background:'#f8fafc'}}>
+                <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+19)} alt={a.title} style={{width:'100%',height:90,objectFit:'cover',marginBottom:8,border:'1px solid #e5e7eb'}} onError={(e:any)=>{const fb=IMGS[Math.floor(Math.random()*IMGS.length)];e.currentTarget.onerror=null;e.currentTarget.src=fb}}/>
                 <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,color:accent,marginBottom:4,letterSpacing:'.06em',textTransform:'uppercase'}}>{a.category}</div>
-                <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#C9D1D9',lineHeight:1.4}}>{a.title}</div>
-                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',marginTop:4}}>{timeAgo(a.published_at)}</div>
+                <div style={{fontFamily:'IBM Plex Sans,sans-serif',fontSize:13,fontWeight:600,color:'#1a1a2e',lineHeight:1.4}}>{a.title}</div>
+                <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#f1f5f9',marginTop:4}}>{timeAgo(a.published_at)}</div>
               </a>
             ))}
           </div>
         )}
 
         {/* Newsletter */}
-        <div style={{background:'#0D1117',border:`1px solid ${accent}25`,padding:'22px 24px',marginBottom:20}}>
+        <div style={{background:'#f8fafc',border:`1px solid ${accent}25`,padding:'22px 24px',marginBottom:20}}>
           <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,fontWeight:700,color:accent,marginBottom:5,letterSpacing:'.08em'}}>▸ DAILY INTELLIGENCE BRIEFING</div>
-          <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:11,color:'#8B949E',marginBottom:14}}>Market data, signals and analysis — delivered 07:00 UTC every trading day. Free subscription.</div>
+          <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:11,color:'#6b7280',marginBottom:14}}>Market data, signals and analysis — delivered 07:00 UTC every trading day. Free subscription.</div>
           <Newsletter siteName={meta.name} accent={accent}/>
         </div>
       </div>
 
       {/* Legal footer */}
-      <div style={{background:'#0D1117',borderTop:'1px solid #1C2333',padding:'20px 24px'}}>
+      <div style={{background:'#f8fafc',borderTop:'1px solid #e5e7eb',padding:'20px 24px'}}>
         <div style={{maxWidth:1400,margin:'0 auto'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:16,marginBottom:16}}>
             <div>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:16,fontWeight:700,marginBottom:6}}>
-                <span style={{color:'#C9D1D9'}}>{meta.name.slice(0,-2)}</span><span style={{color:accent}}>{meta.name.slice(-2)}</span>
+                <span style={{color:'#1a1a2e'}}>{meta.name.slice(0,-2)}</span><span style={{color:accent}}>{meta.name.slice(-2)}</span>
               </div>
-              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#444D56',lineHeight:1.7,maxWidth:420}}>
+              <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#f1f5f9',lineHeight:1.7,maxWidth:420}}>
                 {meta.desc}. Content is provided for informational purposes only and does not constitute financial advice. Past performance is not indicative of future results.
               </div>
             </div>
             <div style={{display:'flex',gap:32,flexWrap:'wrap'}}>
               {[['About',`/legal/about`],['Privacy Policy',`/legal/privacy`],['Terms of Service',`/legal/terms`],['Disclaimer',`/legal/disclaimer`],['Contact',`https://t.me/rephub_intelligence`]].map(([l,h]) => (
-                <a key={l} href={h} style={{fontFamily:'IBM Plex Mono,monospace',fontSize:11,color:'#555',letterSpacing:'.04em'}}>{l}</a>
+                <a key={l} href={h} style={{fontFamily:'IBM Plex Mono,monospace',fontSize:11,color:'#6b7280',letterSpacing:'.04em'}}>{l}</a>
               ))}
             </div>
           </div>
-          <div style={{borderTop:'1px solid #1C2333',paddingTop:14,fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#333',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
+          <div style={{borderTop:'1px solid #e5e7eb',paddingTop:14,fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#374151',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
 
             {/* Cross-portal intelligence network */}
             <div style={{borderTop:'1px solid #1e293b',paddingTop:16,marginTop:16}}>
-              <div style={{fontSize:10,fontWeight:700,color:'#666',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
+              <div style={{fontSize:10,fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
                 {[['Finvexx','https://finvexx.com','Markets'],['Bizplexz','https://bizplexz.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
-                  <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#666',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
+                  <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#6b7280',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
                 ))}
               </div>
             </div>
