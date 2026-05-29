@@ -384,5 +384,9 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
         </div>
       </div>
     </div>
+    </div>
+    </div>
+    </div>
+    </div>
   )
 }
