@@ -218,7 +218,7 @@ export async function GET(req: NextRequest) {
         const PMAP: Record<string,{name:string,domain:string}> = {
           'global-trade-wire':  { name:'Nex-Wire',  domain:'nex-wire.com' },
           'finance-terminal':   { name:'Finvexx',   domain:'finvexx.com' },
-          'business-pulse':     { name:'Bizplexz',  domain:'bizplexz.com' },
+          'business-pulse':     { name:'Bizplezx',  domain:'bizplezx.com' },
           'gold-markets-today': { name:'AurexHQ',   domain:'aurexhq.com' },
           'trust-score':        { name:'Verivex',   domain:'verivex.co'  },
         }
