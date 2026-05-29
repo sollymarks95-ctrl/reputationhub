@@ -484,7 +484,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
               <div style={{ width:7, height:7, borderRadius:'50%', background:'#10B981', animation:'pulse 1.5s ease-in-out infinite' }} />
               <span style={{ fontFamily:'monospace' }}>{clock}</span>
             </div>
-            <Link href="https://rephuby.com" target="_blank"><button className="btn b-ghost" style={{ fontSize:11 }}>View Site ↗</button></Link>
+            <a href="https://nex-wire.com" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{ fontSize:11 }}>View Site ↗</button></a>
           </div>
         </div>
 
@@ -1285,7 +1285,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           {tab === 'portals' && (
             <div style={{ animation:'slideIn .3s ease' }}>
               <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
-                <span className="badge bg">✓ 3 Live Custom Domains</span>
+                <span className="badge bg">✓ 5 Live Custom Domains</span>
                 <span className="badge bb">9 on rephuby.com — buy domain to go live</span>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
