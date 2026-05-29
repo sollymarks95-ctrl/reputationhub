@@ -152,6 +152,73 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
           </div>
         </div>
 
+        {/* Company Details — Trustpilot style */}
+        {companyInfo && (
+          <div style={{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:12, padding:28, marginBottom:24 }}>
+            <h2 style={{ fontSize:16, fontWeight:800, marginBottom:16, color:'#191919' }}>Company details</h2>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24 }} className="grid2">
+              <div>
+                {companyInfo.category && (
+                  <div style={{ marginBottom:16 }}>
+                    <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'#F1F5F9', border:'1px solid #E2E8F0', borderRadius:6, padding:'5px 12px', marginBottom:8 }}>
+                      <span style={{ fontSize:13, fontWeight:600, color:'#475569' }}>
+                        {companyInfo.category === 'forex' ? '📈 Forex Broker' : companyInfo.category === 'crypto' ? '₿ Crypto Exchange' : companyInfo.category === 'prop' ? '🏦 Prop Firm' : companyInfo.category}
+                      </span>
+                    </div>
+                    {companyInfo.description && (
+                      <div style={{ marginTop:8 }}>
+                        <div style={{ fontSize:12, fontWeight:700, color:'#64748B', marginBottom:4, textTransform:'uppercase', letterSpacing:'.04em' }}>Written by the company</div>
+                        <p style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>{companyInfo.description}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize:12, fontWeight:700, color:'#64748B', marginBottom:12, textTransform:'uppercase', letterSpacing:'.04em' }}>Contact info</div>
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {companyInfo.address && (
+                    <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                      <span style={{ fontSize:16, flexShrink:0, marginTop:1 }}>📍</span>
+                      <span style={{ fontSize:13, color:'#475569', lineHeight:1.5 }}>{companyInfo.address}</span>
+                    </div>
+                  )}
+                  {companyInfo.email && (
+                    <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                      <span style={{ fontSize:16, flexShrink:0 }}>✉️</span>
+                      <a href={`mailto:${companyInfo.email}`} style={{ fontSize:13, color:'#0EA5E9', textDecoration:'none' }}>{companyInfo.email}</a>
+                    </div>
+                  )}
+                  {companyInfo.website && (
+                    <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                      <span style={{ fontSize:16, flexShrink:0 }}>🌐</span>
+                      <a href={companyInfo.website} target="_blank" rel="noopener noreferrer" style={{ fontSize:13, color:'#0EA5E9', textDecoration:'none' }}>{companyInfo.website.replace('https://www.','').replace('https://','')}</a>
+                    </div>
+                  )}
+                  {companyInfo.founded && (
+                    <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                      <span style={{ fontSize:16, flexShrink:0 }}>🗓</span>
+                      <span style={{ fontSize:13, color:'#475569' }}>Founded {companyInfo.founded}</span>
+                    </div>
+                  )}
+                  {companyInfo.headquarters && (
+                    <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                      <span style={{ fontSize:16, flexShrink:0 }}>🏢</span>
+                      <span style={{ fontSize:13, color:'#475569' }}>{companyInfo.headquarters}</span>
+                    </div>
+                  )}
+                  {companyInfo.regulation && (
+                    <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                      <span style={{ fontSize:16, flexShrink:0 }}>✅</span>
+                      <span style={{ fontSize:13, color:'#475569' }}>Regulated: {companyInfo.regulation}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Success banner */}
         {submitted && (
           <div style={{ background:'#f0fdf8', border:`1px solid ${GREEN}`, borderRadius:8, padding:16, marginBottom:20, display:'flex', gap:12 }}>

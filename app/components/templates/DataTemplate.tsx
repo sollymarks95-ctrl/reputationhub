@@ -150,18 +150,12 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         </div>
       </div>
 
-      <footer style={{ background:'#1A1A1A', padding:'20px 24px', marginTop:30, fontFamily:'Inter,sans-serif', fontSize:11, color:'#555', textAlign:'center' }}>
-        {siteName} · {domain} · © {new Date().getFullYear()} Financial Intelligence Ltd
-      </footer>
-    </div>
-
-      {/* Legal footer */}
-      <footer style={{ background:'#1a1a1a', color:'#666', padding:'20px 24px', marginTop:32, textAlign:'center', fontSize:12 }}>
+      <footer style={{ background:'#1a1a1a', color:'#555', padding:'20px 24px', marginTop:30, fontSize:12, textAlign:'center' }}>
         <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
-          <span>© 2025 {site?.name || 'AurexHQ'} · All content for informational purposes only · Not financial advice</span>
+          <span>{siteName} · {domain} · © {new Date().getFullYear()} · Not financial advice</span>
           <div style={{ display:'flex', gap:16 }}>
             {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['Cookies','/legal/cookies']].map(([l,h])=>(
-              <a key={l} href={h} style={{ color:'#888', textDecoration:'none' }}>{l}</a>
+              <a key={l} href={h} style={{ color:'#777', textDecoration:'none' }}>{l}</a>
             ))}
           </div>
         </div>
