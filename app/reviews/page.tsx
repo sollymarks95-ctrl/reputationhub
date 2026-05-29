@@ -111,14 +111,7 @@ export default async function ReviewsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       {/* Logo */}
                       <div style={{ width: 52, height: 52, borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                        <img src={co.logo_url || `/api/logo/${co.slug}.com`} alt={co.name} width={40} height={40} style={{ objectFit: 'contain' }}
-                          onError={(e) => {
-                            const el = e.currentTarget as HTMLImageElement
-                            el.style.display = 'none'
-                            const parent = el.parentElement!
-                            parent.style.background = color
-                            parent.innerHTML = `<span style="font-size:18px;font-weight:900;color:#fff">${co.name[0]}</span>`
-                          }} />
+                        <img src={co.logo_url || `/api/logo/${co.slug}.com`} alt={co.name} width={40} height={40} style={{ objectFit: 'contain' }} />
                       </div>
                       <div>
                         <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A' }}>
