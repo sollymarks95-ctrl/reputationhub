@@ -21,19 +21,15 @@ function Stars({ rating, size = 18, interactive = false, onRate }: any) {
   )
 }
 
-const LOGO_DOMAINS: Record<string,string> = {
-  'etoro': 'etoro.com', 'ic-markets': 'icmarkets.com', 'pepperstone': 'pepperstone.com',
-  'xm': 'xm.com', 'ftmo': 'ftmo.com', 'binance': 'binance.com', 'coinbase': 'coinbase.com',
-  'interactive-brokers': 'interactivebrokers.com', 'plus500': 'plus500.com', 'myforexfunds': 'myforexfunds.com',
-}
-
-function CompanyLogo({ slug, name, size = 48 }: any) {
+function CompanyLogo({ slug, name, size = 48, logoUrl }: any) {
   const [err, setErr] = useState(false)
-  const domain = LOGO_DOMAINS[slug]
-  return domain && !err ? (
-    <img src={`https://logo.clearbit.com/${domain}`} alt={name}
-      style={{ width:size, height:size, borderRadius:8, objectFit:'contain', background:'#f8f8f8', border:'1px solid #eee' }}
-      onError={() => setErr(true)} />
+  const src = logoUrl || `/api/logo/${slug}.com`
+  return !err ? (
+    <div style={{ width:size, height:size, borderRadius:8, overflow:'hidden', border:'1px solid #eee', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
+      <img src={src} alt={name}
+        style={{ width:size-8, height:size-8, objectFit:'contain', display:'block' }}
+        onError={() => setErr(true)} />
+    </div>
   ) : (
     <div style={{ width:size, height:size, borderRadius:8, background:GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.35 }}>
       {name.charAt(0)}
@@ -104,7 +100,7 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
         {/* Company header */}
         <div style={{ background:'#fff', borderRadius:12, padding:32, marginBottom:24, border:'1px solid #E8E8E8' }}>
           <div style={{ display:'flex', alignItems:'flex-start', gap:20, marginBottom:24 }} className="flex-wrap">
-            <CompanyLogo slug={company} name={companyName} size={72} />
+            <CompanyLogo slug={company} name={companyName} size={72} logoUrl={companyInfo?.logo_url} />
             <div style={{ flex:1 }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', marginBottom:6 }}>
                 <h1 style={{ fontSize:28, fontWeight:900 }}>{companyName}</h1>

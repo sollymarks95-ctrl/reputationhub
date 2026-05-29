@@ -41,12 +41,14 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
         {/* Card header */}
         <div style={{ padding:'20px 20px 0' }}>
           <div style={{ display:'flex', alignItems:'flex-start', gap:14, marginBottom:14 }}>
-            {/* Logo */}
-            <div style={{ width:52, height:52, borderRadius:10, overflow:'hidden', border:'1px solid #E2E8F0', flexShrink:0, background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            {/* Logo — served via our proxy for reliability */}
+            <div style={{ width:56, height:56, borderRadius:10, overflow:'hidden', border:'1px solid #E2E8F0', flexShrink:0, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
               {company.logo_url && !imgErr ? (
-                <img src={company.logo_url} alt={company.name} width={52} height={52} style={{ objectFit:'contain' }} onError={() => setImgErr(true)} />
+                <img src={company.logo_url} alt={company.name}
+                  style={{ width:48, height:48, objectFit:'contain', display:'block' }}
+                  onError={() => setImgErr(true)} />
               ) : (
-                <div style={{ width:52, height:52, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:18 }}>
+                <div style={{ width:48, height:48, borderRadius:8, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:18 }}>
                   {company.logo_letter||company.name.charAt(0)}
                 </div>
               )}
