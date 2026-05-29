@@ -1510,6 +1510,19 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           )}
 
         </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
       </main>
     </div>
   )

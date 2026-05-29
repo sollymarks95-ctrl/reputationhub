@@ -327,6 +327,69 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           ))}
         </div>
       </footer>
+      {/* ── "We're Verivex" section ── */}
+      <div style={{ background:'#C8F0D8', padding:'48px 24px', marginTop:0 }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', gap:40, flexWrap:'wrap' }}>
+          <div style={{ flex:1, minWidth:260 }}>
+            <h2 style={{ fontSize:32, fontWeight:900, color:'#191919', marginBottom:12 }}>We're Verivex</h2>
+            <p style={{ fontSize:15, color:'#1a5c35', lineHeight:1.7, maxWidth:460, marginBottom:24 }}>
+              We're a review platform that's open to everyone. Our vision is to become the universal symbol of trust in trading — empowering people to invest with confidence, and helping companies improve.
+            </p>
+            <a href="/for-businesses" style={{ display:'inline-block', background:'#191919', color:'#fff', padding:'12px 24px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
+              What we do
+            </a>
+          </div>
+          <div style={{ flex:1, minWidth:280 }}>
+            <div style={{ background:'#1a5c35', borderRadius:16, padding:28, color:'#fff' }}>
+              <div style={{ fontWeight:800, fontSize:16, marginBottom:8 }}>📊 Our 2025 Trust Report has landed!</div>
+              <p style={{ fontSize:13, color:'#86efac', lineHeight:1.6, marginBottom:16 }}>Find out which actions we've taken to protect traders and promote trust on our platform.</p>
+              <a href="/legal/privacy" style={{ display:'inline-block', background:'transparent', color:'#fff', border:'2px solid #fff', padding:'8px 20px', borderRadius:100, fontWeight:700, fontSize:13, textDecoration:'none' }}>
+                Take a look
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── "Help millions make the right choice" section ── */}
+      <div style={{ background:'#F5EFE8', padding:'48px 24px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', gap:40, flexWrap:'wrap' }}>
+          <div style={{ flex:1, minWidth:260 }}>
+            <h2 style={{ fontSize:28, fontWeight:900, color:'#191919', marginBottom:12 }}>Help millions make the right choice</h2>
+            <p style={{ fontSize:14, color:'#64748B', lineHeight:1.7, marginBottom:24 }}>Share your experience on Verivex, where reviews make a difference for traders worldwide.</p>
+            <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+              <a href="/reviews/etoro" style={{ display:'inline-block', background:'#191919', color:'#fff', padding:'11px 24px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
+                Write a review
+              </a>
+              <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                {[
+                  { icon:'G', color:'#4285F4', label:'Google' },
+                  { icon:'f', color:'#1877F2', label:'Facebook' },
+                  { icon:'', color:'#000', label:'Apple' },
+                ].map(s => (
+                  <div key={s.label} style={{ width:36, height:36, borderRadius:100, border:'2px solid #E2E8F0', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:800, color:s.color, cursor:'pointer' }} title={`Sign in with ${s.label}`}>
+                    {s.label === 'Apple' ? '🍎' : s.icon}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{ flex:1, minWidth:280, display:'flex', gap:12, justifyContent:'flex-end' }}>
+            {[
+              { emoji:'🌊', bg:'#87CEEB', text:'Trader from 63+ countries' },
+              { emoji:'💻', bg:'#F0F4FF', text:'Reviews verified daily' },
+              { emoji:'😊', bg:'#FFF0E0', text:'284k+ verified reviews' },
+            ].map(card => (
+              <div key={card.text} style={{ width:110, background:card.bg, borderRadius:16, padding:'20px 14px', textAlign:'center', fontSize:12, color:'#475569', flexShrink:0 }}>
+                <div style={{ fontSize:28, marginBottom:8 }}>{card.emoji}</div>
+                {card.text}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      </div></div></div>
       <CookieBanner primaryColor='#00B67A' />
     </div>
   )
