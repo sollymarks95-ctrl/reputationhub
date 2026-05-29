@@ -13,19 +13,32 @@ export const maxDuration = 300
 
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
+// 3 live portals — 30 topics each split into 3 batches of 10 (morning / midday / afternoon)
 const ALL_SITES = [
-  { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire Intelligence',  slug:'global-trade-wire',  domain:'nex-wire.com',  author:'David Hart',      topics:['EUR/USD exchange rate today','gold price today analysis','Bitcoin price today','oil price today Strait of Hormuz','Federal Reserve interest rate decision','GBP USD exchange rate today','China trade policy 2026','forex market volatility today','S&P 500 today performance','global trade news today'] },
-  { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'Finvexx Markets',         slug:'finance-terminal',   domain:'finvexx.com',   author:'Marcus Webb',     topics:['S&P 500 market analysis today','Federal Reserve monetary policy','gold investment analysis today','Bitcoin ETF institutional flows','corporate earnings today','social trading platform regulation today','EUR USD technical analysis','hedge fund positioning latest','crude oil price forecast','emerging market currencies today'] },
-  { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'Bizplezx Executive',      slug:'business-pulse',     domain:'bizplezx.com',  author:'Claire Sterling', topics:['fintech banking news today','AI financial services latest','financial sector M&A today','fintech startup funding news','ESG sustainable finance today','financial regulation news today','executive business strategy','digital assets corporate treasury','private equity deals today','financial technology innovation'] },
-  { id:'3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1', name:'AurexHQ',                 slug:'gold-markets-today', domain:'aurexhq.com',   author:'James Calloway', topics:['gold price today spot','silver price today analysis','precious metals market today','gold ETF flows today','central bank gold reserves','gold vs inflation hedge','platinum palladium prices today','gold mining stocks news','commodity market outlook today','gold technical analysis today'] },
-  { id:'6ae7e692-bce9-489d-b835-87dcba9ffc47', name:'Verivex Trust',            slug:'trust-score',        domain:'verivex.co',    author:'Anna Reid',       topics:['social trading platform regulation 2026','CySEC FCA regulated brokers','broker scam warning today','regulated vs unregulated broker','investor protection regulation','broker withdrawal issues today','financial watchdog enforcement today','safe broker checklist 2026','social trading platform review methodology','financial consumer protection today'] },
-  { id:'aa04790b-9aed-4fa9-867d-3481adc828c5', name:'Bizpedia',                 slug:'company-pedia',      domain:'bizpedia.com',  author:'Tom Ellis',       topics:['social trading platform company profile 2026','financial services business model','regulated broker landscape','brokerage expansion news today','financial services funding news','forex industry market share 2026','brokerage technology news','financial regulatory compliance','broker customer acquisition','financial services trends 2026'] },
-  { id:'104ceccb-e3d0-4979-85be-b7297abb7f90', name:'PresxWire',                slug:'press-central',      domain:'presxwire.com', author:'Sarah Quinn',     topics:['financial services press release today','social trading platform announcement','regulated broker partnership today','financial firm expansion news','broker technology launch today','financial regulation announcement','forex industry news wire today','brokerage hiring news','financial services award news','forex market statement today'] },
-  { id:'1cd6688f-bec9-4d1b-a024-80952bf31a21', name:'InvexHub',                 slug:'invest-data',        domain:'invexhub.com',  author:'Mike Chen',       topics:['forex investment returns today','regulated broker comparison','currency trading performance today','broker spread comparison 2026','leverage trading risk data','forex liquidity provider data','trading volume statistics today','broker execution quality','FX market depth today','investment platform comparison 2026'] },
-  { id:'d020965e-d84d-4c9e-a068-d3b90f6902d0', name:'Tradvex',                  slug:'trade-board',        domain:'tradvex.com',   author:'Lisa Park',       topics:['forex trading strategy 2026','EUR USD trading signal today','gold trading opportunity today','forex scalping volatility today','swing trading forex today','algorithmic trading forex news','risk management forex 2026','trading psychology market today','currency correlation trading','forex trading volume today'] },
-  { id:'1972c09e-a68e-4997-b2a8-00756ead609c', name:'Certivade',                slug:'global-trade-assoc', domain:'certivade.com', author:'Dr. Paul Marcus', topics:['social trading platform certification 2026','financial regulation compliance','MiFID II broker compliance','CySEC FCA regulatory update','financial services licensing 2026','broker accreditation standards','regulatory sandbox fintech today','financial compliance technology','AML KYC regulation today','financial industry standards 2026'] },
-  { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'Execvex',                  slug:'executive-network',  domain:'execvex.com',   author:'Diana Cross',     topics:['social trading platformage CEO interview 2026','financial executive leadership','brokerage strategic outlook 2026','financial services appointment','CEO market outlook today','financial firm governance news','executive compensation today','C-suite financial news today','financial leadership diversity','brokerage executive strategy 2026'] },
-  { id:'27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22', name:'Signalix',                 slug:'market-radar',       domain:'signalix.com',  author:'Ray Torres',      topics:['forex market signal today EUR USD','gold price signal today','Bitcoin market signal today','S&P 500 technical signal today','GBP USD signal today','oil price technical today','forex volatility signal today','market risk indicator today','currency strength index today','intermarket correlation today'] },
+  { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire Intelligence', slug:'global-trade-wire', domain:'nex-wire.com', author:'David Hart', topics:[
+    'EUR/USD exchange rate today analysis','gold price today market update','Federal Reserve interest rate decision latest','global trade breaking news today','oil price Brent crude today',
+    'Bitcoin cryptocurrency market today','GBP USD British pound analysis today','S&P 500 stock market today','China trade economic policy latest','forex market volatility today',
+    'emerging markets currency outlook today','US dollar index DXY today','commodity markets overview today','geopolitical risk financial markets today','central bank policy update today',
+    'inflation data economic report today','treasury bond yields market today','Asian markets overnight update','European markets open today','Wall Street pre-market analysis today',
+    'crude oil OPEC supply news today','natural gas energy market today','copper metals industrial outlook today','cryptocurrency altcoin market today','trade balance economic data today',
+    'retail sales consumer data today','manufacturing PMI economic today','jobless claims unemployment today','housing market real estate today','mergers acquisitions deal news today',
+  ]},
+  { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'Finvexx Markets', slug:'finance-terminal', domain:'finvexx.com', author:'Marcus Webb', topics:[
+    'S&P 500 market analysis today','Federal Reserve monetary policy latest','gold investment strategy today','corporate earnings results today','social trading platform regulation today',
+    'Bitcoin ETF institutional flows today','hedge fund market positioning latest','EUR USD technical analysis today','crude oil price forecast today','financial sector regulation news today',
+    'emerging market currencies today','interest rate impact markets today','equity market outlook today','bond yields treasury today','financial technology news today',
+    'IPO stock market listings today','dividend stocks analysis today','options trading market today','short selling hedge funds today','quantitative easing central banks today',
+    'banking sector earnings results today','insurance sector financial news today','asset management fund flows today','derivatives futures markets today','currency war dollar policy today',
+    'semiconductor tech stocks today','energy stocks oil gas today','healthcare biotech stocks today','consumer spending retail stocks today','transportation logistics stocks today',
+  ]},
+  { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'Bizplezx Executive', slug:'business-pulse', domain:'bizplezx.com', author:'Claire Sterling', topics:[
+    'fintech banking industry news today','AI artificial intelligence financial services','financial sector M&A today','ESG sustainable finance news today','financial regulation compliance today',
+    'digital banking transformation today','executive leadership strategy news today','private equity venture capital today','financial technology startup funding today','corporate governance news today',
+    'wealth management industry today','payments industry innovation today','open banking news today','financial services consumer trends today','insurtech insurance technology today',
+    'blockchain enterprise business today','digital assets institutional adoption today','regtech compliance technology today','neobank challenger bank news today','embedded finance news today',
+    'financial inclusion global trends today','cross-border payments news today','buy-now-pay-later industry today','robo-advisor wealth tech today','cryptocurrency exchange regulation today',
+    'data privacy financial services today','cybersecurity financial sector today','cloud banking infrastructure today','API economy financial services today','sustainability finance green bonds today',
+  ]},
 ]
 
 // Portal cross-reference map — used for inter-portal linking
@@ -138,6 +151,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error:'Unauthorized' }, { status:401 })
   }
 
+  // batch=0 (morning), batch=1 (midday), batch=2 (afternoon)
+  // Each batch generates topics [batch*10 to batch*10+9] per portal = 10 articles
+  const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
+  const batchStart = batch * 10
+  const batchEnd = batchStart + 10
+
   const clients = await getActiveClients()
   if (clients.length === 0) return NextResponse.json({ error:'No active clients' }, { status:400 })
 
@@ -147,13 +166,14 @@ export async function GET(req: NextRequest) {
 
   for (const site of ALL_SITES) {
     let siteInserted = 0
+    const batchTopics = site.topics.slice(batchStart, batchEnd)
 
-    for (let i = 0; i < site.topics.length; i++) {
-      const topic = site.topics[i]
+    for (let i = 0; i < batchTopics.length; i++) {
+      const topic = batchTopics[i]
+      const globalIndex = batchStart + i  // position across full day's 30 articles
 
-      // 20% of articles mention client brand (every 5th article)
-      // This looks natural — not every article is about eToro
-      const isBrandArticle = (i % 5 === 1)
+      // 20% of articles mention brand (every 5th across full day's 30)
+      const isBrandArticle = (globalIndex % 5 === 1)
       const client = isBrandArticle ? clients[0] : null
 
       // Cross-portal links only when writing a brand article
