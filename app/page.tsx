@@ -504,15 +504,15 @@ function AIDefenseSection() {
                 {/* Query */}
                 <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
                   <span style={{ fontSize:13 }}>🔎</span>
-                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="neg-query">is ApexFX broker a scam?</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="neg-query">is eToro a scam?</span>
                   <span className="cursor" style={{ color:'#EF4444' }}>|</span>
                 </div>
                 {/* Bad results */}
                 <div style={{ fontSize:11, fontWeight:700, color:'#EF4444', letterSpacing:'0.06em', marginBottom:10, opacity:0 }} className="neg-r1">⚠ RESULTS FOUND</div>
                 {[
-                  { icon:'🚨', src:'forexpeacearmy.com', title:'"ApexFX scammed me out of $12,000"', snippet:'User reports: withdrawal issues, account manipulation, fake profits...', color:'#EF4444' },
-                  { icon:'❌', src:'trustpilot.com/fake', title:'"DO NOT USE — ApexFX is a fraud"', snippet:'1.2 stars · "They disappeared with my deposit after 3 months"', color:'#F97316' },
-                  { icon:'⚠️', src:'reddit.com/r/Forex', title:'"Anyone else had issues with ApexFX?"', snippet:'247 comments · "Multiple complaints about impossible withdrawals..."', color:'#F59E0B' },
+                  { icon:'🚨', src:'forexpeacearmy.com', title:'"eToro scammed me out of $12,000"', snippet:'User reports: withdrawal issues, account manipulation, fake profits...', color:'#EF4444' },
+                  { icon:'❌', src:'trustpilot.com/fake', title:'"DO NOT USE — eToro is a fraud"', snippet:'1.2 stars · "They disappeared with my deposit after 3 months"', color:'#F97316' },
+                  { icon:'⚠️', src:'reddit.com/r/Forex', title:'"Anyone else had issues with eToro?"', snippet:'247 comments · "Multiple complaints about impossible withdrawals..."', color:'#F59E0B' },
                 ].map((r, i) => (
                   <div key={i} style={{ padding:'12px 0', borderBottom:'1px solid rgba(239,68,68,0.1)', opacity:0 }} className={`neg-r${i+1}`}>
                     <div style={{ fontSize:11, color:r.color, marginBottom:3, display:'flex', alignItems:'center', gap:6 }}>
@@ -551,26 +551,26 @@ function AIDefenseSection() {
                 {/* Query */}
                 <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
                   <span style={{ fontSize:13 }}>💬</span>
-                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="ai-query-1">is Apex Markets broker legit?</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="ai-query-1">is eToro broker legit?</span>
                   <span className="cursor" style={{ color:'#0EA5E9' }}>|</span>
                 </div>
                 {/* AI thinking */}
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14, opacity:0 }} className="ai-thinking">
                   <div style={{ width:16, height:16, border:'2px solid rgba(14,165,233,0.3)', borderTopColor:'#0EA5E9', borderRadius:'50%', animation:'spin2 .8s linear infinite' }} />
-                  <span style={{ fontSize:12, color:'#64748b' }}>Searching web for Apex Markets...</span>
+                  <span style={{ fontSize:12, color:'#64748b' }}>Searching web for eToro...</span>
                 </div>
                 {/* AI Response */}
                 <div style={{ fontSize:12, fontWeight:700, color:'#10B981', letterSpacing:'0.05em', marginBottom:12, opacity:0 }} className="ai-resp">
-                  ✅ Based on my research, here&apos;s what I found about Apex Markets:
+                  ✅ Based on my research, here&apos;s what I found about eToro:
                 </div>
                 {/* Positive results */}
                 {[
-                  { icon:'📊', src:'Finvex · rephuby.com', title:'Apex Markets — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://rephuby.com/finance/finance-terminal' },
-                  { icon:'🎙', src:'Bizplex · rephuby.com', title:'CEO Interview: Apex Markets 2025 Vision', snippet:'Alex Chen discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://rephuby.com/magazine/business-pulse' },
-                  { icon:'⭐', src:'Verivex · rephuby.com', title:'Apex Markets: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · CySEC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://rephuby.com/reviews-hub/trust-score' },
-                  { icon:'🏛', src:'Certivade · rephuby.com', title:'Apex Markets CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://rephuby.com/association/global-trade-assoc' },
-                  { icon:'📰', src:'Nexwire · rephuby.com', title:'Apex Markets Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://rephuby.com/news/global-trade-wire' },
-                  { icon:'👔', src:'Execvex · rephuby.com', title:'Executive Profile: Apex Markets CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://rephuby.com/executive/executive-network' },
+                  { icon:'📊', src:'Finvex · rephuby.com', title:'eToro — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://rephuby.com/finance/finance-terminal' },
+                  { icon:'🎙', src:'Bizplex · rephuby.com', title:'CEO Interview: eToro 2025 Vision', snippet:'Alex Chen discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://rephuby.com/magazine/business-pulse' },
+                  { icon:'⭐', src:'Verivex · rephuby.com', title:'eToro: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · FCA/CySEC/ASIC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://rephuby.com/reviews-hub/trust-score' },
+                  { icon:'🏛', src:'Certivade · rephuby.com', title:'eToro CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://rephuby.com/association/global-trade-assoc' },
+                  { icon:'📰', src:'Nexwire · rephuby.com', title:'eToro Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://rephuby.com/news/global-trade-wire' },
+                  { icon:'👔', src:'Execvex · rephuby.com', title:'Executive Profile: eToro CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://rephuby.com/executive/executive-network' },
                 ].map((r) => (
                   <a key={r.cls} href={r.href} target="_blank" rel="noopener noreferrer" style={{ display:'block', padding:'11px 0', borderBottom:'1px solid rgba(16,185,129,0.1)', opacity:0, textDecoration:'none' }} className={r.cls}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
@@ -591,7 +591,7 @@ function AIDefenseSection() {
                     <span>🤖</span> AI Verdict
                   </div>
                   <div style={{ fontSize:13, color:'#94A3B8', lineHeight:1.65 }}>
-                    <strong style={{color:'#10B981'}}>Apex Markets appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
+                    <strong style={{color:'#10B981'}}>eToro appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
                   </div>
                   <div style={{ marginTop:10, display:'flex', gap:8, flexWrap:'wrap' }}>
                     {['CySEC Regulated ✓','4.9★ Reviews ✓','CEO Verified ✓','Podcast Active ✓'].map(t => (

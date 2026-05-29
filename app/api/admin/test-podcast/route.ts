@@ -32,7 +32,7 @@ export async function GET() {
     const r = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':anthKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:'Write a 3-minute financial podcast script (approx 400 words) between HOST Marcus Webb and GUEST James Richardson CEO of Apex Markets FX. Format as "HOST: ..." or "GUEST: ..." per line. Topic: regulatory credibility and institutional trust in 2026. Start immediately.'}]})
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:'Write a 3-minute financial podcast script (approx 400 words) between HOST Marcus Webb and GUEST James Richardson CEO of eToro. Format as "HOST: ..." or "GUEST: ..." per line. Topic: regulatory credibility and institutional trust in 2026. Start immediately.'}]})
     })
     const d = await r.json()
     script = d.content?.[0]?.text || ''
@@ -84,7 +84,7 @@ export async function GET() {
   log.push(`${ms()} Uploaded to Storage`)
 
   const {count}:any=await sb.from('portal_podcasts').select('*',{count:'exact',head:true}).eq('client_id','a1b2c3d4-0000-0000-0000-000000000001')
-  await sb.from('portal_podcasts').insert({client_id:'a1b2c3d4-0000-0000-0000-000000000001',episode_number:(count||0)+1,title:'E2E Test — Apex Markets FX CEO Interview',description:`Marcus Webb x James Richardson | Guest: ${guestVoice.name}`,duration_minutes:Math.round(combined.length/1024/128*8/60)||3,status:'published',mp3_url:audioUrl,host_name:'Marcus Webb',guest_name:'James Richardson',published_at:new Date().toISOString()})
+  await sb.from('portal_podcasts').insert({client_id:'a1b2c3d4-0000-0000-0000-000000000001',episode_number:(count||0)+1,title:'E2E Test — eToro CEO Interview',description:`Marcus Webb x James Richardson | Guest: ${guestVoice.name}`,duration_minutes:Math.round(combined.length/1024/128*8/60)||3,status:'published',mp3_url:audioUrl,host_name:'Marcus Webb',guest_name:'James Richardson',published_at:new Date().toISOString()})
   log.push(`${ms()} Saved to portal_podcasts DB`)
   log.push(`${ms()} COMPLETE in ${((Date.now()-t0)/1000).toFixed(1)}s`)
 
