@@ -152,9 +152,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'Apex Markets FX',
-      url: 'https://apexmarkets.com',
+      url: 'https://www.apexmarketsfx.com',
       description: 'CySEC and FCA regulated forex and precious metals broker offering institutional-grade execution.',
-      sameAs: ['https://apexmarkets.com'],
+      sameAs: ['https://www.apexmarketsfx.com'],
       knowsAbout: ['Forex Trading', 'Precious Metals', 'CFD Trading', 'Institutional Brokerage'],
     })
   }
