@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{clientSlug
     title: `${name} FAQ — Is ${name} Safe, Regulated & Legitimate?`,
     description: `Answers to the most common questions about ${name}: regulation, safety, legitimacy, reviews and more.`,
     robots: 'index, follow',
-    alternates: { canonical: `https://rephuby.com/faq/${clientSlug}` },
+    // canonical set per-domain at render time
     openGraph: { title: `${name} FAQ`, description: `Everything you need to know about ${name}` },
   }
 }
