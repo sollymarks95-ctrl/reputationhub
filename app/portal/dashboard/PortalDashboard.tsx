@@ -47,7 +47,7 @@ export default function PortalDashboard({ client, rankings, content, podcasts, a
   }
 
   const page1 = rankings.filter((r: any) => r.current_position <= 10).length
-  const totalViews = content.reduce((s: number, c: any) => s + (((c.news_articles?.views ?? c.views ?? 0), 0)
+  const totalViews = content.reduce((s: number, c: any) => s + (c.news_articles?.views ?? c.views ?? 0), 0)
   const totalArticles = content.length
   const latestReport = reports[0]
   const avgRating = reviews.length ? (reviews.reduce((s:number,r:any)=>s+r.rating,0)/reviews.length).toFixed(1) : '0'
