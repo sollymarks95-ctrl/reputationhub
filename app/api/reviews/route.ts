@@ -19,8 +19,9 @@ export async function GET(req: NextRequest) {
     .select('*')
     .eq('company_slug', slug)
     .eq('status', 'approved')
+    .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(100)
   if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: CORS })
   return NextResponse.json({ reviews: data || [] }, { headers: CORS })
 }
