@@ -22,10 +22,17 @@ function timeAgo(d: string) {
 
 export default function PortalDashboard({ client, rankings, content, podcasts, activity, reports, coverage, reviews = [] }: any) {
   const [tab, setTab] = useState('overview')
+  const [lastSync, setLastSync] = useState<Date>(new Date())
   const [user, setUser] = useState<any>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const router = useRouter()
   const p = client?.primary_color || '#0EA5E9'
+
+    // Auto-refresh dashboard data every 60 seconds
+  useEffect(() => {
+    const iv = setInterval(() => { router.refresh() }, 60000)
+    return () => clearInterval(iv)
+  }, [router])
 
   useEffect(() => {
     try {

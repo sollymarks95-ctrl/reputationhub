@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
     const cleanEmail = email.toLowerCase().trim()
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
-    const { error } = await supabase.from('newsletter_subscribers').upsert({
+    const { error } = await getDb().from('newsletter_subscribers').upsert({
       email: cleanEmail, news_site_id: siteId || null, site_name: siteName || 'RepHuby',
       ip_address: ip, is_confirmed: true, subscribed_at: new Date().toISOString()
     }, { onConflict: 'email,news_site_id', ignoreDuplicates: true })

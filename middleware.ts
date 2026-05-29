@@ -38,9 +38,15 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith('/portal') ||
     pathname.startsWith('/charts') ||
     pathname.startsWith('/for-businesses') ||
-    pathname === '/robots.txt' ||
     pathname === '/favicon.ico'
   ) return NextResponse.next()
+
+  // Robots.txt — serve dynamic per-domain file with AI crawler rules
+  if (pathname === '/robots.txt') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/api/robots'
+    return NextResponse.rewrite(url)
+  }
 
   // Sitemap — pass host as query param so API knows which site
   if (pathname === '/sitemap.xml' || pathname === '/sitemap') {
