@@ -48,9 +48,10 @@ const LOGO_SOURCES: Record<string, string[]> = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { domain: string } }
+  { params }: { params: Promise<{ domain: string }> | { domain: string } }
 ) {
-  const domain = params.domain
+  const resolvedParams = typeof (params as any).then === 'function' ? await (params as Promise<{ domain: string }>) : params as { domain: string }
+  const domain = resolvedParams.domain
   const sources = LOGO_SOURCES[domain] || [`https://logo.clearbit.com/${domain}`]
 
   for (const src of sources) {

@@ -9,7 +9,13 @@ const SITE_DOMAINS: Record<string, string> = {
   'business-pulse':     'https://bizplezx.com',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // During build, env vars aren't available — return empty
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return []
+  }
   const { data: articles } = await getDb()
     .from('news_articles')
     .select('slug, news_site_id, published_at, news_sites!inner(slug)')

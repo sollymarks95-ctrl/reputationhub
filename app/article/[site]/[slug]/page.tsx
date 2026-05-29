@@ -30,26 +30,24 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords].filter(Boolean).join(', ')
   return {
     title: `${article.title} | ${site.name}`,
+    description: article.excerpt,
+    keywords: (article.tags || []).join(', '),
+    authors: [{ name: article.author_name || site.name }],
+    robots: 'index, follow',
     alternates: { canonical: canonicalUrl },
-    keywords: allKeywords,
     icons: {
       icon: siteSlug === 'global-trade-wire' ? '/icon-nexwire.svg' :
             siteSlug === 'finance-terminal'  ? '/icon-finvexx.svg' :
             siteSlug === 'business-pulse'    ? '/icon-bizplezx.svg' :
             '/icon-rephuby.svg',
     },
-    description: article.excerpt,
-    keywords: article.tags?.join(', '),
-    authors: [{ name: article.author_name || site.name }],
     openGraph: {
       title: article.title, description: article.excerpt,
       images: article.cover_image_url ? [{ url: article.cover_image_url, width: 1200, height: 630 }] : [],
       type: 'article', publishedTime: article.published_at, url: canonicalUrl,
-      authors: [article.author_name || site.name], siteName: site.name,
+      siteName: site.name,
     },
     twitter: { card: 'summary_large_image', title: article.title, description: article.excerpt, images: article.cover_image_url ? [article.cover_image_url] : [] },
-    robots: 'index, follow',
-    alternates: { canonical: `${BASE}/article/${siteSlug}/${slug}` },
   }
 }
 
