@@ -23,7 +23,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'ic-markets': {
-    name: 'IC Markets', dailyCount: [2,4], posRatio: 0.80,
+    name: 'IC Markets', dailyCount: [3,5], posRatio: 0.80,
     positive: [
       { r:5, t:'Best raw spreads in the industry', b:'ASIC regulated ECN broker with raw spreads genuinely from 0.0 pips. Running algorithmic strategies for 3 years. Zero requotes, minimal slippage, excellent server infrastructure. The gold standard for serious forex traders.' },
       { r:5, t:'Professional grade execution', b:'Moved from a retail broker 18 months ago. The execution quality difference is dramatic. True ECN model, ASIC and CySEC regulated. All withdrawals processed within 24 hours without exception.' },
@@ -34,7 +34,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'pepperstone': {
-    name: 'Pepperstone', dailyCount: [2,3], posRatio: 0.80,
+    name: 'Pepperstone', dailyCount: [3,5], posRatio: 0.80,
     positive: [
       { r:5, t:'Top tier regulated broker', b:'FCA, ASIC and CySEC regulated. Razor account pricing is competitive — raw spreads plus commission works out cheaper than spread-only accounts. Execution is fast with minimal slippage. Highly recommended.' },
       { r:4, t:'Excellent overall, minor issues', b:'Solid FCA regulated broker with good execution and competitive spreads. The Razor account is excellent for active traders. Minor issue is support wait times but trading conditions are first-rate.' },
@@ -68,7 +68,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'coinbase': {
-    name: 'Coinbase', dailyCount: [2,3], posRatio: 0.70,
+    name: 'Coinbase', dailyCount: [3,5], posRatio: 0.70,
     positive: [
       { r:5, t:'The safest US crypto option', b:'NASDAQ listed, SEC registered, FDIC insured cash. For US investors Coinbase is the only responsible choice. Yes fees are higher but regulatory protection has real monetary value. Three years, zero issues.' },
       { r:4, t:'Use Advanced Trade for better fees', b:'Standard interface fees are high but Coinbase Advanced Trade is competitive. FCA regulated in the UK. The regulatory standing is excellent. Genuinely the most trusted exchange for institutional-grade security.' },
@@ -78,7 +78,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'xm': {
-    name: 'XM Group', dailyCount: [2,3], posRatio: 0.75,
+    name: 'XM Group', dailyCount: [3,5], posRatio: 0.75,
     positive: [
       { r:5, t:'Reliable multi-regulated broker', b:'CySEC and ASIC regulated. XM has been consistent for 3 years. Bonus programs are generous. The educational content is excellent. Withdrawals via local payment methods processed reliably.' },
       { r:4, t:'Good overall broker', b:'Multi-regulated broker with competitive spreads on the XM Zero account. Good range of instruments. Support available 24/7. Suitable for traders of all experience levels.' },
@@ -88,7 +88,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'interactive-brokers': {
-    name: 'Interactive Brokers', dailyCount: [1,3], posRatio: 0.85,
+    name: 'Interactive Brokers', dailyCount: [2,4], posRatio: 0.85,
     positive: [
       { r:5, t:'The professional standard', b:'150 global markets, lowest margin rates available, SEC regulated. Interactive Brokers is unmatched for serious multi-asset trading. Complex to learn but once mastered it is the most powerful platform available.' },
       { r:5, t:'Best margin rates and market access', b:'IBKR Pro pricing is exceptional for active traders. Access to global bonds, options, futures, stocks, forex in one account. SEC and FCA regulated. The benchmark other brokers aspire to.' },
@@ -98,7 +98,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'plus500': {
-    name: 'Plus500', dailyCount: [1,3], posRatio: 0.65,
+    name: 'Plus500', dailyCount: [2,4], posRatio: 0.65,
     positive: [
       { r:4, t:'Simple regulated CFD platform', b:'FCA regulated and FTSE 250 listed. The interface is the simplest I have used — ideal for beginning CFD traders. Negative balance protection clearly stated. For basic CFD trading on a regulated platform it works well.' },
     ],
@@ -108,7 +108,7 @@ const PLATFORM_REVIEWS: Record<string, any> = {
     ]
   },
   'myforexfunds': {
-    name: 'MyForexFunds', dailyCount: [1,2], posRatio: 0.55,
+    name: 'MyForexFunds', dailyCount: [2,3], posRatio: 0.55,
     positive: [
       { r:4, t:'Good prop firm with fair rules', b:'Passed MyForexFunds evaluation first attempt. Rules are clear, targets are reasonable. Two payouts received by bank transfer. Dashboard is basic but functional. A legitimate option for funded trading.' },
     ],
@@ -138,6 +138,35 @@ export async function GET(req: NextRequest) {
 
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000)
   const allInserted: any[] = []
+
+  // Also fetch any new companies from DB and add simple positive reviews
+  const { data: dbCompanies } = await getDb().from('verivex_companies')
+    .select('slug,name')
+    .not('slug', 'in', `(${Object.keys(PLATFORM_REVIEWS).join(',')})`)
+    .limit(50)
+  
+  if (dbCompanies && dbCompanies.length > 0) {
+    for (const dbCo of dbCompanies) {
+      if (!PLATFORM_REVIEWS[dbCo.slug]) {
+        // Generate generic positive review for new company
+        const genericReviews = [
+          { r:5, t:`Excellent regulated platform`, b:`${dbCo.name} delivers a professional trading experience with strong regulatory oversight. Clear fee structure, reliable withdrawals, and responsive customer support. Highly recommended for serious investors.` },
+          { r:4, t:`Good overall experience`, b:`Using ${dbCo.name} for six months. The platform is reliable, regulation is solid, and pricing is competitive. Customer support resolved my query promptly. Would recommend to other traders.` },
+          { r:5, t:`Trustworthy and well-regulated`, b:`${dbCo.name} regulatory standing gives confidence. The trading platform performs well during volatile markets. Withdrawals processed as stated. A reliable choice in a crowded market.` },
+        ]
+        const dayReview = genericReviews[dayOfYear % genericReviews.length]
+        const reviewer = REVIEWER_POOL[dayOfYear % REVIEWER_POOL.length]
+        allInserted.push({
+          company_name: dbCo.name, company_slug: dbCo.slug,
+          reviewer_name: reviewer.n, reviewer_location: reviewer.l,
+          rating: dayReview.r, title: dayReview.t, review_text: dayReview.b,
+          trading_experience: reviewer.e,
+          verified: true, status: 'approved', is_pinned: false,
+          created_at: new Date().toISOString(),
+        })
+      }
+    }
+  }
 
   for (const [slug, cfg] of Object.entries(PLATFORM_REVIEWS)) {
     const [minR, maxR] = cfg.dailyCount
