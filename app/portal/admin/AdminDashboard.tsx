@@ -89,6 +89,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podLoading, setPodLoading] = useState(false)
   const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
   const [livePodcasts, setLivePodcasts] = useState<any[]>(allPodcasts || [])
+  const [cronRunning, setCronRunning] = useState(false)
 
   const refreshPodcasts = React.useCallback(async () => {
     try {
@@ -179,6 +180,28 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     setPodLoading(false)
   }
 
+
+  async function runCronNow() {
+    if (!confirm('Generate today\'s articles for all portals? Takes 2-3 minutes.')) return
+    setCronRunning(true)
+    try {
+      const r = await fetch('/api/cron-update?secret=REDACTED_CRON_SECRET')
+      const d = await r.json()
+      alert(d.message || d.error || 'Cron complete!')
+    } catch(e:any) { alert('Cron triggered — running in background') }
+    setCronRunning(false)
+  }
+
+  async function runImageRegen() {
+    if (!confirm('Regenerate images for 50 articles? Takes 2-3 minutes.')) return
+    setCronRunning(true)
+    try {
+      const r = await fetch('/api/admin/regenerate-images?secret=REDACTED_CRON_SECRET&limit=50')
+      const d = await r.json()
+      alert(d.message || d.error || 'Images regenerated!')
+    } catch(e:any) { alert('Image regen triggered — running in background') }
+    setCronRunning(false)
+  }
 
   // OPTION 1: Audio only
   async function generateAudioPodcast() {
@@ -455,6 +478,16 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           {/* ══ OVERVIEW ══ */}
           {tab === 'overview' && (
             <div style={{ animation:'slideIn .3s ease' }}>
+              {/* Manual cron controls */}
+              <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap' }}>
+                <button onClick={runCronNow} disabled={cronRunning} style={{ padding:'8px 18px', background:cronRunning?'#334155':'linear-gradient(135deg,#10B981,#059669)', border:'none', borderRadius:8, color:'#fff', fontWeight:700, cursor:cronRunning?'not-allowed':'pointer', fontSize:12 }}>
+                  {cronRunning ? '⏳ Running...' : '🗞️ Generate Today\'s Articles'}
+                </button>
+                <button onClick={runImageRegen} disabled={cronRunning} style={{ padding:'8px 18px', background:cronRunning?'#334155':'linear-gradient(135deg,#6366F1,#4F46E5)', border:'none', borderRadius:8, color:'#fff', fontWeight:700, cursor:cronRunning?'not-allowed':'pointer', fontSize:12 }}>
+                  {cronRunning ? '⏳ Running...' : '🖼️ Regenerate Images'}
+                </button>
+                <span style={{ fontSize:11, color:'#475569', alignSelf:'center' }}>Auto-runs daily 10am IL · Next: tomorrow</span>
+              </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
                 {[{l:'Active Clients',v:clients.length,i:'👥',c:'#EF4444'},{l:'Articles Live',v:totalArticles?.toLocaleString(),i:'📰',c:'#0EA5E9'},{l:'Newsletter Subs',v:totalSubscribers,i:'📧',c:'#10B981'},{l:'Page 1 Keywords',v:page1,i:'🎯',c:'#F59E0B'}].map(k => (
                   <div key={k.l} className="card" style={{ padding:'18px 20px' }}>
