@@ -133,13 +133,11 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
         .term-link:hover{color:${accent}}}
 
         @media(max-width:768px){
-          .term-cols{grid-template-columns:1fr!important}
-          .term-price{overflow-x:auto}
-          .term-price>div{grid-template-columns:repeat(4,1fr)!important}
-          nav{flex-wrap:wrap!important}
-          .nav-tab{font-size:10px!important;padding:6px 8px!important}
-          .tick-anim{animation-duration:20s}
-        }
+          .term-grid{grid-template-columns:1fr!important}
+          .term-sidebar{display:none!important}
+          .term-nav{overflow-x:auto;white-space:nowrap}
+          h1{font-size:20px!important}
+          }
       `}</style>
 
       {/* Ticker */}
