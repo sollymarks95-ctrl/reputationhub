@@ -27,6 +27,26 @@ function RatingBadge({ rating }: { rating: number }) {
   )
 }
 
+const LOGO_MAP: Record<string,string> = {
+  'etoro':'etoro.com','ic-markets':'icmarkets.com','pepperstone':'pepperstone.com',
+  'xm':'xm.com','ftmo':'ftmo.com','binance':'binance.com','coinbase':'coinbase.com',
+  'interactive-brokers':'interactivebrokers.com','plus500':'plus500.com','myforexfunds':'myforexfunds.com',
+}
+
+function CompanyLogo({ company, size=44 }: any) {
+  const [err, setErr] = useState(false)
+  const domain = LOGO_MAP[company.slug]
+  return domain && !err ? (
+    <img src={`https://logo.clearbit.com/${domain}`} alt={company.name}
+      style={{ width:size, height:size, borderRadius:8, objectFit:'contain', background:'#f8f8f8', border:'1px solid #eee', flexShrink:0 }}
+      onError={() => setErr(true)} />
+  ) : (
+    <div style={{ width:size, height:size, borderRadius:8, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.33, flexShrink:0 }}>
+      {company.logo_letter || company.name.charAt(0)}
+    </div>
+  )
+}
+
 function CompanyCard({ company, reviewCount, avgRating }: any) {
   return (
     <a href={`/reviews/${company.slug}`} style={{ textDecoration:'none', color:'inherit' }}>
@@ -34,9 +54,7 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
         onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)')}
         onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}>
         <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
-          <div style={{ width:44, height:44, borderRadius:8, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:15, flexShrink:0 }}>
-            {company.logo_letter || company.name.charAt(0)}
-          </div>
+          <CompanyLogo company={company} size={44} />
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontWeight:700, fontSize:15, display:'flex', alignItems:'center', gap:6 }}>
               {company.name}
@@ -154,17 +172,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           </div>
         </div>
 
-        {/* Featured + All companies */}
-        {!search && activeCategory === 'all' && featured.length > 0 && (
-          <div style={{ marginBottom:32 }}>
-            <h2 style={{ fontSize:20, fontWeight:700, marginBottom:16 }}>⭐ Featured Platforms</h2>
-            <div className="grid3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
-              {featured.map(co => (
-                <CompanyCard key={co.id} company={co} reviewCount={reviewStats[co.slug]?.count || 0} avgRating={reviewStats[co.slug]?.avg || 0} />
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Filtered list */}
         <div style={{ marginBottom:32 }}>
