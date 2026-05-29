@@ -329,5 +329,8 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
       </footer>
       <CookieBanner primaryColor='#00B67A' />
     </div>
+    </div>
+    </div>
+    </div>
   )
 }
