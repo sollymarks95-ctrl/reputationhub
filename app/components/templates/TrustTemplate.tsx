@@ -1,125 +1,218 @@
 'use client'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
-function timeAgo(d: string) {
-  const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000)
-  if (s < 3600) return `${Math.floor(s/60)} min ago`
-  if (s < 86400) return `${Math.floor(s/3600)} hours ago`
-  return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+const GREEN = '#00B67A'
+const DARK = '#191919'
+
+function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
+  return (
+    <div style={{ display:'flex', gap:1 }}>
+      {[1,2,3,4,5].map(s => (
+        <svg key={s} width={size} height={size} viewBox="0 0 24 24" fill={s <= Math.round(rating) ? GREEN : '#E8E8E8'}>
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      ))}
+    </div>
+  )
 }
 
-const STATS = [
-  { label:'Verified Reviews', value:'284,000+', icon:'✅' },
-  { label:'Brokers Profiled', value:'1,200+', icon:'🏦' },
-  { label:'Avg Trust Score', value:'4.2/5', icon:'⭐' },
-  { label:'Countries Covered', value:'63', icon:'🌍' },
-]
+function RatingBadge({ rating }: { rating: number }) {
+  const label = rating >= 4.5 ? 'Excellent' : rating >= 4 ? 'Great' : rating >= 3.5 ? 'Good' : rating >= 3 ? 'Average' : 'Poor'
+  const bg = rating >= 4 ? GREEN : rating >= 3 ? '#F59E0B' : '#EF4444'
+  return (
+    <div style={{ background: bg, color:'#fff', fontWeight:800, fontSize:13, padding:'4px 10px', borderRadius:4, display:'inline-block' }}>
+      {label}
+    </div>
+  )
+}
 
-export default function TrustTemplate({ articles = [], site, routePrefix, siteSlug }: any) {
-  const GREEN = '#00B67A'; const DARK = '#191919'
-  const siteName = site?.name || 'VERIVEX'
+function CompanyCard({ company, reviewCount, avgRating }: any) {
+  return (
+    <a href={`/reviews/${company.slug}`} style={{ textDecoration:'none', color:'inherit' }}>
+      <div style={{ border:'1px solid #E8E8E8', borderRadius:8, padding:20, background:'#fff', transition:'all .2s', cursor:'pointer' }}
+        onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)')}
+        onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}>
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+          <div style={{ width:44, height:44, borderRadius:8, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:15, flexShrink:0 }}>
+            {company.logo_letter || company.name.charAt(0)}
+          </div>
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ fontWeight:700, fontSize:15, display:'flex', alignItems:'center', gap:6 }}>
+              {company.name}
+              {company.is_verified && <span style={{ fontSize:11, color:GREEN }}>✓</span>}
+            </div>
+            <div style={{ fontSize:11, color:'#888', marginTop:1 }}>{company.regulation}</div>
+          </div>
+          <RatingBadge rating={avgRating || 0} />
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+          <Stars rating={avgRating || 0} />
+          <span style={{ fontSize:13, fontWeight:700 }}>{avgRating ? avgRating.toFixed(1) : '—'}</span>
+          <span style={{ fontSize:12, color:'#888' }}>· {reviewCount} review{reviewCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div style={{ fontSize:12, color:'#666', lineHeight:1.5 }}>{company.description}</div>
+        <div style={{ marginTop:12, fontSize:12, color:GREEN, fontWeight:600 }}>Read reviews →</div>
+      </div>
+    </a>
+  )
+}
 
-  const hero = articles[0]
-  const cards = articles.slice(1, 13)
-  const reviewSlug = 'etoro' // primary client slug
+export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
+  const [companies, setCompanies] = useState<any[]>([])
+  const [reviewStats, setReviewStats] = useState<Record<string,{count:number,avg:number}>>({})
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/verivex/companies').then(r => r.json()),
+      fetch('/api/verivex/stats').then(r => r.json()),
+    ]).then(([co, stats]) => {
+      setCompanies(co.companies || [])
+      setReviewStats(stats.stats || {})
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [])
+
+  const CATS = [
+    { id:'all', label:'All Reviews' },
+    { id:'forex', label:'Forex Brokers' },
+    { id:'crypto', label:'Crypto Exchanges' },
+    { id:'prop', label:'Prop Firms' },
+    { id:'regulated', label:'Regulated Brokers' },
+  ]
+
+  const filtered = companies.filter(c => {
+    if (activeCategory !== 'all' && c.category !== activeCategory) return false
+    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  const featured = companies.filter(c => c.is_featured)
 
   return (
-    <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#fff', color:'#191919', minHeight:'100vh' }}>
-      {/* Review banner at top */}
-      <div style={{ background:'#f8fffe', borderBottom:'2px solid #00B67A', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'center', gap:16 }}>
-        <div style={{ fontSize:13, color:'#333' }}>
-          📊 <strong>eToro</strong> — 4.5/5 from 284,000+ verified reviews
-        </div>
-        <a href={`/reviews/${reviewSlug}`} style={{ background:'#00B67A', color:'#fff', padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:700, textDecoration:'none' }}>
-          Read Reviews & Share Your Experience →
-        </a>
-      </div>
+    <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', color:DARK, minHeight:'100vh' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}
-        .trust-card{border:1px solid #E8E8E8;border-radius:4px;padding:20px;transition:all .2s;background:#fff}
-        .trust-card:hover{border-color:${GREEN};box-shadow:0 2px 12px rgba(0,182,122,0.1)}
-        .star{color:${GREEN};font-size:16px}
-        .trust-tag{display:inline-block;background:${GREEN}15;color:${GREEN};font-size:10px;font-weight:700;padding:2px 8px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase}
-        .trust-nav a{font-size:13px;font-weight:600;color:#666;padding:12px 16px;display:block;white-space:nowrap}
-        .trust-nav a:hover{color:${GREEN}}
-        @media(max-width:768px){.trust-grid{grid-template-columns:repeat(2,1fr)!important}.trust-hero{grid-template-columns:1fr!important}.trust-stats{grid-template-columns:repeat(2,1fr)!important}}
+        *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
+        .inp{padding:12px 16px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;outline:none;width:100%;background:#fff}
+        .inp:focus{border-color:${GREEN};box-shadow:0 0 0 3px ${GREEN}20}
+        @media(max-width:768px){.grid3{grid-template-columns:1fr!important}.grid2{grid-template-columns:1fr!important}.hide-m{display:none!important}}
       `}</style>
 
+      {/* eToro banner */}
+      <div style={{ background:'#f0fdf8', borderBottom:`2px solid ${GREEN}`, padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
+        <span style={{ fontSize:13, color:'#333' }}>📊 <strong>eToro</strong> — 4.5/5 from 284,000+ verified reviews</span>
+        <a href="/reviews/etoro" style={{ background:GREEN, color:'#fff', padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:700 }}>Read Reviews & Share Your Experience →</a>
+      </div>
+
       {/* Header */}
-      <div style={{ borderBottom:'1px solid #E8E8E8', position:'sticky', top:0, background:'#fff', zIndex:100 }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', height:64 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-            <div style={{ fontSize:26, fontWeight:800, letterSpacing:'-0.04em' }}>
-              <span style={{ color:DARK }}>VERI</span><span style={{ color:GREEN }}>VEX</span>
-            </div>
-            <div style={{ fontSize:11, color:'#888', borderLeft:'1px solid #E8E8E8', paddingLeft:12 }}>verivex.co · Verified Financial Reviews</div>
+      <header style={{ background:'#fff', borderBottom:'1px solid #E8E8E8', padding:'12px 0', position:'sticky', top:0, zIndex:100 }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', gap:20 }}>
+          <a href="/" style={{ fontWeight:900, fontSize:22, color:DARK, flexShrink:0 }}>
+            VERI<span style={{ color:GREEN }}>VEX</span>
+          </a>
+          <div style={{ flex:1, maxWidth:500 }}>
+            <input className="inp" placeholder="🔍 Search company or broker..." value={search} onChange={e => setSearch(e.target.value)} style={{ height:40, fontSize:13 }} />
           </div>
-          <div style={{ display:'flex', gap:24, alignItems:'center' }}>
-            <div style={{ display:'flex', gap:2 }}>{'★★★★★'.split('').map((s,i) => <span key={i} className="star">{s}</span>)}</div>
-            <div style={{ fontSize:12, color:'#888' }}>Trusted by 50,000+ traders</div>
-          </div>
-        </div>
-        <nav className="trust-nav" style={{ borderTop:'1px solid #E8E8E8', background:'#FAFAFA' }}>
-          <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', overflowX:'auto' }}>
-            {['All Reviews','Forex Brokers','Crypto Exchanges','Prop Firms','Regulated Brokers','Latest Reports'].map(n => (
-              <a key={n} href="#">{n}</a>
-            ))}
-          </div>
-        </nav>
-      </div>
-
-      {/* Trust stats */}
-      <div style={{ background:'#F8FBF9', borderBottom:'1px solid #E8E8E8', padding:'20px 24px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto' }}>
-          <div className="trust-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
-            {STATS.map(s => (
-              <div key={s.label} style={{ textAlign:'center', padding:'14px', background:'#fff', border:'1px solid #E8E8E8', borderRadius:4 }}>
-                <div style={{ fontSize:28 }}>{s.icon}</div>
-                <div style={{ fontSize:24, fontWeight:800, color:GREEN, marginTop:4 }}>{s.value}</div>
-                <div style={{ fontSize:11, color:'#888', marginTop:2 }}>{s.label}</div>
-              </div>
-            ))}
+          <div className="hide-m" style={{ display:'flex', gap:6 }}>
+            <a href="/reviews/etoro" style={{ fontSize:13, fontWeight:600, color:'#555', padding:'8px 14px', borderRadius:6, border:'1px solid #ddd', background:'#fff' }}>For Businesses</a>
+            <a href="/reviews/etoro" style={{ fontSize:13, fontWeight:700, color:'#fff', padding:'8px 16px', borderRadius:6, background:GREEN }}>Write a Review</a>
           </div>
         </div>
-      </div>
 
-      <div style={{ maxWidth:1200, margin:'0 auto', padding:'28px 24px' }}>
-        {/* Hero */}
-        {hero && (
-          <Link href={`/article/${siteSlug}/${hero.slug}`} style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:32, marginBottom:36, paddingBottom:36, borderBottom:'1px solid #E8E8E8' }} className="trust-hero">
-            <div>
-              <div className="trust-tag" style={{ marginBottom:12 }}>{hero.category}</div>
-              <div style={{ fontSize:34, fontWeight:800, lineHeight:1.2, color:DARK, marginBottom:14, letterSpacing:'-0.02em' }}>{hero.title}</div>
-              <div style={{ fontSize:16, color:'#555', lineHeight:1.65 }}>{hero.excerpt?.slice(0,200)}</div>
-              <div style={{ marginTop:14, display:'flex', gap:12, alignItems:'center' }}>
-                <div style={{ display:'flex', gap:2 }}>{'★★★★☆'.split('').map((s,i) => <span key={i} className="star" style={{fontSize:14}}>{s}</span>)}</div>
-                <span style={{ fontSize:12, fontWeight:700, color:GREEN }}>4.1/5</span>
-                <span style={{ fontSize:12, color:'#888' }}>· {timeAgo(hero.published_at)}</span>
-              </div>
-            </div>
-            {hero.cover_image_url && <img src={hero.cover_image_url} alt={hero.title} style={{ width:'100%', height:240, objectFit:'cover', borderRadius:4, border:'1px solid #E8E8E8' }} />}
-          </Link>
-        )}
-
-        {/* Grid */}
-        <div style={{ fontSize:10, fontWeight:800, letterSpacing:'.12em', textTransform:'uppercase', color:'#888', marginBottom:16 }}>Latest Reviews & Analysis</div>
-        <div className="trust-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
-          {cards.map((a: any) => (
-            <Link key={a.id} href={`/article/${siteSlug}/${a.slug}`} className="trust-card" style={{ display:'block' }}>
-              <div className="trust-tag" style={{ marginBottom:10 }}>{a.category}</div>
-              <div style={{ fontSize:16, fontWeight:700, color:DARK, lineHeight:1.3, marginBottom:10 }}>{a.title}</div>
-              <div style={{ display:'flex', gap:2, marginBottom:8 }}>
-                {'★★★★★'.split('').map((s,i) => <span key={i} style={{ color:GREEN, fontSize:12 }}>{s}</span>)}
-              </div>
-              <div style={{ fontSize:12, color:'#888' }}>{timeAgo(a.published_at)} · {a.read_time_minutes||3} min read</div>
-            </Link>
+        {/* Category nav */}
+        <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', gap:4, marginTop:10, overflowX:'auto', paddingBottom:2 }}>
+          {CATS.map(cat => (
+            <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+              style={{ padding:'6px 16px', borderRadius:100, border:'none', cursor:'pointer', fontWeight:600, fontSize:13, fontFamily:'inherit', whiteSpace:'nowrap', transition:'all .15s',
+                background: activeCategory === cat.id ? DARK : '#F4F6F8',
+                color: activeCategory === cat.id ? '#fff' : '#555' }}>
+              {cat.label}
+            </button>
           ))}
         </div>
+      </header>
+
+      <div style={{ maxWidth:1200, margin:'0 auto', padding:'32px 24px' }}>
+
+        {/* Hero stats */}
+        <div style={{ background:`linear-gradient(135deg,${DARK},#2d3748)`, borderRadius:16, padding:'40px 48px', marginBottom:32, color:'#fff', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:24 }}>
+          <div>
+            <h1 style={{ fontSize:32, fontWeight:900, marginBottom:8 }}>Trusted Broker Reviews</h1>
+            <p style={{ fontSize:15, color:'#94A3B8', maxWidth:480 }}>Real reviews from real traders. Every broker independently verified. Powered by Verivex Trust Intelligence.</p>
+            <a href="/reviews/etoro" style={{ display:'inline-block', marginTop:16, background:GREEN, color:'#fff', padding:'12px 24px', borderRadius:8, fontWeight:700, fontSize:14 }}>Browse All Reviews</a>
+          </div>
+          <div style={{ display:'flex', gap:40 }}>
+            {[['284,000+','Verified Reviews'],['1,200+','Brokers Profiled'],['4.2/5','Avg Trust Score'],['63','Countries']].map(([v,l]) => (
+              <div key={l} style={{ textAlign:'center' }}>
+                <div style={{ fontSize:28, fontWeight:900, color:GREEN }}>{v}</div>
+                <div style={{ fontSize:12, color:'#94A3B8', marginTop:2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured + All companies */}
+        {!search && activeCategory === 'all' && featured.length > 0 && (
+          <div style={{ marginBottom:32 }}>
+            <h2 style={{ fontSize:20, fontWeight:700, marginBottom:16 }}>⭐ Featured Platforms</h2>
+            <div className="grid3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+              {featured.map(co => (
+                <CompanyCard key={co.id} company={co} reviewCount={reviewStats[co.slug]?.count || 0} avgRating={reviewStats[co.slug]?.avg || 0} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Filtered list */}
+        <div style={{ marginBottom:32 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+            <h2 style={{ fontSize:20, fontWeight:700 }}>
+              {search ? `Results for "${search}"` : CATS.find(c=>c.id===activeCategory)?.label}
+              <span style={{ fontSize:14, fontWeight:400, color:'#888', marginLeft:8 }}>({filtered.length})</span>
+            </h2>
+          </div>
+          {loading ? (
+            <div style={{ textAlign:'center', padding:60, color:'#888' }}>Loading companies...</div>
+          ) : filtered.length === 0 ? (
+            <div style={{ textAlign:'center', padding:60, color:'#888' }}>No results found</div>
+          ) : (
+            <div className="grid3" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+              {filtered.map(co => (
+                <CompanyCard key={co.id} company={co} reviewCount={reviewStats[co.slug]?.count || 0} avgRating={reviewStats[co.slug]?.avg || 0} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Latest articles */}
+        {articles.length > 0 && (
+          <div>
+            <h2 style={{ fontSize:20, fontWeight:700, marginBottom:16 }}>📰 Latest Reports & Analysis</h2>
+            <div className="grid2" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
+              {articles.slice(0,4).map((a: any) => (
+                <a key={a.slug} href={`/article/${siteSlug}/${a.slug}`} style={{ border:'1px solid #E8E8E8', borderRadius:8, overflow:'hidden', background:'#fff', display:'block', transition:'box-shadow .2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)')}
+                  onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}>
+                  {a.cover_image_url && <img src={a.cover_image_url} alt={a.title} style={{ width:'100%', height:140, objectFit:'cover' }} />}
+                  <div style={{ padding:16 }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:GREEN, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:6 }}>{a.category}</div>
+                    <div style={{ fontSize:15, fontWeight:700, lineHeight:1.4, marginBottom:6 }}>{a.title}</div>
+                    <div style={{ fontSize:12, color:'#888' }}>{a.author_name} · {new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      <footer style={{ background:DARK, color:'#555', padding:'20px', marginTop:40, fontFamily:'Inter,sans-serif', fontSize:11, textAlign:'center' }}>
-        VERIVEX · verivex.co · © {new Date().getFullYear()} Financial Intelligence Network
+      {/* Footer */}
+      <footer style={{ background:DARK, color:'#94A3B8', padding:'32px 24px', marginTop:48, textAlign:'center' }}>
+        <div style={{ fontWeight:900, fontSize:20, color:'#fff', marginBottom:8 }}>VERI<span style={{ color:GREEN }}>VEX</span></div>
+        <div style={{ fontSize:12 }}>Independent broker reviews · verivex.co · All reviews moderated for authenticity</div>
       </footer>
     </div>
   )

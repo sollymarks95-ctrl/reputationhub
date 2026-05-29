@@ -90,6 +90,21 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
   const [livePodcasts, setLivePodcasts] = useState<any[]>(allPodcasts || [])
   const [cronRunning, setCronRunning] = useState(false)
+  const [pendingReviews, setPendingReviews] = useState<any[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+
+  async function loadPendingReviews() {
+    setReviewsLoading(true)
+    const r = await fetch('/api/verivex/pending')
+    const d = await r.json()
+    setPendingReviews(d.reviews || [])
+    setReviewsLoading(false)
+  }
+
+  async function moderateReview(id: string, action: 'approved' | 'rejected') {
+    await fetch('/api/verivex/moderate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, status: action }) })
+    setPendingReviews(prev => prev.filter(r => r.id !== id))
+  }
 
   const refreshPodcasts = React.useCallback(async () => {
     try {
@@ -474,6 +489,45 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
         </div>
 
         <div style={{ padding:'24px' }}>
+
+          {/* ══ REVIEWS MODERATION ══ */}
+          {tab === 'reviews' && (
+            <div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+                <h2 style={{ fontSize:20, fontWeight:700 }}>⭐ Review Moderation <span style={{ fontSize:13, fontWeight:400, color:'#64748B' }}>(Verivex)</span></h2>
+                <button onClick={loadPendingReviews} className="btn b-blue" style={{ fontSize:12 }}>🔄 Load Pending</button>
+              </div>
+              {reviewsLoading && <div style={{ textAlign:'center', padding:40, color:'#64748B' }}>Loading...</div>}
+              {!reviewsLoading && pendingReviews.length === 0 && (
+                <div style={{ textAlign:'center', padding:60, color:'#475569', border:'1px dashed #334155', borderRadius:12 }}>
+                  <div style={{ fontSize:32, marginBottom:8 }}>✅</div>
+                  <div style={{ fontWeight:600 }}>No pending reviews</div>
+                  <div style={{ fontSize:13, marginTop:4 }}>Click "Load Pending" to check for new submissions</div>
+                </div>
+              )}
+              {pendingReviews.map(r => (
+                <div key={r.id} style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, padding:20, marginBottom:12 }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                    <div>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                        <span style={{ fontWeight:700, fontSize:15 }}>{r.title}</span>
+                        <span style={{ background:r.rating >= 4 ? '#10B98120' : '#EF444420', color: r.rating >= 4 ? '#10B981' : '#EF4444', padding:'2px 8px', borderRadius:4, fontSize:11, fontWeight:700 }}>
+                          {'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)} {r.rating}/5
+                        </span>
+                      </div>
+                      <div style={{ fontSize:12, color:'#64748B' }}>{r.reviewer_name} · {r.reviewer_location} · {r.trading_experience}</div>
+                      <div style={{ fontSize:11, color:'#475569', marginTop:2 }}>Company: <strong style={{ color:'#94A3B8' }}>{r.company_name}</strong> · Submitted: {new Date(r.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div style={{ display:'flex', gap:8, flexShrink:0 }}>
+                      <button onClick={() => moderateReview(r.id, 'approved')} className="btn b-green" style={{ fontSize:11, padding:'6px 14px' }}>✅ Approve</button>
+                      <button onClick={() => moderateReview(r.id, 'rejected')} className="btn b-ghost" style={{ fontSize:11, padding:'6px 14px', color:'#EF4444', borderColor:'#EF4444' }}>❌ Reject</button>
+                    </div>
+                  </div>
+                  <p style={{ fontSize:13, color:'#94A3B8', lineHeight:1.7, background:'rgba(0,0,0,0.2)', padding:'10px 14px', borderRadius:6 }}>{r.review_text}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* ══ OVERVIEW ══ */}
           {tab === 'overview' && (
