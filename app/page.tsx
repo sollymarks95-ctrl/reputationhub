@@ -145,11 +145,11 @@ export default function HomePage() {
                   <div style={{ flex:1, background:'rgba(255,255,255,0.05)', padding:'4px 10px', borderRadius:4, fontSize:11, color:'#64748b' }}>google.com/search?q=your+broker+name</div>
                 </div>
                 {[
-                  { r:1, d:'finvex.rephuby.com', t:'Your Broker — Official Analysis | Finvex', sn:'Full market analysis, regulation details...', st:true },
-                  { r:2, d:'nexwire.rephuby.com', t:'Your Broker Market Commentary | Nexwire', sn:'Daily expert market updates from your team...' },
-                  { r:3, d:'signalix.rephuby.com', t:'CEO Interview: Your Broker 2025 | Bizplex', sn:'Exclusive AI podcast: leadership insights...' },
-                  { r:4, d:'verivex.rephuby.com', t:'Your Broker: 4.9★ Reviews | Verivex', sn:'2,400+ verified reviews. Regulated & trusted.' },
-                  { r:5, d:'invexhub.rephuby.com', t:'Your Broker Intelligence | InvexHub', sn:'Institutional-grade market data...' },
+                  { r:1, d:'finvex.rephuby.com', t:'eToro — Official Analysis | Finvexx', sn:'Full market analysis, regulation details...', st:true },
+                  { r:2, d:'nexwire.rephuby.com', t:'eToro Market Commentary | Nex-Wire', sn:'Daily expert market updates from your team...' },
+                  { r:3, d:'signalix.rephuby.com', t:'CEO Interview: eToro 2025 | Bizplezx', sn:'Exclusive AI podcast: leadership insights...' },
+                  { r:4, d:'verivex.rephuby.com', t:'eToro: 4.9★ Reviews | Verivex', sn:'2,400+ verified reviews. Regulated & trusted.' },
+                  { r:5, d:'invexhub.rephuby.com', t:'eToro Intelligence | InvexHub', sn:'Institutional-grade market data...' },
                 ].map(s => (
                   <div key={s.r} style={{ padding:'10px 0 10px 22px', borderBottom:'1px solid rgba(255,255,255,0.05)', position:'relative' }}>
                     <div style={{ position:'absolute', left:-6, top:'50%', transform:'translateY(-50%)', width:20, height:20, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, background:s.r===1?'linear-gradient(135deg,#F59E0B,#F97316)':'#1E2533', color:s.r===1?'#000':'#64748b' }}>{s.r}</div>
@@ -180,7 +180,7 @@ export default function HomePage() {
         <div style={{ overflow:'hidden' }}>
           <div style={{ display:'flex', animation:'ticker 30s linear infinite', whiteSpace:'nowrap' }}>
             {[...PORTALS,...PORTALS].map((p, i) => (
-              <a key={i} href={`https://rephuby.com/${p.route}`} target="_blank" rel="noopener noreferrer" style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 22px', flexShrink:0, textDecoration:'none' }}>
+              <a key={i} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 22px', flexShrink:0, textDecoration:'none' }}>
                 <div style={{ width:36, height:36, borderRadius:8, background:`${p.color}28`, border:`1px solid ${p.color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:15, color:p.color }}>
                   {p.name.charAt(0)}
                 </div>
@@ -218,7 +218,7 @@ export default function HomePage() {
           </div>
           <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
             {[
-              { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'Your Broker review', 'Your Broker scam', 'Your Broker legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
+              { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'eToro review', 'eToro scam', 'eToro legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
               { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 12 elite portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
               { icon:'🎬', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'Video & Podcast', accent:'Interviews', desc:"We produce real AI-powered audio and video interviews with your CEO, analysts and trading team. Published to Spotify, YouTube, Apple Podcasts. When prospects search your brand, they find a podcast. When they ask AI — it cites your CEO interview. That's authority.", cta:'Hear a sample →' },
             ].map(f => (
@@ -265,7 +265,7 @@ export default function HomePage() {
             <div style={{ display:'grid', gridTemplateColumns:'200px 1fr 200px', minHeight:380 }}>
               <div className="ds1" style={{ padding:18, borderRight:'1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ fontSize:9, fontWeight:700, color:'#475569', letterSpacing:'.08em', marginBottom:12 }}>🎯 GOOGLE RANK TRACKER</div>
-                {[['apex review','#1',4,'Finvex'],['apex legit','#1',9,'Nexwire'],['apex safe','#2',14,'Verivex'],['apex scam','#18',5,'Signalix']].map(([k,p,prev,site]) => (
+                {[['etoro review','#1',4,'Finvexx'],['etoro legit','#1',9,'Nex-Wire'],['etoro safe','#2',14,'Verivex'],['etoro scam','#18',5,'Signalix']].map(([k,p,prev,site]) => (
                   <div key={k} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.04)', fontSize:11 }}>
                     <div style={{ width:18, height:18, borderRadius:3, background:p!=='#18'?'rgba(16,185,129,0.2)':'rgba(239,68,68,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:p!=='#18'?'#10B981':'#EF4444', flexShrink:0 }}>{p!=='#18'?'▲':'▼'}</div>
                     <div style={{ flex:1 }}><div style={{ color:'#F1F5F9' }}>{k}</div><div style={{ fontSize:9, color:'#475569' }}>{site}</div></div>
@@ -276,7 +276,7 @@ export default function HomePage() {
               </div>
               <div style={{ padding:20 }}>
                 <div style={{ fontSize:9, fontWeight:700, color:'#475569', letterSpacing:'.08em', marginBottom:12 }}>📰 RECENT ARTICLES PUBLISHED</div>
-                {[['Finvex','Your Broker Q2 2025 EUR/USD Outlook: Bull Case Builds'],['Nexwire','Your Broker Head of Research: Global Trade Commentary'],['Signalix','Bitcoin Weekly Signal: Your Broker Crypto Desk Analysis'],['AurexHQ','Gold Hits 3-Month High: Your Broker Commodities Strategy'],['Verivex','Your Broker: 4.9-Star — 2,400 Verified Client Reviews']].map(([portal,title]) => (
+                {[['Finvex','eToro Q2 2025 EUR/USD Outlook: Bull Case Builds'],['Nexwire','eToro Head of Research: Global Trade Commentary'],['Signalix','Bitcoin Weekly Signal: eToro Crypto Desk Analysis'],['AurexHQ','Gold Hits 3-Month High: eToro Commodities Strategy'],['Verivex','eToro: 4.9-Star — 2,400 Verified Client Reviews']].map(([portal,title]) => (
                   <div key={title} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.04)', alignItems:'center' }}>
                     <span style={{ fontSize:10, fontWeight:700, color:'#0EA5E9', minWidth:60 }}>{portal}</span>
                     <span style={{ flex:1, fontSize:12, fontWeight:500, color:'#F1F5F9', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{title}</span>
@@ -359,7 +359,7 @@ export default function HomePage() {
           </div>
           <div className="tg" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
             {[
-              { mt:'📈 +42% Conversion Rate · 60 Days', q:"A competitor seeded fake scam threads about us on 3 forums. RepHuby published our CEO's market analysis on 12 portals, launched a CEO podcast interview, and buried every negative result within 96 hours. Our prospects now find a podcast and 2,400 reviews before they find anything negative. Closing rate: 11% → 19%.", n:'Marcus H.', r:'CEO, CySEC-Regulated FX Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
+              { mt:'📈 +42% Conversion Rate · 60 Days', q:"A competitor seeded fake scam threads about us on 3 forums. RepHuby published our CEO's market analysis on 12 portals, launched a CEO podcast interview, and buried every negative result within 96 hours. Our prospects now find a podcast and 2,400 reviews before they find anything negative. Closing rate: 11% → 19%.", n:'Marcus H.', r:'CEO, FCA/CySEC-Regulated Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
               { mt:'🔴 Fake Review Site: #1 → Page 3 in 3 Weeks', q:"A competitor built an entire fake review site targeting our brand name. It was ranking #1 when prospects searched us. RepHuby replaced all 7 top positions with our own portal articles, our analyst's commentary and a video interview with our COO. That site now ranks page 3. Prospects never see it.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
               { mt:'🏆 11 Brand Keywords Dominated · Q1', q:"Before RepHuby, if you searched our name plus 'withdrawal' or 'regulated' you'd find forum complaints. Now you find our compliance officer's article on Certivade, our analyst on Finvex, and our CEO interview on Bizplex. 11 of 12 tracked brand searches are now controlled by us.", n:'Rafael S.', r:'Head of Marketing, FCA-Regulated Broker · UK', av:'R', g:'135deg,#F59E0B,#F97316' },
               { mt:'⚡ CEO Podcast Live in 48h · Brand Transformed', q:"In 48 hours we had a professionally produced CEO podcast published to Spotify and YouTube, six broker-authored analysis pieces live on four portals, and a press release on PresxWire. When a prospect now Googles us they find our CEO talking. Old PR agencies couldn't do in 6 months what RepHuby did in 2 days.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
@@ -565,12 +565,12 @@ function AIDefenseSection() {
                 </div>
                 {/* Positive results */}
                 {[
-                  { icon:'📊', src:'Finvex · rephuby.com', title:'eToro — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://rephuby.com/finance/finance-terminal' },
-                  { icon:'🎙', src:'Bizplex · rephuby.com', title:'CEO Interview: eToro 2025 Vision', snippet:'Alex Chen discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://rephuby.com/magazine/business-pulse' },
-                  { icon:'⭐', src:'Verivex · rephuby.com', title:'eToro: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · FCA/CySEC/ASIC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://rephuby.com/reviews-hub/trust-score' },
-                  { icon:'🏛', src:'Certivade · rephuby.com', title:'eToro CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://rephuby.com/association/global-trade-assoc' },
-                  { icon:'📰', src:'Nexwire · rephuby.com', title:'eToro Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://rephuby.com/news/global-trade-wire' },
-                  { icon:'👔', src:'Execvex · rephuby.com', title:'Executive Profile: eToro CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://rephuby.com/executive/executive-network' },
+                  { icon:'📊', src:'Finvexx · finvexx.com', title:'eToro — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://finvexx.com' },
+                  { icon:'🎙', src:'Bizplezx · bizplezx.com', title:'CEO Interview: eToro 2025 Vision', snippet:'eToro CEO discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://bizplezx.com' },
+                  { icon:'⭐', src:'Verivex · verivex.co', title:'eToro: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · FCA/CySEC/ASIC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://verivex.co' },
+                  { icon:'🏛', src:'Certivade · certivade.com', title:'eToro CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://certivade.com' },
+                  { icon:'📰', src:'Nex-Wire · nex-wire.com', title:'eToro Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://nex-wire.com' },
+                  { icon:'👔', src:'Execvex · execvex.com', title:'Executive Profile: eToro CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://execvex.com' },
                 ].map((r) => (
                   <a key={r.cls} href={r.href} target="_blank" rel="noopener noreferrer" style={{ display:'block', padding:'11px 0', borderBottom:'1px solid rgba(16,185,129,0.1)', opacity:0, textDecoration:'none' }} className={r.cls}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
@@ -594,7 +594,7 @@ function AIDefenseSection() {
                     <strong style={{color:'#10B981'}}>eToro appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
                   </div>
                   <div style={{ marginTop:10, display:'flex', gap:8, flexWrap:'wrap' }}>
-                    {['CySEC Regulated ✓','4.9★ Reviews ✓','CEO Verified ✓','Podcast Active ✓'].map(t => (
+                    {['FCA/CySEC/ASIC ✓','4.9★ Reviews ✓','CEO Verified ✓','Podcast Active ✓'].map(t => (
                       <span key={t} style={{ fontSize:11, padding:'3px 10px', background:'rgba(16,185,129,0.15)', color:'#10B981', border:'1px solid rgba(16,185,129,0.3)', borderRadius:100, fontWeight:700 }}>{t}</span>
                     ))}
                   </div>
