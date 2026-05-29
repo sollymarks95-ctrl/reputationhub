@@ -280,6 +280,12 @@ export async function GET(req: NextRequest) {
     results.push({ site: site.name, inserted: siteInserted })
   }
 
+  // Auto-index sites hitting 50+ articles (~20 sites/month, fully automatic)
+  try {
+    await getDb().rpc('mark_sites_index_ready' as any)
+    await getDb().rpc('auto_index_ready_sites' as any)
+  } catch (e) { /* non-blocking */ }
+
   return NextResponse.json({
     message: `Batch ${batch} complete — ${totalInserted} articles across ${ALL_SITES.length} portals`,
     results,
