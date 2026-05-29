@@ -172,7 +172,13 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         .cat-btn{padding:7px 18px;border-radius:100px;border:1.5px solid #E2E8F0;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit;white-space:nowrap;transition:all .15s;background:#fff;color:#475569}
         .cat-btn.active{background:${DARK};color:#fff;border-color:${DARK}}
         .cat-btn:hover:not(.active){border-color:${GREEN};color:${GREEN}}
-        @media(max-width:768px){.grid3{grid-template-columns:1fr!important}.hide-m{display:none!important}.hero-flex{flex-direction:column!important}}
+        @media(max-width:768px){
+          .trust-hero-grid{grid-template-columns:1fr!important;gap:12px!important}
+          .trust-company-grid{grid-template-columns:1fr!important}
+          .trust-sections{grid-template-columns:1fr!important}
+          .trust-stats{flex-direction:column!important;gap:8px!important}
+          .trust-nav{overflow-x:auto;white-space:nowrap}
+          }
       `}</style>
 
       {/* eToro top banner */}
@@ -243,7 +249,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           </div>
 
           {loading ? (
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }} className="grid3">
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:16 }} className="grid3">
               {[1,2,3,4,5,6].map(i=>(
                 <div key={i} style={{ border:'1px solid #E2E8F0', borderRadius:12, padding:20, background:'#fff', height:200 }}>
                   <div style={{ width:52, height:52, borderRadius:10, background:'#F1F5F9', marginBottom:12 }}/>

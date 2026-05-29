@@ -90,11 +90,13 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
         @media(max-width:768px){
           .whero{grid-template-columns:1fr!important}
-          .wgrid{grid-template-columns:repeat(2,1fr)!important}
+          .wgrid{grid-template-columns:1fr!important}
           .wtop{grid-template-columns:1fr!important}
+          .wsidebar{display:none!important}
           .snav{overflow-x:auto;flex-wrap:nowrap}
           .snav button{font-size:10px!important;padding:8px 10px!important;white-space:nowrap}
-          h1{font-size:28px!important}
+          h1{font-size:24px!important}
+          .wlayout{grid-template-columns:1fr!important}
         }
       `}</style>
 

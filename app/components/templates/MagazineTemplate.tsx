@@ -79,13 +79,13 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         .flink:hover{color:${p}}.m2{grid-template-columns:1fr!important}}
 
         @media(max-width:768px){
-          .mhero{grid-template-columns:1fr!important}
-          .m3{grid-template-columns:1fr!important}
-          .m2{grid-template-columns:1fr!important}
-          .mnav{overflow-x:auto;flex-wrap:nowrap}
-          .mnav button{white-space:nowrap}
-          h1{font-size:32px!important}
-        }
+          .mag-hero{grid-template-columns:1fr!important}
+          .mag-grid{grid-template-columns:1fr!important}
+          .mag-sidebar{display:none!important}
+          .mag-nav{overflow-x:auto;white-space:nowrap}
+          h1{font-size:22px!important}
+          .mag-layout{grid-template-columns:1fr!important}
+          }
       `}</style>
 
       {/* Top stripe */}

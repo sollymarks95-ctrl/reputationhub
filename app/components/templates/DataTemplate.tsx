@@ -64,7 +64,14 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         .nav-tab.active{color:${p};border-bottom-color:${p};font-weight:700}
         .ticker-scroll{animation:ticker 30s linear infinite}
         @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-        @media(max-width:768px){.data-layout{grid-template-columns:1fr!important}.data-grid{grid-template-columns:1fr!important}}
+        @media(max-width:900px){.layout{grid-template-columns:1fr!important}.sidebar{display:none!important}.art-body{padding:20px!important}}
+          @media(max-width:768px){
+          .data-hero{flex-direction:column!important}
+          .data-grid{grid-template-columns:1fr!important}
+          .data-sidebar{display:none!important}
+          .data-nav{overflow-x:auto;white-space:nowrap}
+          h1{font-size:22px!important}
+          }
       `}</style>
 
       {/* Header */}

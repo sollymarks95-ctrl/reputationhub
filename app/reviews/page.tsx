@@ -111,7 +111,7 @@ export default async function ReviewsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       {/* Logo */}
                       <div style={{ width: 52, height: 52, borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                        <img src={co.logo_url || `/api/logo/${co.slug}.com`} alt={co.name} width={40} height={40} style={{ objectFit: 'contain' }} />
+                        <img src={co.logo_url || `https://www.google.com/s2/favicons?domain=${co.slug}.com&sz=64`} alt={co.name} width={44} height={44} style={{ objectFit: 'contain', borderRadius: 6 }} referrerPolicy="no-referrer" />
                       </div>
                       <div>
                         <div style={{ fontWeight: 800, fontSize: 16, color: '#0F172A' }}>
