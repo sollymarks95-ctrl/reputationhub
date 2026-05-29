@@ -16,11 +16,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!site) return {}
   const url = `${BASE}/commodities/${slug}`
   return {
-    title: site.seo_title || `AurexHQ — Gold, Silver & Precious Metals Intelligence`,
+    title: slug === 'gold-markets-today' ? 'AurexHQ — Gold, Silver & Precious Metals Intelligence' : (site?.seo_title || site?.name || 'AurexHQ'),
     description: site.tagline || `${site.name} provides professional intelligence on gold silver oil precious metals markets.`,
     keywords: `gold price today, silver price, precious metals, gold ETF, mining stocks, commodity markets, AurexHQ`,
     verification: { google: 'HA3nGayYtuRO71-1WponYjA91ngEKy3KEEDNjLL09S0' },
     robots: 'index, follow',
+    icons: {
+      icon: '/api/favicon',
+      shortcut: '/api/favicon',
+      apple: '/api/favicon',
+    },
     alternates: { canonical: url },
     openGraph: {
       title: site.seo_title || site.name,

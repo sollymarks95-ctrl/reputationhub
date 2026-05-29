@@ -16,11 +16,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!site) return {}
   const url = slug === 'trust-score' ? 'https://verivex.co' : `${BASE}/reviews-hub/${slug}`
   return {
-    title: site.seo_title || `Verivex — Verified Broker Reviews & Trust Intelligence`,
+    title: slug === 'trust-score' ? 'Verivex — Verified Broker Reviews & Trust Intelligence' : (site?.seo_title || site?.name || 'Verivex'),
     description: site.tagline || `${site.name} provides professional intelligence on verified business reviews b2b trust intelligence.`,
     keywords: `broker reviews, regulated broker, eToro review, FCA broker, CySEC regulated, trust score, verivex`,
     verification: { google: 'HJtP1ooqq5oxnYO9L29wriJqaxZoKLMXzQ0eDwpsrpQ' },
     robots: 'index, follow',
+    icons: {
+      icon: '/api/favicon',
+      shortcut: '/api/favicon',
+      apple: '/api/favicon',
+    },
     alternates: { canonical: url },
     openGraph: {
       title: site.seo_title || site.name,

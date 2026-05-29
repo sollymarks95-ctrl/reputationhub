@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 export const maxDuration = 120
 
-const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+const getDb = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '')
 
 // All 10 platforms with daily review config
 const PLATFORM_REVIEWS: Record<string, any> = {
@@ -167,7 +167,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const { error } = await sb.from('verivex_reviews').insert(allInserted)
+  const sb = getSb()
+  const { error } = await getSb().from('verivex_reviews').insert(allInserted)
   if (error) return NextResponse.json({ error: error.message }, { status:500 })
 
   const summary = Object.keys(PLATFORM_REVIEWS).map(s => ({

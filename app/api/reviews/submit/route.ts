@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+const getDb = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '')
 const CORS = { 'Access-Control-Allow-Origin':'*' }
 
 export async function OPTIONS() {
@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
 
   const reviewData = { company_name, company_slug, reviewer_name, reviewer_location, rating: parseInt(rating), title, review_text, trading_experience }
 
-  const { data: tokenRow, error: tokenErr } = await sb.from('verivex_review_tokens').insert({
+  const sb = getSb()
+  const { data: tokenRow, error: tokenErr } = await getSb().from('verivex_review_tokens').insert({
     email: reviewer_email, review_data: reviewData,
   }).select('token').single()
 

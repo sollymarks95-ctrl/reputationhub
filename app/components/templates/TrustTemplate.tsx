@@ -45,9 +45,22 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
             {/* Logo — served via our proxy for reliability */}
             <div style={{ width:56, height:56, borderRadius:10, overflow:'hidden', border:'1px solid #E2E8F0', flexShrink:0, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
               {company.logo_url && !imgErr ? (
-                <img src={company.logo_url} alt={company.name} referrerPolicy="no-referrer" crossOrigin="anonymous"
-                  style={{ width:48, height:48, objectFit:'contain', display:'block' }}
-                  onError={() => setImgErr(true)} />
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  width={48} height={48}
+                  style={{ width:48, height:48, objectFit:'contain', display:'block', maxWidth:'100%' }}
+                  onError={(e) => {
+                    const t = e.currentTarget
+                    // Try DuckDuckGo favicon as fallback
+                    if (!t.dataset.tried2) {
+                      t.dataset.tried2 = '1'
+                      t.src = `https://icons.duckduckgo.com/ip3/${company.slug === 'etoro' ? 'etoro.com' : company.slug === 'ic-markets' ? 'icmarkets.com' : company.slug === 'interactive-brokers' ? 'interactivebrokers.com' : company.slug + '.com'}.ico`
+                    } else {
+                      setImgErr(true)
+                    }
+                  }}
+                />
               ) : (
                 <div style={{ width:48, height:48, borderRadius:8, background:company.logo_color||GREEN, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:18 }}>
                   {company.logo_letter||company.name.charAt(0)}
