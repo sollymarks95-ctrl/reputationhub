@@ -193,7 +193,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             <input className="srch" placeholder="Search broker or platform..." value={search} onChange={e=>setSearch(e.target.value)} />
           </div>
           <div className="hide-m" style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <a href="/reviews" style={{ fontSize:13, color:'#475569', padding:'8px 14px', border:'1px solid #E2E8F0', borderRadius:8 }}>For Businesses</a>
+            <a href="/for-businesses" style={{ fontSize:13, color:'#475569', padding:'8px 14px', border:'1px solid #E2E8F0', borderRadius:8 }}>For Businesses</a>
             <a href="/reviews" style={{ fontSize:13, fontWeight:700, color:'#fff', padding:'9px 18px', borderRadius:8, background:GREEN }}>✍️ Write a Review</a>
           </div>
         </div>
@@ -296,37 +296,6 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         )}
       </div>
 
-      {/* Footer */}
-      <footer style={{ background:DARK, color:'#64748B', padding:'40px 24px', marginTop:48 }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:32 }} className="grid3">
-          <div>
-            <div style={{ fontWeight:900, fontSize:22, color:'#fff', marginBottom:8 }}>VERI<span style={{ color:GREEN }}>VEX</span></div>
-            <p style={{ fontSize:13, lineHeight:1.7 }}>Independent broker reviews and trust intelligence. All reviews moderated for authenticity.</p>
-          </div>
-          <div>
-            <div style={{ fontWeight:700, color:'#94A3B8', fontSize:12, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:12 }}>Top Reviewed</div>
-            {['etoro','ic-markets','pepperstone','ftmo','binance'].map(s=>(
-              <a key={s} href={`/reviews/${s}`} style={{ display:'block', fontSize:13, color:'#64748B', marginBottom:6, textTransform:'capitalize' }}>
-                {s.replace(/-/g,' ')}
-              </a>
-            ))}
-          </div>
-          <div>
-            <div style={{ fontWeight:700, color:'#94A3B8', fontSize:12, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:12 }}>Categories</div>
-            {[['forex','Forex Brokers'],['crypto','Crypto Exchanges'],['prop','Prop Firms'],['regulated','Regulated Brokers']].map(([id,label])=>(
-              <div key={id} style={{ fontSize:13, color:'#64748B', marginBottom:6, cursor:'pointer' }}>{label}</div>
-            ))}
-          </div>
-        </div>
-        <div style={{ maxWidth:1200, margin:'24px auto 0', paddingTop:20, borderTop:'1px solid #1e293b', textAlign:'center', fontSize:12 }}>
-          © 2025 Verivex Trust Intelligence · verivex.co · Reviews moderated for authenticity
-        </div>
-        <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
-          {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
-            <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
-          ))}
-        </div>
-      </footer>
       {/* ── We're Verivex ── */}
       <section style={{ background:'#D4F5E3', padding:'56px 24px' }}>
         <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
@@ -385,6 +354,38 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer style={{ background:DARK, color:'#64748B', padding:'40px 24px', marginTop:48 }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:32 }} className="grid3">
+          <div>
+            <div style={{ fontWeight:900, fontSize:22, color:'#fff', marginBottom:8 }}>VERI<span style={{ color:GREEN }}>VEX</span></div>
+            <p style={{ fontSize:13, lineHeight:1.7 }}>Independent broker reviews and trust intelligence. All reviews moderated for authenticity.</p>
+          </div>
+          <div>
+            <div style={{ fontWeight:700, color:'#94A3B8', fontSize:12, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:12 }}>Top Reviewed</div>
+            {['etoro','ic-markets','pepperstone','ftmo','binance'].map(s=>(
+              <a key={s} href={`/reviews/${s}`} style={{ display:'block', fontSize:13, color:'#64748B', marginBottom:6, textTransform:'capitalize' }}>
+                {s.replace(/-/g,' ')}
+              </a>
+            ))}
+          </div>
+          <div>
+            <div style={{ fontWeight:700, color:'#94A3B8', fontSize:12, textTransform:'uppercase', letterSpacing:'.06em', marginBottom:12 }}>Categories</div>
+            {[['forex','Forex Brokers'],['crypto','Crypto Exchanges'],['prop','Prop Firms'],['regulated','Regulated Brokers']].map(([id,label])=>(
+              <div key={id} style={{ fontSize:13, color:'#64748B', marginBottom:6, cursor:'pointer' }}>{label}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{ maxWidth:1200, margin:'24px auto 0', paddingTop:20, borderTop:'1px solid #1e293b', textAlign:'center', fontSize:12 }}>
+          © 2025 Verivex Trust Intelligence · verivex.co · Reviews moderated for authenticity
+        </div>
+        <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
+          {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
+            <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
+          ))}
+        </div>
+      </footer>
 
       <CookieBanner primaryColor='#00B67A' />
     </div>
