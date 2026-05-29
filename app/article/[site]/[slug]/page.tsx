@@ -341,9 +341,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* AUTHOR META — NO AVATAR IMAGE */}
             <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18, paddingBottom:14, borderBottom:'2px solid #111', fontFamily:'sans-serif', flexWrap:'wrap' }}>
-              <div style={{ width:40, height:40, borderRadius:'50%', background:`linear-gradient(135deg,${p},#1e293b)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:16, flexShrink:0 }}>
-                {(article.author_name || 'E').charAt(0).toUpperCase()}
-              </div>
+
               <div>
                 <div style={{ fontWeight:800, fontSize:14, color:'#111' }}>By {article.author_name || 'Editorial Team'}</div>
                 <div style={{ fontSize:12, color:'#9ca3af', marginTop:2 }}>
@@ -397,17 +395,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* AUTHOR BIO — NO AVATAR IMAGE, JUST INITIAL */}
             <div style={{ background:'#fff', border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
-              <div style={{ display:'flex', gap:14, alignItems:'flex-start' }}>
-                <div style={{ width:52, height:52, borderRadius:'50%', background:`linear-gradient(135deg,${p},#1e293b)`, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:22, flexShrink:0 }}>
-                  {(article.author_name || 'E').charAt(0).toUpperCase()}
-                </div>
-                <div>
+              <div>
                   <div style={{ fontWeight:800, fontSize:15, color:'#111' }}>{article.author_name || 'Editorial Team'}</div>
                   <div style={{ fontSize:11, color:p, fontWeight:700, marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>{site.name} Correspondent · {article.category || 'Markets'}</div>
                   <p style={{ fontSize:13, color:'#6b7280', lineHeight:1.65 }}>
                     {article.author_name || 'The editorial team'} at {site.name} delivers expert analysis and breaking coverage across global markets, trade intelligence, and business strategy — combining deep industry expertise with rigorous reporting standards to provide actionable intelligence for business leaders worldwide.
                   </p>
-                </div>
               </div>
             </div>
 
