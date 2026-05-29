@@ -24,7 +24,28 @@ export default function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   const portal = DOMAIN_MAP[host]
-  if (!portal) return NextResponse.next()
+  if (!portal) {
+    // Unknown domain → try universal DB-driven site renderer
+    // Any domain added to news_sites table will work instantly
+    if (pathname === '/' || pathname === '') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/s'
+      return NextResponse.rewrite(url)
+    }
+    // /robots.txt for unknown domains
+    if (pathname === '/robots.txt') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/api/robots'
+      return NextResponse.rewrite(url)
+    }
+    // /sitemap.xml for unknown domains  
+    if (pathname === '/sitemap.xml') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/api/sitemap'
+      return NextResponse.rewrite(url)
+    }
+    return NextResponse.next()
+  }
 
   // Always pass through these paths
   if (
