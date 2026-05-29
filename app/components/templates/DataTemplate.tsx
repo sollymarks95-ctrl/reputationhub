@@ -266,7 +266,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         <div style={{ maxWidth:1260, margin:'0 auto' }}>
           <div style={{ fontSize:10, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:10 }}>Our Intelligence Network</div>
           <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-            {[['Nex-Wire','https://nex-wire.com','Global Trade'],['Finvexx','https://finvexx.com','Markets Terminal'],['Bizplexz','https://bizplexz.com','Business Pulse'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
+            {[['Nex-Wire','https://nex-wire.com','Global Trade'],['Finvexx','https://finvexx.com','Markets Terminal'],['Bizplezx','https://bizplezx.com','Business Pulse'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
               <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{ fontSize:11, color:'#64748B', border:'1px solid #1e293b', padding:'4px 12px', borderRadius:6, textDecoration:'none' }}>{n} · {d}</a>
             ))}
           </div>

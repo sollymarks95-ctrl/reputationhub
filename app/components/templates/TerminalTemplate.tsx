@@ -279,7 +279,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             <div style={{borderTop:'1px solid #1e293b',paddingTop:16,marginTop:16}}>
               <div style={{fontSize:10,fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-                {[['Finvexx','https://finvexx.com','Markets'],['Bizplexz','https://bizplexz.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
+                {[['Finvexx','https://finvexx.com','Markets'],['Bizplezx','https://bizplezx.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
                   <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#6b7280',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
                 ))}
               </div>
