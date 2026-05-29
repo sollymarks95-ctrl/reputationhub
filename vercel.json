@@ -3,7 +3,9 @@
   "buildCommand": "npx next build",
   "outputDirectory": ".next",
   "crons": [
-    { "path": "/api/cron-update?secret=REDACTED_CRON_SECRET", "schedule": "0 8 * * *" },
-    { "path": "/api/admin/regenerate-images?secret=REDACTED_CRON_SECRET&limit=50", "schedule": "30 8 * * *" }
+    { "path": "/api/cron-update?secret=REDACTED_CRON_SECRET&batch=0", "schedule": "0 8 * * *" },
+    { "path": "/api/cron-update?secret=REDACTED_CRON_SECRET&batch=1", "schedule": "0 10 * * *" },
+    { "path": "/api/cron-update?secret=REDACTED_CRON_SECRET&batch=2", "schedule": "0 13 * * *" },
+    { "path": "/api/admin/regenerate-images?secret=REDACTED_CRON_SECRET&limit=100", "schedule": "0 15 * * *" }
   ]
 }
