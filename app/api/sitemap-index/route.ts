@@ -4,19 +4,13 @@ export const runtime = 'nodejs'
 
 export async function GET() {
   const today = new Date().toISOString()
+  // 5 live portals only — others pending DNS
   const portals = [
     'https://nex-wire.com/sitemap.xml',
     'https://finvexx.com/sitemap.xml',
     'https://bizplezx.com/sitemap.xml',
     'https://aurexhq.com/sitemap.xml',
     'https://verivex.co/sitemap.xml',
-    'https://bizpedia.com/sitemap.xml',
-    'https://presxwire.com/sitemap.xml',
-    'https://invexhub.com/sitemap.xml',
-    'https://tradvex.com/sitemap.xml',
-    'https://certivade.com/sitemap.xml',
-    'https://execvex.com/sitemap.xml',
-    'https://signalix.com/sitemap.xml',
   ]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
