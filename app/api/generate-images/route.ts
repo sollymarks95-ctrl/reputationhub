@@ -4,10 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const IMG_PROMPTS: Record<string, string> = {
   'Trade': 'global shipping port cargo containers cranes maritime industrial',
@@ -62,9 +59,9 @@ async function generateImage(title: string, category: string): Promise<string | 
       if (b64) {
         const buf = Buffer.from(b64, 'base64')
         const fname = `ai-${Date.now()}.png`
-        const { error } = await supabase.storage.from('article-images').upload(fname, buf, { contentType: 'image/png' })
+        const { error } = await getDb().storage.from('article-images').upload(fname, buf, { contentType: 'image/png' })
         if (!error) {
-          const { data: ud } = supabase.storage.from('article-images').getPublicUrl(fname)
+          const { data: ud } = getDb().storage.from('article-images').getPublicUrl(fname)
           return ud.publicUrl
         }
       }
@@ -78,7 +75,7 @@ export async function GET(req: NextRequest) {
   const action = req.nextUrl.searchParams.get('action') || 'status'
 
   if (action === 'run' && token === 'rephuby-img-2025') {
-    const { data: articles } = await supabase
+    const { data: articles } = await getDb()
       .from('news_articles').select('id, title, category, cover_image_url')
       .ilike('cover_image_url', '%unsplash%').eq('status', 'published').limit(5)
 
@@ -88,18 +85,18 @@ export async function GET(req: NextRequest) {
     for (const art of articles) {
       const url = await generateImage(art.title, art.category || 'Default')
       if (url) {
-        await supabase.from('news_articles').update({ cover_image_url: url }).eq('id', art.id)
+        await getDb().from('news_articles').update({ cover_image_url: url }).eq('id', art.id)
         results.push({ ok: true, title: art.title.slice(0, 45) })
       } else {
         results.push({ ok: false, title: art.title.slice(0, 45) })
       }
     }
-    const { count } = await supabase.from('news_articles').select('*', { count: 'exact', head: true }).ilike('cover_image_url', '%unsplash%')
+    const { count } = await getDb().from('news_articles').select('*', { count: 'exact', head: true }).ilike('cover_image_url', '%unsplash%')
     return NextResponse.json({ processed: results.length, succeeded: results.filter(r => r.ok).length, remaining: count, results })
   }
 
-  const { count: need } = await supabase.from('news_articles').select('*', { count: 'exact', head: true }).ilike('cover_image_url', '%unsplash%')
-  const { count: total } = await supabase.from('news_articles').select('*', { count: 'exact', head: true })
+  const { count: need } = await getDb().from('news_articles').select('*', { count: 'exact', head: true }).ilike('cover_image_url', '%unsplash%')
+  const { count: total } = await getDb().from('news_articles').select('*', { count: 'exact', head: true })
   return NextResponse.json({ total, need_ai_images: need, done: (total || 0) - (need || 0) })
 }
 
@@ -109,7 +106,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const body = await req.json().catch(() => ({}))
-  const { data: articles } = await supabase
+  const { data: articles } = await getDb()
     .from('news_articles').select('id, title, category')
     .ilike('cover_image_url', '%unsplash%').eq('status', 'published').limit(body.limit || 5)
 
@@ -118,7 +115,7 @@ export async function POST(req: NextRequest) {
   const results = []
   for (const art of articles) {
     const url = await generateImage(art.title, art.category || 'Default')
-    if (url) { await supabase.from('news_articles').update({ cover_image_url: url }).eq('id', art.id); results.push({ ok: true }) }
+    if (url) { await getDb().from('news_articles').update({ cover_image_url: url }).eq('id', art.id); results.push({ ok: true }) }
     else results.push({ ok: false })
   }
   return NextResponse.json({ processed: results.length, succeeded: results.filter(r => r.ok).length, results })

@@ -9,10 +9,7 @@ export async function OPTIONS() {
   return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
 }
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const DESCRIPT_KEY = 'REDACTED_DESCRIPT_KEY'
 const DESCRIPT_BASE = 'https://descriptapi.com/v1'
@@ -137,12 +134,12 @@ Make the production look completely professional and broadcast-ready.`
 
     // Update DB
     if (podcastId) {
-      await sb.from('podcast_scripts').update({
+      await getDb().from('podcast_scripts').update({
         status: videoUrl ? 'video_ready' : 'descript_ready',
       }).eq('id', podcastId)
     }
     if (clientId) {
-      await sb.from('portal_activity').insert({
+      await getDb().from('portal_activity').insert({
         client_id: clientId,
         type: 'podcast_ready',
         description: `Podcast video ready: Episode ${episodeNum} — ${projectName}`,

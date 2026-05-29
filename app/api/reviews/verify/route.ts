@@ -7,17 +7,17 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
   if (!token) return NextResponse.redirect(new URL('/reviews/verified?status=invalid', req.url))
 
-  const sb = getSb()
-  const { data } = await getSb().from('verivex_review_tokens')
+  const sb = getDb()
+  const { data } = await getDb().from('verivex_review_tokens')
     .select('*').eq('token', token).eq('used', false)
     .gt('expires_at', new Date().toISOString()).single()
 
   if (!data) return NextResponse.redirect(new URL('/reviews/verified?status=expired', req.url))
 
-  await getSb().from('verivex_review_tokens').update({ used:true }).eq('id', data.id)
+  await getDb().from('verivex_review_tokens').update({ used:true }).eq('id', data.id)
 
   const review = data.review_data as any
-  await getSb().from('verivex_reviews').insert({
+  await getDb().from('verivex_reviews').insert({
     ...review, reviewer_email: data.email,
     verified_email: true, status:'pending', verified:true,
     created_at: new Date().toISOString(),

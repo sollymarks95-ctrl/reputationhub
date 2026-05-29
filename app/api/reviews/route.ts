@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 const CORS = { 'Access-Control-Allow-Origin': '*' }
 
 export async function OPTIONS() {
@@ -14,7 +11,7 @@ export async function OPTIONS() {
 // GET — fetch approved reviews for a company
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get('slug') || 'etoro'
-  const { data, error } = await sb
+  const { data, error } = await getDb()
     .from('verivex_reviews')
     .select('*')
     .eq('company_slug', slug)
@@ -41,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Rating must be 1-5' }, { status: 400, headers: CORS })
   }
 
-  const { error } = await sb.from('verivex_reviews').insert({
+  const { error } = await getDb().from('verivex_reviews').insert({
     company_name: company_name || 'eToro',
     company_slug,
     reviewer_name,

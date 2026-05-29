@@ -4,10 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 function buildPrompt(title: string, category: string): string {
   const styles: Record<string, string> = {
@@ -53,16 +50,16 @@ export async function generateArticleImage(
     const imgBuf = Buffer.from(await imgRes.arrayBuffer())
 
     const fileName = `img-${articleSlug || articleId || Date.now()}-${Date.now().toString(36)}.jpg`
-    const { error } = await sb.storage.from('article-images')
+    const { error } = await getDb().storage.from('article-images')
       .upload(fileName, imgBuf, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: true })
     if (error) { console.error('Storage err:', error.message); return tempUrl } // fallback to temp URL
 
-    const { data: urlData } = sb.storage.from('article-images').getPublicUrl(fileName)
+    const { data: urlData } = getDb().storage.from('article-images').getPublicUrl(fileName)
     const permanentUrl = urlData.publicUrl
 
     // Update article in DB
     if (articleId) {
-      await sb.from('news_articles').update({ cover_image_url: permanentUrl }).eq('id', articleId)
+      await getDb().from('news_articles').update({ cover_image_url: permanentUrl }).eq('id', articleId)
     }
     return permanentUrl
   } catch (e) {

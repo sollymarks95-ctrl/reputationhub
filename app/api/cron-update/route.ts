@@ -8,10 +8,7 @@ export const maxDuration = 300
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 // Service role key bypasses RLS
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 // 5 live portals — 30 topics each (5 batches × 6 articles/day)
 const LIVE_SITES = [
@@ -67,7 +64,7 @@ function slugify(s: string) {
 }
 
 async function getActiveClients() {
-  const { data } = await supabase.from('portal_clients')
+  const { data } = await getDb().from('portal_clients')
     .select('id,company_name,brand_slug,regulation,industry,website_url')
     .eq('is_active', true).limit(20)
   return data || []
@@ -75,7 +72,7 @@ async function getActiveClients() {
 
 async function getCrossPortalLinks(clientName: string, excludeSiteId: string) {
   const today = new Date().toISOString().split('T')[0]
-  const { data } = await supabase.from('news_articles')
+  const { data } = await getDb().from('news_articles')
     .select('title,slug,news_site_id')
     .ilike('body', `%${clientName}%`)
     .eq('status','published')
@@ -177,10 +174,10 @@ export async function GET(req: NextRequest) {
       if (!article) { console.log(`Skipped: ${topic}`); continue }
 
       const slug = slugify(article.title)
-      const { data: existing } = await supabase.from('news_articles').select('id').eq('slug', slug).single()
+      const { data: existing } = await getDb().from('news_articles').select('id').eq('slug', slug).single()
       if (existing) continue
 
-      const { data: inserted, error } = await supabase.from('news_articles').insert({
+      const { data: inserted, error } = await getDb().from('news_articles').insert({
         news_site_id: site.id,
         title: article.title,
         slug,
@@ -203,7 +200,7 @@ export async function GET(req: NextRequest) {
 
       if (inserted?.id) {
         generateArticleImage(inserted.id, article.title, article.category)
-          .then(url => { if (url) supabase.from('news_articles').update({ cover_image_url: url }).eq('id', inserted.id) })
+          .then(url => { if (url) getDb().from('news_articles').update({ cover_image_url: url }).eq('id', inserted.id) })
           .catch(() => {})
       }
 

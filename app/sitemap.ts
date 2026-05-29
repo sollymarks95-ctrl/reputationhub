@@ -1,10 +1,7 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'REDACTED_SUPABASE_ANON_KEY'
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const SITE_DOMAINS: Record<string, string> = {
   'global-trade-wire':  'https://nex-wire.com',
@@ -13,14 +10,14 @@ const SITE_DOMAINS: Record<string, string> = {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { data: articles } = await sb
+  const { data: articles } = await getDb()
     .from('news_articles')
     .select('slug, news_site_id, published_at, news_sites!inner(slug)')
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(500)
 
-  const { data: sites } = await sb
+  const { data: sites } = await getDb()
     .from('news_sites')
     .select('slug, updated_at')
     .eq('is_live', true)
