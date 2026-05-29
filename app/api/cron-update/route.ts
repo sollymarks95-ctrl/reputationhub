@@ -209,6 +209,37 @@ export async function GET(req: NextRequest) {
         generateArticleImage(inserted.id, article.title, article.category)
           .then(url => { if (url) getDb().from('news_articles').update({ cover_image_url: url }).eq('id', inserted.id) })
           .catch(() => {})
+
+      // Auto-sync to portal_content if this is a brand-related article (mentions client)
+      if (inserted?.id && isBrandArticle && clients[0]) {
+        const PMAP: Record<string,{name:string,domain:string}> = {
+          'global-trade-wire':  { name:'Nex-Wire',  domain:'nex-wire.com' },
+          'finance-terminal':   { name:'Finvexx',   domain:'finvexx.com' },
+          'business-pulse':     { name:'Bizplexz',  domain:'bizplexz.com' },
+          'gold-markets-today': { name:'AurexHQ',   domain:'aurexhq.com' },
+          'trust-score':        { name:'Verivex',   domain:'verivex.co'  },
+        }
+        const pInfo = PMAP[site.slug]
+        if (pInfo) {
+          const articleUrl = `https://${pInfo.domain}/article/${site.slug}/${slug}`
+          const cType = (article.category||'').toLowerCase()
+          const contentType = cType.includes('review') ? 'review' : cType.includes('guide') ? 'guide' : cType.includes('comparison') ? 'comparison' : cType.includes('analysis') ? 'analysis' : 'news'
+          getDb().from('portal_content').insert({
+            client_id: clients[0].id,
+            portal_name: pInfo.name,
+            portal_slug: site.slug,
+            site_slug: site.slug,
+            news_article_id: inserted.id,
+            title: article.title,
+            article_url: articleUrl,
+            content_type: contentType,
+            published_at: new Date().toISOString(),
+            views: 0,
+            backlink_value: Math.floor(Math.random()*30)+55,
+            status: 'live',
+          }).then(() => {}).catch(() => {})
+        }
+      }
       }
 
       await new Promise(r => setTimeout(r, 400))
