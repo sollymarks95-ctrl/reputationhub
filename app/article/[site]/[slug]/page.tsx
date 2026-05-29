@@ -71,6 +71,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
   const p = site.primary_color || '#c0392b'
   const route = ROUTE_MAP[siteSlug] || 'news'
+  // On custom domains (nex-wire.com etc), use "/" for home — not the internal route path
+  const { headers } = await import('next/headers')
+  const hdrs = await headers()
+  const homeUrl = hdrs.get('x-custom-domain') === 'true' ? '/' : `/${route}/${siteSlug}`
   const related = allArticles.filter((a: any) => a.slug !== slug).slice(0, 8)
   const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
   // Normalize body: handle both real newlines and literal \n from DB
@@ -124,8 +128,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         <span>{formatDate(article.published_at || new Date().toISOString())}</span>
         <div style={{ display:'flex', gap:14 }}>
           <Link href="/search"><span style={{ cursor:'pointer', color:'#94a3b8' }}>🔍 Search</span></Link>
-          <Link href={`/${route}/${siteSlug}`}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Home</span></Link>
-          <Link href={`/${route}/${siteSlug}?category=Markets`}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Markets</span></Link>
+          <Link href={homeUrl}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Home</span></Link>
+          <Link href={`${homeUrl}?category=Markets`}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Markets</span></Link>
         </div>
       </div>
 
@@ -133,24 +137,24 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       <header style={{ background:'#fff', borderBottom:`4px solid ${p}`, position:'sticky', top:0, zIndex:100, boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
         <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px' }}>
           <div style={{ height:58, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <Link href={`/${route}/${siteSlug}`}>
+            <Link href={homeUrl}>
               <div style={{ fontWeight:900, fontSize:26, color:p, letterSpacing:'-1px' }}>{site.name}</div>
             </Link>
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
               <Link href="/search">
                 <div style={{ background:'#f3f4f6', borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:'#374151' }}>🔍 Search</div>
               </Link>
-              <Link href={`/${route}/${siteSlug}`}>
+              <Link href={homeUrl}>
                 <div style={{ background:p, color:'#fff', borderRadius:5, padding:'6px 16px', fontSize:13, fontWeight:700, fontFamily:'sans-serif', cursor:'pointer' }}>Subscribe Free</div>
               </Link>
             </div>
           </div>
           <nav style={{ borderTop:'1px solid #f3f4f6', height:38, display:'flex', alignItems:'center', gap:0, overflowX:'auto' }}>
-            <Link href={`/${route}/${siteSlug}`}>
+            <Link href={homeUrl}>
               <span style={{ padding:'0 14px', height:38, display:'flex', alignItems:'center', fontSize:13, fontWeight:800, color:p, borderBottom:`2px solid ${p}`, whiteSpace:'nowrap' }}>Home</span>
             </Link>
             {cats.map((cat: string) => (
-              <Link key={cat} href={`/${route}/${siteSlug}?category=${encodeURIComponent(cat)}`}>
+              <Link key={cat} href={`${homeUrl}?category=${encodeURIComponent(cat)}`}>
                 <span style={{ padding:'0 14px', height:38, display:'flex', alignItems:'center', fontSize:13, fontFamily:'sans-serif', color:'#4b5563', whiteSpace:'nowrap' }}>{cat}</span>
               </Link>
             ))}
@@ -161,10 +165,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       {/* BREADCRUMB */}
       <div style={{ background:'#fff', borderBottom:'1px solid #e5e7eb', padding:'8px 20px' }}>
         <div style={{ maxWidth:1260, margin:'0 auto', fontSize:12, fontFamily:'sans-serif', color:'#9ca3af', display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
-          <Link href={`/${route}/${siteSlug}`} style={{ color:p }}>Home</Link>
+          <Link href={homeUrl} style={{ color:p }}>Home</Link>
           <span>›</span>
           {article.category && <>
-            <Link href={`/${route}/${siteSlug}?category=${encodeURIComponent(article.category)}`} style={{ color:p }}>{article.category}</Link>
+            <Link href={`${homeUrl}?category=${encodeURIComponent(article.category)}`} style={{ color:p }}>{article.category}</Link>
             <span>›</span>
           </>}
           <span style={{ color:'#9ca3af' }}>{article.title.substring(0,55)}...</span>
@@ -179,7 +183,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* CATEGORY + BREAKING */}
             <div style={{ display:'flex', gap:8, marginBottom:12, fontFamily:'sans-serif', alignItems:'center' }}>
               {article.category && (
-                <Link href={`/${route}/${siteSlug}?category=${encodeURIComponent(article.category)}`}>
+                <Link href={`${homeUrl}?category=${encodeURIComponent(article.category)}`}>
                   <span style={{ background:p, color:'#fff', padding:'3px 10px', fontSize:10, fontWeight:900, letterSpacing:'0.08em', borderRadius:3, textTransform:'uppercase' }}>{article.category}</span>
                 </Link>
               )}
@@ -342,7 +346,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', paddingBottom:10, marginBottom:12, borderBottom:`3px solid ${p}`, fontFamily:'sans-serif' }}>Topics</div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                 {cats.map((cat: string) => (
-                  <Link key={cat} href={`/${route}/${siteSlug}?category=${encodeURIComponent(cat)}`}>
+                  <Link key={cat} href={`${homeUrl}?category=${encodeURIComponent(cat)}`}>
                     <span style={{ fontSize:12, fontWeight:600, color:p, border:`1px solid ${p}30`, background:`${p}08`, padding:'4px 12px', borderRadius:3, fontFamily:'sans-serif', cursor:'pointer', display:'block' }}>{cat}</span>
                   </Link>
                 ))}
@@ -366,7 +370,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         <div style={{ maxWidth:1260, margin:'0 auto' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:28, marginBottom:28 }}>
             <div>
-              <Link href={`/${route}/${siteSlug}`}><div style={{ fontWeight:900, fontSize:20, color:'#fff', marginBottom:10 }}>{site.name}</div></Link>
+              <Link href={homeUrl}><div style={{ fontWeight:900, fontSize:20, color:'#fff', marginBottom:10 }}>{site.name}</div></Link>
               <p style={{ fontSize:13, lineHeight:1.7, color:'#475569' }}>{site.tagline || 'Global business intelligence and market analysis.'}</p>
             </div>
             {[

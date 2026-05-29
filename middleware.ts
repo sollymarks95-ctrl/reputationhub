@@ -55,7 +55,11 @@ export default function middleware(request: NextRequest) {
     ? `/${portal.route}/${portal.slug}`
     : `/${portal.route}/${portal.slug}${pathname}`
 
-  return NextResponse.rewrite(url)
+  const res = NextResponse.rewrite(url)
+  // Tell the page it's on a custom domain — so Home links use "/" not "/${route}/${slug}"
+  res.headers.set('x-custom-domain', 'true')
+  res.headers.set('x-site-slug', portal.slug)
+  return res
 }
 
 export const config = {
