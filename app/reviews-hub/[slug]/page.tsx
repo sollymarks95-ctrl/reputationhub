@@ -16,9 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!site) return {}
   const url = `${BASE}/reviews-hub/${slug}`
   return {
-    title: site.seo_title || `${site.name} — Verified Business Reviews B2B Trust Intelligence`,
+    title: site.seo_title || `Verivex — Verified Broker Reviews & Trust Intelligence`,
     description: site.tagline || `${site.name} provides professional intelligence on verified business reviews b2b trust intelligence.`,
-    keywords: `${site.name}, verified, business, reviews, b2b, trust, intelligence, market analysis, intelligence`,
+    keywords: `broker reviews, regulated broker, eToro review, FCA broker, CySEC regulated, trust score, verivex`,
+    verification: { google: 'HJtP1ooqq5oxnYO9L29wriJqaxZoKLMXzQ0eDwpsrpQ' },
     robots: 'index, follow',
     alternates: { canonical: url },
     openGraph: {

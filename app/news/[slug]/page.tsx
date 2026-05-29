@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: site.seo_title || `Nex-Wire — Global Trade & Market Intelligence`,
     description: site.tagline || `${site.name} provides professional intelligence on global trade markets news intelligence.`,
-    keywords: `${site.name}, global, trade, markets, news, intelligence, market analysis, intelligence`,
+    keywords: `global trade news, forex markets, EUR USD, gold price, oil price, central bank, market intelligence`,
     robots: 'index, follow',
     icons: { icon: '/icon-nexwire.svg', shortcut: '/icon-nexwire.svg', apple: '/icon-nexwire.svg' },
     alternates: { canonical: url },
