@@ -26,7 +26,7 @@ async function getData() {
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   )
 
-  const [clients, content, rankings, podcasts, activity, articleCount, subCount] = await Promise.all([
+  const [clients, content, rankings, podcasts, activity, articleCount, subCount, reviewsData, pendingReviews, businessInquiries] = await Promise.all([
     sb.from('portal_clients').select('*').order('created_at', { ascending: false }),
     sb.from('portal_content').select('*').order('published_at', { ascending: false }).limit(50),
     sb.from('portal_rankings').select('*').order('current_position'),
@@ -34,6 +34,9 @@ async function getData() {
     sb.from('portal_activity').select('*').order('created_at', { ascending: false }).limit(25),
     sb.from('news_articles').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     sb.from('newsletter_subscribers').select('*', { count: 'exact', head: true }),
+    sb.from('verivex_reviews').select('*').order('created_at', { ascending: false }).limit(100),
+    sb.from('verivex_reviews').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+    sb.from('business_inquiries').select('*').order('created_at', { ascending: false }).limit(50),
   ])
 
   return {
@@ -44,6 +47,9 @@ async function getData() {
     allActivity: activity.data || [],
     totalArticles: articleCount.count || 0,
     totalSubscribers: subCount.count || 0,
+    allReviews: reviewsData.data || [],
+    pendingReviews: pendingReviews.data || [],
+    businessInquiries: businessInquiries.data || [],
   }
 }
 
