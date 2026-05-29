@@ -23,11 +23,15 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     'business-pulse':    'https://bizplezx.com',
   }
   const BASE = domainMap[siteSlug] || 'https://rephuby.com'
-  const route = ROUTE_MAP[siteSlug] || 'news'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
+  // Extract brand mentions for keyword enrichment
+  const bodyText = (article.body || '').toLowerCase()
+  const clientKeywords = ['apex markets fx','apex markets','apexmarkets'].filter(k => bodyText.includes(k))
+  const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords].filter(Boolean).join(', ')
   return {
     title: `${article.title} | ${site.name}`,
     alternates: { canonical: canonicalUrl },
+    keywords: allKeywords,
     icons: {
       icon: siteSlug === 'global-trade-wire' ? '/icon-nexwire.svg' :
             siteSlug === 'finance-terminal'  ? '/icon-finvexx.svg' :
@@ -83,32 +87,69 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     .replace(/\\t/g, ' ')    // literal \t → space
     .trim()
   const paragraphs = rawBody.split(/\n\n+/).filter(b => b.trim().length > 0)
-  const BASE = 'https://rephuby.com'
+  // SEO: canonical must point to custom domain, not rephuby.com
+  const DOMAIN_MAP: Record<string,string> = {
+    'global-trade-wire': 'https://nex-wire.com',
+    'finance-terminal':  'https://finvexx.com',
+    'business-pulse':    'https://bizplezx.com',
+  }
+  const BASE = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
+  const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
 
-  // JSON-LD Structured Data for SEO & AI agents
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: article.title,
-    description: article.excerpt,
-    image: article.cover_image_url ? [article.cover_image_url] : [],
-    datePublished: article.published_at,
-    dateModified: article.updated_at || article.published_at,
-    author: { '@type': 'Person', name: article.author_name || 'Editorial Team' },
-    publisher: {
-      '@type': 'Organization', name: site.name,
-      logo: { '@type': 'ImageObject', url: `${BASE}/logo.png` }
+  // Extract client brand mentions from article body for entity markup
+  const bodyLower = rawBody.toLowerCase()
+  const mentionedBrands = ['apex markets fx','apexmarketsfx'].filter(b => bodyLower.includes(b))
+
+  // Full JSON-LD for Google, Perplexity, ChatGPT, AI overviews
+  const jsonLd: any[] = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: article.title,
+      description: article.excerpt,
+      image: article.cover_image_url ? [article.cover_image_url] : [],
+      datePublished: article.published_at,
+      dateModified: article.updated_at || article.published_at,
+      author: { '@type': 'Person', name: article.author_name || 'Editorial Team', url: `${BASE}/author/${(article.author_name||'editorial').toLowerCase().replace(/\s+/g,'-')}` },
+      publisher: {
+        '@type': 'NewsMediaOrganization', name: site.name, url: BASE,
+        logo: { '@type': 'ImageObject', url: `${BASE}/logo.png` }
+      },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+      url: canonicalUrl,
+      keywords: (article.tags || []).concat([article.category, site.name]).filter(Boolean).join(', '),
+      articleSection: article.category,
+      wordCount: rawBody.split(' ').length,
+      inLanguage: 'en',
+      copyrightHolder: { '@type': 'Organization', name: site.name },
     },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE}/article/${siteSlug}/${slug}` },
-    keywords: article.tags?.join(', '),
-    articleSection: article.category,
-    wordCount: rawBody.split(' ').length,
-    timeRequired: `PT${readTime(article.body)}M`,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: site.name, item: BASE },
+        { '@type': 'ListItem', position: 2, name: article.category || 'Markets', item: `${BASE}/?category=${encodeURIComponent(article.category||'Markets')}` },
+        { '@type': 'ListItem', position: 3, name: article.title, item: canonicalUrl },
+      ]
+    },
+  ]
+
+  // If article mentions a client brand — add Organization schema so AI engines identify the entity
+  if (mentionedBrands.includes('apex markets fx') || mentionedBrands.includes('apexmarketsfx')) {
+    jsonLd.push({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Apex Markets FX',
+      url: 'https://apexmarkets.com',
+      description: 'CySEC and FCA regulated forex and precious metals broker offering institutional-grade execution.',
+      sameAs: ['https://apexmarkets.com'],
+      knowsAbout: ['Forex Trading', 'Precious Metals', 'CFD Trading', 'Institutional Brokerage'],
+    })
   }
 
   return (
     <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'"Georgia","Times New Roman",serif', color:'#1a1a1a' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd.map((schema, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />)}
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         a{text-decoration:none;color:inherit}

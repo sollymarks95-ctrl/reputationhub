@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation'
 import SiteRenderer from '@/app/components/SiteRenderer'
 import type { Metadata } from 'next'
 
+const CUSTOM_DOMAINS: Record<string,string> = {
+  'global-trade-wire': 'https://nex-wire.com',
+  'finance-terminal':  'https://finvexx.com',
+  'business-pulse':    'https://bizplezx.com',
+}
 const BASE = 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
