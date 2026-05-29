@@ -158,8 +158,11 @@ export async function GET(req: NextRequest) {
   const batchStart = batch * BATCH_SIZE
   const batchEnd = batchStart + BATCH_SIZE
 
-  const clients = await getActiveClients()
-  if (clients.length === 0) return NextResponse.json({ error:'No active clients' }, { status:400 })
+  let clients = await getActiveClients()
+  // Hardcoded fallback — cron must ALWAYS run regardless of DB client query
+  if (clients.length === 0) {
+    clients = [{ id:'a1b2c3d4-0000-0000-0000-000000000001', company_name:'eToro', brand_slug:'etoro', regulation:'FCA, CySEC, ASIC', industry:'social trading', website_url:'https://www.etoro.com' }]
+  }
 
   const results: any[] = []
   let totalInserted = 0
@@ -173,7 +176,7 @@ export async function GET(req: NextRequest) {
       const globalIndex = batchStart + i
 
       // 20% brand articles — every 5th across full day
-      const isBrandArticle = (globalIndex % 5 === 1)
+      const isBrandArticle = (globalIndex % 3 === 0)
       const client = isBrandArticle ? clients[0] : null
       const crossLinks = isBrandArticle ? await getCrossPortalLinks(clients[0].company_name, site.id) : []
 
