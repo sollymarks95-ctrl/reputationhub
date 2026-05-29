@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const url = `${BASE}/reviews-hub/${slug}`
+  const url = slug === 'trust-score' ? 'https://verivex.co' : `${BASE}/reviews-hub/${slug}`
   return {
     title: site.seo_title || `Verivex — Verified Broker Reviews & Trust Intelligence`,
     description: site.tagline || `${site.name} provides professional intelligence on verified business reviews b2b trust intelligence.`,
