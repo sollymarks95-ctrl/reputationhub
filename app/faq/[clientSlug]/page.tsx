@@ -4,10 +4,7 @@ import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const PORTAL_URLS: Record<string,string> = {
   'global-trade-wire': 'https://nex-wire.com',
@@ -33,7 +30,7 @@ function generateFAQs(client: any) {
 
 export async function generateMetadata({ params }: { params: Promise<{clientSlug: string}> }): Promise<Metadata> {
   const { clientSlug } = await params
-  const { data: client } = await sb.from('portal_clients').select('*').eq('brand_slug', clientSlug).single()
+  const { data: client } = await getDb().from('portal_clients').select('*').eq('brand_slug', clientSlug).single()
   if (!client) return {}
   const name = client.company_name
   return {
@@ -47,14 +44,14 @@ export async function generateMetadata({ params }: { params: Promise<{clientSlug
 
 export default async function FAQPage({ params }: { params: Promise<{clientSlug: string}> }) {
   const { clientSlug } = await params
-  const { data: client } = await sb.from('portal_clients').select('*').eq('brand_slug', clientSlug).single()
+  const { data: client } = await getDb().from('portal_clients').select('*').eq('brand_slug', clientSlug).single()
   if (!client) notFound()
 
   const faqs = generateFAQs(client)
   const name = client.company_name
 
   // Get related articles mentioning this client across all portals
-  const { data: articles } = await sb.from('news_articles')
+  const { data: articles } = await getDb().from('news_articles')
     .select('title, slug, news_site_id')
     .ilike('body', `%${name}%`)
     .eq('status', 'published')

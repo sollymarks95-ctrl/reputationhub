@@ -9,14 +9,11 @@ export async function OPTIONS() {
   return new Response(null, { status:204, headers: { "Access-Control-Allow-Origin":"*", "Access-Control-Allow-Methods":"POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type" } })
 }
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 async function getKey(name: string) {
   if (process.env[name]) return process.env[name]!
-  const { data } = await sb.from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()
+  const { data } = await getDb().from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()
   return data?.key_value || ''
 }
 
@@ -155,24 +152,24 @@ export async function POST(req: NextRequest) {
     const combined = Buffer.concat(buffers)
     const fileName = `podcast-${podcastId || Date.now()}-${Date.now().toString(36)}.mp3`
 
-    const { error: upErr } = await sb.storage.from('podcasts')
+    const { error: upErr } = await getDb().storage.from('podcasts')
       .upload(fileName, combined, { contentType:'audio/mpeg', cacheControl:'31536000', upsert:true })
     if (upErr) return NextResponse.json({ error: upErr.message }, { status:500, headers:{"Access-Control-Allow-Origin":"*"} })
 
-    const { data: urlData } = sb.storage.from('podcasts').getPublicUrl(fileName)
+    const { data: urlData } = getDb().storage.from('podcasts').getPublicUrl(fileName)
     const audioUrl = urlData.publicUrl
 
     if (podcastId) {
-      await sb.from('podcast_scripts').update({ audio_url:audioUrl, status:'ready' }).eq('id', podcastId)
+      await getDb().from('podcast_scripts').update({ audio_url:audioUrl, status:'ready' }).eq('id', podcastId)
       // Also upsert into portal_podcasts with the mp3_url for playback
       const epNum = parseInt(title?.match(/\d+/)?.[0] || '1')
-      const { data: existing } = await sb.from('portal_podcasts').select('id').eq('client_id', clientId).eq('title', title||'Episode').maybeSingle()
+      const { data: existing } = await getDb().from('portal_podcasts').select('id').eq('client_id', clientId).eq('title', title||'Episode').maybeSingle()
       if (existing?.id) {
-        await sb.from('portal_podcasts').update({ mp3_url: audioUrl, status:'published', script: script?.substring(0,500) }).eq('id', existing.id)
+        await getDb().from('portal_podcasts').update({ mp3_url: audioUrl, status:'published', script: script?.substring(0,500) }).eq('id', existing.id)
       } else {
         // Count existing episodes for this client to auto-number
-        const { count } = await sb.from('portal_podcasts').select('*', { count:'exact', head:true }).eq('client_id', clientId)
-        await sb.from('portal_podcasts').insert({
+        const { count } = await getDb().from('portal_podcasts').select('*', { count:'exact', head:true }).eq('client_id', clientId)
+        await getDb().from('portal_podcasts').insert({
           client_id: clientId,
           episode_number: episodeNumber || (count||0) + 1,
           title: title || 'Podcast Episode',
@@ -186,7 +183,7 @@ export async function POST(req: NextRequest) {
         })
       }
     }
-    if (clientId) await sb.from('portal_activity').insert({ client_id:clientId, type:'podcast_ready', description:`Audio: ${title||'Episode'}` })
+    if (clientId) await getDb().from('portal_activity').insert({ client_id:clientId, type:'podcast_ready', description:`Audio: ${title||'Episode'}` })
 
     return NextResponse.json({
       success: true, audioUrl, fileName,

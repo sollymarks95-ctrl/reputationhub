@@ -4,10 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export const runtime = 'nodejs'
 export const revalidate = 1800 // 30 min cache
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const DOMAIN_MAP: Record<string, { slug: string; base: string; name: string }> = {
   'nex-wire.com':  { slug:'global-trade-wire',  base:'https://nex-wire.com',  name:'Nex-Wire Intelligence' },
@@ -66,7 +63,7 @@ export async function GET(req: NextRequest) {
     const { base, slug: siteSlug, name: siteName } = cfg
 
     // Get site from DB
-    const { data: site } = await sb.from('news_sites').select('id').eq('slug', siteSlug).single()
+    const { data: site } = await getDb().from('news_sites').select('id').eq('slug', siteSlug).single()
 
     // 1. HOMEPAGE
     urls.push(urlEntry(`${base}/`, today, '1.0', 'daily'))
@@ -89,7 +86,7 @@ export async function GET(req: NextRequest) {
 
     if (site) {
       // 4. ALL ARTICLES — with Google News extension for fast indexing
-      const { data: articles } = await sb
+      const { data: articles } = await getDb()
         .from('news_articles')
         .select('slug, title, published_at, category, tags')
         .eq('news_site_id', site.id)
@@ -122,7 +119,7 @@ export async function GET(req: NextRequest) {
 
       // 6. CLIENT BRAND ARTICLE PAGES — specifically articles mentioning the client
       // (already included in step 4, but boosted separately for signal)
-      const { data: brandArticles } = await sb
+      const { data: brandArticles } = await getDb()
         .from('news_articles')
         .select('slug, published_at')
         .eq('news_site_id', site.id)

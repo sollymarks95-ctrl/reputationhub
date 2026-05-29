@@ -167,8 +167,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const sb = getSb()
-  const { error } = await getSb().from('verivex_reviews').insert(allInserted)
+  const sb = getDb()
+  const { error } = await getDb().from('verivex_reviews').insert(allInserted)
   if (error) return NextResponse.json({ error: error.message }, { status:500 })
 
   const summary = Object.keys(PLATFORM_REVIEWS).map(s => ({

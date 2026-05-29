@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
 
   const reviewData = { company_name, company_slug, reviewer_name, reviewer_location, rating: parseInt(rating), title, review_text, trading_experience }
 
-  const sb = getSb()
-  const { data: tokenRow, error: tokenErr } = await getSb().from('verivex_review_tokens').insert({
+  const sb = getDb()
+  const { data: tokenRow, error: tokenErr } = await getDb().from('verivex_review_tokens').insert({
     email: reviewer_email, review_data: reviewData,
   }).select('token').single()
 

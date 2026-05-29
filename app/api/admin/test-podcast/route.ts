@@ -5,13 +5,10 @@ import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
 export const runtime = 'nodejs'
 export const maxDuration = 300
 
-const sb = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 async function getKey(name: string) {
   if (process.env[name]) return process.env[name]!
-  const { data } = await sb.from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()
+  const { data } = await getDb().from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()
   return data?.key_value || ''
 }
 
@@ -77,14 +74,14 @@ export async function GET() {
   log.push(`${ms()} Audio combined: ${sizeKb}KB`)
 
   const fname=`test-e2e-${Date.now()}.mp3`
-  const {error:upErr}=await sb.storage.from('podcasts').upload(fname,combined,{contentType:'audio/mpeg',upsert:true})
+  const {error:upErr}=await getDb().storage.from('podcasts').upload(fname,combined,{contentType:'audio/mpeg',upsert:true})
   if(upErr) return html('Upload Failed','',log,upErr.message)
-  const {data:ud}=sb.storage.from('podcasts').getPublicUrl(fname)
+  const {data:ud}=getDb().storage.from('podcasts').getPublicUrl(fname)
   const audioUrl=ud.publicUrl
   log.push(`${ms()} Uploaded to Storage`)
 
-  const {count}:any=await sb.from('portal_podcasts').select('*',{count:'exact',head:true}).eq('client_id','a1b2c3d4-0000-0000-0000-000000000001')
-  await sb.from('portal_podcasts').insert({client_id:'a1b2c3d4-0000-0000-0000-000000000001',episode_number:(count||0)+1,title:'E2E Test — eToro CEO Interview',description:`Marcus Webb x James Richardson | Guest: ${guestVoice.name}`,duration_minutes:Math.round(combined.length/1024/128*8/60)||3,status:'published',mp3_url:audioUrl,host_name:'Marcus Webb',guest_name:'James Richardson',published_at:new Date().toISOString()})
+  const {count}:any=await getDb().from('portal_podcasts').select('*',{count:'exact',head:true}).eq('client_id','a1b2c3d4-0000-0000-0000-000000000001')
+  await getDb().from('portal_podcasts').insert({client_id:'a1b2c3d4-0000-0000-0000-000000000001',episode_number:(count||0)+1,title:'E2E Test — eToro CEO Interview',description:`Marcus Webb x James Richardson | Guest: ${guestVoice.name}`,duration_minutes:Math.round(combined.length/1024/128*8/60)||3,status:'published',mp3_url:audioUrl,host_name:'Marcus Webb',guest_name:'James Richardson',published_at:new Date().toISOString()})
   log.push(`${ms()} Saved to portal_podcasts DB`)
   log.push(`${ms()} COMPLETE in ${((Date.now()-t0)/1000).toFixed(1)}s`)
 
