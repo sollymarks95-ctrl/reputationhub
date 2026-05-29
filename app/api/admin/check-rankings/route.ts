@@ -71,14 +71,31 @@ export async function POST(req: NextRequest) {
     if (!searchDomain && clientId) {
       const { data: client } = await supabase
         .from('portal_clients')
-        .select('website')
+        .select('website_url')
         .eq('id', clientId)
         .single()
-      searchDomain = client?.website?.replace(/^https?:\/\/(www\.)?/, '') || ''
+      searchDomain = client?.website_url?.replace(/^https?:\/\/(www\.)?/, '') || ''
     }
 
-    if (!keyword || !searchDomain) {
-      return NextResponse.json({ error: 'keyword and domain required' }, { status: 400 })
+    // Fallback: try to get domain from existing rankings for this client
+    if (!searchDomain && clientId) {
+      const { data: existingRank } = await supabase
+        .from('portal_rankings')
+        .select('target_url')
+        .eq('client_id', clientId)
+        .not('target_url', 'is', null)
+        .limit(1)
+        .single()
+      if (existingRank?.target_url) {
+        try { searchDomain = new URL(existingRank.target_url).hostname.replace('www.', '') } catch {}
+      }
+    }
+
+    if (!keyword) {
+      return NextResponse.json({ error: 'Keyword is required' }, { status: 400 })
+    }
+    if (!searchDomain) {
+      return NextResponse.json({ error: 'No website found for this client — add a website URL in client settings' }, { status: 400 })
     }
 
     const result = await checkRankWithSearchApi(keyword, searchDomain, apiKey)

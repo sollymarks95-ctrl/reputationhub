@@ -88,6 +88,19 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podScript, setPodScript] = useState('')
   const [podLoading, setPodLoading] = useState(false)
   const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
+  const [livePodcasts, setLivePodcasts] = useState<any[]>(allPodcasts || [])
+
+  const refreshPodcasts = React.useCallback(async () => {
+    try {
+      const r = await fetch('/api/admin/get-podcasts')
+      if (r.ok) { const d = await r.json(); setLivePodcasts(d.podcasts || []) }
+    } catch {}
+  }, [])
+
+  // Refresh podcast list when switching to episodes tab
+  useEffect(() => {
+    if (podSubTab === 'episodes') refreshPodcasts()
+  }, [podSubTab, refreshPodcasts])
   const [podAudioLoading, setPodAudioLoading] = useState(false)
   const [podEpisodeId, setPodEpisodeId] = useState('')
   const [podAudio, setPodAudio] = useState('')
@@ -187,7 +200,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
         setPodAudio(ad.audioUrl)
         setPodMsg(`✅ Audio podcast ready! Host: ${ad.voices?.host} · Guest: ${ad.voices?.guest}`)
         // Refresh episodes list to show the new episode with audio player
-        router.refresh()
+        await refreshPodcasts()
       } else { setPodMsg('Audio error: '+(ad.error||'unknown')) }
     } catch(e:any) { setPodMsg('Error: '+e.message) }
     setPodLoading(false)
@@ -957,7 +970,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       </div>
                     </div>
                   )}
-                  {allPodcasts.length === 0 && !podLoading ? (
+                  {livePodcasts.length === 0 && !podLoading ? (
                     <div style={{ textAlign:'center', padding:'80px 20px', color:'#475569' }}>
                       <div style={{ fontSize:48, marginBottom:12 }}>🎙</div>
                       <div style={{ fontSize:16, fontWeight:600, color:'#94A3B8', marginBottom:8 }}>No episodes yet</div>
@@ -968,7 +981,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     </div>
                   ) : (
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(400px,1fr))', gap:18 }}>
-                      {allPodcasts.map((ep: any, i: number) => (
+                      {livePodcasts.map((ep: any, i: number) => (
                         <div key={i} className="card" style={{ padding:24 }}>
                           {/* Episode header */}
                           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
