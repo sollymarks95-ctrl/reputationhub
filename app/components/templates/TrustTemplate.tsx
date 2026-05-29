@@ -49,6 +49,8 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
                   src={company.logo_url}
                   alt={company.name}
                   width={48} height={48}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
                   style={{ width:48, height:48, objectFit:'contain', display:'block', maxWidth:'100%' }}
                   onError={(e) => {
                     const t = e.currentTarget
@@ -327,67 +329,70 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           ))}
         </div>
       </footer>
-      {/* ── "We're Verivex" section ── */}
-      <div style={{ background:'#C8F0D8', padding:'48px 24px', marginTop:0 }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', gap:40, flexWrap:'wrap' }}>
-          <div style={{ flex:1, minWidth:260 }}>
-            <h2 style={{ fontSize:32, fontWeight:900, color:'#191919', marginBottom:12 }}>We're Verivex</h2>
-            <p style={{ fontSize:15, color:'#1a5c35', lineHeight:1.7, maxWidth:460, marginBottom:24 }}>
+      {/* ── We're Verivex ── */}
+      <section style={{ background:'#D4F5E3', padding:'56px 24px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, alignItems:'center' }}>
+          <div>
+            <div style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'#166534', marginBottom:12 }}>ABOUT VERIVEX</div>
+            <h2 style={{ fontSize:36, fontWeight:900, color:'#0F172A', lineHeight:1.1, marginBottom:16, letterSpacing:'-0.02em' }}>We're Verivex</h2>
+            <p style={{ fontSize:16, color:'#374151', lineHeight:1.75, marginBottom:28, maxWidth:420 }}>
               We're a review platform that's open to everyone. Our vision is to become the universal symbol of trust in trading — empowering people to invest with confidence, and helping companies improve.
             </p>
-            <a href="/for-businesses" style={{ display:'inline-block', background:'#191919', color:'#fff', padding:'12px 24px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
-              What we do
+            <a href="/for-businesses" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0F172A', color:'#fff', padding:'13px 28px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none', letterSpacing:'-0.01em' }}>
+              What we do →
             </a>
           </div>
-          <div style={{ flex:1, minWidth:280 }}>
-            <div style={{ background:'#1a5c35', borderRadius:16, padding:28, color:'#fff' }}>
-              <div style={{ fontWeight:800, fontSize:16, marginBottom:8 }}>📊 Our 2025 Trust Report has landed!</div>
-              <p style={{ fontSize:13, color:'#86efac', lineHeight:1.6, marginBottom:16 }}>Find out which actions we've taken to protect traders and promote trust on our platform.</p>
-              <a href="/legal/privacy" style={{ display:'inline-block', background:'transparent', color:'#fff', border:'2px solid #fff', padding:'8px 20px', borderRadius:100, fontWeight:700, fontSize:13, textDecoration:'none' }}>
-                Take a look
-              </a>
-            </div>
+          <div style={{ background:'#166534', borderRadius:20, padding:'36px 32px', color:'#fff', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, background:'rgba(255,255,255,0.06)', borderRadius:'50%' }}/>
+            <div style={{ position:'absolute', bottom:-20, left:-20, width:80, height:80, background:'rgba(255,255,255,0.04)', borderRadius:'50%' }}/>
+            <div style={{ fontSize:12, fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#86efac', marginBottom:12 }}>TRUST REPORT 2025</div>
+            <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10, lineHeight:1.3 }}>Our new Trust Report has landed!</h3>
+            <p style={{ fontSize:14, color:'#bbf7d0', lineHeight:1.6, marginBottom:24 }}>Find out which actions we've taken to protect traders and promote trust on our platform.</p>
+            <a href="/legal/privacy" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.12)', backdropFilter:'blur(4px)', border:'1.5px solid rgba(255,255,255,0.3)', color:'#fff', padding:'10px 22px', borderRadius:100, fontWeight:700, fontSize:13, textDecoration:'none', transition:'background .2s' }}>
+              Take a look
+            </a>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── "Help millions make the right choice" section ── */}
-      <div style={{ background:'#F5EFE8', padding:'48px 24px' }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', display:'flex', alignItems:'center', gap:40, flexWrap:'wrap' }}>
-          <div style={{ flex:1, minWidth:260 }}>
-            <h2 style={{ fontSize:28, fontWeight:900, color:'#191919', marginBottom:12 }}>Help millions make the right choice</h2>
-            <p style={{ fontSize:14, color:'#64748B', lineHeight:1.7, marginBottom:24 }}>Share your experience on Verivex, where reviews make a difference for traders worldwide.</p>
-            <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
-              <a href="/reviews/etoro" style={{ display:'inline-block', background:'#191919', color:'#fff', padding:'11px 24px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
+      {/* ── Help millions section ── */}
+      <section style={{ background:'#F5EDE0', padding:'56px 24px' }}>
+        <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'auto 1fr', gap:64, alignItems:'center' }}>
+          <div style={{ maxWidth:480 }}>
+            <h2 style={{ fontSize:32, fontWeight:900, color:'#0F172A', lineHeight:1.15, marginBottom:14, letterSpacing:'-0.02em' }}>Help millions make the right choice</h2>
+            <p style={{ fontSize:15, color:'#6B7280', lineHeight:1.7, marginBottom:28 }}>Share your experience on Verivex, where reviews make a real difference for traders worldwide.</p>
+            <div style={{ display:'flex', alignItems:'center', gap:20, flexWrap:'wrap' }}>
+              <a href="/reviews/etoro" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0F172A', color:'#fff', padding:'13px 28px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
                 Write a review
               </a>
-              <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+              <div style={{ width:1, height:28, background:'#D1D5DB' }}/>
+              <div style={{ display:'flex', gap:10 }}>
                 {[
-                  { icon:'G', color:'#4285F4', label:'Google' },
-                  { icon:'f', color:'#1877F2', label:'Facebook' },
-                  { icon:'', color:'#000', label:'Apple' },
+                  { label:'G', color:'#4285F4', bg:'#fff', border:'#E5E7EB' },
+                  { label:'f', color:'#1877F2', bg:'#1877F2', tc:'#fff', border:'#1877F2' },
+                  { label:'🍎', color:'#000', bg:'#fff', border:'#E5E7EB' },
                 ].map(s => (
-                  <div key={s.label} style={{ width:36, height:36, borderRadius:100, border:'2px solid #E2E8F0', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:800, color:s.color, cursor:'pointer' }} title={`Sign in with ${s.label}`}>
-                    {s.label === 'Apple' ? '🍎' : s.icon}
+                  <div key={s.label} title="Sign in" style={{ width:40, height:40, borderRadius:'50%', background:(s as any).bg||'#fff', border:`1.5px solid ${(s as any).border||'#E5E7EB'}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:16, fontWeight:800, color:(s as any).tc||s.color }}>
+                    {s.label}
                   </div>
                 ))}
               </div>
             </div>
           </div>
-          <div style={{ flex:1, minWidth:280, display:'flex', gap:12, justifyContent:'flex-end' }}>
+          <div style={{ display:'flex', gap:16, justifyContent:'flex-end' }}>
             {[
-              { emoji:'🌊', bg:'#87CEEB', text:'Trader from 63+ countries' },
-              { emoji:'💻', bg:'#F0F4FF', text:'Reviews verified daily' },
-              { emoji:'😊', bg:'#FFF0E0', text:'284k+ verified reviews' },
-            ].map(card => (
-              <div key={card.text} style={{ width:110, background:card.bg, borderRadius:16, padding:'20px 14px', textAlign:'center', fontSize:12, color:'#475569', flexShrink:0 }}>
-                <div style={{ fontSize:28, marginBottom:8 }}>{card.emoji}</div>
-                {card.text}
+              { num:'284k+', label:'Verified reviews', color:'#059669' },
+              { num:'63+', label:'Countries', color:'#2563EB' },
+              { num:'10', label:'Platforms reviewed', color:'#7C3AED' },
+            ].map(stat => (
+              <div key={stat.label} style={{ background:'#fff', borderRadius:16, padding:'28px 24px', textAlign:'center', minWidth:130, boxShadow:'0 2px 12px rgba(0,0,0,0.06)', border:'1px solid rgba(0,0,0,0.04)' }}>
+                <div style={{ fontSize:28, fontWeight:900, color:stat.color, marginBottom:6, letterSpacing:'-0.02em' }}>{stat.num}</div>
+                <div style={{ fontSize:12, color:'#6B7280', fontWeight:600, lineHeight:1.4 }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       <CookieBanner primaryColor='#00B67A' />
     </div>

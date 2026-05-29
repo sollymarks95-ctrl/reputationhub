@@ -37,14 +37,16 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith('/legal') ||
     pathname.startsWith('/portal') ||
     pathname.startsWith('/charts') ||
+    pathname.startsWith('/for-businesses') ||
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico'
   ) return NextResponse.next()
 
-  // Sitemap — rewrite to API (not redirect, to avoid loop)
+  // Sitemap — pass host as query param so API knows which site
   if (pathname === '/sitemap.xml' || pathname === '/sitemap') {
     const url = request.nextUrl.clone()
     url.pathname = '/api/sitemap'
+    url.searchParams.set('host', host)
     return NextResponse.rewrite(url)
   }
 

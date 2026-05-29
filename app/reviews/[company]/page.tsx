@@ -6,16 +6,16 @@ const GREEN = '#00B67A'
 
 // Hardcoded logo map — reliable Wikipedia SVGs and company CDNs
 const LOGO_MAP: Record<string, string> = {
-  'etoro': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Etoro_logo.svg/200px-Etoro_logo.svg.png',
-  'binance': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Binance_Logo.svg/200px-Binance_Logo.svg.png',
-  'coinbase': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/200px-Coinbase.svg.png',
-  'interactive-brokers': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Interactive_Brokers_logo.svg/200px-Interactive_Brokers_logo.svg.png',
-  'plus500': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Plus500_logo.svg/200px-Plus500_logo.svg.png',
-  'xm': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/XM_Logo.svg/200px-XM_Logo.svg.png',
-  'ic-markets': 'https://www.icmarkets.com/blog/wp-content/uploads/2023/01/IC-Markets-Logo.png',
-  'pepperstone': 'https://pepperstone.com/assets/logos/pepperstone-dark.svg',
-  'ftmo': 'https://ftmo.com/wp-content/uploads/2021/01/FTMO-logo.png',
-  'myforexfunds': 'https://myforexfunds.com/wp-content/themes/myforexfunds/img/logo.png',
+  'etoro': 'https://logo.clearbit.com/etoro.com',
+  'binance': 'https://logo.clearbit.com/binance.com',
+  'coinbase': 'https://logo.clearbit.com/coinbase.com',
+  'interactive-brokers': 'https://logo.clearbit.com/interactivebrokers.com',
+  'plus500': 'https://logo.clearbit.com/plus500.com',
+  'xm': 'https://logo.clearbit.com/xm.com',
+  'ic-markets': 'https://logo.clearbit.com/icmarkets.com',
+  'pepperstone': 'https://logo.clearbit.com/pepperstone.com',
+  'ftmo': 'https://logo.clearbit.com/ftmo.com',
+  'myforexfunds': 'https://logo.clearbit.com/myforexfunds.com',
 }
 
 const COLORS: Record<string, string> = {
@@ -44,11 +44,11 @@ function Stars({ rating, size = 18, interactive = false, onRate }: any) {
 
 function CompanyLogo({ slug, name, size = 80 }: any) {
   const [err, setErr] = useState(false)
-  const src = LOGO_MAP[slug]
+  const src = LOGO_MAP[slug] || `https://logo.clearbit.com/${slug.replace('interactive-brokers','interactivebrokers').replace('ic-markets','icmarkets').replace('myforexfunds','myforexfunds')}.com`
   const color = COLORS[slug] || GREEN
   return src && !err ? (
     <div style={{ width:size, height:size, borderRadius:12, overflow:'hidden', border:'1px solid #E2E8F0', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:8 }}>
-      <img src={src} alt={name} style={{ width:size-16, height:size-16, objectFit:'contain' }} onError={() => setErr(true)} />
+      <img src={src} alt={name} referrerPolicy="no-referrer" style={{ width:size-16, height:size-16, objectFit:'contain' }} onError={() => setErr(true)} />
     </div>
   ) : (
     <div style={{ width:size, height:size, borderRadius:12, background:color, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:900, fontSize:size*0.35 }}>
