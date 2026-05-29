@@ -276,6 +276,16 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             </div>
           </div>
           <div style={{borderTop:'1px solid #1C2333',paddingTop:14,fontFamily:'IBM Plex Mono,monospace',fontSize:10,color:'#333',display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
+
+            {/* Cross-portal intelligence network */}
+            <div style={{borderTop:'1px solid #1e293b',paddingTop:16,marginTop:16}}>
+              <div style={{fontSize:10,fontWeight:700,color:'#666',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
+              <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+                {[['Finvexx','https://finvexx.com','Markets'],['Bizplexz','https://bizplexz.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
+                  <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#666',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
+                ))}
+              </div>
+            </div>
             <span>© {new Date().getFullYear()} {meta.domain.toUpperCase()} · ALL RIGHTS RESERVED</span>
             <span>RISK WARNING: Trading financial instruments involves substantial risk of loss. Ensure you understand the risks involved.</span>
           </div>

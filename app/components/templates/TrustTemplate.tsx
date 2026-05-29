@@ -381,7 +381,16 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           © 2025 Verivex Trust Intelligence · verivex.co · Reviews moderated for authenticity
         </div>
         <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
-          {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
+          {/* Cross-portal intelligence network */}
+          <div style={{ borderTop:'1px solid #1e293b', paddingTop:20, marginTop:20 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:10 }}>Our Intelligence Network</div>
+            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              {[['Nex-Wire','https://nex-wire.com','Global Trade'],['Finvexx','https://finvexx.com','Markets Terminal'],['Bizplexz','https://bizplexz.com','Business Pulse'],['AurexHQ','https://aurexhq.com','Commodities']].map(([n,u,d]) => (
+                <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{ fontSize:11, color:'#64748B', border:'1px solid #1e293b', padding:'4px 12px', borderRadius:6, textDecoration:'none' }}>{n} · {d}</a>
+              ))}
+            </div>
+          </div>
+                    {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
             <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
           ))}
         </div>

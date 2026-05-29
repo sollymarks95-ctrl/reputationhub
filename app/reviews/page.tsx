@@ -53,6 +53,10 @@ export default async function ReviewsPage() {
 
   return (
     <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: '#F8FAFC', minHeight: '100vh' }}>
+      <style>{`
+        .company-card { transition: box-shadow .2s, transform .2s; }
+        .company-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); transform: translateY(-2px); }
+      `}</style>
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>
@@ -101,9 +105,7 @@ export default async function ReviewsPage() {
             const label = parseFloat(score) >= 4.5 ? 'Excellent' : parseFloat(score) >= 4 ? 'Great' : parseFloat(score) >= 3.5 ? 'Good' : 'Average'
             return (
               <Link key={co.slug} href={`/reviews/${co.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 24, transition: 'box-shadow .2s, transform .2s', cursor: 'pointer' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 30px rgba(0,0,0,0.1)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = ''; (e.currentTarget as HTMLDivElement).style.transform = '' }}>
+                <div className="company-card" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 24, cursor: 'pointer' }}>
                   
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
