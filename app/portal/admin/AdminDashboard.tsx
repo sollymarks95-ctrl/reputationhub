@@ -569,7 +569,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                       {[
                         {k:'companyName',l:'Broker / Company Name *',ph:'e.g. eToro',full:false},
-                        {k:'websiteUrl',l:'Website URL',ph:'https://www.etorofx.com',full:false},
+                        {k:'websiteUrl',l:'Website URL',ph:'https://www.etoro.com',full:false},
                         {k:'regulation',l:'Regulation',ph:'e.g. CySEC / FCA / ASIC',full:false},
                         {k:'ceoName',l:'CEO / Key Contact Name',ph:'e.g. Alex Chen',full:false},
                         {k:'accountManager',l:'Account Manager',ph:'Sarah Chen — RepHuby',full:false},

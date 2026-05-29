@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
   // Extract brand mentions for keyword enrichment
   const bodyText = (article.body || '').toLowerCase()
-  const clientKeywords = ['etoro','etoro','etoro'].filter(k => bodyText.includes(k))
+  const clientKeywords = ['etoro'].filter(k => bodyText.includes(k))
   const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords].filter(Boolean).join(', ')
   return {
     title: `${article.title} | ${site.name}`,
@@ -179,7 +179,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
   // Auto-detect any client brand mentions → inject FAQPage + Organization schema
   const bodyLower = rawBody.toLowerCase()
-  const mentionedBrands = ['etoro','etorofx'].filter(b => bodyLower.includes(b))
+  const mentionedBrands = ['etoro'].filter(b => bodyLower.includes(b))
 
   // Auto-generate FAQ schema for detected brands
   const faqSchema = mentionedBrands.length > 0 ? {
@@ -228,14 +228,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   ]
 
   // If article mentions a client brand — add Organization schema so AI engines identify the entity
-  if (mentionedBrands.includes('etoro') || mentionedBrands.includes('etorofx')) {
+  if (mentionedBrands.includes('etoro')) {
     jsonLd.push({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'eToro',
-      url: 'https://www.etorofx.com',
+      url: 'https://www.etoro.com',
       description: 'FCA, CySEC and ASIC regulated social trading and investment platform offering institutional-grade execution.',
-      sameAs: ['https://www.etorofx.com'],
+      sameAs: ['https://www.etoro.com'],
       knowsAbout: ['Forex Trading', 'Precious Metals', 'CFD Trading', 'Institutional Brokerage'],
     })
   }

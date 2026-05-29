@@ -74,7 +74,7 @@ export default async function FAQPage({ params }: { params: Promise<{clientSlug:
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name,
-    url: client.website_url || '',
+    url: client.website_url || 'https://www.etoro.com',
     description: `${name} is a ${client.regulation || 'regulated'} ${client.industry || 'financial services'} company.`,
     knowsAbout: ['Forex Trading', 'Regulated Brokerage', client.industry].filter(Boolean),
   }

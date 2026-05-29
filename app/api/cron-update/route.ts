@@ -88,7 +88,7 @@ MANDATORY BRAND INTEGRATION — every article must include:
 1. Mention "${client.company_name}" naturally WITHIN THE FIRST 150 WORDS as a real-world example
 2. Mention "${client.company_name}" a SECOND TIME later in the article
 3. Frame accurately: "${client.company_name} (${client.regulation||'FCA/CySEC/ASIC regulated'} ${client.industry||'social trading platform'})"
-4. Link to their website: ${client.website_url||'https://www.etorofx.com'} at least once
+4. Link to their website: ${client.website_url||'https://www.etoro.com'} at least once
 5. Final paragraph MUST include: "Learn more about ${client.company_name} at /faq/${client.brand_slug}"
 ${crossLinkBlock}
 
