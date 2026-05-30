@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { generateArticleImage } from '@/app/api/admin/generate-image/route'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -148,7 +147,9 @@ Rules:
 - 3-5 relevant tags for this topic${brandNote}
 
 Return ONLY valid JSON (no markdown, no backticks):
-{"title":"...","excerpt":"...","body":"...","category":"Markets","tags":["tag1","tag2","tag3"]}`
+{"title":"...","excerpt":"...","body":"...","category":"Markets","tags":["tag1","tag2","tag3"],"cover_image_url":"https://..."}
+
+For cover_image_url: find a direct image URL from your search results (jpg/png from a news site, financial publication, or stock photo). Must be a real https:// image URL from search results. If none found use "".`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -225,7 +226,7 @@ export async function GET(req: NextRequest) {
         category: article.category || 'Markets',
         tags: Array.isArray(article.tags) ? article.tags : [],
         author_name: site.author,
-        cover_image_url: null,
+        cover_image_url: article.cover_image_url || null,
         status: 'published',
         published_at: new Date().toISOString(),
         is_featured: i === 0 && batch === 0,
@@ -236,11 +237,6 @@ export async function GET(req: NextRequest) {
 
       siteInserted++
       totalInserted++
-
-      if (inserted?.id) {
-        generateArticleImage(inserted.id, article.title, article.category)
-          .then(url => { if (url) getDb().from('news_articles').update({ cover_image_url: url }).eq('id', inserted.id) })
-          .catch(() => {})
 
       // Auto-sync to portal_content if this is a brand-related article (mentions client)
       if (inserted?.id && isBrandArticle && clients[0]) {
