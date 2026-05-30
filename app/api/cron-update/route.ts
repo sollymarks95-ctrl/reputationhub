@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getArticleImage } from '@/app/lib/articleImages'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -196,7 +197,7 @@ export async function GET(req: NextRequest) {
   const results: any[] = []
   let totalInserted = 0
 
-  const ALL_SITES = await getAllSites()
+  const ALL_SITES = CORE_SITES // Write for core portals only — factory sites get articles as they build history
   for (const site of ALL_SITES) {
     let siteInserted = 0
     const batchTopics = site.topics.slice(batchStart, batchEnd)
@@ -226,7 +227,7 @@ export async function GET(req: NextRequest) {
         category: article.category || 'Markets',
         tags: Array.isArray(article.tags) ? article.tags : [],
         author_name: site.author,
-        cover_image_url: article.cover_image_url || null,
+        cover_image_url: getArticleImage(article.category || 'Markets', slug),
         status: 'published',
         published_at: new Date().toISOString(),
         is_featured: i === 0 && batch === 0,
