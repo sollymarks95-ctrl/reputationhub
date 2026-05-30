@@ -177,7 +177,7 @@ export async function GET(req: NextRequest) {
   const created: string[] = []
 
   for (const site of toCreate) {
-    const { error } = await db.from('news_sites').insert({
+    const { error } = await db.from('news_sites').upsert({
       name: site.name,
       slug: site.slug,
       domain: site.domain,
@@ -195,7 +195,7 @@ export async function GET(req: NextRequest) {
         background: '#ffffff',
         layout: 'standard',
       }
-    })
+    }, { onConflict: 'slug' })
 
     if (!error) created.push(`${site.name} (${site.domain})`)
     else console.error('Site create error:', site.slug, error.message)
