@@ -836,7 +836,7 @@ function Grid({ site, articles, p, font, slug, variant }: any) {
       <div className="gv2-g" style={{ maxWidth:1400, margin:'3px auto' }}>
         {articles.slice(0,12).map((a:any,i:number) => (
           <div key={a.id} className="gv2-c" style={{ background:i===0?p:i===1?'#1e293b':i===4?'#0f172a':`${palette[i%palette.length]}22` }}>
-            <a href={`/article/${slug}/${a.slug}`} style={{ display:'block', height:'100%', padding:20, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+            <a href={`/article/${slug}/${a.slug}`} style={{ display:'flex', height:'100%', padding:20, flexDirection:'column', justifyContent:'flex-end' }}>
               <div style={{ fontSize:9, fontWeight:700, color:i<=1||i===4?'rgba(255,255,255,.6)':'#64748b', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
               <div style={{ fontSize:i===0?22:i<=1?15:13, fontWeight:800, lineHeight:1.35, color:i<=1||i===4?'#fff':'#1e293b' }}>{a.title}</div>
             </a>

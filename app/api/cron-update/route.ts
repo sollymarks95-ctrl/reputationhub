@@ -268,7 +268,6 @@ export async function GET(req: NextRequest) {
           }).then(() => {}).catch(() => {})
         }
       }
-      }
 
       await new Promise(r => setTimeout(r, 400))
     }
