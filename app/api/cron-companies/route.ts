@@ -437,7 +437,7 @@ export async function GET(req: NextRequest) {
 
   for (const company of toAdd) {
     // Insert the company
-    const { error: companyErr } = await db.from('verivex_companies').insert({
+    const { error: companyErr } = await db.from('verivex_companies').upsert({
       slug: company.slug,
       name: company.name,
       category: company.category,
@@ -452,7 +452,7 @@ export async function GET(req: NextRequest) {
       logo_color: '#1a56db',
       is_featured: false,
       is_verified: true,
-    })
+    }, { onConflict: 'slug' })
 
     if (companyErr) {
       console.error('Company insert error:', company.slug, companyErr.message)
