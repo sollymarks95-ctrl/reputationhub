@@ -205,26 +205,31 @@ export async function GET(req: NextRequest) {
   const results: any[] = []
   let totalInserted = 0
 
-  const ALL_SITES = CORE_SITES // Write for core portals only — factory sites get articles as they build history
-  for (const site of ALL_SITES) {
-    let siteInserted = 0
-    const batchTopics = site.topics.slice(batchStart, batchEnd)
+  const ALL_SITES = CORE_SITES
 
-    for (let i = 0; i < batchTopics.length; i++) {
-      const topic = batchTopics[i]
-      const globalIndex = batchStart + i
+  // Write articles for ALL sites in PARALLEL per topic round
+  // Each round: all 5 portals write the same topic index simultaneously
+  // Time: BATCH_SIZE rounds × (API_time + delay) = ~80s total ✅
+  const siteCounters: Record<string, number> = {}
+  ALL_SITES.forEach((s: any) => { siteCounters[s.slug] = 0 })
 
-      // 20% brand articles — every 5th across full day
-      const isBrandArticle = (globalIndex % 3 === 0)
-      const client = isBrandArticle ? clients[0] : null
-      const crossLinks = isBrandArticle ? await getCrossPortalLinks(clients[0].company_name, site.id) : []
+  for (let i = 0; i < BATCH_SIZE; i++) {
+    const globalIndex = batchStart + i
+    const isBrandArticle = (globalIndex % 3 === 0)
+    const client = isBrandArticle ? clients[0] : null
+    const crossLinks = isBrandArticle ? await getCrossPortalLinks(client, ALL_SITES) : []
+
+    // Write topic i for ALL sites simultaneously
+    await Promise.all(ALL_SITES.map(async (site: any) => {
+      const topic = site.topics[batchStart + i]
+      if (!topic) return
 
       const article = await writeArticle(site, topic, client, crossLinks)
-      if (!article) { console.log(`Skipped: ${topic}`); continue }
+      if (!article) { console.log(`Skipped: ${site.slug} / ${topic}`); return }
 
       const slug = slugify(article.title)
       const { data: existing } = await getDb().from('news_articles').select('id').eq('slug', slug).single()
-      if (existing) continue
+      if (existing) return
 
       const { data: inserted, error } = await getDb().from('news_articles').insert({
         news_site_id: site.id,
@@ -238,34 +243,34 @@ export async function GET(req: NextRequest) {
         cover_image_url: getArticleImage(article.category || 'Markets', slug),
         status: 'published',
         published_at: new Date().toISOString(),
-        is_featured: i === 0 && batch === 0,
+        is_featured: i === 0 && batchStart === 0,
         ai_generated: true,
+        read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
       }).select().single()
 
-      if (error) { console.error('Insert error:', error.message); continue }
+      if (error) { console.error('Insert error:', error.message); return }
+      if (!inserted) return
 
-      siteInserted++
       totalInserted++
+      siteCounters[site.slug] = (siteCounters[site.slug] || 0) + 1
 
-      // Auto-sync to portal_content if this is a brand-related article (mentions client)
-      if (inserted?.id && isBrandArticle && clients[0]) {
+      // Sync brand articles to portal_content
+      if (inserted.id && isBrandArticle && clients[0]) {
         const PMAP: Record<string,{name:string,domain:string}> = {
           'global-trade-wire':  { name:'Nex-Wire',  domain:'nex-wire.com' },
           'finance-terminal':   { name:'Finvexx',   domain:'finvexx.com' },
           'business-pulse':     { name:'Bizplezx',  domain:'bizplezx.com' },
           'gold-markets-today': { name:'AurexHQ',   domain:'aurexhq.com' },
-          'trust-score':        { name:'Verivex',   domain:'verivex.co'  },
+          'trust-score':        { name:'Verivex',   domain:'verivex.co' },
         }
         const pInfo = PMAP[site.slug]
         if (pInfo) {
           const articleUrl = `https://${pInfo.domain}/article/${site.slug}/${slug}`
-          const cType = (article.category||'').toLowerCase()
-          const contentType = cType.includes('review') ? 'review' : cType.includes('guide') ? 'guide' : cType.includes('comparison') ? 'comparison' : cType.includes('analysis') ? 'analysis' : 'news'
-          getDb().from('portal_content').insert({
+          const contentType = article.category?.toLowerCase().includes('review') ? 'review' : 'article'
+          await getDb().from('portal_content').insert({
             client_id: clients[0].id,
             portal_name: pInfo.name,
-            portal_slug: site.slug,
-            site_slug: site.slug,
+            portal_domain: pInfo.domain,
             news_article_id: inserted.id,
             title: article.title,
             article_url: articleUrl,
@@ -277,12 +282,16 @@ export async function GET(req: NextRequest) {
           }).then(() => {}).catch(() => {})
         }
       }
+    }))
 
-      await new Promise(r => setTimeout(r, 2500))
-    }
-
-    results.push({ site: site.name, inserted: siteInserted })
+    // Brief pause between rounds to avoid rate limiting
+    await new Promise(r => setTimeout(r, 2000))
   }
+
+  // Build results from counters
+  ALL_SITES.forEach((site: any) => {
+    results.push({ site: site.name, inserted: siteCounters[site.slug] || 0 })
+  })
 
   return NextResponse.json({
     message: `Batch ${batch} complete — ${totalInserted} articles across ${ALL_SITES.length} portals`,
