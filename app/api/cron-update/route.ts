@@ -159,7 +159,7 @@ For cover_image_url: find a direct image URL from your search results (jpg/png f
       headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
+        max_tokens: 1500,
         system: `You are a senior financial journalist for ${site.name} (${base}). Today is ${today}. Write REAL verified financial news. Output valid JSON only.`,
         messages: [{ role:'user', content: prompt }]
       }),
@@ -192,7 +192,7 @@ export async function GET(req: NextRequest) {
 
   // 5 batches per day × 6 articles per portal = 30 articles/portal/day
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
-  const BATCH_SIZE = 6
+  const BATCH_SIZE = 4
   const batchStart = batch * BATCH_SIZE
   const batchEnd = batchStart + BATCH_SIZE
 
@@ -278,7 +278,7 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      await new Promise(r => setTimeout(r, 1200))
+      await new Promise(r => setTimeout(r, 2500))
     }
 
     results.push({ site: site.name, inserted: siteInserted })
