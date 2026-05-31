@@ -152,6 +152,13 @@ Return ONLY valid JSON (no markdown, no backticks):
 
 For cover_image_url: find a direct image URL from your search results (jpg/png from a news site, financial publication, or stock photo). Must be a real https:// image URL from search results. If none found use "".`
 
+  // Retry up to 3 times with backoff for rate limits / overloads
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      const wait = attempt * 6000
+      console.log(`Retry attempt ${attempt} for topic: ${topic} (waiting ${wait}ms)`)
+      await new Promise(r => setTimeout(r, wait))
+    }
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
@@ -167,12 +174,7 @@ For cover_image_url: find a direct image URL from your search results (jpg/png f
     })
     if (!res.ok) {
       const errText = await res.text()
-      console.error('Anthropic API error:', res.status, errText.slice(0,200))
-      // Retry once after delay for rate limits / overload
-      if (res.status === 429 || res.status === 529) {
-        await new Promise(r => setTimeout(r, 8000))
-        return writeArticle(site, topic, client, crossLinks)
-      }
+      console.error('Anthropic API error:', res.status, errText.slice(0,300))
       return null
     }
     const data = await res.json()
@@ -183,7 +185,13 @@ For cover_image_url: find a direct image URL from your search results (jpg/png f
     const parsed = JSON.parse(clean.slice(start,end+1))
     if (!parsed.title||!parsed.body) return null
     return parsed
-  } catch(e) { console.error('writeArticle error:', topic, e); return null }
+  } catch(e) {
+    console.error(`writeArticle error attempt ${attempt}:`, topic, (e as Error).message)
+    if (attempt === 2) return null
+    // continue to next attempt
+  }
+  } // end retry loop
+  return null
 }
 
 export async function GET(req: NextRequest) {
