@@ -165,6 +165,16 @@ For cover_image_url: find a direct image URL from your search results (jpg/png f
       }),
       signal: AbortSignal.timeout(80000),
     })
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error('Anthropic API error:', res.status, errText.slice(0,200))
+      // Retry once after delay for rate limits / overload
+      if (res.status === 429 || res.status === 529) {
+        await new Promise(r => setTimeout(r, 8000))
+        return writeArticle(site, topic, client, crossLinks)
+      }
+      return null
+    }
     const data = await res.json()
     const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
     const clean = text.replace(/```json|```/g,'').trim()
@@ -270,7 +280,7 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      await new Promise(r => setTimeout(r, 400))
+      await new Promise(r => setTimeout(r, 1200))
     }
 
     results.push({ site: site.name, inserted: siteInserted })
