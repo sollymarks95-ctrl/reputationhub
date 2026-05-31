@@ -154,19 +154,18 @@ For cover_image_url: find a direct image URL from your search results (jpg/png f
 
   // Retry up to 3 times with backoff for rate limits / overloads
   for (let attempt = 0; attempt < 3; attempt++) {
-    if (attempt > 0) {
-      const wait = attempt * 6000
-      console.log(`Retry attempt ${attempt} for topic: ${topic} (waiting ${wait}ms)`)
-      await new Promise(r => setTimeout(r, wait))
-    }
+    if (attempt > 0) await new Promise(r => setTimeout(r, attempt * 5000))
+    // Attempt 0+1: with web search for live news. Attempt 2: without (fallback)
+    const useWebSearch = attempt < 2
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05' },
+      headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01',
+        ...(useWebSearch ? {'anthropic-beta':'web-search-2025-03-05'} : {}) },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 2500,
-        tools: [{ type:'web_search_20250305', name:'web_search' }],
+        ...(useWebSearch ? { tools: [{ type:'web_search_20250305', name:'web_search' }] } : {}),
         system: `You are a senior financial journalist for ${site.name} (${base}). Today is ${today}. Write REAL verified financial news. Output valid JSON only.`,
         messages: [{ role:'user', content: prompt }]
       }),
