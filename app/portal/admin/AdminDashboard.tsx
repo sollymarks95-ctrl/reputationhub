@@ -276,7 +276,11 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
         // Refresh episodes list to show the new episode with audio player
         await refreshPodcasts()
       } else { setPodMsg('Audio error: '+(ad.error||'unknown')) }
-    } catch(e:any) { setPodMsg('Error: '+e.message) }
+    } catch(e:any) { 
+      const msg = 'Error: '+e.message
+      setPodMsg('❌ '+msg)
+      alert('❌ Podcast error: '+e.message+'\n\nCheck browser console for details.')
+    }
     setPodLoading(false)
   }
 
