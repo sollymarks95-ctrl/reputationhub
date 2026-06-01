@@ -947,60 +947,165 @@ function Brutalist({ site, articles, p, font, slug, variant }: any) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ARCHETYPE 11 — DARK EDITORIAL (financial paper, dark premium)
+// ARCHETYPE 11 — DARK EDITORIAL (financial paper, dark premium — 3 distinct variants)
 // ═══════════════════════════════════════════════════════════════════════════
 function DarkEditorial({ site, articles, p, font, slug, variant }: any) {
-  return (
-    <div style={{ minHeight:'100vh', background:'#0d0d0d', fontFamily:gf('display'), color:'#e8e0d0' }}>
-      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
-      .de-g{display:grid;grid-template-columns:${variant===2?'1fr 1fr':'2fr 1fr'};gap:2px;background:#222}
-      .de-c{background:#111;padding:24px}
-      @media(max-width:768px){.de-g{grid-template-columns:1fr!important}}`}</style>
-      <div style={{ background:'#000', borderBottom:`3px solid ${p}` }}>
-        <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <a href="/"><div style={{ fontWeight:900, fontSize:26, color:'#e8e0d0', letterSpacing:'-.5px' }}>{site.name}</div></a>
-          <div style={{ display:'flex', gap:20 }}>
-            {['Analysis','Markets','Opinion','Global'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#666', fontSize:12, fontWeight:600 }}>{c}</a>)}
-          </div>
-        </div>
-      </div>
-      <div style={{ maxWidth:1200, margin:'0 auto' }}>
-        {articles[0] && (
-          <div style={{ background:'#0a0a0a', padding:'40px 24px', borderBottom:'1px solid #222' }}>
-            <div style={{ maxWidth:800 }}>
-              <span style={{ background:p, color:'#fff', fontSize:9, fontWeight:800, padding:'3px 8px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{articles[0].category}</span>
-              <a href={`/article/${slug}/${articles[0].slug}`}><h1 style={{ fontSize:44, fontWeight:900, color:'#e8e0d0', lineHeight:1.1, margin:'16px 0 14px' }}>{articles[0].title}</h1></a>
-              <p style={{ fontSize:17, color:'#8a7a68', lineHeight:1.75 }}>{articles[0].excerpt}</p>
-              <div style={{ marginTop:14, fontSize:12, color:'#555' }}>By {articles[0].author_name}</div>
+  const cats = ['Analysis','Markets','Opinion','Global']
+  const featured = articles[0]
+  const rest = articles.slice(1)
+
+  // VARIANT 1 — Investment terminal: dark + teal sidebar + monospace feel
+  if (variant === 1 || variant === '1') {
+    return (
+      <div style={{ minHeight:'100vh', background:'#060a0a', fontFamily:"'Courier New',monospace", color:'#a8c4b8' }}>
+        <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+        .v1-grid{display:grid;grid-template-columns:2fr 340px;gap:1px;background:#0f2520}
+        .v1-main{background:#060a0a;padding:32px}
+        .v1-side{background:#070d0c;padding:24px;border-left:1px solid #0f2520}
+        .v1-card{padding:20px 0;border-bottom:1px solid #0f2520}
+        .v1-card:hover .v1-title{color:${p}!important}
+        .v1-tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:${p};font-weight:700}
+        @media(max-width:768px){.v1-grid{grid-template-columns:1fr}}`}</style>
+        {/* Header */}
+        <div style={{ background:'#000', borderBottom:`2px solid ${p}`, padding:'0 32px' }}>
+          <div style={{ maxWidth:1400, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', height:52 }}>
+            <a href="/"><span style={{ color:p, fontWeight:900, fontSize:20, letterSpacing:'.1em' }}>{site.name?.toUpperCase()}</span></a>
+            <div style={{ display:'flex', gap:28 }}>
+              {cats.map(cat=><a key={cat} href={`/?category=${cat}`} style={{ color:'#4a7a6a', fontSize:11, letterSpacing:'.1em', fontWeight:700 }}>{cat.toUpperCase()}</a>)}
             </div>
           </div>
-        )}
-        <div className="de-g">
-          <div style={{ background:'#111', padding:'24px' }}>
-            {articles.slice(1,7).map((a:any) => (
-              <div key={a.id} style={{ paddingBottom:20, marginBottom:20, borderBottom:'1px solid #1e1e1e' }}>
-                <div style={{ fontSize:9, color:p, fontWeight:700, textTransform:'uppercase', letterSpacing:'.1em', marginBottom:6 }}>{a.category}</div>
-                <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:18, fontWeight:800, color:'#e8e0d0', lineHeight:1.3, marginBottom:6 }}>{a.title}</h3></a>
-                <p style={{ fontSize:13, color:'#6b5e4e', lineHeight:1.6 }}>{a.excerpt?.slice(0,110)}…</p>
+        </div>
+        {/* Featured */}
+        {featured && (
+          <div style={{ maxWidth:1400, margin:'0 auto', padding:'32px 32px 0' }}>
+            <a href={`/article/${slug}/${featured.slug}`}>
+              <div style={{ borderLeft:`3px solid ${p}`, paddingLeft:20, marginBottom:32 }}>
+                <div className="v1-tag" style={{ marginBottom:10 }}>{featured.category || 'Markets'} — {new Date(featured.published_at).toLocaleDateString()}</div>
+                <div style={{ fontSize:28, fontWeight:900, color:'#d4e8e0', lineHeight:1.2, letterSpacing:'-.02em', marginBottom:12, fontFamily:"'Courier New',monospace" }}>{featured.title}</div>
+                <div style={{ fontSize:13, color:'#4a7a6a', lineHeight:1.6 }}>{featured.excerpt}</div>
               </div>
-            ))}
+            </a>
           </div>
-          <div style={{ background:'#0d0d0d', padding:'24px', borderLeft:'1px solid #1e1e1e' }}>
-            <div style={{ fontSize:10, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'.08em', borderBottom:`1px solid ${p}`, paddingBottom:8, marginBottom:16 }}>Latest</div>
-            {articles.slice(7,14).map((a:any) => (
-              <div key={a.id} style={{ marginBottom:14, paddingBottom:14, borderBottom:'1px solid #1a1a1a' }}>
-                <div style={{ fontSize:9, color:'#555', marginBottom:3 }}>{a.category}</div>
-                <a href={`/article/${slug}/${a.slug}`}><div style={{ fontSize:13, fontWeight:700, color:'#c8b898', lineHeight:1.4 }}>{a.title}</div></a>
-              </div>
-            ))}
+        )}
+        {/* Main grid */}
+        <div style={{ maxWidth:1400, margin:'0 auto', padding:'0 32px 32px' }}>
+          <div className="v1-grid">
+            <div className="v1-main">
+              {rest.slice(0,8).map((a:any) => (
+                <a key={a.id} href={`/article/${slug}/${a.slug}`} className="v1-card" style={{ display:'block' }}>
+                  <div className="v1-tag" style={{ marginBottom:6 }}>{a.category} — {new Date(a.published_at).toLocaleDateString()}</div>
+                  <div className="v1-title" style={{ fontSize:17, fontWeight:700, color:'#c0d8ce', lineHeight:1.3, transition:'color .15s' }}>{a.title}</div>
+                  <div style={{ fontSize:12, color:'#3a5a4a', marginTop:6, lineHeight:1.5 }}>{a.excerpt?.slice(0,120)}...</div>
+                </a>
+              ))}
+            </div>
+            <div className="v1-side">
+              <div style={{ fontSize:10, letterSpacing:'.15em', color:p, marginBottom:16, fontWeight:900 }}>LATEST INTELLIGENCE</div>
+              {rest.slice(8,18).map((a:any) => (
+                <a key={a.id} href={`/article/${slug}/${a.slug}`} style={{ display:'block', padding:'12px 0', borderBottom:'1px solid #0f2520' }}>
+                  <div style={{ fontSize:9, color:'#2a5040', letterSpacing:'.1em', marginBottom:4 }}>{a.category?.toUpperCase()}</div>
+                  <div style={{ fontSize:13, color:'#8ab0a0', lineHeight:1.3, fontWeight:600 }}>{a.title}</div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
+        <div style={{ textAlign:'center', padding:24, fontSize:11, color:'#1a3a2a', borderTop:'1px solid #0f2520' }}>© {new Date().getFullYear()} {site.name}</div>
       </div>
+    )
+  }
+
+  // VARIANT 2 — Equal grid
+  if (variant === 2 || variant === '2') {
+    return (
+      <div style={{ minHeight:'100vh', background:'#0d0d0d', fontFamily:"'Inter',sans-serif", color:'#e8e0d0' }}>
+        <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+        .de2-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#222}
+        .de2-c{background:#111;padding:24px}
+        @media(max-width:768px){.de2-grid{grid-template-columns:1fr!important}}`}</style>
+        <div style={{ background:'#000', borderBottom:`3px solid ${p}`, padding:'14px 32px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <a href="/"><div style={{ fontWeight:900, fontSize:22, color:'#e8e0d0' }}>{site.name}</div></a>
+          <div style={{ display:'flex', gap:20 }}>
+            {cats.map(cat=><a key={cat} href={`/?category=${cat}`} style={{ color:'#666', fontSize:12 }}>{cat}</a>)}
+          </div>
+        </div>
+        {featured && (
+          <a href={`/article/${slug}/${featured.slug}`} style={{ display:'block', padding:'40px 32px', background:'#111', borderBottom:`1px solid ${p}22` }}>
+            <div style={{ fontSize:11, color:p, letterSpacing:'.1em', marginBottom:8 }}>{featured.category?.toUpperCase()}</div>
+            <div style={{ fontSize:32, fontWeight:900, color:'#fff', lineHeight:1.2, maxWidth:800, marginBottom:12 }}>{featured.title}</div>
+            <div style={{ fontSize:14, color:'#888' }}>{featured.excerpt?.slice(0,160)}...</div>
+          </a>
+        )}
+        <div className="de2-grid" style={{ maxWidth:'100%' }}>
+          {rest.slice(0,10).map((a:any) => (
+            <a key={a.id} href={`/article/${slug}/${a.slug}`} className="de2-c" style={{ display:'block' }}>
+              <div style={{ fontSize:10, color:p, letterSpacing:'.1em', marginBottom:8 }}>{a.category?.toUpperCase()}</div>
+              <div style={{ fontSize:18, fontWeight:700, color:'#e8e0d0', lineHeight:1.3, marginBottom:8 }}>{a.title}</div>
+              <div style={{ fontSize:13, color:'#666' }}>{a.excerpt?.slice(0,100)}...</div>
+            </a>
+          ))}
+        </div>
+        <div style={{ textAlign:'center', padding:24, fontSize:11, color:'#444' }}>© {new Date().getFullYear()} {site.name}</div>
+      </div>
+    )
+  }
+
+  // VARIANT 3 — Signals/Analysis: dark + red, bold signal-style layout
+  return (
+    <div style={{ minHeight:'100vh', background:'#0a0a0a', fontFamily:"'Inter',sans-serif", color:'#f0f0f0' }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
+      .v3-row{display:grid;grid-template-columns:1fr 300px;gap:0;min-height:100vh}
+      .v3-main{padding:0;border-right:1px solid #1a1a1a}
+      .v3-side{background:#080808;padding:24px}
+      .v3-art{padding:20px 28px;border-bottom:1px solid #111;transition:background .15s}
+      .v3-art:hover{background:#111}
+      .v3-tag{display:inline-block;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid ${p};color:${p};margin-bottom:8px}
+      .v3-side-a{display:block;padding:12px 0;border-bottom:1px solid #111}
+      @media(max-width:768px){.v3-row{grid-template-columns:1fr}}`}</style>
+      {/* Header */}
+      <div style={{ background:'#000', borderBottom:`3px solid ${p}`, padding:'14px 28px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:10 }}>
+        <a href="/"><div style={{ fontWeight:900, fontSize:22, color:'#fff', letterSpacing:'-.5px' }}>{site.name}</div></a>
+        <div style={{ display:'flex', gap:24 }}>
+          {cats.map(cat=><a key={cat} href={`/?category=${cat}`} style={{ color:'#999', fontSize:13, fontWeight:500 }}>{cat}</a>)}
+        </div>
+      </div>
+      {/* Featured banner */}
+      {featured && (
+        <a href={`/article/${slug}/${featured.slug}`} style={{ display:'block', background:'linear-gradient(135deg,#111 0%,#1a0505 100%)', padding:'40px 28px', borderBottom:`1px solid ${p}33` }}>
+          <span className="v3-tag">{featured.category || 'Analysis'}</span>
+          <div style={{ fontSize:30, fontWeight:900, color:'#fff', lineHeight:1.2, maxWidth:720, marginBottom:12 }}>{featured.title}</div>
+          <div style={{ fontSize:14, color:'#888', maxWidth:600, lineHeight:1.6 }}>{featured.excerpt?.slice(0,180)}...</div>
+          <div style={{ fontSize:11, color:'#555', marginTop:12 }}>By Signal Desk · {new Date(featured.published_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div>
+        </a>
+      )}
+      {/* Main + Sidebar */}
+      <div className="v3-row">
+        <div className="v3-main">
+          {rest.slice(0,12).map((a:any) => (
+            <a key={a.id} href={`/article/${slug}/${a.slug}`} className="v3-art" style={{ display:'block' }}>
+              <span className="v3-tag">{a.category}</span>
+              <div style={{ fontSize:18, fontWeight:700, color:'#f0f0f0', lineHeight:1.3, marginBottom:8 }}>{a.title}</div>
+              <div style={{ fontSize:13, color:'#666', lineHeight:1.5 }}>{a.excerpt?.slice(0,120)}...</div>
+              <div style={{ fontSize:11, color:'#444', marginTop:8 }}>By Signal Desk · {new Date(a.published_at).toLocaleDateString()}</div>
+            </a>
+          ))}
+        </div>
+        <div className="v3-side">
+          <div style={{ fontSize:10, letterSpacing:'.15em', color:p, marginBottom:16, fontWeight:900 }}>LATEST</div>
+          {rest.slice(0,10).map((a:any) => (
+            <a key={a.id} href={`/article/${slug}/${a.slug}`} className="v3-side-a">
+              <div style={{ fontSize:9, color:p, letterSpacing:'.1em', marginBottom:3 }}>{a.category?.toUpperCase()}</div>
+              <div style={{ fontSize:12, color:'#ccc', lineHeight:1.35, fontWeight:600 }}>{a.title}</div>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div style={{ textAlign:'center', padding:20, fontSize:11, color:'#333', borderTop:'1px solid #111' }}>© {new Date().getFullYear()} {site.name}</div>
     </div>
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
+
 // ARCHETYPE 12 — SPLIT (two-column feed, Bloomberg split)
 // ═══════════════════════════════════════════════════════════════════════════
 function Split({ site, articles, p, font, slug, variant }: any) {

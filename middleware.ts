@@ -98,9 +98,16 @@ export default function middleware(request: NextRequest) {
   // Rewrite root and sub-paths to internal portal route (REWRITE not REDIRECT)
   const url = request.nextUrl.clone()
   // For DynamicTemplate sites (route='s'), /s reads host header directly
-  // For dedicated portal templates, rewrite to /route/slug
+  // Articles and real app routes should pass through unchanged
+  // Only rewrite root and category pages to /s
   if (portal.route === 's') {
-    url.pathname = pathname === '/' || pathname === '' ? '/s' : `/s${pathname}`
+    // Pass through article pages, API routes, and other real routes
+    if (pathname.startsWith('/article/') || pathname.startsWith('/api/') || 
+        pathname.startsWith('/_next/') || pathname.startsWith('/favicon')) {
+      return NextResponse.next()
+    }
+    // Rewrite root and all other paths to /s for DynamicTemplate rendering
+    url.pathname = pathname === '/' || pathname === '' ? '/s' : '/s'
   } else {
     url.pathname = pathname === '/' || pathname === ''
       ? `/${portal.route}/${portal.slug}`
