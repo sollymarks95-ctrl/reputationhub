@@ -263,7 +263,6 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       if (!sd.script) { setPodMsg('❌ Script error: '+(sd.error||'No script returned. Check Anthropic API key.')); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
       // Switch to Episodes tab immediately so user can watch progress there
-      setPodSubTab('episodes')
       setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite, hostName:podHost }) })
@@ -288,7 +287,6 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const sd = await sr.json()
       if (!sd.script) { setPodMsg('❌ Script error: '+(sd.error||'No script returned. Check Anthropic API key.')); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
-      setPodSubTab('episodes')
       setPodMsg('🎙 Script ready. Generating audio...')
       const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite, hostName:podHost }) })
@@ -427,7 +425,9 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
         ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} @keyframes spin{to{transform:rotate(360deg)}} @keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} @keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+      @keyframes progress{from{width:0}to{width:100%}}
+      @keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
         .syne{font-family:'Syne',sans-serif}
         .nav-b{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:#64748b;transition:all .2s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
         .nav-b:hover{background:rgba(255,255,255,0.05);color:#F1F5F9}
