@@ -252,35 +252,56 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
     setCronRunning(false)
   }
 
-  // OPTION 1: Audio only
+  // OPTION 1: Audio only — single endpoint
   async function generateAudioPodcast() {
-    console.log('generateAudioPodcast called', { podClient, podSite, podHost })
-    if (!podClient) { alert('❌ No client selected — pick eToro from the CLIENT dropdown'); return }
-    if (!podTopic || podTopic.trim().length < 5) { alert('❌ Please fill in the Topic / Key Points field'); return }
-    alert('✅ Starting generation! Script takes ~30-60 seconds. Watch the right panel for progress. Click OK to begin.')
-    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Claude is writing your podcast script...')
+    console.log('generateAudioPodcast called', { podClient, podSite, podHost, podTopic })
+    if (!podClient) { alert('❌ Select a client first'); return }
+    if (!podTopic?.trim()) { alert('❌ Fill in the Topic field first'); return }
+    
+    setPodLoading(true)
+    setPodScript('')
+    setPodAudio('')
+    setPodMsg('✍️ Writing script and generating audio... (~60 seconds)')
+    
     try {
-      const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
-      const sd = await sr.json()
-      if (!sd.script) { setPodMsg('❌ Script error: '+(sd.error||'No script returned. Check Anthropic API key.')); setPodLoading(false); return }
-      setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
-      // Switch to Episodes tab immediately so user can watch progress there
-      setPodMsg(`🎙 Script ready (${sd.stats?.wordCount} words). Generating audio with ElevenLabs...`)
-      const ar = await fetch('/api/admin/generate-audio', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ script:sd.script, podcastId:sd.podcastId, title:podTitle, clientId:podClient, guestName:podGuest, guestGender:podGuestGender, siteSlug:podSite, hostName:podHost }) })
-      const ad = await ar.json()
-      if (ad.audioUrl) {
-        setPodAudio(ad.audioUrl)
-        setPodMsg(`✅ Audio podcast ready! Host: ${ad.voices?.host} · Guest: ${ad.voices?.guest}`)
-        // Refresh episodes list to show the new episode with audio player
-        await refreshPodcasts()
-      } else { setPodMsg('Audio error: '+(ad.error||'unknown')) }
-    } catch(e:any) { 
-      const msg = 'Error: '+e.message
-      setPodMsg('❌ '+msg)
-      alert('❌ Podcast error: '+e.message+'\n\nCheck browser console for details.')
+      const r = await fetch('/api/admin/generate-podcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: podClient,
+          siteSlug: podSite || 'global-trade-wire',
+          hostName: podHost,
+          guestName: podGuest,
+          guestRole: podRole,
+          guestGender: podGuestGender,
+          topic: podTopic,
+          title: podTitle,
+          episodeNumber: parseInt(podEpNum) || 1,
+          durationMinutes: parseInt(podDuration) || 5,
+        })
+      })
+      
+      const d = await r.json()
+      
+      if (!r.ok || !d.audioUrl) {
+        const errMsg = d.error || 'Unknown error'
+        setPodMsg('❌ ' + errMsg)
+        alert('❌ Podcast failed: ' + errMsg)
+        setPodLoading(false)
+        return
+      }
+      
+      setPodScript(d.script || '')
+      setPodAudio(d.audioUrl)
+      setPodMsg(`✅ Done! ${d.words} words, ${d.segments} segments. Host: ${d.host} · Guest: ${d.guest}`)
+      await refreshPodcasts()
+      
+    } catch(e: any) {
+      const msg = e.message || 'Network error'
+      setPodMsg('❌ Error: ' + msg)
+      alert('❌ Podcast error: ' + msg)
     }
+    
     setPodLoading(false)
   }
 

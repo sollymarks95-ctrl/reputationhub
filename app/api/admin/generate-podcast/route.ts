@@ -1,0 +1,177 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
+
+export const runtime = 'nodejs'
+export const maxDuration = 300
+
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST,OPTIONS' }
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS })
+}
+
+function db() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+
+async function getKey(name: string) {
+  if (process.env[name]) return process.env[name]!
+  const { data } = await db().from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()
+  return data?.key_value || ''
+}
+
+async function speak(text: string, voiceId: string, apiKey: string): Promise<Buffer | null> {
+  try {
+    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey },
+      body: JSON.stringify({
+        text: text.slice(0, 2000),
+        model_id: 'eleven_turbo_v2_5',
+        voice_settings: { stability: 0.45, similarity_boost: 0.72, style: 0.38, use_speaker_boost: true }
+      }),
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!r.ok) { console.error('EL error', r.status); return null }
+    return Buffer.from(await r.arrayBuffer())
+  } catch (e) { console.error('speak err', e); return null }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { clientId, siteSlug, hostName, guestName, guestRole, topic, title, episodeNumber, durationMinutes, guestGender } = body
+    const duration = parseInt(durationMinutes) || 5
+
+    const [elKey, anthKey] = await Promise.all([
+      getKey('ELEVENLABS_KEY'),
+      Promise.resolve(process.env.ANTHROPIC_API_KEY || '')
+    ])
+
+    if (!elKey) return NextResponse.json({ error: 'ElevenLabs key not configured' }, { status: 400, headers: CORS })
+    if (!anthKey) return NextResponse.json({ error: 'Anthropic API key not configured' }, { status: 400, headers: CORS })
+
+    const cfg = getSiteConfig(siteSlug || 'global-trade-wire')
+    const HOST = hostName || cfg.hostName
+    const GUEST = guestName || 'James Richardson'
+    const guestVoice = pickGuestVoice(GUEST, (guestGender as any) || 'male')
+    const targetWords = duration * 140
+
+    // STEP 1: Generate script with Claude
+    console.log(`Generating ${duration}-min script: ${HOST} interviews ${GUEST}`)
+    const scriptRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': anthKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: Math.min(targetWords * 6, 8000),
+        system: 'Write podcast scripts immediately. No preamble.',
+        messages: [{
+          role: 'user',
+          content: `Write a ${duration}-minute financial podcast between ${HOST} (host) and ${GUEST} (${guestRole || 'CEO'}).
+Topic: ${topic || 'eToro — regulatory trust and 2026 strategy'}
+Length: ~${targetWords} words. Format each line as "${HOST}: ..." or "${GUEST}: ..."
+Start immediately with "${HOST}:"`
+        }]
+      }),
+      signal: AbortSignal.timeout(120000),
+    })
+
+    if (!scriptRes.ok) {
+      const err = await scriptRes.text()
+      console.error('Claude error:', scriptRes.status, err)
+      return NextResponse.json({ error: `Script generation failed: ${scriptRes.status}` }, { status: 500, headers: CORS })
+    }
+
+    const scriptData = await scriptRes.json()
+    const script = scriptData.content?.[0]?.text?.trim() || ''
+    if (!script) return NextResponse.json({ error: 'Empty script from Claude' }, { status: 500, headers: CORS })
+    console.log(`Script: ${script.split(' ').length} words`)
+
+    // STEP 2: Parse script into segments
+    const segments: Array<{ speaker: 'host' | 'guest'; text: string }> = []
+    const hostRe = new RegExp(`^${HOST}:`, 'i')
+    const guestRe = new RegExp(`^${GUEST}:`, 'i')
+    for (const line of script.split('\n')) {
+      const t = line.trim()
+      if (!t || t.length < 5) continue
+      if (hostRe.test(t)) segments.push({ speaker: 'host', text: t.replace(hostRe, '').trim() })
+      else if (guestRe.test(t)) segments.push({ speaker: 'guest', text: t.replace(guestRe, '').trim() })
+      else if (/^(HOST|GUEST):/i.test(t)) {
+        const isHost = /^HOST:/i.test(t)
+        segments.push({ speaker: isHost ? 'host' : 'guest', text: t.replace(/^(HOST|GUEST):\s*/i, '').trim() })
+      }
+    }
+
+    if (segments.length === 0) {
+      // fallback: split by sentences
+      const sents = script.match(/[^.!?]+[.!?]+/g) || [script]
+      sents.forEach((s, i) => segments.push({ speaker: i % 2 === 0 ? 'host' : 'guest', text: s.trim() }))
+    }
+
+    console.log(`${segments.length} segments. Host voice: ${cfg.hostVoiceId}, Guest: ${guestVoice.name}`)
+
+    // STEP 3: Generate audio (process sequentially, max 20 segments for speed)
+    const maxSegs = Math.min(segments.length, 20)
+    const buffers: Buffer[] = []
+    const silShort = Buffer.alloc(8000, 0) // 0.5s silence at 16kbps
+    const silLong = Buffer.alloc(12000, 0) // 0.75s silence
+
+    for (let i = 0; i < maxSegs; i++) {
+      const seg = segments[i]
+      const voiceId = seg.speaker === 'host' ? cfg.hostVoiceId : guestVoice.id
+      const buf = await speak(seg.text, voiceId, elKey)
+      if (buf) {
+        if (i > 0) buffers.push(segments[i - 1]?.speaker !== seg.speaker ? silLong : silShort)
+        buffers.push(buf)
+      }
+      await new Promise(r => setTimeout(r, 150))
+    }
+
+    if (buffers.length === 0) return NextResponse.json({ error: 'No audio generated — ElevenLabs failed' }, { status: 500, headers: CORS })
+
+    const mp3 = Buffer.concat(buffers)
+    const fileName = `podcast-${Date.now()}.mp3`
+
+    // STEP 4: Upload to Supabase storage
+    const { error: upErr } = await db().storage.from('podcasts').upload(fileName, mp3, {
+      contentType: 'audio/mpeg', cacheControl: '31536000', upsert: true
+    })
+    if (upErr) return NextResponse.json({ error: `Upload failed: ${upErr.message}` }, { status: 500, headers: CORS })
+
+    const { data: urlData } = db().storage.from('podcasts').getPublicUrl(fileName)
+    const audioUrl = urlData.publicUrl
+
+    // STEP 5: Save to portal_podcasts
+    await db().from('portal_podcasts').insert({
+      title: title || `${cfg.showName} — Episode ${episodeNumber || 1}`,
+      script,
+      audio_url: audioUrl,
+      status: 'published',
+      client_id: clientId || null,
+      site_slug: siteSlug || null,
+      host_name: HOST,
+      guest_name: GUEST,
+      episode_number: parseInt(episodeNumber) || 1,
+      duration_seconds: duration * 60,
+    })
+
+    return NextResponse.json({
+      ok: true,
+      audioUrl,
+      script,
+      host: HOST,
+      guest: GUEST,
+      segments: segments.length,
+      words: script.split(' ').length,
+    }, { headers: CORS })
+
+  } catch (e: any) {
+    console.error('generate-podcast error:', e)
+    return NextResponse.json({ error: e.message }, { status: 500, headers: CORS })
+  }
+}
