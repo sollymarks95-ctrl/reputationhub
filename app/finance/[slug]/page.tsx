@@ -49,6 +49,7 @@ export default async function SitePage({
   }
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
+  const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
   const p = site.primary_color || '#1a73e8'
 
   // JSON-LD structured data for AI agents and search engines

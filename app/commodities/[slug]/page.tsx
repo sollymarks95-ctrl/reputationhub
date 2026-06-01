@@ -51,6 +51,7 @@ export default async function SitePage({
   const site = await getNewsSite(slug)
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
+  const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
   const p = site.primary_color || '#d4a017'
 
   // JSON-LD structured data for AI agents and search engines
