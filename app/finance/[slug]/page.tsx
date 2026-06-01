@@ -7,14 +7,16 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'global-trade-wire': 'https://nex-wire.com',
   'finance-terminal':  'https://finvexx.com',
   'business-pulse':    'https://bizplezx.com',
+  'gold-markets-today':'https://aurexhq.com',
+  'trust-score':       'https://verivex.co',
 }
-const BASE = 'https://rephuby.com'
+const BASE = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const url = `${BASE}/finance/${slug}`
+  const url = CUSTOM_DOMAINS[slug] || `https://rephuby.com`
   return {
     title: site.seo_title || `${site.name} — Financial Markets Forex Investment Analysis`,
     description: site.tagline || `${site.name} provides professional intelligence on financial markets forex investment analysis.`,
@@ -56,7 +58,7 @@ export default async function SitePage({
       '@type': 'NewsMediaOrganization',
       name: site.name,
       description: site.tagline,
-      url: `${BASE}/finance/${slug}`,
+      url,
       logo: { '@type': 'ImageObject', url: `${BASE}/logo.png`, width: 280, height: 60 },
       publishingPrinciples: `${BASE}/legal/about`,
       ethicsPolicy: `${BASE}/legal/terms`,
@@ -68,7 +70,7 @@ export default async function SitePage({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: site.name,
-      url: `${BASE}/finance/${slug}`,
+      url,
       description: site.tagline,
       inLanguage: 'en-GB',
       publisher: { '@type': 'Organization', name: 'RepHuby Intelligence Ltd', url: BASE },

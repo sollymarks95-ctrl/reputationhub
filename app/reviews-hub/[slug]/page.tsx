@@ -8,7 +8,7 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'finance-terminal':  'https://finvexx.com',
   'business-pulse':    'https://bizplezx.com',
 }
-const BASE = 'https://rephuby.com'
+const BASE = slug === 'trust-score' ? 'https://verivex.co' : 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -58,7 +58,7 @@ export default async function SitePage({
       '@type': 'NewsMediaOrganization',
       name: site.name,
       description: site.tagline,
-      url: `${BASE}/reviews-hub/${slug}`,
+      url: slug === 'trust-score' ? 'https://verivex.co' : `${BASE}/reviews-hub/${slug}`,
       logo: { '@type': 'ImageObject', url: `${BASE}/logo.png`, width: 280, height: 60 },
       publishingPrinciples: `${BASE}/legal/about`,
       ethicsPolicy: `${BASE}/legal/terms`,
@@ -70,7 +70,7 @@ export default async function SitePage({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: site.name,
-      url: `${BASE}/reviews-hub/${slug}`,
+      url: slug === 'trust-score' ? 'https://verivex.co' : `${BASE}/reviews-hub/${slug}`,
       description: site.tagline,
       inLanguage: 'en-GB',
       publisher: { '@type': 'Organization', name: 'RepHuby Intelligence Ltd', url: BASE },

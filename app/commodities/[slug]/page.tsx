@@ -7,14 +7,16 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'global-trade-wire': 'https://nex-wire.com',
   'finance-terminal':  'https://finvexx.com',
   'business-pulse':    'https://bizplezx.com',
+  'gold-markets-today':'https://aurexhq.com',
+  'trust-score':       'https://verivex.co',
 }
-const BASE = 'https://rephuby.com'
+const BASE = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const url = `${BASE}/commodities/${slug}`
+  const url = CUSTOM_DOMAINS[slug] || `https://rephuby.com`
   return {
     title: slug === 'gold-markets-today' ? 'AurexHQ — Gold, Silver & Precious Metals Intelligence' : (site?.seo_title || site?.name || 'AurexHQ'),
     description: site.tagline || `${site.name} provides professional intelligence on gold silver oil precious metals markets.`,
@@ -58,7 +60,7 @@ export default async function SitePage({
       '@type': 'NewsMediaOrganization',
       name: site.name,
       description: site.tagline,
-      url: `${BASE}/commodities/${slug}`,
+      url,
       logo: { '@type': 'ImageObject', url: `${BASE}/logo.png`, width: 280, height: 60 },
       publishingPrinciples: `${BASE}/legal/about`,
       ethicsPolicy: `${BASE}/legal/terms`,
@@ -70,7 +72,7 @@ export default async function SitePage({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: site.name,
-      url: `${BASE}/commodities/${slug}`,
+      url,
       description: site.tagline,
       inLanguage: 'en-GB',
       publisher: { '@type': 'Organization', name: 'RepHuby Intelligence Ltd', url: BASE },
