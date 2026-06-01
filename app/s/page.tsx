@@ -17,11 +17,37 @@ export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers()
   const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
   const db = getDb()
-  const { data: site } = await db.from('news_sites').select('name,description,noindex').eq('domain', host).single()
+  const { data: site } = await db.from('news_sites')
+    .select('name,description,noindex,tagline,template_config,category,slug')
+    .eq('domain', host).single()
+
+  const siteName = site?.name || 'Financial Intelligence'
+  const tagline = site?.template_config?.tagline || site?.description || 'Financial news, analysis and market intelligence'
+  const canonical = host ? `https://${host}` : 'https://rephuby.com'
+  const category = site?.template_config?.category || site?.category || 'Finance'
+  const noindex = site?.noindex ?? true
+
   return {
-    title: site?.name || 'Financial News',
-    description: site?.description || 'Financial news and analysis',
-    robots: site?.noindex ? 'noindex,nofollow' : 'index,follow',
+    title: `${siteName} — ${tagline}`,
+    description: tagline,
+    robots: noindex ? 'noindex,nofollow' : 'index,follow',
+    alternates: { canonical },
+    openGraph: {
+      title: `${siteName} — ${tagline}`,
+      description: tagline,
+      url: canonical,
+      siteName,
+      type: 'website',
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${siteName} — ${tagline}`,
+      description: tagline,
+    },
+    other: {
+      'article:section': category,
+    }
   }
 }
 
@@ -47,5 +73,19 @@ export default async function DynamicSitePage() {
     .order('published_at', { ascending: false })
     .limit(30)
 
-  return <DynamicTemplate site={site} articles={articles || []} />
+  const siteUrl = site?.domain ? `https://${site.domain}` : 'https://rephuby.com'
+  const siteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsMediaOrganization',
+    name: site?.name || 'Financial Intelligence',
+    url: siteUrl,
+    description: site?.template_config?.tagline || site?.description || 'Financial news and market intelligence',
+    logo: { '@type': 'ImageObject', url: `https://rephuby.com/favicon.ico` },
+  }
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
+      <DynamicTemplate site={site} articles={articles || []} />
+    </>
+  )
 }
