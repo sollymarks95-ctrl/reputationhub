@@ -88,13 +88,24 @@ export default function middleware(request: NextRequest) {
   }
 
   // Already on the internal route — don't rewrite again (prevents loop)
-  if (pathname.startsWith(`/${portal.route}/`)) return NextResponse.next()
+  // Loop prevention — already on internal route
+  if (portal.route === 's') {
+    if (pathname.startsWith('/s')) return NextResponse.next()
+  } else {
+    if (pathname.startsWith(`/${portal.route}/`)) return NextResponse.next()
+  }
 
   // Rewrite root and sub-paths to internal portal route (REWRITE not REDIRECT)
   const url = request.nextUrl.clone()
-  url.pathname = pathname === '/' || pathname === ''
-    ? `/${portal.route}/${portal.slug}`
-    : `/${portal.route}/${portal.slug}${pathname}`
+  // For DynamicTemplate sites (route='s'), /s reads host header directly
+  // For dedicated portal templates, rewrite to /route/slug
+  if (portal.route === 's') {
+    url.pathname = pathname === '/' || pathname === '' ? '/s' : `/s${pathname}`
+  } else {
+    url.pathname = pathname === '/' || pathname === ''
+      ? `/${portal.route}/${portal.slug}`
+      : `/${portal.route}/${portal.slug}${pathname}`
+  }
 
   const res = NextResponse.rewrite(url)
   // Tell the page it's on a custom domain — so Home links use "/" not "/${route}/${slug}"
