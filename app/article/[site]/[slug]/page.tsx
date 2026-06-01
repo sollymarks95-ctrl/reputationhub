@@ -71,6 +71,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const site = await getNewsSite(siteSlug)
   if (!site) notFound()
 
+  // Detect dark theme from site template_config
+  const cfg = site.template_config || {}
+  const isDark = ['dark_editorial','tech','brutalist','wire','newspaper'].includes(cfg.archetype)
+  const siteColor = cfg.primary || '#1a56db'
+  const bg = isDark ? '#0a0a0a' : '#f3f4f6'
+  const bgCard = isDark ? '#111111' : '#ffffff'
+  const bgHeader = isDark ? '#000000' : '#ffffff'
+  const textPrimary = isDark ? '#f0f0f0' : '#1a1a1a'
+  const textSecondary = isDark ? '#888888' : '#6b7280'
+  const textMuted = isDark ? '#444444' : '#9ca3af'
+  const borderColor = isDark ? '#1a1a1a' : '#e5e7eb'
+
   const PORTAL_URLS: Record<string,{name:string,url:string}> = {
     'global-trade-wire':  { name:'Nex-Wire',   url:'https://nex-wire.com' },
     'finance-terminal':   { name:'Finvexx',     url:'https://finvexx.com' },
@@ -79,11 +91,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     'trust-score':        { name:'Verivex',     url:'https://verivex.co' },
     'company-pedia':      { name:'Bizpedia',    url:'https://rephuby.com/wiki/company-pedia' },
     'press-central':      { name:'PresxWire',   url:'https://rephuby.com/pressroom/press-central' },
-    'invest-data':        { name:'InvexHub',    url:'https://rephuby.com/investdb/invest-data' },
+    'invest-data':        { name:'InvexHuby',   url:'https://invexhuby.com' },
     'trade-board':        { name:'Tradvex',     url:'https://rephuby.com/forum/trade-board' },
     'global-trade-assoc': { name:'Certivade',   url:'https://rephuby.com/association/global-trade-assoc' },
     'executive-network':  { name:'Execvex',     url:'https://rephuby.com/executive/executive-network' },
-    'market-radar':       { name:'Signalix',    url:'https://rephuby.com/market-radar/market-radar' },
+    'market-radar':       { name:'Signalixx',   url:'https://signalixx.com' },
   }
 
   const [article, allArticles] = await Promise.all([
@@ -259,7 +271,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'"Georgia","Times New Roman",serif', color:'#1a1a1a' }}>
+    <div style={{ minHeight:'100vh', background:bg, fontFamily: isDark ? "'Inter',sans-serif" : '"Georgia","Times New Roman",serif', color:textPrimary }}>
       {jsonLd.map((schema, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />)}
       {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
       <style>{`
@@ -287,7 +299,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       </div>
 
       {/* HEADER */}
-      <header style={{ background:'#fff', borderBottom:`4px solid ${p}`, position:'sticky', top:0, zIndex:100, boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
+      <header style={{ background:bgHeader, borderBottom:`4px solid ${p}`, position:'sticky', top:0, zIndex:100, boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
         <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px' }}>
           <div style={{ height:58, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <Link href={homeUrl}>
@@ -295,7 +307,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </Link>
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
               <Link href="/search">
-                <div style={{ background:'#f3f4f6', borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:'#374151' }}>🔍 Search</div>
+                <div style={{ background:bg, borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:textPrimary }}>🔍 Search</div>
               </Link>
               <Link href={homeUrl}>
                 <div style={{ background:p, color:'#fff', borderRadius:5, padding:'6px 16px', fontSize:13, fontWeight:700, fontFamily:'sans-serif', cursor:'pointer' }}>Subscribe Free</div>
@@ -308,7 +320,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </Link>
             {cats.map((cat: string) => (
               <Link key={cat} href={`${homeUrl}?category=${encodeURIComponent(cat)}`}>
-                <span style={{ padding:'0 14px', height:38, display:'flex', alignItems:'center', fontSize:13, fontFamily:'sans-serif', color:'#4b5563', whiteSpace:'nowrap' }}>{cat}</span>
+                <span style={{ padding:'0 14px', height:38, display:'flex', alignItems:'center', fontSize:13, fontFamily:'sans-serif', color:textSecondary, whiteSpace:'nowrap' }}>{cat}</span>
               </Link>
             ))}
           </nav>
@@ -316,15 +328,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       </header>
 
       {/* BREADCRUMB */}
-      <div style={{ background:'#fff', borderBottom:'1px solid #e5e7eb', padding:'8px 20px' }}>
-        <div style={{ maxWidth:1260, margin:'0 auto', fontSize:12, fontFamily:'sans-serif', color:'#9ca3af', display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
+      <div style={{ background:bgHeader, borderBottom:`1px solid ${borderColor}`, padding:'8px 20px' }}>
+        <div style={{ maxWidth:1260, margin:'0 auto', fontSize:12, fontFamily:'sans-serif', color:textMuted, display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
           <Link href={homeUrl} style={{ color:p }}>Home</Link>
           <span>›</span>
           {article.category && <>
             <Link href={`${homeUrl}?category=${encodeURIComponent(article.category)}`} style={{ color:p }}>{article.category}</Link>
             <span>›</span>
           </>}
-          <span style={{ color:'#9ca3af' }}>{article.title.substring(0,55)}...</span>
+          <span style={{ color:textMuted }}>{article.title.substring(0,55)}...</span>
         </div>
       </div>
 
@@ -350,7 +362,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* STANDFIRST */}
             {article.excerpt && (
-              <p style={{ fontSize:20, color:'#374151', lineHeight:1.65, marginBottom:18, fontWeight:400, borderLeft:`4px solid ${p}`, paddingLeft:14, fontStyle:'italic' }}>
+              <p style={{ fontSize:20, color:textPrimary, lineHeight:1.65, marginBottom:18, fontWeight:400, borderLeft:`4px solid ${p}`, paddingLeft:14, fontStyle:'italic' }}>
                 {article.excerpt}
               </p>
             )}
@@ -360,13 +372,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
               <div>
                 <div style={{ fontWeight:800, fontSize:14, color:'#111' }}>By {article.author_name || 'Editorial Team'}</div>
-                <div style={{ fontSize:12, color:'#9ca3af', marginTop:2 }}>
+                <div style={{ fontSize:12, color:textMuted, marginTop:2 }}>
                   {site.name} · {article.published_at ? formatShort(article.published_at) : 'Today'}
                 </div>
               </div>
               <div style={{ marginLeft:'auto', display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
-                <span style={{ fontSize:12, color:'#9ca3af' }}>⏱ {readTime(article.body)} min read</span>
-                <span style={{ fontSize:12, color:'#9ca3af' }}>· {(article.body||'').split(' ').length} words</span>
+                <span style={{ fontSize:12, color:textMuted }}>⏱ {readTime(article.body)} min read</span>
+                <span style={{ fontSize:12, color:textMuted }}>· {(article.body||'').split(' ').length} words</span>
               </div>
             </div>
 
@@ -374,14 +386,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {article.cover_image_url && (
               <figure style={{ marginBottom:26 }}>
                 <ArticleImage src={article.cover_image_url} alt={article.title} style={{ width:'100%', maxHeight:480, objectFit:'cover', display:'block', borderRadius:4 }} />
-                <figcaption style={{ fontSize:11, color:'#9ca3af', marginTop:6, fontFamily:'sans-serif', fontStyle:'italic', textAlign:'center' }}>
+                <figcaption style={{ fontSize:11, color:textMuted, marginTop:6, fontFamily:'sans-serif', fontStyle:'italic', textAlign:'center' }}>
                   {site.name} Editorial · {article.category || 'News'}
                 </figcaption>
               </figure>
             )}
 
             {/* ARTICLE BODY */}
-            <div className="body" style={{ background:'#fff', padding:'28px 32px', borderRadius:4, marginBottom:4 }}>
+            <div className="body" style={{ background:bgHeader, padding:'28px 32px', borderRadius:4, marginBottom:4 }}>
               {paragraphs.map((para: string, i: number) => {
                 if (para.startsWith('##') || para.startsWith('# ')) return <h2 key={i}>{para.replace(/^#{1,3}\s*/, '')}</h2>
                 if (para.startsWith('>')) return <blockquote key={i}>{para.replace(/^>\s*/, '')}</blockquote>
@@ -396,8 +408,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* TAGS */}
             {article.tags && article.tags.length > 0 && (
-              <div style={{ background:'#fff', padding:'14px 32px', borderTop:'1px solid #f3f4f6', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', fontFamily:'sans-serif', borderRadius:'0 0 4px 4px' }}>
-                <span style={{ fontSize:11, fontWeight:800, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.06em' }}>Topics:</span>
+              <div style={{ background:bgHeader, padding:'14px 32px', borderTop:'1px solid #f3f4f6', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', fontFamily:'sans-serif', borderRadius:'0 0 4px 4px' }}>
+                <span style={{ fontSize:11, fontWeight:800, color:textMuted, textTransform:'uppercase', letterSpacing:'0.06em' }}>Topics:</span>
                 {article.tags.map((tag: string) => (
                   <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}>
                     <span style={{ fontSize:12, fontWeight:600, color:p, border:`1px solid ${p}30`, background:`${p}08`, padding:'3px 10px', borderRadius:3, cursor:'pointer' }}>{tag}</span>
@@ -410,11 +422,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             <NewsletterInline siteId={site.id} siteName={site.name} primaryColor={p} />
 
             {/* AUTHOR BIO — NO AVATAR IMAGE, JUST INITIAL */}
-            <div style={{ background:'#fff', border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
+            <div style={{ background:bgHeader, border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
               <div>
                   <div style={{ fontWeight:800, fontSize:15, color:'#111' }}>{article.author_name || 'Editorial Team'}</div>
                   <div style={{ fontSize:11, color:p, fontWeight:700, marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>{site.name} Correspondent · {article.category || 'Markets'}</div>
-                  <p style={{ fontSize:13, color:'#6b7280', lineHeight:1.65 }}>
+                  <p style={{ fontSize:13, color:textSecondary, lineHeight:1.65 }}>
                     {article.author_name || 'The editorial team'} at {site.name} delivers expert analysis and breaking coverage across global markets, trade intelligence, and business strategy — combining deep industry expertise with rigorous reporting standards to provide actionable intelligence for business leaders worldwide.
                   </p>
               </div>
@@ -422,7 +434,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* CROSS-PORTAL COVERAGE — auto-links to other portals covering same brand/topic */}
             {resolvedCrossPortal.length > 0 && (
-              <div style={{ marginTop:24, background:'#fff', border:'1px solid #e5e7eb', borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', fontFamily:'sans-serif' }}>
+              <div style={{ marginTop:24, background:bgHeader, border:`1px solid ${borderColor}`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', fontFamily:'sans-serif' }}>
                 <div style={{ fontSize:11, fontWeight:800, color:p, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>📡 Also Covered Across Our Network</div>
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {resolvedCrossPortal.map((item: any, i: number) => (
@@ -444,12 +456,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
                   {related.slice(0,4).map((rel: any) => (
                     <Link key={rel.slug} href={`/article/${siteSlug}/${rel.slug}`}>
-                      <div style={{ background:'#fff', borderRadius:4, overflow:'hidden', border:'1px solid #e5e7eb', cursor:'pointer' }}>
+                      <div style={{ background:bgHeader, borderRadius:4, overflow:'hidden', border:`1px solid ${borderColor}`, cursor:'pointer' }}>
                         {rel.cover_image_url && <img src={rel.cover_image_url} alt={rel.title} style={{ width:'100%', height:130, objectFit:'cover', display:'block' }} loading="lazy" />}
                         <div style={{ padding:12 }}>
                           {rel.category && <span style={{ fontSize:9, fontWeight:900, color:p, letterSpacing:'0.08em', fontFamily:'sans-serif', textTransform:'uppercase' }}>{rel.category}</span>}
                           <div style={{ fontSize:14, fontWeight:700, lineHeight:1.3, marginTop:4, marginBottom:5, fontFamily:'sans-serif', color:'#111' }}>{rel.title}</div>
-                          <div style={{ fontSize:11, color:'#9ca3af', fontFamily:'sans-serif', display:'flex', gap:8 }}>
+                          <div style={{ fontSize:11, color:textMuted, fontFamily:'sans-serif', display:'flex', gap:8 }}>
                             <span>By {rel.author_name || 'Editorial'}</span>
                             <span>·</span>
                             <span>{rel.read_time_minutes || 5} min</span>
@@ -473,7 +485,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
 
             {/* LATEST */}
-            <div style={{ background:'#fff', borderRadius:6, padding:16, marginBottom:14, border:'1px solid #e5e7eb' }}>
+            <div style={{ background:bgHeader, borderRadius:6, padding:16, marginBottom:14, border:`1px solid ${borderColor}` }}>
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', paddingBottom:10, marginBottom:12, borderBottom:`3px solid ${p}`, fontFamily:'sans-serif' }}>Latest</div>
               {related.slice(0,5).map((rel: any, i: number) => (
                 <Link key={i} href={`/article/${siteSlug}/${rel.slug}`}>
@@ -482,7 +494,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                     <div>
                       {rel.category && <span style={{ fontSize:9, fontWeight:900, color:p, letterSpacing:'0.06em', fontFamily:'sans-serif', textTransform:'uppercase' }}>{rel.category}</span>}
                       <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.3, color:'#111', marginTop:2 }}>{rel.title}</div>
-                      <div style={{ fontSize:11, color:'#9ca3af', marginTop:3, fontFamily:'sans-serif' }}>{rel.published_at ? timeAgo(rel.published_at) : ''}</div>
+                      <div style={{ fontSize:11, color:textMuted, marginTop:3, fontFamily:'sans-serif' }}>{rel.published_at ? timeAgo(rel.published_at) : ''}</div>
                     </div>
                   </div>
                 </Link>
@@ -490,7 +502,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
 
             {/* MOST READ — numbered, no avatars */}
-            <div style={{ background:'#fff', borderRadius:6, padding:16, marginBottom:14, border:'1px solid #e5e7eb' }}>
+            <div style={{ background:bgHeader, borderRadius:6, padding:16, marginBottom:14, border:`1px solid ${borderColor}` }}>
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', paddingBottom:10, marginBottom:12, borderBottom:`3px solid ${p}`, fontFamily:'sans-serif' }}>Most Read</div>
               {related.slice(0,5).map((rel: any, i: number) => (
                 <Link key={i} href={`/article/${siteSlug}/${rel.slug}`}>
@@ -503,7 +515,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
 
             {/* TOPICS */}
-            <div style={{ background:'#fff', borderRadius:6, padding:16, marginBottom:14, border:'1px solid #e5e7eb' }}>
+            <div style={{ background:bgHeader, borderRadius:6, padding:16, marginBottom:14, border:`1px solid ${borderColor}` }}>
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', paddingBottom:10, marginBottom:12, borderBottom:`3px solid ${p}`, fontFamily:'sans-serif' }}>Topics</div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                 {cats.map((cat: string) => (
@@ -515,10 +527,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
 
             {/* SEARCH */}
-            <div style={{ background:'#fff', borderRadius:6, padding:16, border:'1px solid #e5e7eb' }}>
+            <div style={{ background:bgHeader, borderRadius:6, padding:16, border:`1px solid ${borderColor}` }}>
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10, fontFamily:'sans-serif' }}>Search</div>
               <form action="/search" method="GET" style={{ display:'flex', gap:6 }}>
-                <input name="q" placeholder="Search articles..." style={{ flex:1, padding:'8px 10px', border:'1px solid #e5e7eb', borderRadius:4, fontSize:13, fontFamily:'sans-serif', outline:'none' }} />
+                <input name="q" placeholder="Search articles..." style={{ flex:1, padding:'8px 10px', border:`1px solid ${borderColor}`, borderRadius:4, fontSize:13, fontFamily:'sans-serif', outline:'none' }} />
                 <button type="submit" style={{ background:p, color:'#fff', border:'none', borderRadius:4, padding:'8px 12px', cursor:'pointer', fontFamily:'sans-serif', fontWeight:700, fontSize:13 }}>→</button>
               </form>
             </div>
