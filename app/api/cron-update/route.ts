@@ -46,7 +46,39 @@ const CORE_SITES = [
     'broker license verification today','financial ombudsman complaints today','trading platform transparency today','broker segregated funds protection today','financial regulation MiFID II today','investor compensation scheme news today',
     'platform security trading today','KYC AML compliance news today','trading platform fee comparison today','broker execution quality standards today','financial dispute resolution today','trading platform risk warnings today',
     'social trading copy trading regulation','CFD leverage regulation update today','forex regulation global update today','binary options regulation today','trading app regulation news today','financial advisor regulation today',
-  ]},
+  ]},,
+  { id:'1cd6688f-bec9-4d1b-a024-80952bf31a21', name:'InvexHuby', slug:'invest-data', author:'Michael Torres',
+    domain:'invexhuby.com', primary:'#0f766e',
+    topics:[
+      'investment portfolio strategies 2026','hedge fund performance analysis','ETF market outlook today',
+      'stock market valuation metrics','private equity deal flow 2026','venture capital trends 2026',
+      'fixed income bond market analysis','alternative investment strategies','quantitative trading signals',
+      'asset allocation framework 2026','IPO market outlook today','factor investing analysis',
+      'risk-adjusted returns portfolio','emerging market investment opportunities','dividend growth investing',
+      'options trading strategies advanced','cryptocurrency institutional adoption','ESG investment performance',
+      'macro investment themes 2026','real estate investment trusts REIT analysis',
+      'multi-asset portfolio construction','market volatility investment strategy','global fund flows analysis',
+      'investment grade credit markets','small cap stock opportunities 2026','thematic investing trends',
+      'wealth management strategies 2026','financial markets morning briefing','capital markets intelligence',
+      'investment banking deal activity','futures market positioning analysis'
+    ]
+  },
+  { id:'27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22', name:'Signalixx', slug:'market-radar', author:'Jordan Blake',
+    domain:'signalixx.com', primary:'#dc2626',
+    topics:[
+      'technical analysis market signals today','RSI momentum indicators analysis','moving average crossover signals',
+      'options market implied volatility','put call ratio market sentiment','chart pattern analysis 2026',
+      'algorithmic trading signals today','market breadth indicators analysis','fibonacci retracement levels',
+      'volume profile trading analysis','market microstructure analysis','Bollinger bands signal analysis',
+      'MACD divergence signals today','support resistance levels forex','trend following signals 2026',
+      'derivatives market signals analysis','dark pool trading activity','institutional order flow analysis',
+      'price action trading patterns','market correlation analysis 2026','seasonal market patterns analysis',
+      'volatility surface analysis options','intermarket analysis signals','commitment of traders analysis',
+      'Elliott wave market analysis','Wyckoff method market stages','market regime detection signals',
+      'high frequency trading market impact','liquidity analysis market depth','gamma exposure market signals',
+      'quantitative signals backtesting results'
+    ]
+  }
 ]
 
 // Dynamically load ALL active sites from DB and merge with core portals
