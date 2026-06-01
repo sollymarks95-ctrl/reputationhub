@@ -111,14 +111,24 @@ START immediately with "${HOST}:" — no title, no preamble, no explanation:`
     const hostLines = (script.match(new RegExp('^' + HOST + ':', 'gm')) || []).length
     const guestLines = (script.match(new RegExp('^' + GUEST + ':', 'gm')) || []).length
 
-    const { data: saved } = await supabase.from('podcast_scripts').insert({
+    const { data: saved, error: saveErr } = await supabase.from('podcast_scripts').insert({
       client_id: clientId || null,
       title: `${SHOW_NAME} — Episode ${epNum}: ${topic || GUEST_TITLE + ' Interview'}`,
       script,
       status: 'draft',
       episode_number: epNum,
       duration_minutes: duration,
+      duration_seconds: duration * 60,
+      site_slug: siteSlug || null,
+      host_name: HOST,
+      show_name: SHOW_NAME,
+      guest_name: GUEST,
+      guest_role: GUEST_TITLE,
+      topic: topic || null,
+      word_count: wordCount,
     }).select().single()
+    
+    if (saveErr) console.error('Script save error:', saveErr.message)
 
     return NextResponse.json({
       success: true, script,
