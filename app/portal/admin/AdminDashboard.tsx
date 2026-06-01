@@ -3,21 +3,30 @@ import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-// publicUrl: the real URL to show clients. rephubyUrl: internal admin/content URL
-const PORTALS = [
-  { name:'NEX-WIRE',  abbr:'NW', domain:'nex-wire.com',   slug:'global-trade-wire',  color:'#E03131', accent:'#FF6B6B', route:'news',         publicUrl:'https://nex-wire.com',    live:true  },
-  { name:'FINVEXX',   abbr:'FX', domain:'finvexx.com',    slug:'finance-terminal',   color:'#1971C2', accent:'#74C0FC', route:'finance',       publicUrl:'https://finvexx.com',     live:true  },
-  { name:'BIZPLEZX',  abbr:'BX', domain:'bizplezx.com',   slug:'business-pulse',     color:'#6741D9', accent:'#B197FC', route:'magazine',      publicUrl:'https://bizplezx.com',    live:true  },
-  { name:'AUREXHQ',   abbr:'AX', domain:'aurexhq.com',    slug:'gold-markets-today', color:'#B08700', accent:'#FFD43B', route:'commodities',   publicUrl:'https://aurexhq.com',    live:true  },
-  { name:'VERIVEX',   abbr:'VX', domain:'verivex.co',     slug:'trust-score',        color:'#0CA678', accent:'#63E6BE', route:'reviews-hub',   publicUrl:'https://verivex.co',     live:true  },
-  { name:'BIZPEDIA',  abbr:'BZ', domain:'bizpedia.com',   slug:'company-pedia',      color:'#1864AB', accent:'#74C0FC', route:'wiki',          publicUrl:'https://rephuby.com/wiki/company-pedia',            live:false },
-  { name:'PRESXWIRE', abbr:'PW', domain:'presxwire.com',  slug:'press-central',      color:'#C92A2A', accent:'#FF8787', route:'pressroom',     publicUrl:'https://rephuby.com/pressroom/press-central',       live:false },
-  { name:'INVEXHUB',  abbr:'IH', domain:'invexhub.com',   slug:'invest-data',        color:'#0B6E4F', accent:'#63E6BE', route:'investdb',      publicUrl:'https://rephuby.com/investdb/invest-data',          live:false },
-  { name:'TRADVEX',   abbr:'TV', domain:'tradvex.com',    slug:'trade-board',        color:'#D9480F', accent:'#FFA94D', route:'forum',         publicUrl:'https://rephuby.com/forum/trade-board',             live:false },
-  { name:'CERTIVADE', abbr:'CV', domain:'certivade.com',  slug:'global-trade-assoc', color:'#1864AB', accent:'#A5D8FF', route:'association',   publicUrl:'https://rephuby.com/association/global-trade-assoc',live:false },
-  { name:'EXECVEX',   abbr:'EV', domain:'execvex.com',    slug:'executive-network',  color:'#3B5BDB', accent:'#BAC8FF', route:'executive',     publicUrl:'https://rephuby.com/executive/executive-network',   live:false },
-  { name:'SIGNALIX',  abbr:'SX', domain:'signalix.com',   slug:'market-radar',       color:'#A61E4D', accent:'#F783AC', route:'market-radar',  publicUrl:'https://rephuby.com/market-radar/market-radar',     live:false },
-]
+// Build portal list dynamically from DB sites (passed as prop)
+// Falls back to 5 core portals if sites prop is empty
+const CORE_COLORS: Record<string,{color:string,accent:string}> = {
+  'global-trade-wire':  {color:'#E03131',accent:'#FF6B6B'},
+  'finance-terminal':   {color:'#1971C2',accent:'#74C0FC'},
+  'business-pulse':     {color:'#6741D9',accent:'#B197FC'},
+  'gold-markets-today': {color:'#B08700',accent:'#FFD43B'},
+  'trust-score':        {color:'#0CA678',accent:'#63E6BE'},
+}
+function buildPortals(sites: any[]) {
+  return sites.map((s: any) => {
+    const live = !s.noindex
+    const domain = s.domain || s.slug + '.com'
+    const color = (CORE_COLORS[s.slug]?.color || s.primary_color || s.template_config?.primary || '#1a56db')
+    const accent = CORE_COLORS[s.slug]?.accent || color + 'aa'
+    const words = s.name.replace(/[^a-zA-Z0-9 ]/g,' ').trim().split(/\s+/)
+    const abbr = words.length >= 2 
+      ? (words[0][0] + words[1][0]).toUpperCase()
+      : s.name.slice(0,2).toUpperCase()
+    const publicUrl = live ? ('https://' + domain) : ('https://rephuby.com/' + s.slug)
+    return { name: s.name.toUpperCase(), abbr, domain, slug: s.slug, color, accent, 
+             publicUrl, live, noindex: s.noindex }
+  })
+}
 
 const NAV = [
   { icon:'🏠', label:'Overview',    id:'overview'  },
@@ -27,7 +36,7 @@ const NAV = [
   { icon:'✍️', label:'Generate Content', id:'content' },
   { icon:'🎙', label:'Podcasts',    id:'podcasts'  },
   { icon:'📊', label:'Rankings',    id:'rankings'  },
-  { icon:'🌐', label:'12 Portals',  id:'portals'   },
+  { icon:'🌐', label:'Portals',     id:'portals'   },
   { icon:'📧', label:'Subscribers', id:'subs'      },
   { icon:'⚙️', label:'API Keys',    id:'settings'  },
 ]
@@ -1359,11 +1368,12 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
           {tab === 'portals' && (
             <div style={{ animation:'slideIn .3s ease' }}>
               <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
-                <span className="badge bg">✓ 5 Live Custom Domains</span>
-                <span className="badge bb">9 on rephuby.com — buy domain to go live</span>
+                <span className="badge bg">✓ {sites.filter((s:any)=>!s.noindex).length} Live Custom Domains</span>
+                <span className="badge bb">{sites.filter((s:any)=>s.noindex).length} building content — buy domain to go live</span>
+                <span className="badge bb">{sites.length} total sites in network</span>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
-                {PORTALS.map((pp) => {
+                {buildPortals(sites).map((pp) => {
                   return (
                     <div key={pp.slug} className="card" style={{ padding:20, position:'relative', overflow:'hidden', border: pp.live ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
                       <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, background:`${pp.color}10`, borderRadius:'50%', filter:'blur(30px)', pointerEvents:'none' }} />
@@ -1373,14 +1383,9 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                           <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, color:'#fff', letterSpacing:'-0.02em', position:'relative', zIndex:1 }}>{pp.abbr}</span>
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:900,fontSize:17,letterSpacing:'-0.03em',lineHeight:1,display:'flex',alignItems:'center',flexWrap:'wrap',gap:0}}>
-                            {pp.name.includes('-') ? (
-                              <><span style={{color:'#F1F5F9'}}>{pp.name.split('-')[0]}</span><span style={{color:pp.color}}>-</span><span style={{color:pp.accent}}>{pp.name.split('-')[1]}</span></>
-                            ) : pp.name.slice(-2) === 'XX' ? (
-                              <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-2)}</span><span style={{color:pp.color}}>XX</span></>
-                            ) : (
-                              <><span style={{color:'#F1F5F9'}}>{pp.name.slice(0,-3)}</span><span style={{color:pp.color}}>{pp.name.slice(-3)}</span></>
-                            )}
+                          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:900,fontSize:15,letterSpacing:'-0.03em',lineHeight:1,display:'flex',alignItems:'center',flexWrap:'wrap',gap:0}}>
+                            <span style={{color:'#F1F5F9'}}>{pp.name.slice(0, Math.max(pp.name.length-3,3))}</span>
+                            <span style={{color:pp.color}}>{pp.name.slice(Math.max(pp.name.length-3,3))}</span>
                           </div>
                           <div style={{ fontSize:10, fontWeight:600, color: pp.live ? '#10B981' : '#475569', marginTop:3 }}>
                             {pp.live ? '🌐 ' : ''}{pp.domain}
