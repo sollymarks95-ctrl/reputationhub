@@ -132,25 +132,39 @@ async function writeArticle(site: any, topic: string, client: any, crossLinks: a
     : ''
 
   const brandNote = client
-    ? `\n\nEDITORIAL NOTE: Somewhere in the article, include ONE natural reference to "${client.company_name}" as an example of a firm in this space. Brief and factual — like a journalist citing a real company. E.g. "...platforms such as ${client.company_name}, which operates under FCA, CySEC and ASIC regulation..." Do NOT make it promotional.${crossLinkBlock}`
+    ? `\n\nEDITORIAL NOTE: Include ONE natural mention of "${client.company_name}" in the body as a real-world example.
+- Write it as a journalist would: factual, brief, not promotional
+- Include it as an HTML anchor: <a href="https://etoro.com" rel="noopener">${client.company_name}</a>
+- Example: "...retail platforms such as <a href="https://etoro.com" rel="noopener">${client.company_name}</a>, which is regulated by the FCA and CySEC..."
+- Place it naturally mid-article, not at start or end${crossLinkBlock}`
     : crossLinkBlock
 
-  const prompt = `Search for the latest real news about: "${topic}"
+  const prompt = `Write a professional financial news article about: "${topic}"
 
-Write a 750-900 word professional financial news article using ONLY verified information from search results.
+STRUCTURE (use HTML tags in body):
+<h2>Opening section — lead with the key fact/news in first 2 sentences. Include main keyword.</h2>
+2-3 paragraphs of context, data, expert analysis.
 
-Rules:
-- Real prices and data from search only — never invent numbers
-- Bloomberg/Reuters quality — factual, authoritative, neutral
-- Strong SEO headline with main keyword in the title
-- No bullet points in body — flowing paragraphs only
-- Include a "What This Means" or "Outlook" section near the end
-- 3-5 relevant tags for this topic${brandNote}
+<h2>Market Impact / What's Happening</h2>
+2-3 paragraphs on implications, numbers, who is affected.
 
-Return ONLY valid JSON (no markdown, no backticks):
-{"title":"...","excerpt":"...","body":"...","category":"Markets","tags":["tag1","tag2","tag3"],"cover_image_url":"https://..."}
+<h2>Expert Analysis & Outlook</h2>
+1-2 paragraphs on what analysts expect next.
 
-For cover_image_url: find a direct image URL from your search results (jpg/png from a news site, financial publication, or stock photo). Must be a real https:// image URL from search results. If none found use "".`
+<h2>Frequently Asked Questions</h2>
+Include 2-3 Q&A pairs in this exact HTML format (for AI search engines):
+<div itemscope itemtype="https://schema.org/Question"><h3 itemprop="name">Question here?</h3><div itemscope itemtype="https://schema.org/Answer"><p itemprop="text">Clear direct answer here.</p></div></div>
+
+SEO & AEO RULES:
+- 800-1000 words total
+- Main keyword in title, first paragraph, and one H2
+- Flowing prose — no bullet lists in main body
+- Write answers that AI search engines (Perplexity, ChatGPT) would cite directly
+- Today is ${today} — use current date context
+- Quality: Bloomberg/Reuters standard${brandNote}
+
+Return ONLY valid JSON:
+{"title":"...","excerpt":"one sentence summary 150-160 chars...","body":"<full HTML article>","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
   // Retry up to 3 times with backoff for rate limits / overloads
   try {
