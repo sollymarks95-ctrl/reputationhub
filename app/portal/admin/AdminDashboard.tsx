@@ -1158,9 +1158,21 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <div style={{ fontSize:14 }}>Fill the form and click Generate Script to create a professional podcast episode script</div>
                     </div>
                   ) : (
-                    <div style={{ padding:'60px 20px', textAlign:'center' }}>
-                      <div style={{ width:36, height:36, border:'3px solid rgba(245,158,11,0.2)', borderTopColor:'#F59E0B', borderRadius:'50%', animation:'spin .7s linear infinite', margin:'0 auto 16px' }} />
-                      <div style={{ color:'#94A3B8', fontSize:14 }}>Claude is writing your podcast script...</div>
+                    <div style={{ padding:'32px 24px', textAlign:'center', background:'rgba(245,158,11,0.05)', border:'2px solid rgba(245,158,11,0.3)', borderRadius:12, margin:16 }}>
+                      <div style={{ fontSize:52, marginBottom:12 }}>⏳</div>
+                      <div style={{ fontSize:20, fontWeight:900, color:'#F59E0B', marginBottom:8, fontFamily:"'Syne',sans-serif" }}>
+                        GENERATING PODCAST...
+                      </div>
+                      <div style={{ fontSize:14, color:'#cbd5e1', marginBottom:16, lineHeight:1.6 }}>
+                        {podMsg || 'Writing script and generating audio with S1 voice'}
+                      </div>
+                      <div style={{ fontSize:13, color:'#f59e0b', fontWeight:700, background:'rgba(245,158,11,0.1)', padding:'8px 16px', borderRadius:8, display:'inline-block', marginBottom:16 }}>
+                        ⚠️ Takes 60–120 seconds. Stay on this page.
+                      </div>
+                      <div style={{ height:8, background:'#1e293b', borderRadius:4, overflow:'hidden' }}>
+                        <div style={{ height:8, background:'linear-gradient(90deg,#F59E0B,#10B981)', borderRadius:4, animation:'progress 120s linear forwards', width:'0%' }} />
+                      </div>
+                      <div style={{ fontSize:11, color:'#475569', marginTop:8 }}>If you see this for more than 2 minutes, check the Episodes tab</div>
                     </div>
                   )}
                 </div>
