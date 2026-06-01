@@ -192,7 +192,7 @@ export async function GET(req: NextRequest) {
 
   // 5 batches per day × 6 articles per portal = 30 articles/portal/day
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
-  const BATCH_SIZE = 4
+  const BATCH_SIZE = 6
   const batchStart = batch * BATCH_SIZE
   const batchEnd = batchStart + BATCH_SIZE
 
