@@ -260,7 +260,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
       const sd = await sr.json()
-      if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
+      if (!sd.script) { setPodMsg('❌ Script error: '+(sd.error||'No script returned. Check Anthropic API key.')); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
       // Switch to Episodes tab immediately so user can watch progress there
       setPodSubTab('episodes')
@@ -286,7 +286,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
       const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
       const sd = await sr.json()
-      if (!sd.success) { setPodMsg('Script error: '+sd.error); setPodLoading(false); return }
+      if (!sd.script) { setPodMsg('❌ Script error: '+(sd.error||'No script returned. Check Anthropic API key.')); setPodLoading(false); return }
       setPodScript(sd.script); setPodEpisodeId(sd.podcastId)
       setPodSubTab('episodes')
       setPodMsg('🎙 Script ready. Generating audio...')
