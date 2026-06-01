@@ -118,7 +118,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podGuest, setPodGuest] = useState('')
   const [podRole, setPodRole] = useState('')
   const [podTopic, setPodTopic] = useState('')
-  const [podDuration, setPodDuration] = useState('20')
+  const [podDuration, setPodDuration] = useState('5')
   const [podScript, setPodScript] = useState('')
   const [podLoading, setPodLoading] = useState(false)
   const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
@@ -254,8 +254,11 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
 
   // OPTION 1: Audio only
   async function generateAudioPodcast() {
-    if (!podClient) { alert('Select a client first'); return }
-    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Writing script...')
+    console.log('generateAudioPodcast called', { podClient, podSite, podHost })
+    if (!podClient) { alert('❌ No client selected — pick eToro from the CLIENT dropdown'); return }
+    if (!podTopic || podTopic.trim().length < 5) { alert('❌ Please fill in the Topic / Key Points field'); return }
+    alert('✅ Starting generation! Script takes ~30-60 seconds. Watch the right panel for progress. Click OK to begin.')
+    setPodLoading(true); setPodScript(''); setPodAudio(''); setPodVideo(''); setPodDescriptUrl(''); setPodMsg('✍️ Claude is writing your podcast script...')
     try {
       const sr = await fetch('/api/admin/generate-script', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ clientId:podClient, episodeNumber:parseInt(podEpNum)||1, title:podTitle, hostName:podHost, hostRole:podHostRole, guestName:podGuest, guestRole:podRole, topic:podTopic, durationMinutes:parseInt(podDuration)||20 , siteSlug:podSite }) })
