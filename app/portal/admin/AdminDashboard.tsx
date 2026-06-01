@@ -51,14 +51,14 @@ function timeAgo(d: string) {
 function Spinner() { return <div style={{ width:16, height:16, border:'2px solid rgba(255,255,255,0.2)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin 0.7s linear infinite', display:'inline-block' }} /> }
 
 const SITE_PODCAST_CONFIGS: Record<string, any> = {
-    'global-trade-wire': { showName:'Nex-Wire Intelligence', hostName:'David Hart', hostRole:'Senior Markets Editor, Nex-Wire' },
+    'global-trade-wire': { showName:'Nex-Wire Intelligence', hostName:'James Hart', hostRole:'Senior Markets Editor, Nex-Wire' },
     'finance-terminal':  { showName:'Finvexx Markets', hostName:'Marcus Webb', hostRole:'Chief Markets Analyst, Finvexx' },
-    'business-pulse':    { showName:'Bizplezx Executive', hostName:'Claire Sterling', hostRole:'Editorial Director, Bizplezx' },
+    'business-pulse':    { showName:'Bizplezx Executive', hostName:'Daniel Sterling', hostRole:'Editorial Director, Bizplezx' },
     'gold-markets-today':{ showName:'AurexHQ Commodities', hostName:'Richard Stone', hostRole:'Head of Commodities Research' },
-    'market-radar':      { showName:'Signalix Radar', hostName:'Jordan Blake', hostRole:'Lead Signals Analyst, Signalix' },
-    'invest-data':       { showName:'InvexHub Insights', hostName:'Michael Torres', hostRole:'Chief Investment Strategist' },
-    'trust-score':       { showName:'Verivex Verified', hostName:'Sophie Chen', hostRole:'Head of Research, Verivex' },
-    'executive-network': { showName:'Execvex Leadership', hostName:'Alexandra Ross', hostRole:'Executive Editor, Execvex' },
+    'market-radar':      { showName:'Signalixx Signals', hostName:'Jordan Blake', hostRole:'Lead Signals Analyst, Signalixx' },
+    'invest-data':       { showName:'InvexHuby Intelligence', hostName:'Michael Torres', hostRole:'Chief Investment Strategist' },
+    'trust-score':       { showName:'Verivex Verified', hostName:'Nathan Chen', hostRole:'Head of Research, Verivex' },
+    'executive-network': { showName:'Execvex Leadership', hostName:'Alexander Ross', hostRole:'Executive Editor, Execvex' },
   }
 
 export default function AdminDashboard({ clients, allContent, allRankings, allPodcasts, allActivity, sites, totalArticles, totalSubscribers, allReviews = [], pendingReviews: initialPending = [], businessInquiries = [] }: any) {
@@ -101,15 +101,19 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podClient, setPodClient] = useState('')
   // Auto-select first client on load
   React.useEffect(() => { if (clients?.length && !podClient) { setPodClient(clients[0].id) } }, [clients])
+  React.useEffect(() => {
+    const cfg = SITE_PODCAST_CONFIGS['global-trade-wire']
+    if (cfg) { setPodHost(cfg.hostName); setPodHostRole(cfg.hostRole) }
+  }, [])
   const [podEpNum, setPodEpNum] = useState('')
-  const [podSite, setPodSite] = useState('')
+  const [podSite, setPodSite] = useState('global-trade-wire')
   const [podGuestGender, setPodGuestGender] = useState<'auto'|'male'|'female'>('auto')
   const [podStatus, setPodStatus] = useState<{step:string;ok:boolean;msg:string}[]>([])
   const [podVideo, setPodVideo] = useState('')
   const [podDescriptUrl, setPodDescriptUrl] = useState('')
   const [podVideoLoading, setPodVideoLoading] = useState(false)
   const [podTitle, setPodTitle] = useState('')
-  const [podHost, setPodHost] = useState('James Richardson')
+  const [podHost, setPodHost] = useState('James Hart')
   const [podHostRole, setPodHostRole] = useState('Show Host')
   const [podGuest, setPodGuest] = useState('')
   const [podRole, setPodRole] = useState('')

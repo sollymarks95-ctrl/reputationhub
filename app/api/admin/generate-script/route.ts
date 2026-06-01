@@ -85,7 +85,7 @@ START immediately with "${HOST}:" — no title, no preamble, no explanation:`
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 16000,
+        max_tokens: 8000,
         system: 'You are writing a financial podcast script. Write detailed, professional scripts using realistic but general market context. Always produce the full script immediately.',
         messages: [{ role: 'user', content: prompt }]
       }),
@@ -96,7 +96,7 @@ START immediately with "${HOST}:" — no title, no preamble, no explanation:`
 
     if (data.error) {
       console.error('Anthropic API error:', data.error)
-      return NextResponse.json({ error: data.error.message || 'Anthropic API error' }, { status: 500, headers: { "Access-Control-Allow-Origin": "*" } })
+      return NextResponse.json({ error: data.error.message || 'Anthropic API error', details: data.error }, { status: 500, headers: { "Access-Control-Allow-Origin": "*", 'Access-Control-Allow-Headers': 'Content-Type' } })
     }
 
     const textBlocks = (data.content || []).filter((b: any) => b.type === 'text')
