@@ -118,7 +118,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
   const [podGuest, setPodGuest] = useState('')
   const [podRole, setPodRole] = useState('')
   const [podTopic, setPodTopic] = useState('')
-  const [podDuration, setPodDuration] = useState('5')
+  const [podDuration, setPodDuration] = useState('20')
   const [podScript, setPodScript] = useState('')
   const [podLoading, setPodLoading] = useState(false)
   const [podSubTab, setPodSubTab] = useState<'studio'|'episodes'>('studio')
