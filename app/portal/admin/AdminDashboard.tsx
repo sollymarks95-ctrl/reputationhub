@@ -39,6 +39,7 @@ const NAV = [
   { icon:'🌐', label:'Portals',     id:'portals'   },
   { icon:'📧', label:'Subscribers', id:'subs'      },
   { icon:'⚙️', label:'API Keys',    id:'settings'  },
+  { icon:'📈', label:'Analytics',   id:'analytics' },
 ]
 
 function timeAgo(d: string) {
@@ -61,7 +62,26 @@ const SITE_PODCAST_CONFIGS: Record<string, any> = {
   }
 
 export default function AdminDashboard({ clients, allContent, allRankings, allPodcasts, allActivity, sites, totalArticles, totalSubscribers, allReviews = [], pendingReviews: initialPending = [], businessInquiries = [] }: any) {
+  // Build portal list from DB sites prop
+  const PORTALS = React.useMemo(() => buildPortals(sites || []), [sites])
   const [tab, setTab] = useState('overview')
+  const [analytics, setAnalytics] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [analyticsDays, setAnalyticsDays] = useState(30)
+
+  const loadAnalytics = React.useCallback(async (days=30) => {
+    setAnalyticsLoading(true)
+    try {
+      const r = await fetch(`/api/track?secret=REDACTED_CRON_SECRET&days=${days}`)
+      const d = await r.json()
+      setAnalytics(d)
+    } catch {}
+    setAnalyticsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'analytics' && !analytics) loadAnalytics(analyticsDays)
+  }, [tab])
   const [clock, setClock] = useState('')
   const [subs, setSubs] = useState<any[]>([])
   const router = useRouter()
@@ -1410,6 +1430,143 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                   )
                 })}
               </div>
+            </div>
+          )}
+
+                    {/* ══ ANALYTICS ══ */}
+          {tab === 'analytics' && (
+            <div style={{ animation:'slideIn .3s ease' }}>
+              {/* Header */}
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+                <div className="syne" style={{ fontSize:20, fontWeight:900, color:'#F1F5F9' }}>📈 Traffic Analytics</div>
+                <div style={{ display:'flex', gap:8 }}>
+                  {[7,14,30].map(d => (
+                    <button key={d} className={analyticsDays===d?'btn b-blue':'btn b-ghost'} style={{fontSize:11}}
+                      onClick={()=>{ setAnalyticsDays(d); loadAnalytics(d) }}>
+                      {d}d
+                    </button>
+                  ))}
+                  <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>loadAnalytics(analyticsDays)}>↻ Refresh</button>
+                </div>
+              </div>
+
+              {analyticsLoading && <div style={{textAlign:'center',padding:60,color:'#64748b'}}>Loading analytics...</div>}
+
+              {analytics && !analyticsLoading && (
+                <>
+                  {/* KPI row */}
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
+                    {[
+                      { label:'Total Views', value: analytics.total?.toLocaleString() || '0', sub: `Last ${analyticsDays} days`, color:'#6366f1' },
+                      { label:'Today', value: analytics.todayViews?.toLocaleString() || '0', sub: analytics.growthPct >= 0 ? `+${analytics.growthPct}% vs yesterday` : `${analytics.growthPct}% vs yesterday`, color: analytics.growthPct >= 0 ? '#10B981' : '#ef4444' },
+                      { label:'Yesterday', value: analytics.yesterdayViews?.toLocaleString() || '0', sub:'Full day', color:'#64748b' },
+                      { label:'Daily Avg', value: analytics.daily?.length > 0 ? Math.round(analytics.total / analytics.daily.length).toLocaleString() : '0', sub:'Views per day', color:'#f59e0b' },
+                    ].map(kpi => (
+                      <div key={kpi.label} className="card" style={{padding:'16px 18px'}}>
+                        <div style={{fontSize:11,fontWeight:600,color:'#64748b',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:6}}>{kpi.label}</div>
+                        <div style={{fontSize:26,fontWeight:900,color:kpi.color,fontFamily:"'Syne',sans-serif"}}>{kpi.value}</div>
+                        <div style={{fontSize:11,color:'#475569',marginTop:4}}>{kpi.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Main chart — views over time */}
+                  <div className="card" style={{padding:20,marginBottom:16}}>
+                    <div className="syne" style={{fontSize:13,fontWeight:800,marginBottom:16,color:'#94a3b8'}}>PAGEVIEWS OVER TIME</div>
+                    <div style={{display:'flex',alignItems:'flex-end',gap:3,height:140,paddingBottom:4}}>
+                      {(() => {
+                        const data = analytics.daily || []
+                        const max = Math.max(...data.map((d:any)=>d.views), 1)
+                        return data.map((d:any, i:number) => {
+                          const h = Math.max(4, (d.views / max) * 128)
+                          const isToday = d.date === new Date().toISOString().slice(0,10)
+                          return (
+                            <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3,cursor:'default'}} title={`${d.date}: ${d.views} views`}>
+                              <div style={{width:'100%',background: isToday ? '#6366f1' : '#1e293b',height:h,borderRadius:'3px 3px 0 0',border: isToday ? '1px solid #818cf8' : '1px solid #334155',transition:'height 0.3s'}} />
+                              {data.length <= 14 && <div style={{fontSize:8,color:'#334155',transform:'rotate(-45deg)',whiteSpace:'nowrap'}}>{d.date.slice(5)}</div>}
+                            </div>
+                          )
+                        })
+                      })()}
+                    </div>
+                    {analytics.daily?.length === 0 && (
+                      <div style={{textAlign:'center',padding:'40px 0',color:'#475569',fontSize:13}}>
+                        No traffic data yet — tracking will start automatically as visitors arrive.<br/>
+                        <span style={{fontSize:11,color:'#334155'}}>Make sure the tracking script is on your portals.</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+                    {/* By Site */}
+                    <div className="card" style={{padding:20}}>
+                      <div className="syne" style={{fontSize:12,fontWeight:800,marginBottom:14,color:'#94a3b8'}}>VIEWS BY SITE</div>
+                      {(analytics.bySite?.length > 0) ? analytics.bySite.map((s:any) => {
+                        const max = analytics.bySite[0]?.views || 1
+                        const pct = (s.views / max) * 100
+                        const pp = PORTALS.find((p:any)=>p.slug===s.slug)
+                        return (
+                          <div key={s.slug} style={{marginBottom:10}}>
+                            <div style={{display:'flex',justifyContent:'space-between',marginBottom:3}}>
+                              <span style={{fontSize:12,color:'#cbd5e1',fontWeight:600}}>{pp?.name || s.slug}</span>
+                              <span style={{fontSize:12,color:'#64748b'}}>{s.views.toLocaleString()}</span>
+                            </div>
+                            <div style={{height:4,background:'#1e293b',borderRadius:2}}>
+                              <div style={{height:4,width:`${pct}%`,background:pp?.color||'#6366f1',borderRadius:2}}/>
+                            </div>
+                          </div>
+                        )
+                      }) : <div style={{color:'#475569',fontSize:12,padding:'20px 0',textAlign:'center'}}>No data yet</div>}
+                    </div>
+
+                    {/* Device + Country */}
+                    <div style={{display:'flex',flexDirection:'column',gap:16}}>
+                      <div className="card" style={{padding:20,flex:1}}>
+                        <div className="syne" style={{fontSize:12,fontWeight:800,marginBottom:12,color:'#94a3b8'}}>DEVICE BREAKDOWN</div>
+                        <div style={{display:'flex',gap:12}}>
+                          {(analytics.byDevice?.length > 0 ? analytics.byDevice : [{device:'desktop',views:0},{device:'mobile',views:0}]).map((d:any) => {
+                            const total = analytics.byDevice?.reduce((a:number,x:any)=>a+x.views,0)||1
+                            const icons: Record<string,string> = {desktop:'🖥️',mobile:'📱',tablet:'📋'}
+                            const colors: Record<string,string> = {desktop:'#6366f1',mobile:'#10B981',tablet:'#f59e0b'}
+                            return (
+                              <div key={d.device} style={{flex:1,textAlign:'center',padding:'12px 8px',background:'rgba(255,255,255,0.03)',borderRadius:8}}>
+                                <div style={{fontSize:22,marginBottom:4}}>{icons[d.device]||'💻'}</div>
+                                <div style={{fontSize:18,fontWeight:900,color:colors[d.device]||'#6366f1',fontFamily:"'Syne',sans-serif"}}>{d.views>0 ? Math.round(d.views/total*100)+'%' : '—'}</div>
+                                <div style={{fontSize:10,color:'#64748b',textTransform:'capitalize'}}>{d.device}</div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="card" style={{padding:20,flex:1}}>
+                        <div className="syne" style={{fontSize:12,fontWeight:800,marginBottom:12,color:'#94a3b8'}}>TOP COUNTRIES</div>
+                        {(analytics.byCountry?.length > 0) ? analytics.byCountry.slice(0,5).map((c:any)=>(
+                          <div key={c.country} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                            <span style={{fontSize:12,color:'#cbd5e1'}}>{c.country}</span>
+                            <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{c.views}</span>
+                          </div>
+                        )) : <div style={{color:'#475569',fontSize:12,textAlign:'center',padding:'12px 0'}}>No data yet</div>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top referrers */}
+                  {analytics.byReferrer?.length > 0 && (
+                    <div className="card" style={{padding:20}}>
+                      <div className="syne" style={{fontSize:12,fontWeight:800,marginBottom:14,color:'#94a3b8'}}>TOP REFERRERS</div>
+                      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+                        {analytics.byReferrer.map((r:any)=>(
+                          <div key={r.referrer} style={{padding:'10px 12px',background:'rgba(255,255,255,0.03)',borderRadius:8,border:'1px solid rgba(255,255,255,0.06)'}}>
+                            <div style={{fontSize:12,fontWeight:700,color:'#cbd5e1',marginBottom:2}}>{r.referrer}</div>
+                            <div style={{fontSize:18,fontWeight:900,color:'#6366f1',fontFamily:"'Syne',sans-serif"}}>{r.views}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
