@@ -8,13 +8,13 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'finance-terminal':  'https://finvexx.com',
   'business-pulse':    'https://bizplezx.com',
 }
-const BASE = slug === 'trust-score' ? 'https://verivex.co' : 'https://rephuby.com'
+const BASE = 'https://rephuby.com' // overridden per-request below
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const site = await getNewsSite(slug)
   if (!site) return {}
-  const url = slug === 'trust-score' ? 'https://verivex.co' : `${BASE}/reviews-hub/${slug}`
+  const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
   return {
     title: slug === 'trust-score' ? 'Verivex — Verified Broker Reviews & Trust Intelligence' : (site?.seo_title || site?.name || 'Verivex'),
     description: site.tagline || `${site.name} provides professional intelligence on verified business reviews b2b trust intelligence.`,

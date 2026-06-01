@@ -10,7 +10,7 @@ const CUSTOM_DOMAINS: Record<string,string> = {
   'gold-markets-today':'https://aurexhq.com',
   'trust-score':       'https://verivex.co',
 }
-const BASE = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
+const BASE = 'https://rephuby.com' // overridden per-request below
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
