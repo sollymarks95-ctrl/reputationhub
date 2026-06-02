@@ -67,7 +67,17 @@ Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
       let jsonStr = raw.slice(0, end+1)
       const parsed = JSON.parse(jsonStr)
       if (!parsed.title || !parsed.body) { console.error('Missing title/body'); continue }
-      return parsed
+      // Convert plain text body to proper HTML for portal rendering
+      const rawBody = parsed.body as string
+      const htmlBody = '<p>' + rawBody
+        .replace(/\n\n(Market Impact|Expert Analysis|FAQ|Key Analysis|Analysis|Impact|Outlook|Background)\n\n?/gi, '</p><h2>$1</h2><p>')
+        .replace(/\n\nQ: ([^\n]+?)\s+A: /g, '</p><h3>$1</h3><p>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, ' ')
+        + '</p>'
+        .replace(/<p><\/p>/g, '')
+        .replace(/<p>\s*<\/p>/g, '')
+      return { ...parsed, body: htmlBody }
     } catch(e) { console.error(`Attempt ${attempt+1} error:`, (e as Error).message) }
   }
   return null
