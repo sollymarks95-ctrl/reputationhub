@@ -29,20 +29,12 @@ function slugify(s: string) {
 async function writeArticle(site: any, topic: string, brandNote: string) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
-  const prompt = `Write a financial news article for ${site.name} about: "${topic}"
-
-STRUCTURE (use HTML in body):
-<h2>Opening</h2>
-2-3 paragraphs with key facts and context.
-<h2>Market Impact</h2>
-2-3 paragraphs on implications and numbers.
-<h2>Expert Analysis</h2>
-1-2 paragraphs on outlook.
-<h2>FAQ</h2>
-<h3>Relevant question?</h3><p>Direct answer.</p>
-<h3>Another question?</h3><p>Direct answer.</p>
+  const prompt = `Write a ${site.name} news article about: ${topic}
+Today: ${today}. 600-800 words. Professional financial journalism.
 ${brandNote}
-Target: 600-800 words. Today is ${today}. Bloomberg/Reuters quality.`
+
+Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
+{"title":"Article headline here","excerpt":"One sentence summary 150 chars","body":"Paragraph 1 text.\n\nParagraph 2 text.\n\nMarket Impact\nParagraph 3 text.\n\nExpert Analysis\nParagraph 4 text.\n\nFAQ\nQ: Question one? A: Direct answer.\n\nQ: Question two? A: Direct answer.","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -55,7 +47,7 @@ Target: 600-800 words. Today is ${today}. Bloomberg/Reuters quality.`
           max_tokens: 3000,
           messages: [
             { role: 'user', content: prompt },
-            { role: 'assistant', content: '{' }
+            { role: 'assistant', content: '{"title":"' }
           ]
         }),
         signal: AbortSignal.timeout(60000),
@@ -64,11 +56,16 @@ Target: 600-800 words. Today is ${today}. Bloomberg/Reuters quality.`
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
       // Prefill was '{"title":"' so full JSON is that + response
-      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
-      const raw = '{' + clean
+      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'')
+        .replace(/\\/g,'\\\\')  // escape backslashes
+        .trim()
+      // Prefill was {"title":" so reconstruct: {"title":"<response>
+      const raw = '{"title":"' + clean
       const end = raw.lastIndexOf('}')
       if (end === -1) { console.error(`No closing } attempt ${attempt+1}: ${clean.slice(0,80)}`); continue }
-      const parsed = JSON.parse(raw.slice(0, end+1))
+      // Safe parse: replace unescaped quotes inside string values
+      let jsonStr = raw.slice(0, end+1)
+      const parsed = JSON.parse(jsonStr)
       if (!parsed.title || !parsed.body) { console.error('Missing title/body'); continue }
       return parsed
     } catch(e) { console.error(`Attempt ${attempt+1} error:`, (e as Error).message) }
