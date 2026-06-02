@@ -198,36 +198,40 @@ SEO & AEO RULES:
 Return ONLY valid JSON:
 {"title":"...","excerpt":"one sentence summary 150-160 chars...","body":"<full HTML article>","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
-  // Retry up to 3 times with backoff for rate limits / overloads
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        system: `You are a senior financial journalist for ${site.name} (${base}). Today is ${today}. Write REAL verified financial news. Output valid JSON only.`,
-        messages: [{ role:'user', content: prompt }]
-      }),
-      signal: AbortSignal.timeout(80000),
-    })
-    if (!res.ok) {
-      const errText = await res.text()
-      console.error('Anthropic API error:', res.status, errText.slice(0,300))
-      return null
+  // Retry up to 3 times with exponential backoff
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt))
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1500,
+          system: `You are a senior financial journalist for ${site.name} (${base}). Today is ${today}. Write REAL verified financial news. Output valid JSON only.`,
+          messages: [{ role:'user', content: prompt }]
+        }),
+        signal: AbortSignal.timeout(60000),
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error(`Anthropic error (attempt ${attempt+1}):`, res.status, errText.slice(0,200))
+        if (res.status === 429 || res.status >= 500) continue // retry
+        return null
+      }
+      const data = await res.json()
+      const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
+      const clean = text.replace(/```json|```/g,'').trim()
+      const start = clean.indexOf('{'); const end = clean.lastIndexOf('}')
+      if (start===-1||end===-1) { console.error('No JSON in response:', text.slice(0,100)); continue }
+      const parsed = JSON.parse(clean.slice(start,end+1))
+      if (!parsed.title||!parsed.body) { console.error('Missing title/body in JSON'); continue }
+      return parsed
+    } catch(e) {
+      console.error(`writeArticle attempt ${attempt+1} error:`, topic, (e as Error).message)
     }
-    const data = await res.json()
-    const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
-    const clean = text.replace(/```json|```/g,'').trim()
-    const start = clean.indexOf('{'); const end = clean.lastIndexOf('}')
-    if (start===-1||end===-1) return null
-    const parsed = JSON.parse(clean.slice(start,end+1))
-    if (!parsed.title||!parsed.body) return null
-    return parsed
-  } catch(e) {
-    console.error('writeArticle error:', topic, (e as Error).message)
-    return null
   }
+  return null
 }
 
 export async function GET(req: NextRequest) {
@@ -266,7 +270,8 @@ export async function GET(req: NextRequest) {
     const crossLinks = isBrandArticle ? await getCrossPortalLinks(client, ALL_SITES) : []
 
     // Write topic i for ALL sites simultaneously
-    await Promise.all(ALL_SITES.map(async (site: any) => {
+    await Promise.all(ALL_SITES.map(async (site: any, siteIdx: number) => {
+      await new Promise(r => setTimeout(r, siteIdx * 300)) // stagger 300ms between sites
       const topic = site.topics[batchStart + i]
       if (!topic) return
 
