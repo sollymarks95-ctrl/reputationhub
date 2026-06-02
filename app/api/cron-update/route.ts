@@ -208,7 +208,7 @@ Return ONLY valid JSON:
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 1500,
-          system: `You are a senior financial journalist for ${site.name} (${base}). Today is ${today}. Write REAL verified financial news. Output valid JSON only.`,
+          system: `You are a financial news API. Respond with ONLY a raw JSON object, no markdown, no backticks, no explanation. Start your response with { and end with }.`,
           messages: [{ role:'user', content: prompt }]
         }),
         signal: AbortSignal.timeout(60000),
@@ -221,12 +221,22 @@ Return ONLY valid JSON:
       }
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
-      const clean = text.replace(/```json|```/g,'').trim()
+      // Strip all markdown fences and whitespace
+      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
+      // Find the outermost JSON object
       const start = clean.indexOf('{'); const end = clean.lastIndexOf('}')
-      if (start===-1||end===-1) { console.error('No JSON in response:', text.slice(0,100)); continue }
-      const parsed = JSON.parse(clean.slice(start,end+1))
-      if (!parsed.title||!parsed.body) { console.error('Missing title/body in JSON'); continue }
-      return parsed
+      if (start===-1||end===-1) {
+        console.error(`No JSON found for ${site.slug}/${topic}: ${text.slice(0,120)}`)
+        continue
+      }
+      try {
+        const parsed = JSON.parse(clean.slice(start,end+1))
+        if (!parsed.title||!parsed.body) { console.error('Missing title/body'); continue }
+        return parsed
+      } catch(parseErr) {
+        console.error(`JSON parse error for ${site.slug}/${topic}:`, (parseErr as Error).message)
+        continue
+      }
     } catch(e) {
       console.error(`writeArticle attempt ${attempt+1} error:`, topic, (e as Error).message)
     }
