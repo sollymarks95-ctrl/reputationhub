@@ -345,7 +345,7 @@ export async function GET(req: NextRequest) {
           }).then(() => {}).catch(() => {})
         }
       }
-    }))
+    }
 
     // Brief pause between rounds to avoid rate limiting
     await new Promise(r => setTimeout(r, 1000)) // gap between rounds
