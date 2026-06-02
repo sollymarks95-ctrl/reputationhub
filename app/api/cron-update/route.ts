@@ -209,7 +209,10 @@ Return ONLY valid JSON:
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 1500,
           system: `You are a financial news API. Respond with ONLY a raw JSON object, no markdown, no backticks, no explanation. Start your response with { and end with }.`,
-          messages: [{ role:'user', content: prompt }]
+          messages: [
+          { role:'user', content: prompt },
+          { role:'assistant', content: '{' }
+        ]
         }),
         signal: AbortSignal.timeout(60000),
       })
@@ -221,9 +224,9 @@ Return ONLY valid JSON:
       }
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
-      // Strip all markdown fences and whitespace
-      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
-      // Find the outermost JSON object
+      // With prefill, response continues from '{' — prepend it back
+      const raw = '{' + text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
+      const clean = raw.replace(/^\{\{/, '{') // avoid double { if Claude repeated it
       const start = clean.indexOf('{'); const end = clean.lastIndexOf('}')
       if (start===-1||end===-1) {
         console.error(`No JSON found for ${site.slug}/${topic}: ${text.slice(0,120)}`)
