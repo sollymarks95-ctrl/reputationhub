@@ -184,11 +184,10 @@ STRUCTURE (use HTML tags in body):
 1-2 paragraphs on what analysts expect next.
 
 <h2>Frequently Asked Questions</h2>
-Include 2-3 Q&A pairs in this exact HTML format (for AI search engines):
-<div itemscope itemtype="https://schema.org/Question"><h3 itemprop="name">Question here?</h3><div itemscope itemtype="https://schema.org/Answer"><p itemprop="text">Clear direct answer here.</p></div></div>
+Include 2 Q&A pairs: <h3>Question?</h3><p>Answer.</p>
 
 SEO & AEO RULES:
-- 800-1000 words total
+- 600-800 words total
 - Main keyword in title, first paragraph, and one H2
 - Flowing prose — no bullet lists in main body
 - Write answers that AI search engines (Perplexity, ChatGPT) would cite directly
@@ -207,7 +206,7 @@ Return ONLY valid JSON:
         headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 1500,
+          max_tokens: 3000,
           system: `You are a financial news API. Respond with ONLY a raw JSON object, no markdown, no backticks, no explanation. Start your response with { and end with }.`,
           messages: [
           { role:'user', content: prompt },
@@ -284,25 +283,26 @@ export async function GET(req: NextRequest) {
 
     // Write topic i for ALL sites — sequential with 500ms gap to avoid rate limits
     for (const site of ALL_SITES) {
-      const topic = site.topics[batchStart + i]
+      const topic = (site as any).topics?.[batchStart + i]
       if (!topic) continue
+      const siteData = site as any
 
-      const article = await writeArticle(site, topic, client, crossLinks)
-      if (!article) { console.log(`Skipped: ${site.slug} / ${topic}`); await new Promise(r => setTimeout(r, 500)); continue }
+      const article = await writeArticle(siteData, topic, client, crossLinks)
+      if (!article) { console.log(`Skipped: ${siteData.slug} / ${topic}`); await new Promise(r => setTimeout(r, 500)); continue }
 
       const slug = slugify(article.title)
       const { data: existing } = await getDb().from('news_articles').select('id').eq('slug', slug).single()
       if (existing) { console.log(`Dup slug: ${slug}`); continue }
 
       const { data: inserted, error } = await getDb().from('news_articles').insert({
-        news_site_id: site.id,
+        news_site_id: siteData.id,
         title: article.title,
         slug,
         excerpt: article.excerpt || '',
         body: article.body || '',
         category: article.category || 'Markets',
         tags: Array.isArray(article.tags) ? article.tags : [],
-        author_name: site.author,
+        author_name: siteData.author,
         cover_image_url: getArticleImage(article.category || 'Markets', slug),
         status: 'published',
         published_at: new Date().toISOString(),
@@ -315,7 +315,7 @@ export async function GET(req: NextRequest) {
       if (!inserted) continue
 
       totalInserted++
-      siteCounters[site.slug] = (siteCounters[site.slug] || 0) + 1
+      siteCounters[siteData.slug] = (siteCounters[siteData.slug] || 0) + 1
 
       // Sync brand articles to portal_content
       if (inserted.id && isBrandArticle && clients[0]) {
@@ -326,9 +326,9 @@ export async function GET(req: NextRequest) {
           'gold-markets-today': { name:'AurexHQ',   domain:'aurexhq.com' },
           'trust-score':        { name:'Verivex',   domain:'verivex.co' },
         }
-        const pInfo = PMAP[site.slug]
+        const pInfo = PMAP[(siteData as any).slug]
         if (pInfo) {
-          const articleUrl = `https://${pInfo.domain}/article/${site.slug}/${slug}`
+          const articleUrl = `https://${pInfo.domain}/article/${(siteData as any).slug}/${slug}`
           const contentType = article.category?.toLowerCase().includes('review') ? 'review' : 'article'
           await getDb().from('portal_content').insert({
             client_id: clients[0].id,
