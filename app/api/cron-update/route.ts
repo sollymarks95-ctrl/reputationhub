@@ -206,7 +206,7 @@ Return ONLY valid JSON:
         method:'POST',
         headers:{ 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 1500,
           system: `You are a financial news API. Respond with ONLY a raw JSON object, no markdown, no backticks, no explanation. Start your response with { and end with }.`,
           messages: [{ role:'user', content: prompt }]
@@ -267,9 +267,9 @@ export async function GET(req: NextRequest) {
 
   const ALL_SITES = CORE_SITES
 
-  // Write articles for ALL sites in PARALLEL per topic round
-  // Each round: all 5 portals write the same topic index simultaneously
-  // Time: BATCH_SIZE rounds × (API_time + delay) = ~80s total ✅
+  // Write articles SEQUENTIALLY per site per round to avoid Anthropic rate limits
+  // Each round: 7 sites × (3s Haiku + 600ms delay) = ~25s per round
+  // 6 rounds × (25s + 1s delay) = ~156s total ✅
   const siteCounters: Record<string, number> = {}
   ALL_SITES.forEach((s: any) => { siteCounters[s.slug] = 0 })
 
@@ -279,18 +279,17 @@ export async function GET(req: NextRequest) {
     const client = isBrandArticle ? clients[0] : null
     const crossLinks = isBrandArticle ? await getCrossPortalLinks(client, ALL_SITES) : []
 
-    // Write topic i for ALL sites simultaneously
-    await Promise.all(ALL_SITES.map(async (site: any, siteIdx: number) => {
-      await new Promise(r => setTimeout(r, siteIdx * 300)) // stagger 300ms between sites
+    // Write topic i for ALL sites — sequential with 500ms gap to avoid rate limits
+    for (const site of ALL_SITES) {
       const topic = site.topics[batchStart + i]
-      if (!topic) return
+      if (!topic) continue
 
       const article = await writeArticle(site, topic, client, crossLinks)
-      if (!article) { console.log(`Skipped: ${site.slug} / ${topic}`); return }
+      if (!article) { console.log(`Skipped: ${site.slug} / ${topic}`); await new Promise(r => setTimeout(r, 500)); continue }
 
       const slug = slugify(article.title)
       const { data: existing } = await getDb().from('news_articles').select('id').eq('slug', slug).single()
-      if (existing) return
+      if (existing) { console.log(`Dup slug: ${slug}`); continue }
 
       const { data: inserted, error } = await getDb().from('news_articles').insert({
         news_site_id: site.id,
@@ -309,8 +308,8 @@ export async function GET(req: NextRequest) {
         read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
       }).select().single()
 
-      if (error) { console.error('Insert error:', error.message); return }
-      if (!inserted) return
+      if (error) { console.error('Insert error:', error.message); continue }
+      if (!inserted) continue
 
       totalInserted++
       siteCounters[site.slug] = (siteCounters[site.slug] || 0) + 1
@@ -346,7 +345,7 @@ export async function GET(req: NextRequest) {
     }))
 
     // Brief pause between rounds to avoid rate limiting
-    await new Promise(r => setTimeout(r, 2000))
+    await new Promise(r => setTimeout(r, 1000)) // gap between rounds
   }
 
   // Build results from counters
