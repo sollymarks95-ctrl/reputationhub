@@ -55,7 +55,7 @@ Target: 600-800 words. Today is ${today}. Bloomberg/Reuters quality.`
           max_tokens: 3000,
           messages: [
             { role: 'user', content: prompt },
-            { role: 'assistant', content: '{"title":"' }
+            { role: 'assistant', content: '{' }
           ]
         }),
         signal: AbortSignal.timeout(60000),
@@ -64,9 +64,10 @@ Target: 600-800 words. Today is ${today}. Bloomberg/Reuters quality.`
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
       // Prefill was '{"title":"' so full JSON is that + response
-      const raw = '{"title":"' + text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
+      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
+      const raw = '{' + clean
       const end = raw.lastIndexOf('}')
-      if (end === -1) { console.error(`No closing } attempt ${attempt+1}`); continue }
+      if (end === -1) { console.error(`No closing } attempt ${attempt+1}: ${clean.slice(0,80)}`); continue }
       const parsed = JSON.parse(raw.slice(0, end+1))
       if (!parsed.title || !parsed.body) { console.error('Missing title/body'); continue }
       return parsed
