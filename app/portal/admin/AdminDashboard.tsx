@@ -1,4 +1,5 @@
 'use client'
+import VideoStudio from './VideoStudio'
 import React, { useState, useEffect, useCallback } from 'react'
 
 const PORTAL_COLORS: Record<string,string> = {
@@ -305,7 +306,7 @@ function EpisodeCard({ep, cfg}: {ep:any; cfg:{show:string;host:string;role:strin
 }
 
 export default function AdminDashboard({
-  clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[],
+  clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[], allVideos=[],
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
   businessInquiries=[], portalArticlesToday={}, companies=[], invoices=[],
 }: any) {
@@ -453,6 +454,7 @@ export default function AdminDashboard({
             {id:'clients',icon:'👥',label:'Clients'},
             {id:'analytics',icon:'📈',label:'Analytics'},
             {id:'podcasts',icon:'🎙',label:'Podcasts'},
+            {id:'videos',icon:'🎬',label:'Video Studio'},
             {id:'portals',icon:'🌐',label:'Portals'},
             {id:'content',icon:'📰',label:'Content'},
             {id:'reviews',icon:'⭐',label:'Reviews'},
@@ -1467,6 +1469,9 @@ export default function AdminDashboard({
         )}
 
         {/* SETTINGS */}
+        {tab==='videos'&&(
+          <VideoStudio allPodcasts={allPodcasts}/>
+        )}
         {tab==='settings'&&(
           <div className="ti">
             <div className="syne" style={{fontSize:20,fontWeight:900,marginBottom:20}}>⚙️ Settings</div>
