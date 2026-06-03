@@ -25,9 +25,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#0f172a" />
       </head>
       <body style={{ margin: 0, padding: 0 }}>
-        <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:9999, background:'#064E3B', color:'#fff', textAlign:'center', padding:'7px 12px', fontSize:'12px', lineHeight:'1.4' }}>
-          📋 All content on RepHuby is produced independently. eToro has not hired or engaged our services — all data and case studies are editorial and for research purposes only.
-        </div>
         {children}
         <CookieConsent />
       </body>
