@@ -1,265 +1,137 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const OUR_DOMAINS = [
-  'nex-wire.com', 'finvexx.com', 'bizplezx.com', 'aurexhq.com',
-  'verivex.co', 'invexhuby.com', 'signalixx.com', 'execvex.com', 'cryptoxos.com'
-]
+const OUR_DOMAINS = ['nex-wire.com','finvexx.com','bizplezx.com','aurexhq.com','verivex.co','invexhuby.com','signalixx.com','execvex.com','cryptoxos.com']
 
-function extractCitations(text: string): string[] {
+function getDomain(url: string) { try { return new URL(url).hostname.replace('www.','') } catch { return url } }
+function isOurs(url: string) { const d = getDomain(url); return OUR_DOMAINS.some(o => d===o || d.endsWith('.'+o)) }
+function extractURLs(text: string) {
   const urls: string[] = []
-  // Match markdown links [text](url) and bare https:// urls
-  const mdLinks = [...text.matchAll(/\[.*?\]\((https?:\/\/[^\s\)]+)\)/g)].map(m => m[1])
-  const bareLinks = [...text.matchAll(/https?:\/\/[^\s\)\],"']+/g)].map(m => m[0])
-  const all = [...mdLinks, ...bareLinks]
-  all.forEach(u => {
-    try {
-      new URL(u)
-      if (!urls.includes(u)) urls.push(u)
-    } catch {}
-  })
+  for (const re of [/\[.*?\]\((https?:\/\/[^\s)]+)\)/g, /https?:\/\/[^\s)"'<>,\]]+/g])
+    for (const m of text.matchAll(re)) { const u=m[1]||m[0]; try { new URL(u); if(!urls.includes(u)) urls.push(u) } catch {} }
   return urls
 }
 
-function getDomain(url: string): string {
-  try { return new URL(url).hostname.replace('www.', '') } catch { return url }
+// Get API keys from env vars OR Supabase settings table
+let _cachedKeys: any = null
+async function getKeys() {
+  if (_cachedKeys) return _cachedKeys
+  const keys = {
+    anthropic:  process.env.ANTHROPIC_API_KEY || '',
+    openai:     process.env.OPENAI_API_KEY || '',
+    perplexity: process.env.PERPLEXITY_API_KEY || '',
+    gemini:     process.env.GEMINI_API_KEY || '',
+  }
+  // If any are missing, fetch from Supabase settings table
+  if (!keys.openai || !keys.perplexity || !keys.gemini) {
+    try {
+      const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+      const { data } = await sb.from('api_keys').select('name, value')
+      if (data) {
+        for (const row of data) {
+          if (row.name === 'OPENAI_API_KEY' && !keys.openai) keys.openai = row.value
+          if (row.name === 'PERPLEXITY_API_KEY' && !keys.perplexity) keys.perplexity = row.value
+          if (row.name === 'GEMINI_API_KEY' && !keys.gemini) keys.gemini = row.value
+        }
+      }
+    } catch {}
+  }
+  _cachedKeys = keys
+  return keys
 }
 
-function isOurDomain(url: string): boolean {
-  const d = getDomain(url)
-  return OUR_DOMAINS.some(od => d === od || d.endsWith('.' + od))
-}
-
-async function askClaudeWithSearch(question: string, apiKey: string) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      messages: [{
-        role: 'user',
-        content: `${question}\n\nPlease search the web for current information and include the sources/URLs you found in your answer.`
-      }]
-    }),
-    signal: AbortSignal.timeout(55000),
+async function askClaude(q: string, apiKey: string) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', signal:AbortSignal.timeout(55000),
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1500, tools:[{type:'web_search_20250305',name:'web_search'}], messages:[{role:'user',content:q}] })
   })
+  if (!r.ok) throw new Error(`Claude ${r.status}`)
+  const data = await r.json()
+  const answer = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('\n').trim()
+  const citations = extractURLs(answer)
+  const ourCitations = citations.filter(isOurs)
+  return { answer, citations, ourCitations, mentionsClient:/etoro/i.test(answer), mentionsOurPortals:ourCitations.length>0 }
+}
 
-  if (!res.ok) throw new Error(`Claude API error: ${res.status}`)
-  const data = await res.json()
+async function askPerplexity(q: string, apiKey: string) {
+  const r = await fetch('https://api.perplexity.ai/chat/completions', {
+    method:'POST', signal:AbortSignal.timeout(30000),
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+    body:JSON.stringify({ model:'sonar', messages:[{role:'system',content:'Be precise. Always cite sources.'},{role:'user',content:q}], return_citations:true, search_recency_filter:'month' })
+  })
+  if (!r.ok) throw new Error(`Perplexity ${r.status}: ${await r.text().then(t=>t.slice(0,100))}`)
+  const data = await r.json()
+  const answer: string = data.choices?.[0]?.message?.content || ''
+  const citations: string[] = data.citations || []
+  const ourCitations = citations.filter(isOurs)
+  return { answer, citations, ourCitations, mentionsClient:/etoro/i.test(answer), mentionsOurPortals:ourCitations.length>0 }
+}
 
-  // Extract text from all content blocks
-  const textBlocks = (data.content || [])
-    .filter((b: any) => b.type === 'text')
-    .map((b: any) => b.text)
-    .join('\n')
+async function askChatGPT(q: string, apiKey: string) {
+  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST', signal:AbortSignal.timeout(40000),
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+    body:JSON.stringify({ model:'gpt-4o-search-preview', web_search_options:{search_context_size:'medium'}, messages:[{role:'user',content:q}] })
+  })
+  if (!r.ok) throw new Error(`OpenAI ${r.status}: ${await r.text().then(t=>t.slice(0,200))}`)
+  const data = await r.json()
+  const answer: string = data.choices?.[0]?.message?.content || ''
+  const annotations: any[] = data.choices?.[0]?.message?.annotations || []
+  const citationUrls = annotations.filter((a:any)=>a.type==='url_citation').map((a:any)=>a.url_citation?.url).filter(Boolean)
+  const all = [...new Set([...citationUrls, ...extractURLs(answer)])]
+  const ourCitations = all.filter(isOurs)
+  return { answer, citations:all, ourCitations, mentionsClient:/etoro/i.test(answer), mentionsOurPortals:ourCitations.length>0 }
+}
 
-  // Extract tool result blocks for search result sources
-  const searchResults: any[] = []
-  for (const block of (data.content || [])) {
-    if (block.type === 'tool_use' && block.name === 'web_search') {
-      // web_search tool use — the query it searched
-      searchResults.push({ type: 'query', value: block.input?.query || '' })
-    }
-  }
-
-  const citations = extractCitations(textBlocks)
-  const ourCitations = citations.filter(isOurDomain)
-
-  return {
-    answer: textBlocks,
-    citations,
-    ourCitations,
-    searchQueries: searchResults.map((r: any) => r.value).filter(Boolean),
-    mentionsClient: /etoro/i.test(textBlocks),
-    mentionsOurPortals: ourCitations.length > 0,
-  }
+async function askGemini(q: string, apiKey: string) {
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    method:'POST', signal:AbortSignal.timeout(30000),
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ contents:[{role:'user',parts:[{text:q}]}], tools:[{google_search:{}}], generationConfig:{maxOutputTokens:1024} })
+  })
+  if (!r.ok) throw new Error(`Gemini ${r.status}: ${await r.text().then(t=>t.slice(0,100))}`)
+  const data = await r.json()
+  const answer = data.candidates?.[0]?.content?.parts?.filter((p:any)=>p.text).map((p:any)=>p.text).join('\n') || ''
+  const citations: string[] = (data.candidates?.[0]?.groundingMetadata?.groundingChunks||[]).map((c:any)=>c.web?.uri).filter(Boolean)
+  const ourCitations = citations.filter(isOurs)
+  return { answer, citations, ourCitations, mentionsClient:/etoro/i.test(answer), mentionsOurPortals:ourCitations.length>0 }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { question } = await req.json()
-    if (!question?.trim()) return NextResponse.json({ error: 'question required' }, { status: 400 })
+    if (!question?.trim()) return NextResponse.json({ error:'question required' }, { status:400 })
 
-    const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
-    const results: any[] = []
+    const K = await getKeys()
 
-    // ── Claude with real web search ──
-    try {
-      const claudeResult = await askClaudeWithSearch(question, ANTHROPIC)
-      results.push({
-        engine: 'claude',
-        name: 'Claude (Anthropic)',
-        icon: '🟠',
-        real: true,
-        ...claudeResult,
-        checkedAt: new Date().toISOString(),
-      })
-    } catch (err: any) {
-      results.push({ engine: 'claude', name: 'Claude (Anthropic)', icon: '🟠', real: true, error: err.message })
-    }
+    const engines = [
+      { id:'claude',     name:'Claude (Anthropic)', icon:'🟠', fn:()=>askClaude(question, K.anthropic) },
+      { id:'perplexity', name:'Perplexity AI',       icon:'🔵', fn:()=>askPerplexity(question, K.perplexity) },
+      { id:'chatgpt',    name:'ChatGPT (OpenAI)',    icon:'🟢', fn:()=>askChatGPT(question, K.openai) },
+      { id:'gemini',     name:'Gemini (Google)',     icon:'🔷', fn:()=>askGemini(question, K.gemini) },
+    ]
 
-    // ── Perplexity — real API if key available ──
-    const PERPLEXITY_KEY = process.env.PERPLEXITY_API_KEY
-    if (PERPLEXITY_KEY) {
-      try {
-        const res = await fetch('https://api.perplexity.ai/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PERPLEXITY_KEY}` },
-          body: JSON.stringify({
-            model: 'llama-3.1-sonar-large-128k-online',
-            messages: [{ role: 'user', content: question }],
-          }),
-          signal: AbortSignal.timeout(30000),
-        })
-        if (!res.ok) throw new Error(`Perplexity API ${res.status}`)
-        const data = await res.json()
-        const answer = data.choices?.[0]?.message?.content || ''
-        const citations = (data.citations || []) as string[]
-        results.push({
-          engine: 'perplexity',
-          name: 'Perplexity AI',
-          icon: '🔵',
-          real: true,
-          answer,
-          citations,
-          ourCitations: citations.filter(isOurDomain),
-          mentionsClient: /etoro/i.test(answer),
-          mentionsOurPortals: citations.some(isOurDomain),
-          checkedAt: new Date().toISOString(),
-        })
-      } catch (err: any) {
-        results.push({ engine: 'perplexity', name: 'Perplexity AI', icon: '🔵', real: true, error: err.message })
-      }
-    } else {
-      results.push({ engine: 'perplexity', name: 'Perplexity AI', icon: '🔵', real: false, needsKey: true })
-    }
-
-    // ── ChatGPT / OpenAI — real API if key available ──
-    const OPENAI_KEY = process.env.OPENAI_API_KEY
-    if (OPENAI_KEY) {
-      try {
-        const res = await fetch('https://api.openai.com/v1/responses', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini-search-preview',
-            tools: [{ type: 'web_search_preview' }],
-            input: question,
-          }),
-          signal: AbortSignal.timeout(30000),
-        })
-        if (!res.ok) throw new Error(`OpenAI API ${res.status}`)
-        const data = await res.json()
-        // Extract text and annotations
-        const outputText = data.output?.filter((b: any) => b.type === 'message')
-          .flatMap((b: any) => b.content || [])
-          .filter((c: any) => c.type === 'output_text')
-          .map((c: any) => c.text)
-          .join('\n') || ''
-        const annotations = data.output?.filter((b: any) => b.type === 'message')
-          .flatMap((b: any) => b.content || [])
-          .flatMap((c: any) => c.annotations || [])
-          .filter((a: any) => a.type === 'url_citation')
-          .map((a: any) => a.url) || []
-        results.push({
-          engine: 'chatgpt',
-          name: 'ChatGPT (OpenAI)',
-          icon: '🟢',
-          real: true,
-          answer: outputText,
-          citations: annotations,
-          ourCitations: annotations.filter(isOurDomain),
-          mentionsClient: /etoro/i.test(outputText),
-          mentionsOurPortals: annotations.some(isOurDomain),
-          checkedAt: new Date().toISOString(),
-        })
-      } catch (err: any) {
-        results.push({ engine: 'chatgpt', name: 'ChatGPT (OpenAI)', icon: '🟢', real: true, error: err.message })
-      }
-    } else {
-      results.push({ engine: 'chatgpt', name: 'ChatGPT (OpenAI)', icon: '🟢', real: false, needsKey: true })
-    }
-
-    // ── Gemini — real API if key available ──
-    const GEMINI_KEY = process.env.GEMINI_API_KEY
-    if (GEMINI_KEY) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: question }] }],
-            tools: [{ google_search: {} }],
-          }),
-          signal: AbortSignal.timeout(30000),
-        })
-        if (!res.ok) throw new Error(`Gemini API ${res.status}`)
-        const data = await res.json()
-        const answer = data.candidates?.[0]?.content?.parts
-          ?.filter((p: any) => p.text)
-          .map((p: any) => p.text)
-          .join('\n') || ''
-        // Extract grounding sources
-        const groundingChunks = data.candidates?.[0]?.groundingMetadata?.groundingChunks || []
-        const citations = groundingChunks.map((c: any) => c.web?.uri).filter(Boolean)
-        results.push({
-          engine: 'gemini',
-          name: 'Gemini (Google)',
-          icon: '🔷',
-          real: true,
-          answer,
-          citations,
-          ourCitations: citations.filter(isOurDomain),
-          mentionsClient: /etoro/i.test(answer),
-          mentionsOurPortals: citations.some(isOurDomain),
-          checkedAt: new Date().toISOString(),
-        })
-      } catch (err: any) {
-        results.push({ engine: 'gemini', name: 'Gemini (Google)', icon: '🔷', real: true, error: err.message })
-      }
-    } else {
-      results.push({ engine: 'gemini', name: 'Gemini (Google)', icon: '🔷', real: false, needsKey: true })
-    }
-
-    const realResults = results.filter(r => !r.needsKey && !r.error)
-    const mentionCount = realResults.filter(r => r.mentionsClient).length
-    const portalCount = realResults.filter(r => r.mentionsOurPortals).length
-    const allCitations = realResults.flatMap(r => r.citations || [])
-    const allOurCitations = realResults.flatMap(r => r.ourCitations || [])
-
-    return NextResponse.json({
-      question,
-      results,
-      summary: {
-        enginesChecked: realResults.length,
-        mentionClient: mentionCount,
-        mentionRate: realResults.length ? Math.round((mentionCount / realResults.length) * 100) : 0,
-        ourPortalsCited: allOurCitations.length,
-        portalEngines: portalCount,
-        totalCitations: allCitations.length,
-      },
-      checkedAt: new Date().toISOString(),
+    const settled = await Promise.allSettled(engines.map(e=>e.fn()))
+    const results = engines.map((e, i) => {
+      const r = settled[i]
+      if (r.status==='fulfilled') return { engine:e.id, name:e.name, icon:e.icon, real:true, ...r.value, checkedAt:new Date().toISOString() }
+      return { engine:e.id, name:e.name, icon:e.icon, real:true, error:r.reason?.message||'Error', citations:[], ourCitations:[], mentionsClient:false, mentionsOurPortals:false }
     })
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
-  }
+
+    const ok = results.filter(r=>!r.error)
+    return NextResponse.json({
+      question, results,
+      summary:{ enginesChecked:ok.length, mentionClient:ok.filter(r=>r.mentionsClient).length, mentionRate:ok.length?Math.round(ok.filter(r=>r.mentionsClient).length/ok.length*100):0, ourPortalsCited:ok.flatMap(r=>r.ourCitations||[]).length, portalEngines:ok.filter(r=>r.mentionsOurPortals).length, totalCitations:ok.flatMap(r=>r.citations||[]).length },
+      checkedAt:new Date().toISOString(),
+    })
+  } catch(e:any) { return NextResponse.json({ error:e.message }, { status:500 }) }
 }
 
 export async function GET() {
-  return NextResponse.json({
-    keys: {
-      anthropic: !!process.env.ANTHROPIC_API_KEY,
-      perplexity: !!process.env.PERPLEXITY_API_KEY,
-      openai: !!process.env.OPENAI_API_KEY,
-      gemini: !!process.env.GEMINI_API_KEY,
-    }
-  })
+  const K = await getKeys()
+  return NextResponse.json({ keys:{ anthropic:!!K.anthropic, perplexity:!!K.perplexity, openai:!!K.openai, gemini:!!K.gemini } })
 }
