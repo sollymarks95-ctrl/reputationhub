@@ -369,10 +369,41 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
           .art-body{padding:12px 10px!important;font-size:14px!important}
           .art-title{font-size:19px!important}
         }
+        /* ── ARTICLE MOBILE OVERRIDES (< 640px) ── */
+        @media(max-width:640px){
+          /* Top bar: hide on mobile */
+          .art-topbar{display:none!important}
+          /* Header: compact */
+          .art-header-inner{padding:0 14px!important}
+          .art-header-inner .art-header-h{font-size:20px!important}
+          .art-header-btns .art-sub-btn{display:none!important}
+          /* Nav strip: scrollable */
+          .art-subnav{overflow-x:auto!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important}
+          .art-subnav a,.art-subnav span{font-size:11px!important;padding:0 10px!important;white-space:nowrap!important}
+          /* Hero */
+          .art-hero-img{height:200px!important}
+          .art-title{font-size:20px!important;line-height:1.25!important;padding:0 14px!important}
+          .art-meta{padding:0 14px 14px!important;flex-wrap:wrap!important;gap:6px!important;font-size:11px!important}
+          /* Body */
+          .body p{font-size:16px!important;line-height:1.75!important;margin-bottom:1.2em!important}
+          .body h2{font-size:18px!important;margin:1.4em 0 0.6em!important}
+          .body h3{font-size:16px!important;margin:1.2em 0 0.5em!important}
+          .body blockquote{font-size:16px!important;padding:12px 14px!important}
+          .body ul,.body ol{font-size:15px!important;margin-left:1.4em!important}
+          /* Layout */
+          .layout{grid-template-columns:1fr!important;gap:0!important}
+          .sidebar{display:none!important}
+          .art-body{padding:16px 14px!important}
+          /* FAQ + takeaways */
+          .art-faq{padding:14px!important;margin:12px 14px!important}
+          .art-takeaways{padding:12px 14px!important;margin:12px 14px!important}
+          .art-tags{padding:0 14px 16px!important;flex-wrap:wrap!important;gap:6px!important}
+          .art-related{grid-template-columns:1fr!important;padding:14px!important;gap:12px!important}
+        }
       `}</style>
 
       {/* TOP BAR */}
-      <div style={{ background:'#0f172a', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <div className="art-topbar" style={{ background:'#0f172a', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <span>{formatDate(article.published_at || new Date().toISOString())}</span>
         <div style={{ display:'flex', gap:14 }}>
           <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#94a3b8', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
@@ -383,7 +414,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
       {/* HEADER */}
       <header style={{ background:bgHeader, borderBottom:`4px solid ${p}`, position:'sticky', top:0, zIndex:100, boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
-        <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px' }}>
+        <div className="art-header-inner" style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px' }}>
           <div style={{ height:58, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <Link href={homeUrl}>
               <div style={{ fontWeight:900, fontSize:26, color:p, letterSpacing:'-1px' }}>{site.name}</div>
@@ -395,7 +426,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               </Link>
             </div>
           </div>
-          <nav style={{ borderTop:'1px solid #f3f4f6', height:38, display:'flex', alignItems:'center', gap:0, overflowX:'auto' }}>
+          <nav className="art-subnav" style={{ borderTop:'1px solid #f3f4f6', height:38, display:'flex', alignItems:'center', gap:0, overflowX:'auto' }}>
             <Link href={homeUrl}>
               <span style={{ padding:'0 14px', height:38, display:'flex', alignItems:'center', fontSize:13, fontWeight:800, color:p, borderBottom:`2px solid ${p}`, whiteSpace:'nowrap' }}>Home</span>
             </Link>

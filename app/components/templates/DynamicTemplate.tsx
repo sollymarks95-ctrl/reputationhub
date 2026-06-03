@@ -1,4 +1,5 @@
 'use client'
+import MobileNav from '@/app/components/MobileNav'
 import React, { useState } from 'react'
 
 // ─── Font resolver ─────────────────────────────────────────────────────────
@@ -22,6 +23,113 @@ const SITE_CATEGORIES: Record<string, string[]> = {
   'market-radar':     ['All','Markets','Analysis','Signals','Energy','Commodities'],
   'executive-network':['All','Markets','Leadership','Strategy','Business'],
   'crypto-hub':       ['All','Markets','Crypto','Analysis','DeFi'],
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIVERSAL MOBILE LAYOUT — used by all archetypes on < 768px screens
+// ═══════════════════════════════════════════════════════════════════════════
+function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selectedCat, setSelectedCat }: any) {
+  const cfg = site?.template_config || {}
+  const siteName = site?.name || 'News'
+  const domain = site?.domain || ''
+  const accent = p || '#1a56db'
+
+  const IMGS = [
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=700&q=75&fm=jpg',
+  ]
+  const getImg = (a: any, i: number) => {
+    if (a?.cover_image_url?.startsWith('http')) return a.cover_image_url
+    return IMGS[i % IMGS.length]
+  }
+  const timeAgo = (d: string) => {
+    const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000)
+    if (s < 3600) return `${Math.floor(s / 60)}m ago`
+    if (s < 86400) return `${Math.floor(s / 3600)}h ago`
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  }
+
+  const hero = articles[0]
+  const rest = articles.slice(1, 30)
+
+  return (
+    <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: '#f8fafc', minHeight: '100vh', paddingTop: 88 }}>
+      <MobileNav
+        siteName={siteName} domain={domain} accentColor={accent}
+        sections={siteCategories || ['All', 'Markets', 'Analysis']}
+        activeSection={selectedCat || 'All'}
+        onSectionChange={setSelectedCat || (() => {})}
+        logoStyle="sans"
+      />
+
+      {/* Search bar */}
+      <div style={{ padding: '10px 16px', background: '#fff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 88, zIndex: 90 }}>
+        <input placeholder={`Search ${siteName}...`}
+          style={{ width: '100%', padding: '9px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: "'Inter',sans-serif", outline: 'none', background: '#f8fafc' }} />
+      </div>
+
+      <div style={{ padding: '0 16px 32px' }}>
+        {/* Hero */}
+        {hero && (
+          <a href={`/article/${slug}/${hero.slug}`}
+            style={{ display: 'block', textDecoration: 'none', marginTop: 16, marginBottom: 24, paddingBottom: 24, borderBottom: `3px solid ${accent}` }}>
+            <img src={getImg(hero, 0)} alt={hero.title}
+              style={{ width: '100%', height: 210, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }}
+              onError={(e: any) => { e.currentTarget.src = IMGS[0] }}
+              referrerPolicy="no-referrer" crossOrigin="anonymous" />
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: accent, borderLeft: `3px solid ${accent}`, paddingLeft: 7, marginBottom: 8, display: 'block' }}>
+              {hero.category || 'Latest'}
+            </span>
+            <div style={{ fontFamily: "'Georgia',serif", fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#111', marginBottom: 8 }}>{hero.title}</div>
+            <div style={{ fontSize: 14, color: '#555', lineHeight: 1.65, marginBottom: 8 }}>{(hero.excerpt || '').slice(0, 150)}…</div>
+            <div style={{ fontSize: 11, color: '#94a3b8' }}>{hero.author_name || 'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes || 4} min</div>
+          </a>
+        )}
+
+        {/* Section label */}
+        <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 14, paddingBottom: 6, borderBottom: `1px solid ${accent}33` }}>
+          {selectedCat !== 'All' ? selectedCat : 'Latest Stories'}
+        </div>
+
+        {/* Article list */}
+        {rest.map((a: any, i: number) => (
+          <a key={a.id || i} href={`/article/${slug}/${a.slug}`}
+            style={{ display: 'flex', gap: 12, paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid #f0f4f8', textDecoration: 'none', alignItems: 'flex-start' }}>
+            <img src={getImg(a, i + 1)} alt={a.title}
+              style={{ width: 90, height: 68, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
+              onError={(e: any) => { e.currentTarget.src = IMGS[(i + 1) % IMGS.length] }}
+              referrerPolicy="no-referrer" crossOrigin="anonymous" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: accent, display: 'block', marginBottom: 4 }}>
+                {a.category || 'News'}
+              </span>
+              <div style={{ fontFamily: "'Georgia',serif", fontSize: 15, fontWeight: 700, lineHeight: 1.3, color: '#111', marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                {a.title}
+              </div>
+              <div style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(a.published_at)} · {a.read_time_minutes || 3} min</div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{ background: '#0f172a', color: '#475569', padding: '20px 16px' }}>
+        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', marginBottom: 4 }}>{siteName}</div>
+        <div style={{ fontSize: 11, lineHeight: 1.6, marginBottom: 12 }}>{cfg.tagline || 'News & Intelligence'} · For informational purposes only.</div>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 8 }}>
+          {[['Privacy', '/legal/privacy'], ['Terms', '/legal/terms'], ['About', '/legal/about']].map(([l, h]) => (
+            <a key={l} href={h} style={{ color: '#475569', fontSize: 11, textDecoration: 'none' }}>{l}</a>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, color: '#334155' }}>© {new Date().getFullYear()} {domain}</div>
+      </div>
+    </div>
+  )
 }
 
 export default function DynamicTemplate({ site, articles }: { site: any; articles: any[] }) {
@@ -52,7 +160,16 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
     dark_editorial: DarkEditorial, split: Split, feed: Feed,
   }
   const Comp = dispatch[archetype] || Editorial
-  return <Comp {...props} />
+  return (
+    <>
+      <div className="dyn-mobile">
+        <DynMobileLayout {...props} />
+      </div>
+      <div className="dyn-desktop">
+        <Comp {...props} />
+      </div>
+    </>
+  )
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

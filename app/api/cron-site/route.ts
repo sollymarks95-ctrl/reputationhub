@@ -158,12 +158,14 @@ SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
 - Excerpt: one factual sentence under 155 chars with primary keyword early
 - Length: 700-900 words
 - Structure: H2 every 150-200 words, use H3 for sub-points
+- MOBILE-FIRST PARAGRAPHS: max 3-4 sentences per <p> tag — short paragraphs are essential for mobile readability
+- MOBILE HEADINGS: H2 every 150-200 words acts as a visual anchor on small screens — make them descriptive
 - Include at least 2 specific data points, percentages or figures (can be realistic estimates)
 - Include a "Key Takeaways" section with 3 bullet points (use <ul><li> tags)
 - Include a "Frequently Asked Questions" section at end with 2-3 Q&A pairs using <h3>Q: ...</h3><p>A: ...</p>
 - Write declarative, factual statements — avoid "may", "might", "could" where possible
 - Name specific entities: countries, organisations, institutions (not made-up, real ones)
-- First paragraph: answer WHO WHAT WHEN WHERE directly (inverted pyramid style)
+- First paragraph: answer WHO WHAT WHEN WHERE directly (inverted pyramid style) — max 3 sentences for mobile scanning
 
 Body HTML format:
 <p>Lead paragraph — inverted pyramid, key facts first.</p>
