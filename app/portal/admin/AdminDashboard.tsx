@@ -182,6 +182,8 @@ export default function AdminDashboard({
   const [podForm, setPodForm] = useState({
     siteSlug: 'trust-score',
     episodeNumber: 1,
+    hostName: '',
+    hostRole: '',
     guestName: '',
     guestRole: '',
     title: '',
@@ -212,7 +214,8 @@ export default function AdminDashboard({
         body: JSON.stringify({
           clientId: clients[0]?.id || 'a1b2c3d4-0000-0000-0000-000000000001',
           siteSlug: podForm.siteSlug,
-          hostName: cfg.host,
+          hostName: podForm.hostName || cfg.host,
+          guestName: podForm.guestName,
           guestName: podForm.guestName,
           guestRole: podForm.guestRole,
           topic: podForm.topic,
@@ -230,6 +233,23 @@ export default function AdminDashboard({
       }
     } catch(e:any) { setPodCreateResult({ error: e.message }) }
     finally { setPodCreating(false) }
+  }
+
+  const [podTopics, setPodTopics] = useState<any[]>([])
+  const [topicsLoading, setTopicsLoading] = useState(false)
+
+  const fetchTopics = async () => {
+    setTopicsLoading(true)
+    setPodTopics([])
+    try {
+      const r = await fetch('/api/admin/suggest-topics', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ siteSlug: podForm.siteSlug, clientName: clients[0]?.company_name })
+      })
+      const d = await r.json()
+      if (d.topics) setPodTopics(d.topics)
+    } catch(e) { console.error(e) }
+    finally { setTopicsLoading(false) }
   }
 
   const runCron = async () => {
@@ -968,11 +988,44 @@ export default function AdminDashboard({
             {/* CREATE FORM */}
             {podcastForm&&(
               <div className="card" style={{padding:22,marginBottom:20,borderTop:'3px solid #6366f1'}}>
-                <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8',marginBottom:16}}>CREATE NEW EPISODE</div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                  <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8'}}>CREATE NEW EPISODE</div>
+                  <button onClick={fetchTopics} disabled={topicsLoading}
+                    style={{padding:'6px 14px',background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:6,color:'#818cf8',fontWeight:700,fontSize:11,cursor:topicsLoading?'wait':'pointer',display:'flex',alignItems:'center',gap:6}}>
+                    {topicsLoading?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Searching trends…</>:<>🔥 Suggest Trending Topics</>}
+                  </button>
+                </div>
+
+                {/* Trending topic suggestions */}
+                {podTopics.length>0&&(
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:10,fontWeight:700,color:'#64748b',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:8}}>Click a topic to auto-fill the form</div>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {podTopics.map((t:any,i:number)=>(
+                        <div key={i}
+                          onClick={()=>setPodForm(f=>({...f,title:t.title,topic:t.topic,guestRole:t.guest||f.guestRole}))}
+                          style={{padding:'10px 14px',background:'rgba(99,102,241,0.07)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:7,cursor:'pointer',display:'flex',gap:12,alignItems:'flex-start',transition:'background .15s'}}
+                          onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(99,102,241,0.15)'}
+                          onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='rgba(99,102,241,0.07)'}>
+                          <span style={{fontSize:11,fontWeight:700,color:'#475569',flexShrink:0,marginTop:2,width:16}}>{i+1}</span>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:12,fontWeight:700,color:'#f1f5f9',marginBottom:3}}>{t.title}</div>
+                            <div style={{fontSize:11,color:'#64748b',lineHeight:1.4}}>{t.topic}</div>
+                            {t.guest&&<div style={{fontSize:10,color:'#475569',marginTop:3}}>💡 Suggested guest: {t.guest}</div>}
+                          </div>
+                          <span style={{fontSize:10,color:'#6366f1',flexShrink:0,marginTop:3}}>Use →</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+                  {/* Row 1: Portal + Episode # */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Portal</label>
-                    <select value={podForm.siteSlug} onChange={(e:any)=>setPodForm(f=>({...f,siteSlug:e.target.value}))}
+                    <select value={podForm.siteSlug}
+                      onChange={(e:any)=>{setPodForm(f=>({...f,siteSlug:e.target.value,hostName:PODCAST_CFG[e.target.value]?.host||''}));setPodTopics([])}}
                       style={{width:'100%',padding:'8px 10px',background:'#1e293b',border:'1px solid #334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
                       {Object.entries(PORTAL_DOMAIN).map(([s,d])=><option key={s} value={s}>{d}</option>)}
                     </select>
@@ -983,47 +1036,65 @@ export default function AdminDashboard({
                       onChange={(e:any)=>setPodForm(f=>({...f,episodeNumber:parseInt(e.target.value)||1}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="1"/>
                   </div>
+                  {/* Row 2: Host + Guest Name */}
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Host Name</label>
+                    <input value={podForm.hostName||PODCAST_CFG[podForm.siteSlug]?.host||''} onChange={(e:any)=>setPodForm(f=>({...f,hostName:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. Nathan Chen"/>
+                  </div>
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Guest Name</label>
                     <input value={podForm.guestName} onChange={(e:any)=>setPodForm(f=>({...f,guestName:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. James Richardson"/>
                   </div>
+                  {/* Row 3: Host Role + Guest Role */}
                   <div>
-                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Guest Role</label>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Host Role</label>
+                    <input value={podForm.hostRole||PODCAST_CFG[podForm.siteSlug]?.role||''} onChange={(e:any)=>setPodForm(f=>({...f,hostRole:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. Head of Research"/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Guest Role / Company</label>
                     <input value={podForm.guestRole} onChange={(e:any)=>setPodForm(f=>({...f,guestRole:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. CEO, eToro"/>
                   </div>
+                  {/* Row 4: Title */}
                   <div style={{gridColumn:'1/-1'}}>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Episode Title</label>
                     <input value={podForm.title} onChange={(e:any)=>setPodForm(f=>({...f,title:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. The Future of Regulated Trading in 2026"/>
                   </div>
+                  {/* Row 5: Topic */}
                   <div style={{gridColumn:'1/-1'}}>
-                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Topic / Description</label>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Topic / What to discuss</label>
                     <input value={podForm.topic} onChange={(e:any)=>setPodForm(f=>({...f,topic:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. eToro regulatory trust, CopyTrading performance, 2026 strategy"/>
                   </div>
+                  {/* Row 6: Duration */}
                   <div>
-                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Duration (minutes)</label>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Duration</label>
                     <select value={podForm.duration} onChange={(e:any)=>setPodForm(f=>({...f,duration:parseInt(e.target.value)}))}
                       style={{width:'100%',padding:'8px 10px',background:'#1e293b',border:'1px solid #334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
-                      {[5,8,10,15,20].map(d=><option key={d} value={d}>{d} minutes</option>)}
+                      {[5,8,10,15,20].map(d=><option key={d} value={d}>{d} min</option>)}
                     </select>
                   </div>
                 </div>
 
                 {podCreateResult?.error&&<div style={{padding:'8px 12px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:6,fontSize:12,color:'#ef4444',marginBottom:10}}>❌ {podCreateResult.error}</div>}
                 {podCreateResult?.ok&&(
-                  <div style={{padding:'10px 12px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:6,fontSize:12,color:'#10b981',marginBottom:10}}>
-                    ✅ Episode created! Audio generating… {podCreateResult.words} words
-                    {podCreateResult.audioUrl&&<audio controls src={podCreateResult.audioUrl} style={{width:'100%',height:28,marginTop:8}} preload="none"/>}
+                  <div style={{padding:'10px 12px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:6,marginBottom:10}}>
+                    <div style={{fontSize:12,color:'#10b981',fontWeight:700,marginBottom:6}}>✅ Episode created! {podCreateResult.words} words generated.</div>
+                    {podCreateResult.audioUrl&&<audio controls src={podCreateResult.audioUrl} style={{width:'100%',height:28}} preload="none"/>}
                   </div>
                 )}
 
-                <button onClick={createPodcastEpisode} disabled={podCreating}
-                  style={{padding:'10px 24px',background:podCreating?'#334155':'linear-gradient(135deg,#6366f1,#4f46e5)',border:'none',borderRadius:8,color:podCreating?'#475569':'#fff',fontWeight:700,fontSize:13,cursor:podCreating?'default':'pointer',display:'flex',alignItems:'center',gap:8}}>
-                  {podCreating?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating script + audio (~2 min)…</>:<>🎙 Create Episode + Generate Audio</>}
-                </button>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <button onClick={createPodcastEpisode} disabled={podCreating}
+                    style={{flex:1,padding:'11px 24px',background:podCreating?'#334155':'linear-gradient(135deg,#6366f1,#4f46e5)',border:'none',borderRadius:8,color:podCreating?'#475569':'#fff',fontWeight:700,fontSize:13,cursor:podCreating?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                    {podCreating?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating script + audio (~2–3 min)…</>:<>🎙 Create Episode + Generate Audio</>}
+                  </button>
+                  <button onClick={()=>{setPodCreateResult(null);setPodTopics([])}} className="btn b-ghost" style={{fontSize:11}}>Clear</button>
+                </div>
               </div>
             )}
 
