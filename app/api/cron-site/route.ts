@@ -159,7 +159,7 @@ export async function GET(req: NextRequest) {
   const site = CORE_SITES[siteSlug || '']
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
-  const BATCH_SIZE = 6
+  const BATCH_SIZE = 10
   const batchStart = batch * BATCH_SIZE
   const today = new Date().toISOString().split('T')[0]
   let inserted = 0
