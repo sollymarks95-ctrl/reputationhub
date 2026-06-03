@@ -1,4 +1,5 @@
 import { getNewsSite, getLatestArticles } from '@/lib/news'
+import TrackView from '@/app/components/TrackView'
 import { notFound } from 'next/navigation'
 import SiteRenderer from '@/app/components/SiteRenderer'
 import type { Metadata } from 'next'
@@ -92,6 +93,9 @@ export default async function SitePage({
 
   return (
     <>
+    <TrackView siteSlug={slug} siteDomain={'verivex.co'} />
+    
+    <>
       {schemas.map((s, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
       ))}
@@ -103,6 +107,7 @@ export default async function SitePage({
         primaryColor={p}
         searchParams={sp}
       />
+    </>
     </>
   )
 }

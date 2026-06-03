@@ -121,6 +121,18 @@ export async function GET(req: NextRequest) {
     })
     if (error) { console.error('Insert error:', error.message); continue }
     inserted++
+
+    // Write to portal_content so eToro client dashboard stays current
+    if (isBrand) {
+      await getDb().from('portal_content').insert({
+        client_id: 'a1b2c3d4-0000-0000-0000-000000000001',
+        portal_name: site.name,
+        article_url: `https://${site.domain}/article/${site.slug}/${slug}`,
+        article_title: article.title,
+        published_at: new Date().toISOString(),
+      }).then(() => {}).catch(() => {})
+    }
+
     await new Promise(r => setTimeout(r, 400))
   }
 

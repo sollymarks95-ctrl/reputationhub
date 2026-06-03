@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ArticleImage from '@/app/components/ArticleImage'
 import ArticleViewTracker from '@/app/components/ArticleViewTracker'
+import TrackView from '@/app/components/TrackView'
 import type { Metadata } from 'next'
 import NewsletterInline from '@/app/components/NewsletterInline'
 

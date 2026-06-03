@@ -1,3 +1,4 @@
+import TrackView from '@/app/components/TrackView'
 import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -84,6 +85,7 @@ export default async function DynamicSitePage() {
   }
   return (
     <>
+      <TrackView siteSlug={site.slug} siteDomain={site.domain || host} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
       <DynamicTemplate site={site} articles={articles || []} />
     </>
