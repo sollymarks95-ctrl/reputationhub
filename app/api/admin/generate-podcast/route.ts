@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
+import { getSiteConfig, pickPortalGuestVoice } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
     const cfg = getSiteConfig(siteSlug || 'global-trade-wire')
     const HOST = hostName || cfg.hostName
     const GUEST = guestName || 'James Richardson'
-    const guestVoice = pickGuestVoice(GUEST, (guestGender as any) || 'male')
+    // Per-portal voice assignment: never repeat same voice within a portal
+    const guestVoice = pickPortalGuestVoice(siteSlug || 'global-trade-wire', parseInt(episodeNumber) || 1)
     const targetWords = duration * 140
 
     // STEP 1: Generate script with Claude
@@ -159,6 +160,22 @@ Start immediately with "${HOST}:"`
       episode_number: parseInt(episodeNumber) || 1,
       duration_seconds: duration * 60,
     })
+
+    // Also update podcast_scripts.audio_url if a matching record exists
+    const { data: existingScript } = await db()
+      .from('podcast_scripts')
+      .select('id')
+      .eq('site_slug', siteSlug || '')
+      .eq('episode_number', parseInt(episodeNumber) || 1)
+      .eq('status', 'published')
+      .single()
+
+    if (existingScript?.id) {
+      await db()
+        .from('podcast_scripts')
+        .update({ audio_url: audioUrl, script })
+        .eq('id', existingScript.id)
+    }
 
     return NextResponse.json({
       ok: true,

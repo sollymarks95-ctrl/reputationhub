@@ -11,26 +11,46 @@ export const SITE_PODCAST_CONFIG: Record<string, {showName:string;hostName:strin
 export function getSiteConfig(slug: string) {
   return SITE_PODCAST_CONFIG[slug] || { showName:'RepHuby Intelligence', hostName:'James Richardson', hostRole:'Show Host', hostVoiceId:'xMTIubkjc8KMDoYdz4bQ', accentColor:'#0EA5E9', bgColor:'#0A0E17', domain:'rephuby.com', tagline:'Financial Market Intelligence' }
 }
-export const MALE_VOICES = [
-  { id:'onwK4e9ZLuTAKqWW03F9', name:'Daniel',  desc:'British, authoritative' },
-  { id:'TxGEqnHWrfWFTfGW9XjX', name:'Josh',    desc:'Warm, professional' },
-  { id:'wViXBPUzp2ZZixB1xQuM', name:'Patrick', desc:'Confident, smooth' },
-  { id:'ErXwobaYiN019PkySvjV', name:'Antoni',  desc:'Well-rounded, natural' },
-  { id:'pNInz6obpgDQGcFmaJgB', name:'Adam',    desc:'Deep, authoritative' },
-  { id:'2EiwWnXFnvU5JabPnv8n', name:'Clyde',   desc:'Seasoned, deep' },
-  { id:'VR6AewLTigWG4xSOukaG', name:'Arnold',  desc:'Powerful, commanding' },
-]
-export const FEMALE_VOICES = [
-  { id:'21m00Tcm4TlvDq8ikWAM', name:'Rachel',  desc:'Professional, confident' },
-  { id:'AZnzlk1XvdvUeBnXmlld', name:'Domi',    desc:'Strong, clear' },
-  { id:'EXAVITQu4vr4xnSDxMaL', name:'Bella',   desc:'Polished, composed' },
-  { id:'MF3mGyEYCl7XYWbV9V6O', name:'Elli',    desc:'Friendly, articulate' },
-  { id:'oWAxZDx7w5VEj9dCyTzz', name:'Grace',   desc:'Calm, measured' },
-  { id:'ThT5KcBeYPX3keUQqHPh', name:'Dorothy', desc:'Pleasant, clear' },
-]
-export function pickGuestVoice(guestName: string, gender: 'male'|'female'|'auto' = 'auto') {
-  const pool = gender === 'male' ? MALE_VOICES : gender === 'female' ? FEMALE_VOICES : [...MALE_VOICES, ...FEMALE_VOICES]
-  let h = 0; const k = guestName.toLowerCase().trim()
-  for (let i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))&0x7fffffff
-  return pool[h%pool.length]
+// Guest voice pool — 3 approved voices, never repeat same voice per portal
+export const GUEST_VOICES = [
+  { id:'5brWtFSh48YR4WFgv6SU', name:'Voice A' },
+  { id:'syLxORVim00JlDnItZLs', name:'Voice B' },
+  { id:'DXbpPpkz5tclPlaznu23', name:'Voice C' },
+] as const
+
+// Portal order index — used to stagger starting voice per portal
+const PORTAL_ORDER: Record<string, number> = {
+  'global-trade-wire':   0,
+  'finance-terminal':    1,
+  'business-pulse':      2,
+  'gold-markets-today':  3,
+  'trust-score':         4,
+  'invest-data':         5,
+  'market-radar':        6,
+  'executive-network':   7,
+  'crypto-hub':          8,
+}
+
+/**
+ * Returns the guest voice for a given portal + episode.
+ * Rule: never use the same voice twice within the same portal.
+ * Each portal starts at a different offset, rotating through all 3 voices.
+ *
+ * Example (3 voices A/B/C):
+ *   global-trade-wire  ep1→A  ep2→B  ep3→C
+ *   finance-terminal   ep1→B  ep2→C  ep3→A
+ *   business-pulse     ep1→C  ep2→A  ep3→B
+ *   ... (cycles through portals)
+ */
+export function pickPortalGuestVoice(siteSlug: string, episodeNumber: number = 1) {
+  const portalIdx = PORTAL_ORDER[siteSlug] ?? 0
+  const voiceIdx = (portalIdx + (episodeNumber - 1)) % GUEST_VOICES.length
+  return GUEST_VOICES[voiceIdx]
+}
+
+// Legacy shim — kept for backward compat
+export function pickGuestVoice(guestName: string, _gender?: string) {
+  let h = 0
+  for (let i = 0; i < guestName.length; i++) h = (h * 31 + guestName.charCodeAt(i)) & 0x7fffffff
+  return GUEST_VOICES[h % GUEST_VOICES.length]
 }

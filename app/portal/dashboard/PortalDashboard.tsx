@@ -42,6 +42,8 @@ function fmtNum(n: number) {
 export default function PortalDashboard({ client, content = [], podcasts = [], reviews = [], coverage = [] }: any) {
   const router = useRouter()
   const [tab, setTab] = useState('overview')
+  const [generatingPodcast, setGeneratingPodcast] = useState<string|null>(null)
+  const [podcastResult, setPodcastResult] = useState<Record<string,any>>({})
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [analytics, setAnalytics] = useState<any>(null)
@@ -81,6 +83,38 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
   }, [])
 
   useEffect(() => { loadAnalytics() }, [loadAnalytics])
+
+  const generatePodcastAudio = async (pod: any) => {
+    const key = pod.id
+    setGeneratingPodcast(key)
+    try {
+      const r = await fetch('/api/admin/generate-podcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: 'a1b2c3d4-0000-0000-0000-000000000001',
+          siteSlug: pod.site_slug,
+          hostName: pod.host_name,
+          guestName: pod.guest_name,
+          guestRole: pod.guest_role,
+          topic: pod.topic,
+          title: pod.title,
+          episodeNumber: pod.episode_number || 1,
+          durationMinutes: Math.min(pod.duration_minutes || 5, 8),
+        })
+      })
+      const data = await r.json()
+      if (data.ok && data.audioUrl) {
+        setPodcastResult(prev => ({ ...prev, [key]: { audioUrl: data.audioUrl, words: data.words } }))
+      } else {
+        setPodcastResult(prev => ({ ...prev, [key]: { error: data.error || 'Generation failed' } }))
+      }
+    } catch(e: any) {
+      setPodcastResult(prev => ({ ...prev, [key]: { error: e.message } }))
+    } finally {
+      setGeneratingPodcast(null)
+    }
+  }
 
   const loadBacklinks = useCallback(async () => {
     setLoadingBacklinks(true)
@@ -524,10 +558,29 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                           <audio controls src={pod.audio_url || pod.mp3_url} style={{ width:'100%', height:32 }} preload="none" />
                         </div>
                       )}
-                      {!(pod.audio_url || pod.mp3_url) && (
-                        <div style={{ fontSize:11, color:'#475569', marginBottom:12, display:'flex', alignItems:'center', gap:6, padding:'6px 10px', background:'#1e293b', borderRadius:4 }}>
-                          <span style={{ width:6, height:6, borderRadius:'50%', background:'#f59e0b', display:'inline-block', flexShrink:0 }} />
-                          Audio production in progress
+                      {!(pod.audio_url || pod.mp3_url) && !podcastResult[pod.id]?.audioUrl && (
+                        <div style={{ marginBottom:12 }}>
+                          {podcastResult[pod.id]?.error && (
+                            <div style={{ fontSize:11, color:'#ef4444', marginBottom:6, padding:'4px 8px', background:'rgba(239,68,68,0.1)', borderRadius:4 }}>
+                              ❌ {podcastResult[pod.id].error}
+                            </div>
+                          )}
+                          <button
+                            onClick={() => generatePodcastAudio(pod)}
+                            disabled={generatingPodcast === pod.id}
+                            className="btn"
+                            style={{ fontSize:12, padding:'7px 16px', background: generatingPodcast===pod.id ? '#334155' : '#0ea5e9', color:'#fff', border:'none', cursor: generatingPodcast===pod.id ? 'wait' : 'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:6, width:'100%', justifyContent:'center' }}
+                          >
+                            {generatingPodcast === pod.id
+                              ? <><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating audio (~2 min)…</>
+                              : <>🎙 Generate Audio</>}
+                          </button>
+                        </div>
+                      )}
+                      {podcastResult[pod.id]?.audioUrl && (
+                        <div style={{ marginBottom:12 }}>
+                          <div style={{ fontSize:11, color:'#10b981', marginBottom:6, fontWeight:600 }}>✅ Audio generated! {podcastResult[pod.id].words} words</div>
+                          <audio controls src={podcastResult[pod.id].audioUrl} style={{ width:'100%', height:32 }} />
                         </div>
                       )}
 
