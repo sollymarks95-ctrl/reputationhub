@@ -44,7 +44,7 @@ async function speak(text: string, voiceId: string, apiKey: string): Promise<Buf
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { clientId, siteSlug, hostName, guestName, guestRole, topic, title, episodeNumber, durationMinutes, guestGender } = body
+    const { clientId, clientBrand, siteSlug, hostName, guestName, guestRole, topic, title, episodeNumber, durationMinutes, guestGender } = body
     const duration = parseInt(durationMinutes) || 5
 
     const [elKey, anthKey] = await Promise.all([
@@ -73,9 +73,17 @@ export async function POST(req: NextRequest) {
         system: 'Write podcast scripts immediately. No preamble.',
         messages: [{
           role: 'user',
-          content: `Write a ${duration}-minute financial podcast between ${HOST} (host) and ${GUEST} (${guestRole || 'CEO'}).
-Topic: ${topic || 'eToro — regulatory trust and 2026 strategy'}
+          content: `Write a ${duration}-minute financial podcast between ${HOST} (host) and ${GUEST} (${guestRole || 'CEO'}).${clientBrand ? `
+
+CLIENT BRAND CONTEXT (weave naturally into the conversation):
+- Company: ${clientBrand.name}
+- Website: ${clientBrand.website}
+- Key message: ${clientBrand.regulation ? `Regulated by ${clientBrand.regulation}` : 'Leading platform'}
+- Naturally mention the brand 2-3 times — not as an ad, but as part of genuine expert discussion` : ''}
+
+Topic: ${topic || `${clientBrand?.name || 'eToro'} — strategy and market positioning`}
 Length: ~${targetWords} words. Format each line as "${HOST}: ..." or "${GUEST}: ..."
+Natural dialogue — the guest is an expert at ${clientBrand?.name || 'their company'}, not a salesperson.
 Start immediately with "${HOST}:"`
         }]
       }),

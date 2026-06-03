@@ -180,6 +180,7 @@ export default function AdminDashboard({
   const [podcastForm, setPodcastForm] = useState(false)
   const [podCreating, setPodCreating] = useState(false)
   const [podCreateResult, setPodCreateResult] = useState<any>(null)
+  const [podClientId, setPodClientId] = useState('')
   const [podForm, setPodForm] = useState({
     siteSlug: 'trust-score',
     episodeNumber: 1,
@@ -214,10 +215,10 @@ export default function AdminDashboard({
       const r = await fetch('/api/admin/generate-podcast', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          clientId: clients[0]?.id || 'a1b2c3d4-0000-0000-0000-000000000001',
+          clientId: podClientId || clients[0]?.id || 'a1b2c3d4-0000-0000-0000-000000000001',
+          clientBrand: (() => { const cl = clients.find((x:any)=>x.id===(podClientId||clients[0]?.id)); return cl ? {name:cl.company_name,website:cl.website_url,regulation:cl.regulation} : null })(),
           siteSlug: podForm.siteSlug,
           hostName: podForm.hostName || cfg.host,
-          guestName: podForm.guestName,
           guestName: podForm.guestName,
           guestRole: podForm.guestRole,
           topic: podForm.topic,
@@ -1033,6 +1034,31 @@ export default function AdminDashboard({
                 )}
 
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+                  {/* Row 0: Client */}
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>
+                      🏢 Client — podcast will feature this brand
+                    </label>
+                    <select value={podClientId}
+                      onChange={(e:any)=>{
+                        setPodClientId(e.target.value)
+                        const cl=clients.find((c:any)=>c.id===e.target.value)
+                        if(cl) setPodForm(f=>({...f,guestRole:cl.company_name}))
+                      }}
+                      style={{width:'100%',padding:'9px 12px',background:podClientId?'rgba(99,102,241,0.12)':'#1e293b',border:'1px solid',borderColor:podClientId?'#6366f1':'#334155',color:'#e2e8f0',borderRadius:6,fontSize:13,fontWeight:podClientId?700:400}}>
+                      <option value="">— No specific client (general podcast)</option>
+                      {clients.map((cl:any)=>(
+                        <option key={cl.id} value={cl.id}>
+                          {cl.company_name} · {cl.website_url}
+                        </option>
+                      ))}
+                    </select>
+                    {podClientId && (
+                      <div style={{fontSize:11,color:'#6366f1',marginTop:5,display:'flex',alignItems:'center',gap:5}}>
+                        ✓ Script will naturally feature {clients.find((c:any)=>c.id===podClientId)?.company_name} — regulation, trust, platform strengths
+                      </div>
+                    )}
+                  </div>
                   {/* Row 1: Portal + Episode # */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Portal</label>
