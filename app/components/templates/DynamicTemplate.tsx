@@ -27,6 +27,7 @@ const SITE_CATEGORIES: Record<string, string[]> = {
 export default function DynamicTemplate({ site, articles }: { site: any; articles: any[] }) {
   const [selectedCat, setSelectedCat] = useState('All')
   const cfg = site.template_config || {}
+  // GEO: per-portal schema built from site data
   const archetype = cfg.archetype || 'editorial'
   const variant   = parseInt(cfg.variant  || '1')
   const p         = cfg.primary    || '#1a56db'

@@ -8,9 +8,17 @@ const DARK = '#191919'
 
 function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
   const full = Math.floor(rating), half = rating % 1 >= 0.5
+
   return (
     <div style={{ display:'flex', gap:1 }}>
-      {[1,2,3,4,5].map(s => (
+
+      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
+        '@type': 'NewsMediaOrganization',
+        'name': 'Verivex',
+        'url': 'https://verivex.co',
+        'description': 'Verified broker and trading platform reviews and trust scores.',
+        'sameAs': ['https://verivex.co'],
+            {[1,2,3,4,5].map(s => (
         <svg key={s} width={size} height={size} viewBox="0 0 24 24"
           fill={s <= full ? GREEN : (s === full+1 && half) ? 'url(#half)' : '#E8E8E8'}>
           <defs><linearGradient id="half"><stop offset="50%" stopColor={GREEN}/><stop offset="50%" stopColor="#E8E8E8"/></linearGradient></defs>
@@ -176,7 +184,6 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
 
   // SEO: structured data
   const aggregateRating = {
-    '@context':'https://schema.org',
     '@type':'WebSite',
     name: site?.name || 'Verivex',
     url: 'https://verivex.co',
@@ -186,7 +193,6 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', color:DARK, minHeight:'100vh' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
         .srch{padding:10px 16px 10px 40px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;width:100%;background:#fff;transition:all .2s}

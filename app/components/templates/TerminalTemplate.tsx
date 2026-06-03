@@ -75,9 +75,17 @@ function Newsletter({ siteName, accent }: any) {
     setDone(true)
   }
   if (done) return <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:accent,padding:'10px 16px',border:`1px solid ${accent}`,borderRadius:2}}>✓ SUBSCRIBED — BRIEFING ACTIVE</div>
+
   return (
     <form onSubmit={sub} style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-      <input value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" placeholder="your@email.com" required
+
+      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
+        '@type': 'NewsMediaOrganization',
+        'name': 'Finvexx',
+        'url': 'https://finvexx.com',
+        'description': 'Financial markets, interest rates, forex and equity intelligence.',
+        'sameAs': ['https://finvexx.com'],
+            <input value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" placeholder="your@email.com" required
         style={{flex:1,padding:'8px 14px',background:'#ffffff',border:'1px solid #e5e7eb',color:'#1a1a2e',fontFamily:'IBM Plex Mono,monospace',fontSize:12,outline:'none',minWidth:180}}/>
       <button type="submit" style={{padding:'8px 18px',background:accent,color:'#000',border:'none',fontFamily:'IBM Plex Mono,monospace',fontWeight:700,fontSize:12,cursor:'pointer'}}>SUBSCRIBE</button>
     </form>

@@ -88,9 +88,17 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
   const hero=visible[0]; const top=visible.slice(1,5); const grid=visible.slice(5,25)
 
+
   return (
     <div style={{fontFamily:'Georgia,"Times New Roman",serif',background:'#fff',color:'#111',minHeight:'100vh'}}>
-      <style>{`
+
+      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
+        '@type': 'NewsMediaOrganization',
+        'name': 'Nex-Wire',
+        'url': 'https://nex-wire.com',
+        'description': 'Global trade, commodity markets and cross-border finance intelligence.',
+        'sameAs': ['https://nex-wire.com'],
+            <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}
         .whl{font-family:'Playfair Display',serif;font-weight:800;line-height:1.2;color:#111}

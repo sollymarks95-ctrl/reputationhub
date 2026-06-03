@@ -212,15 +212,16 @@ export default function HomePage() {
       <section id="features" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:60 }}>
-            <span className="tag" style={{ background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', color:'#0EA5E9', marginBottom:18, display:'inline-flex' }}>The Three Pillars</span>
-            <h2 className="syne h2s" style={{ fontSize:46, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>We Don&apos;t Do Generic SEO. <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Dominate</span> <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Your Brand Name.</span></h2>
+            <span className="tag" style={{ background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', color:'#0EA5E9', marginBottom:18, display:'inline-flex' }}>The Four Pillars</span>
+            <h2 className="syne h2s" style={{ fontSize:46, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>Built for Google.<br/><span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Built for AI.</span> <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Built to Dominate.</span></h2>
             <p style={{ fontSize:17, color:'#64748b', maxWidth:580, margin:'0 auto' }}>We don't do generic SEO. We dominate your exact brand name searches — and build the kind of real, verifiable credibility that turns sceptical prospects into clients.</p>
           </div>
-          <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
+          <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18 }}>
             {[
               { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'eToro review', 'eToro scam', 'eToro legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
               { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 12 elite portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
               { icon:'🎬', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'Video & Podcast', accent:'Interviews', desc:"We produce real AI-powered audio and video interviews with your CEO, analysts and trading team. Published to Spotify, YouTube, Apple Podcasts. When prospects search your brand, they find a podcast. When they ask AI — it cites your CEO interview. That's authority.", cta:'Hear a sample →' },
+              { icon:'✦', tag:'Pillar 04', tc:'#818CF8', grad:'135deg,#818CF8,#6366F1', title:'AI Engine', accent:'Optimisation', desc:'Every article we publish is structured for ChatGPT, Perplexity, Gemini and Google AI Overviews to cite. FAQ schema, entity graphs, speakable markup — your brand appears in AI answers, not just Google results. GEO is the 2026 frontier.', cta:'See how GEO works →' },
             ].map(f => (
               <div key={f.tag} className="fc">
                 <div style={{ fontSize:36, marginBottom:18 }}>{f.icon}</div>
@@ -244,6 +245,9 @@ export default function HomePage() {
 
       {/* ── AI DEFENSE DEMO ── */}
       <AIDefenseSection />
+
+      {/* ── GEO SECTION ── */}
+      <GEOSection />
 
       {/* DASHBOARD */}
       <section id="dashboard" style={{ padding:'80px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
@@ -435,6 +439,138 @@ export default function HomePage() {
 }
 
 // ── AI DEFENSE SECTION ──────────────────────────────────────────────────────
+function GEOSection() {
+  const engines = [
+    { name:'ChatGPT', icon:'🤖', color:'#10A37F', desc:'GPT-4o scans structured content and FAQ schemas to build answers' },
+    { name:'Perplexity', icon:'🔍', color:'#7C3AED', desc:'Cites real web sources — FAQs and named entities get quoted directly' },
+    { name:'Google AI Overviews', icon:'🌐', color:'#4285F4', desc:'Pulls from speakable, FAQ and NewsArticle schema at the top of results' },
+    { name:'Gemini', icon:'✦', color:'#1A73E8', desc:'Favours entity-rich, fact-dense content with Organisation schema' },
+    { name:'Claude', icon:'◆', color:'#D97757', desc:'Trained on quality editorial — our portal content is the format it trusts' },
+  ]
+
+  const steps = [
+    { n:'01', title:'FAQ Schema on Every Article', desc:'Every article we publish contains 2-3 Q&A pairs in FAQPage JSON-LD — the exact format AI engines extract to build cited answers.' },
+    { n:'02', title:'Entity Graph Signals', desc:'Your brand is declared as an Organization entity with regulation, URL, and sameAs links — AI engines use this to identify and mention you accurately.' },
+    { n:'03', title:'Speakable Markup', desc:'Key paragraphs are flagged with speakable schema — Google, Siri and AI assistants pull these as voice and overview answers.' },
+    { n:'04', title:'Cross-Portal Citation Network', desc:'9 portals citing the same entity from different domains creates an authority signal no single site can generate. AI engines triangulate multiple sources.' },
+  ]
+
+  return (
+    <section style={{ padding:'100px 0', background:'linear-gradient(180deg,#080C14,#0B0F19)', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px)', backgroundSize:'60px 60px' }} />
+      <div style={{ position:'absolute', top:'20%', left:'10%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(99,102,241,0.07),transparent 70%)', filter:'blur(40px)' }} />
+      <div style={{ position:'absolute', bottom:'20%', right:'10%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(16,185,129,0.06),transparent 70%)', filter:'blur(40px)' }} />
+
+      <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', position:'relative', zIndex:2 }}>
+
+        {/* Header */}
+        <div style={{ textAlign:'center', marginBottom:72 }}>
+          <span style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'5px 16px', borderRadius:100, fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.25)', color:'#818CF8', marginBottom:20 }}>
+            ✦ GEO — Generative Engine Optimization
+          </span>
+          <h2 className="syne" style={{ fontSize:50, fontWeight:900, lineHeight:1.08, marginBottom:18, letterSpacing:'-.02em' }}>
+            SEO Was The Last Decade.<br/>
+            <span style={{ background:'linear-gradient(135deg,#818CF8,#6366F1,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Your Brand Needs to Live in AI Answers.</span>
+          </h2>
+          <p style={{ fontSize:18, color:'#64748b', maxWidth:640, margin:'0 auto', lineHeight:1.7 }}>
+            When a prospect asks ChatGPT, Perplexity or Gemini about your market — we make sure your brand is the one cited. Every article, every FAQ, every structured data signal is built for AI citation from the moment it&apos;s published.
+          </p>
+        </div>
+
+        {/* AI Engines */}
+        <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginBottom:72 }}>
+          {engines.map(e => (
+            <div key={e.name} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:'16px 20px', minWidth:200, flex:'1', maxWidth:240 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                <div style={{ width:32, height:32, borderRadius:8, background:`${e.color}18`, border:`1px solid ${e.color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>{e.icon}</div>
+                <span style={{ fontWeight:800, fontSize:13, color:'#f1f5f9' }}>{e.name}</span>
+              </div>
+              <p style={{ fontSize:12, color:'#475569', lineHeight:1.55 }}>{e.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* How it works */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:72 }}>
+          {/* Left: Steps */}
+          <div>
+            <div style={{ fontSize:11, fontWeight:700, color:'#6366F1', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:28 }}>How We Engineer AI Citations</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+              {steps.map(s => (
+                <div key={s.n} style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
+                  <div style={{ width:36, height:36, borderRadius:8, background:'rgba(99,102,241,0.12)', border:'1px solid rgba(99,102,241,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:800, color:'#818CF8', flexShrink:0, fontFamily:'monospace' }}>{s.n}</div>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:14, color:'#f1f5f9', marginBottom:4 }}>{s.title}</div>
+                    <div style={{ fontSize:13, color:'#475569', lineHeight:1.6 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Live example panel */}
+          <div style={{ background:'linear-gradient(135deg,#0f1623,#141d2e)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:16, overflow:'hidden', boxShadow:'0 0 60px rgba(99,102,241,0.08)' }}>
+            <div style={{ padding:'12px 18px', background:'rgba(0,0,0,0.3)', borderBottom:'1px solid rgba(99,102,241,0.12)', display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ display:'flex', gap:5 }}>{['#EF4444','#F59E0B','#10B981'].map(c=><div key={c} style={{width:10,height:10,borderRadius:'50%',background:c}}/>)}</div>
+              <div style={{ fontSize:11, color:'#475569', fontWeight:600 }}>Perplexity AI · perplexity.ai</div>
+            </div>
+            <div style={{ padding:24 }}>
+              <div style={{ fontSize:12, color:'#64748b', marginBottom:12, fontWeight:600 }}>User asked:</div>
+              <div style={{ background:'rgba(99,102,241,0.08)', border:'1px solid rgba(99,102,241,0.15)', borderRadius:8, padding:'10px 14px', fontSize:13, color:'#e2e8f0', marginBottom:20, fontStyle:'italic' }}>
+                &ldquo;Is [your broker] regulated and trustworthy?&rdquo;
+              </div>
+              <div style={{ fontSize:12, color:'#10B981', fontWeight:700, marginBottom:12, display:'flex', alignItems:'center', gap:6 }}>
+                <span style={{ width:6, height:6, borderRadius:'50%', background:'#10B981', display:'inline-block' }} />
+                AI Answer (citing our portals)
+              </div>
+              <div style={{ fontSize:13, color:'#94a3b8', lineHeight:1.7, marginBottom:16 }}>
+                Yes, [Broker] is regulated by the <strong style={{ color:'#e2e8f0' }}>FCA (UK), CySEC (EU) and ASIC (Australia)</strong>. According to analysis published on <strong style={{ color:'#818CF8' }}>Verivex</strong>, the platform maintains a trust score of 4.7/5 across 400+ verified user reviews...
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                {['verivex.co · Verified Broker Review 2026', 'finvexx.com · [Broker] Regulatory Analysis', 'nex-wire.com · [Broker] Market Position Report'].map((src, i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 10px', background:'rgba(255,255,255,0.03)', borderRadius:6, border:'1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ width:16, height:16, borderRadius:4, background:'rgba(99,102,241,0.2)', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'#818CF8', fontWeight:700 }}>{i+1}</div>
+                    <span style={{ fontSize:11, color:'#64748b' }}>{src}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop:16, padding:'10px 14px', background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.15)', borderRadius:8, fontSize:11, color:'#10B981', lineHeight:1.5 }}>
+                ✓ 3 of our portals cited in a single AI answer · Client brand featured positively
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats bar */}
+        <div style={{ display:'flex', justifyContent:'center', gap:40, flexWrap:'wrap', padding:'32px 0', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)', marginBottom:48 }}>
+          {[
+            { n:'270+', l:'Articles published daily across all portals' },
+            { n:'9', l:'Portals generating AI citation signals' },
+            { n:'5', l:'AI engines targeted simultaneously' },
+            { n:'2-3', l:'FAQ pairs per article for AI extraction' },
+          ].map(s => (
+            <div key={s.n} style={{ textAlign:'center' }}>
+              <div className="syne" style={{ fontSize:40, fontWeight:900, background:'linear-gradient(135deg,#818CF8,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{s.n}</div>
+              <div style={{ fontSize:12, color:'#475569', marginTop:4, maxWidth:140 }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{ textAlign:'center' }}>
+          <p style={{ fontSize:16, color:'#64748b', marginBottom:24, maxWidth:500, margin:'0 auto 24px' }}>
+            Your competitors are still optimising for Google&apos;s 10 blue links. You&apos;ll be in the AI answer before they even load the SERP.
+          </p>
+          <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer"
+            style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'16px 36px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius:12, color:'#fff', fontWeight:800, fontSize:15, textDecoration:'none', boxShadow:'0 0 40px rgba(99,102,241,0.3)' }}>
+            ✦ Get Into Every AI Answer →
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function AIDefenseSection() {
   return (
     <section style={{ padding:'100px 0', background:'#0B0F19', position:'relative', overflow:'hidden' }}>
