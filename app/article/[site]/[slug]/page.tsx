@@ -189,6 +189,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     'trust-score':       'https://verivex.co',
     'invest-data':       'https://invexhuby.com',
     'market-radar':      'https://signalixx.com',
+    'executive-network': 'https://execvex.com',
+    'crypto-hub':        'https://cryptoxos.com',
   }
   const BASE = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`

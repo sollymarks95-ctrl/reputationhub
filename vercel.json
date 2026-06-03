@@ -158,6 +158,10 @@
     {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=market-radar&batch=4",
       "schedule": "18 15 * * *"
+    },
+    {
+      "path": "/api/cron-new-sites?secret=REDACTED_CRON_SECRET",
+      "schedule": "0 8 * * *"
     }
   ]
 }

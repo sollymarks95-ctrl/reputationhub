@@ -1,4 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server'
+impor  'executive-network': { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'ExecVex', author:'Alexander Ross', domain:'execvex.com', topics:[
+    'CEO succession planning strategy 2026','private equity buyout market deals 2026','mergers acquisitions deal analysis today',
+    'venture capital funding series A B 2026','board governance best practices 2026','CFO chief financial officer strategy 2026',
+    'IPO market outlook timing 2026','corporate restructuring turnaround 2026','executive compensation benchmarks 2026',
+    'activist investor campaign analysis 2026','ESG board accountability 2026','digital transformation CEO agenda 2026',
+    'supply chain resilience C-suite 2026','talent retention executive leadership 2026','AI strategy boardroom agenda 2026',
+    'cross-border M&A regulatory scrutiny 2026','SPAC merger market activity 2026','private credit direct lending 2026',
+    'family office investment strategy 2026','hedge fund manager profile 2026','real estate private equity 2026',
+    'sovereign wealth fund allocation 2026','infrastructure investment deal flow 2026','secondary market private equity 2026',
+    'growth equity investment thesis 2026','management buyout financing structure 2026','due diligence best practices M&A',
+    'post-merger integration success 2026','deal sourcing network strategy 2026','exit strategy PE portfolio 2026'
+  ]},
+  'crypto-hub': { id:'f54ac054-3574-482c-a3f3-97037b45c759', name:'CryptoXos', author:'Alex Rivera', domain:'cryptoxos.com', topics:[
+    'bitcoin price analysis today 2026','ethereum network upgrade analysis 2026','DeFi protocol total value locked 2026',
+    'cryptocurrency institutional adoption 2026','bitcoin ETF flows analysis today','altcoin season market analysis 2026',
+    'stablecoin market cap analysis 2026','crypto regulation SEC CFTC 2026','blockchain technology enterprise adoption',
+    'NFT market recovery 2026 analysis','crypto exchange volume analysis today','Layer 2 scaling solution comparison 2026',
+    'Web3 gaming metaverse tokens 2026','crypto venture capital funding 2026','bitcoin mining hashrate profitability',
+    'ethereum staking yield analysis 2026','cross-chain bridge security 2026','crypto derivatives options market 2026',
+    'CBDC central bank digital currency 2026','tokenization real world assets 2026','crypto market sentiment analysis today',
+    'Solana ecosystem development 2026','Avalanche Polygon network growth 2026','decentralized exchange DEX volume 2026',
+    'crypto tax regulation compliance 2026','AI crypto token market analysis 2026','meme coin speculation analysis 2026',
+    'crypto whale wallet movement 2026','bitcoin halving aftermath analysis 2026','crypto portfolio strategy 2026'
+  ]},
+t { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getArticleImage } from '@/app/lib/articleImages'
 
