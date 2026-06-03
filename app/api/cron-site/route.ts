@@ -280,7 +280,7 @@ Never at article end. Never in FAQ section.`
       await getDb().from('portal_content').insert({
         client_id: featuredClient.id,
         portal_name: site.shortName || site.name,
-        site_slug: site.slug,
+        site_slug: siteSlug,
         title: article.title,
         article_url: `https://${site.domain}/article/${siteSlug}/${slug}`,
         content_type: 'article',
