@@ -158,11 +158,11 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
   return (
     <>
       {/* MOBILE LAYOUT */}
-      <div style={{display:'block'}} className="wire-mobile">
+      <div style={{display:'none'}} className="wire-mobile">
         <MobileLayout/>
       </div>
       {/* DESKTOP LAYOUT */}
-      <div style={{display:'none'}} className="wire-desktop">
+      <div style={{display:'block'}} className="wire-desktop">
     <div style={{fontFamily:'Georgia,"Times New Roman",serif',background:'#fff',color:'#111',minHeight:'100vh'}}>
 
             <style>{`

@@ -287,8 +287,8 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
 
   return (
     <>
-      <div className="vx-mobile"><MobileLayout/></div>
-      <div className="vx-desktop">
+      <div className="vx-mobile" style={{display:'none'}}><MobileLayout/></div>
+      <div className="vx-desktop" style={{display:'block'}}>
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', color:DARK, minHeight:'100vh' }}>
       {/* GEO schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />

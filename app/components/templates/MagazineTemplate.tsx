@@ -130,10 +130,10 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
 
   return (
     <>
-      <div className="mag-mobile">
+      <div className="mag-mobile" style={{display:'none'}}>
         <MobileLayout/>
       </div>
-      <div className="mag-desktop">
+      <div className="mag-desktop" style={{display:'block'}}>
     <div style={{fontFamily:'Georgia,serif',background:'#FAFAF8',color:'#1A1A1A',minHeight:'100vh'}}>
 
             <style>{`

@@ -201,10 +201,10 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
   const Comp = dispatch[archetype] || Editorial
   return (
     <>
-      <div className="dyn-mobile">
+      <div className="dyn-mobile" style={{display:'none'}}>
         <DynMobileLayout {...props} />
       </div>
-      <div className="dyn-desktop">
+      <div className="dyn-desktop" style={{display:'block'}}>
         <Comp {...props} />
       </div>
     </>

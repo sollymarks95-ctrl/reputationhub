@@ -117,10 +117,10 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
 
   return (
     <>
-      <div className="data-mobile">
+      <div className="data-mobile" style={{display:'none'}}>
         <MobileLayout/>
       </div>
-      <div className="data-desktop">
+      <div className="data-desktop" style={{display:'block'}}>
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F8F6F0', color:'#2D2D2D', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
 
             <style>{`

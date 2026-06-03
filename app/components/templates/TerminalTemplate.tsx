@@ -180,8 +180,8 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
   return (
     <>
-      <div className="tm2-mobile"><MobileLayout/></div>
-      <div className="tm2-desktop">
+      <div className="tm2-mobile" style={{display:'none'}}><MobileLayout/></div>
+      <div className="tm2-desktop" style={{display:'block'}}>
     <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",background:'#f8fafc',color:'#1a1a2e',minHeight:'100vh'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
