@@ -5,169 +5,158 @@ import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
-function getDb() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-}
+const db = () => createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
-const DOMAIN_TO_SLUG: Record<string, string> = {
-  'nex-wire.com':   'global-trade-wire',
-  'finvexx.com':    'finance-terminal',
-  'bizplezx.com':   'business-pulse',
-  'aurexhq.com':    'gold-markets-today',
-  'verivex.co':     'trust-score',
-  'invexhuby.com':  'invest-data',
-  'signalixx.com':  'market-radar',
-  'execvex.com':    'executive-network',
-  'cryptoxos.com':  'crypto-hub',
-}
-
-const SITE_META: Record<string, { name: string; color: string; home: string }> = {
-  'global-trade-wire':  { name: 'Nex-Wire Intelligence', color: '#E03131', home: '/' },
-  'finance-terminal':   { name: 'Finvexx Markets',       color: '#1971C2', home: '/' },
-  'business-pulse':     { name: 'Bizplexz Executive',    color: '#6741D9', home: '/' },
-  'gold-markets-today': { name: 'AurexHQ',               color: '#B08700', home: '/' },
-  'trust-score':        { name: 'Verivex Trust',         color: '#00B67A', home: '/' },
-  'invest-data':        { name: 'InvexHuby',             color: '#0EA5E9', home: '/' },
-  'market-radar':       { name: 'Signalixx',             color: '#7C3AED', home: '/' },
-  'executive-network':  { name: 'ExecVex',               color: '#DC2626', home: '/' },
-  'crypto-hub':         { name: 'CryptoXos',             color: '#F97316', home: '/' },
+const PORTALS: Record<string, {
+  slug: string; name: string; color: string; dark: boolean;
+  font: string; bg: string; text: string; border: string; navBg: string; navText: string
+}> = {
+  'nex-wire.com':   { slug:'global-trade-wire',  name:'Nex-Wire Intelligence',    color:'#E03131', dark:false, font:"'Georgia','Times New Roman',serif", bg:'#fff',    text:'#111',    border:'#e5e7eb', navBg:'#111',    navText:'#fff' },
+  'finvexx.com':    { slug:'finance-terminal',   name:'Finvexx Markets',          color:'#1971C2', dark:true,  font:"'IBM Plex Mono',monospace",         bg:'#0a0a0a', text:'#f1f5f9', border:'#1e1e1e', navBg:'#111',    navText:'#f1f5f9' },
+  'bizplezx.com':   { slug:'business-pulse',     name:'Bizplezx Executive',       color:'#6741D9', dark:false, font:"'Playfair Display',Georgia,serif",   bg:'#fff',    text:'#111',    border:'#e5e7eb', navBg:'#111',    navText:'#fff' },
+  'aurexhq.com':    { slug:'gold-markets-today', name:'AurexHQ',                  color:'#B08700', dark:false, font:"'DM Serif Display',Georgia,serif",   bg:'#F8F6F0', text:'#1A1A1A', border:'#e8e0d0', navBg:'#1A1A1A', navText:'#F8F6F0' },
+  'verivex.co':     { slug:'trust-score',        name:'Verivex Trust',            color:'#00B67A', dark:false, font:"'Inter',system-ui,sans-serif",       bg:'#f8fafc', text:'#0f172a', border:'#e2e8f0', navBg:'#00B67A', navText:'#fff' },
+  'invexhuby.com':  { slug:'invest-data',        name:'InvexHuby',                color:'#0EA5E9', dark:true,  font:"'Inter',system-ui,sans-serif",       bg:'#0d0d0d', text:'#f1f5f9', border:'#1e1e1e', navBg:'#111',    navText:'#f1f5f9' },
+  'signalixx.com':  { slug:'market-radar',       name:'Signalixx',                color:'#7C3AED', dark:true,  font:"'Inter',system-ui,sans-serif",       bg:'#0d0d0d', text:'#f1f5f9', border:'#1e1e1e', navBg:'#111',    navText:'#f1f5f9' },
+  'execvex.com':    { slug:'executive-network',  name:'ExecVex',                  color:'#DC2626', dark:true,  font:"'Inter',system-ui,sans-serif",       bg:'#0d0d0d', text:'#f1f5f9', border:'#1e1e1e', navBg:'#111',    navText:'#f1f5f9' },
+  'cryptoxos.com':  { slug:'crypto-hub',         name:'CryptoXos',                color:'#F97316', dark:true,  font:"'Inter',system-ui,sans-serif",       bg:'#0d0d0d', text:'#f1f5f9', border:'#1e1e1e', navBg:'#111',    navText:'#f1f5f9' },
 }
 
 export async function generateMetadata(): Promise<Metadata> {
   const h = await headers()
   const host = (h.get('host') || '').replace(/^www\./, '').split(':')[0]
-  const slug = DOMAIN_TO_SLUG[host] || 'global-trade-wire'
-  const meta = SITE_META[slug] || SITE_META['global-trade-wire']
+  const p = PORTALS[host] || PORTALS['nex-wire.com']
   return {
-    title: `Podcast — ${meta.name}`,
-    description: `Expert audio episodes from ${meta.name} — in-depth market analysis, expert interviews and financial intelligence.`,
+    title: `Podcast — ${p.name}`,
+    description: `Expert audio episodes from ${p.name}. In-depth market analysis, expert interviews and financial intelligence.`,
     robots: 'index, follow',
+    alternates: { canonical: `https://${host}/podcasts` },
   }
 }
 
 function timeAgo(d: string) {
   const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000)
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`
-  return `${Math.floor(s / 86400)}d ago`
+  if (s < 604800) return `${Math.floor(s / 86400)}d ago`
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default async function PodcastPage() {
   const h = await headers()
   const host = (h.get('host') || '').replace(/^www\./, '').split(':')[0]
-  const slug = DOMAIN_TO_SLUG[host] || 'global-trade-wire'
-  const meta = SITE_META[slug] || SITE_META['global-trade-wire']
-  const p = meta.color
+  const p = PORTALS[host] || PORTALS['nex-wire.com']
 
-  const { data: episodes } = await getDb()
+  const { data: episodes } = await db()
     .from('podcast_scripts')
     .select('*')
-    .eq('site_slug', slug)
+    .eq('site_slug', p.slug)
     .eq('status', 'published')
-    .order('created_at', { ascending: false })
+    .order('episode_number')
 
   const eps = episodes || []
+  const muted = p.dark ? '#64748b' : '#6b7280'
+  const cardBg = p.dark ? '#181818' : p.bg === '#F8F6F0' ? '#fff' : '#f8fafc'
+  const cardBorder = p.dark ? '#2a2a2a' : p.border
 
   return (
-    <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: '#0d0d0d', color: '#f1f5f9', minHeight: '100vh' }}>
+    <div style={{ fontFamily: p.font, background: p.bg, color: p.text, minHeight: '100vh' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0 }
         a { text-decoration: none; color: inherit }
-        .ep-card { background: #181818; border: 1px solid #2a2a2a; border-radius: 12px; padding: 28px; transition: border-color .2s }
-        .ep-card:hover { border-color: ${p}55 }
-        .play-btn { width: 52px; height: 52px; border-radius: 50%; background: ${p}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .15s }
-        .play-btn:hover { transform: scale(1.08) }
-        .progress { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #333; outline: none; cursor: pointer }
-        .progress::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: ${p}; cursor: pointer }
-        @media(max-width:640px) { .ep-grid { padding: 16px !important } .ep-card { padding: 18px } }
+        .ep-card { background: ${cardBg}; border: 1px solid ${cardBorder}; border-radius: 8px; padding: 24px; transition: border-color .2s, box-shadow .2s }
+        .ep-card:hover { border-color: ${p.color}55; box-shadow: 0 2px 12px ${p.color}15 }
+        .wave { display: flex; gap: 3px; align-items: flex-end; height: 20px }
+        .wave span { width: 3px; border-radius: 2px; background: ${p.color}; animation: wave 1.2s infinite ease-in-out }
+        .wave span:nth-child(2) { animation-delay: .15s }
+        .wave span:nth-child(3) { animation-delay: .3s }
+        .wave span:nth-child(4) { animation-delay: .45s }
+        @keyframes wave { 0%,100%{height:4px} 50%{height:16px} }
+        audio { accent-color: ${p.color} }
       `}</style>
 
-      {/* Header */}
-      <div style={{ borderBottom: '1px solid #1e1e1e', padding: '0 24px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
-          <Link href="/" style={{ fontSize: 14, fontWeight: 700, color: p, letterSpacing: '.04em' }}>
-            ← {meta.name}
+      {/* Top nav — mirrors portal header style */}
+      <div style={{ background: p.navBg, borderBottom: `1px solid ${p.dark ? '#1e1e1e' : p.border}`, padding: '0 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52 }}>
+          <Link href="/" style={{ fontFamily: p.font, fontSize: 14, fontWeight: 800, color: p.color, letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 8 }}>
+            ← {p.name}
           </Link>
-          <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase' }}>Podcast</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="wave"><span /><span /><span /><span /></div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: p.navText, opacity: .7, letterSpacing: '.1em', textTransform: 'uppercase' }}>Podcast</span>
+          </div>
         </div>
       </div>
 
-      {/* Hero */}
-      <div style={{ background: `linear-gradient(135deg, #111 0%, ${p}18 100%)`, borderBottom: '1px solid #1e1e1e', padding: '48px 24px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
-            <div style={{ width: 64, height: 64, background: p, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, flexShrink: 0 }}>🎙</div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: p, letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 6 }}>Podcast Series</div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.2, marginBottom: 6 }}>{eps[0]?.show_name || `${meta.name} Podcast`}</h1>
-              <p style={{ fontSize: 14, color: '#94a3b8', lineHeight: 1.6 }}>In-depth expert interviews on markets, strategy and financial intelligence.</p>
+      {/* Hero banner — matches portal color palette */}
+      <div style={{ background: `linear-gradient(135deg, ${p.dark ? '#111' : p.navBg} 0%, ${p.color}22 100%)`, borderBottom: `1px solid ${p.dark ? '#1e1e1e' : p.border}`, padding: '40px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', gap: 24, alignItems: 'center' }}>
+          <div style={{ width: 72, height: 72, background: p.color, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, flexShrink: 0 }}>🎙</div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: p.color, letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 6 }}>{p.name} · Podcast Series</div>
+            <h1 style={{ fontFamily: p.font, fontSize: 26, fontWeight: 800, lineHeight: 1.2, color: p.dark ? '#f1f5f9' : p.text, marginBottom: 8 }}>
+              {eps[0]?.show_name || `${p.name} Podcast`}
+            </h1>
+            <p style={{ fontSize: 14, color: muted, lineHeight: 1.6 }}>Expert interviews on markets, strategy and financial intelligence.</p>
+            <div style={{ display: 'flex', gap: 20, fontSize: 12, color: muted, marginTop: 12 }}>
+              <span>🎧 {eps.length} Episodes</span>
+              {eps.length > 0 && <span>⏱ ~{Math.round(eps.reduce((s: number, e: any) => s + (e.duration_minutes || 20), 0) / eps.length)} min avg</span>}
+              <span>📅 Weekly</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 24, fontSize: 13, color: '#64748b' }}>
-            <span>🎧 {eps.length} Episodes</span>
-            <span>⏱ ~{Math.round(eps.reduce((s, e: any) => s + (e.duration_minutes || 20), 0) / Math.max(eps.length, 1))} min avg</span>
-            <span>📅 New episodes weekly</span>
-          </div>
         </div>
       </div>
 
-      {/* Episodes */}
-      <div className="ep-grid" style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
+      {/* Episode list */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px' }}>
         {eps.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 24px', color: '#475569' }}>
+          <div style={{ textAlign: 'center', padding: '80px 24px', color: muted }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🎙</div>
-            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Episodes Coming Soon</div>
-            <div style={{ fontSize: 14 }}>New episodes are produced weekly. Check back soon.</div>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Episodes Coming Soon</div>
+            <div style={{ fontSize: 14 }}>New episodes are produced weekly.</div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {eps.map((ep: any, i: number) => (
               <div key={ep.id} className="ep-card">
-                <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start' }}>
-                  {/* Episode number */}
-                  <div style={{ minWidth: 36, textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: '.08em', textTransform: 'uppercase' }}>EP</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: p, lineHeight: 1 }}>{ep.episode_number || i + 1}</div>
+                <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+                  {/* Episode number pill */}
+                  <div style={{ background: p.color + '18', border: `1px solid ${p.color}44`, borderRadius: 8, padding: '8px 14px', textAlign: 'center', flexShrink: 0, minWidth: 56 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: p.color, letterSpacing: '.1em', textTransform: 'uppercase' }}>EP</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: p.color, lineHeight: 1 }}>{ep.episode_number || i + 1}</div>
                   </div>
 
                   {/* Content */}
-                  <div style={{ flex: 1 }}>
-                    <h2 style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4, marginBottom: 8, color: '#f1f5f9' }}>{ep.title}</h2>
-                    
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h2 style={{ fontFamily: p.font, fontSize: 17, fontWeight: 700, lineHeight: 1.4, color: p.dark ? '#f1f5f9' : p.text, marginBottom: 8 }}>{ep.title}</h2>
+
                     {ep.guest_name && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: p + '33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{ep.guest_name}</div>
-                          <div style={{ fontSize: 11, color: '#64748b' }}>{ep.guest_role}</div>
-                        </div>
+                      <div style={{ fontSize: 13, color: muted, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontWeight: 600, color: p.dark ? '#94a3b8' : '#374151' }}>{ep.guest_name}</span>
+                        <span>·</span>
+                        <span>{ep.guest_role}</span>
+                        {ep.duration_minutes && <><span>·</span><span>⏱ {ep.duration_minutes} min</span></>}
                       </div>
                     )}
 
                     {ep.topic && (
-                      <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, marginBottom: 14 }}>
-                        {ep.topic}
-                      </p>
+                      <p style={{ fontSize: 13, color: muted, lineHeight: 1.65, marginBottom: 14 }}>{ep.topic}</p>
                     )}
 
-                    {/* Meta + Player */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                      {ep.audio_url ? (
-                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: '#111', borderRadius: 8, padding: '10px 14px' }}>
-                          <AudioPlayer src={ep.audio_url} color={p} />
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1a1a1a', borderRadius: 8, padding: '8px 14px', border: `1px solid ${p}33` }}>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B', flexShrink: 0 }} />
-                          <span style={{ fontSize: 12, color: '#64748b' }}>Audio in production</span>
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#475569', alignItems: 'center', flexShrink: 0 }}>
-                        <span>⏱ {ep.duration_minutes || 20} min</span>
-                        <span>📅 {timeAgo(ep.created_at)}</span>
-                        <span style={{ color: '#64748b' }}>Host: {ep.host_name}</span>
+                    {/* Audio */}
+                    {(ep.audio_url || ep.mp3_url) ? (
+                      <div style={{ background: p.dark ? '#111' : p.bg === '#F8F6F0' ? '#f0ebe0' : '#f1f5f9', borderRadius: 6, padding: '10px 14px' }}>
+                        <audio controls src={ep.audio_url || ep.mp3_url} style={{ width: '100%', height: 32 }} preload="none" />
                       </div>
-                    </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: p.dark ? '#1a1a1a' : '#f8f9fa', borderRadius: 6, border: `1px solid ${p.color}22`, width: 'fit-content' }}>
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
+                        <span style={{ fontSize: 12, color: muted }}>Audio coming soon · {timeAgo(ep.created_at)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -175,20 +164,12 @@ export default async function PodcastPage() {
           </div>
         )}
       </div>
-    </div>
-  )
-}
 
-function AudioPlayer({ src, color }: { src: string; color: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>
-      <button className="play-btn" style={{ background: color }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
-      </button>
-      <div style={{ flex: 1 }}>
-        <input type="range" defaultValue="0" min="0" max="100" className="progress" />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#475569', marginTop: 2 }}>
-          <span>0:00</span><span>--:--</span>
+      {/* Footer */}
+      <div style={{ borderTop: `1px solid ${p.dark ? '#1e1e1e' : p.border}`, padding: '20px 24px', marginTop: 20 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link href="/" style={{ fontSize: 13, fontWeight: 700, color: p.color }}>← Back to {p.name}</Link>
+          <span style={{ fontSize: 11, color: muted }}>© {new Date().getFullYear()} {p.name}</span>
         </div>
       </div>
     </div>
