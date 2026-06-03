@@ -25,10 +25,15 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     'business-pulse':     'https://bizplezx.com',
     'gold-markets-today': 'https://aurexhq.com',
     'trust-score':        'https://verivex.co',
+    'invest-data':        'https://invexhuby.com',
+    'market-radar':       'https://signalixx.com',
+    'executive-network':  'https://execvex.com',
+    'crypto-hub':         'https://cryptoxos.com',
     'global-trade-assoc': 'https://certivade.com',
   }
   const BASE = domainMap[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
+  const isNoindex = site?.noindex ?? false
   // Extract brand mentions for keyword enrichment
   const bodyText = (article.body || '').toLowerCase()
   const clientKeywords = ['etoro'].filter(k => bodyText.includes(k))
@@ -38,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     description: article.excerpt,
     keywords: (article.tags || []).join(', '),
     authors: [{ name: article.author_name || site.name }],
-    robots: 'index, follow',
+    robots: isNoindex ? 'noindex, nofollow' : 'index, follow',
     alternates: { canonical: canonicalUrl },
     icons: {
       icon: siteSlug === 'global-trade-wire' ? '/icon-nexwire.svg' :

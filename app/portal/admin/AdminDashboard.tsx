@@ -13,7 +13,12 @@ const CORE_COLORS: Record<string,{color:string,accent:string}> = {
   'trust-score':        {color:'#0CA678',accent:'#63E6BE'},
 }
 function buildPortals(sites: any[]) {
-  return sites.map((s: any) => {
+  return [...sites].sort((a, b) => {
+    // Live (indexed) portals first, then noindex ones
+    if (!a.noindex && b.noindex) return -1
+    if (a.noindex && !b.noindex) return 1
+    return 0
+  }).map((s: any) => {
     const live = !s.noindex
     const domain = s.domain || s.slug + '.com'
     const color = (CORE_COLORS[s.slug]?.color || s.primary_color || s.template_config?.primary || '#1a56db')
