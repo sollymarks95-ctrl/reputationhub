@@ -706,49 +706,113 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                 {aiResults && (
                   <div className="fade">
                     {/* Summary KPIs */}
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:20 }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:20 }}>
                       <div className="kpi">
                         <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Brand Mentioned</div>
                         <div style={{ fontSize:36, fontWeight:900, color: aiResults.summary.mentionRate >= 50 ? '#10b981' : '#f59e0b' }}>
                           {aiResults.summary.mentionClient}/{aiResults.summary.enginesChecked}
                         </div>
-                        <div style={{ fontSize:11, color:'#475569' }}>AI engines mention eToro</div>
+                        <div style={{ fontSize:11, color:'#475569' }}>engines mention eToro</div>
+                      </div>
+                      <div className="kpi" style={{ borderColor: aiResults.summary.ourPortalsCited > 0 ? 'rgba(16,185,129,0.4)' : undefined }}>
+                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Our Portals Cited</div>
+                        <div style={{ fontSize:36, fontWeight:900, color: aiResults.summary.ourPortalsCited > 0 ? '#10b981' : '#f59e0b' }}>
+                          {aiResults.summary.ourPortalsCited}
+                        </div>
+                        <div style={{ fontSize:11, color:'#475569' }}>links to our sites found</div>
                       </div>
                       <div className="kpi">
-                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention Rate</div>
-                        <div style={{ fontSize:36, fontWeight:900, color: aiResults.summary.mentionRate >= 50 ? '#10b981' : '#f59e0b' }}>
-                          {aiResults.summary.mentionRate}%
+                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Total Sources</div>
+                        <div style={{ fontSize:36, fontWeight:900, color:'#f1f5f9' }}>
+                          {aiResults.summary.totalCitations}
                         </div>
-                        <div style={{ fontSize:11, color:'#475569' }}>of AI answers include brand</div>
+                        <div style={{ fontSize:11, color:'#475569' }}>URLs cited across engines</div>
                       </div>
                       <div className="kpi">
                         <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Checked At</div>
                         <div style={{ fontSize:16, fontWeight:700, color:'#f1f5f9', marginTop:4 }}>{new Date(aiResults.checkedAt).toLocaleTimeString()}</div>
-                        <div style={{ fontSize:11, color:'#475569' }}>live result</div>
+                        <div style={{ fontSize:11, color:'#475569' }}>live query</div>
                       </div>
                     </div>
 
-                    {/* AI Engine Answers */}
+                    {/* AI Engine Cards */}
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                       {aiResults.results.map((r: any) => (
-                        <div key={r.engine} className="card" style={{ borderColor: r.mentionsClient ? 'rgba(16,185,129,0.3)' : '#1e293b' }}>
-                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                        <div key={r.engine} className="card" style={{
+                          borderColor: r.mentionsOurPortals ? 'rgba(16,185,129,0.5)' : r.mentionsClient ? 'rgba(14,165,233,0.3)' : r.needsKey ? '#1e293b' : '#1e293b',
+                          opacity: r.needsKey ? 0.6 : 1
+                        }}>
+                          {/* Card header */}
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
                             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                               <span style={{ fontSize:18 }}>{r.icon}</span>
-                              <div style={{ fontWeight:700, fontSize:13 }}>{r.name}</div>
+                              <div>
+                                <div style={{ fontWeight:700, fontSize:13 }}>{r.name}</div>
+                                {r.real && <div style={{ fontSize:10, color:'#10b981' }}>● Live data</div>}
+                                {r.needsKey && <div style={{ fontSize:10, color:'#f59e0b' }}>⚠ API key needed</div>}
+                              </div>
                             </div>
-                            {r.answer && (
-                              r.mentionsClient
-                                ? <span className="tag" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981' }}>✓ Mentions eToro</span>
-                                : <span className="tag" style={{ background:'rgba(100,116,139,0.15)', color:'#64748b' }}>No mention</span>
-                            )}
+                            <div style={{ display:'flex', flexDirection:'column', gap:4, alignItems:'flex-end' }}>
+                              {r.mentionsOurPortals && (
+                                <span className="tag" style={{ background:'rgba(16,185,129,0.2)', color:'#10b981', fontWeight:700 }}>✓ Cites our portal</span>
+                              )}
+                              {r.mentionsClient && !r.mentionsOurPortals && (
+                                <span className="tag" style={{ background:'rgba(14,165,233,0.15)', color:'#38bdf8' }}>✓ Mentions eToro</span>
+                              )}
+                              {r.answer && !r.mentionsClient && (
+                                <span className="tag" style={{ background:'rgba(100,116,139,0.15)', color:'#64748b' }}>No mention</span>
+                              )}
+                            </div>
                           </div>
-                          {r.error ? (
+
+                          {/* Content */}
+                          {r.needsKey ? (
+                            <div style={{ fontSize:12, color:'#475569', lineHeight:1.6, padding:'8px 0' }}>
+                              Connect {r.name.split(' ')[0]} API key in environment variables to see real answers from this engine.
+                            </div>
+                          ) : r.error ? (
                             <div style={{ fontSize:12, color:'#ef4444' }}>Error: {r.error}</div>
                           ) : (
-                            <div style={{ fontSize:13, color:'#cbd5e1', lineHeight:1.7 }}>
-                              {r.answer}
-                            </div>
+                            <>
+                              <div style={{ fontSize:13, color:'#cbd5e1', lineHeight:1.7, marginBottom:12, maxHeight:200, overflowY:'auto' }}>
+                                {r.answer}
+                              </div>
+
+                              {/* Citations / Sources */}
+                              {r.citations && r.citations.length > 0 && (
+                                <div style={{ borderTop:'1px solid #1e293b', paddingTop:10 }}>
+                                  <div style={{ fontSize:10, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>
+                                    Sources ({r.citations.length})
+                                  </div>
+                                  <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                                    {r.citations.slice(0, 6).map((url: string, i: number) => {
+                                      const isOurs = r.ourCitations?.includes(url)
+                                      let domain = url
+                                      try { domain = new URL(url).hostname.replace('www.','') } catch {}
+                                      return (
+                                        <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                                          style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color: isOurs ? '#10b981' : '#64748b',
+                                            background: isOurs ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.02)',
+                                            padding:'4px 8px', borderRadius:4, border: isOurs ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
+                                            textDecoration:'none', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                          {isOurs ? '✓ ' : '↗ '}{domain}
+                                        </a>
+                                      )
+                                    })}
+                                    {r.citations.length > 6 && (
+                                      <div style={{ fontSize:10, color:'#334155' }}>+{r.citations.length - 6} more sources</div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* No citations found */}
+                              {(!r.citations || r.citations.length === 0) && r.answer && (
+                                <div style={{ borderTop:'1px solid #1e293b', paddingTop:8, fontSize:11, color:'#334155' }}>
+                                  No source links found in this response
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       ))}
