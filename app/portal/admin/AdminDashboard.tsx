@@ -1438,7 +1438,7 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
             <div style={{ animation:'slideIn .3s ease' }}>
               <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
                 <span className="badge bg">✓ {sites.filter((s:any)=>!s.noindex).length} Live Custom Domains</span>
-                <span className="badge bb">{sites.filter((s:any)=>s.noindex).length} building content — buy domain to go live</span>
+                <span className="badge bb">{sites.filter((s:any)=>s.noindex).length} building content — click 🚀 to flip live</span>
                 <span className="badge bb">{sites.length} total sites in network</span>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
@@ -1467,13 +1467,30 @@ export default function AdminDashboard({ clients, allContent, allRankings, allPo
                       <div style={{ fontSize:10, color:'#334155', marginBottom:12, fontFamily:'monospace', background:'rgba(255,255,255,0.04)', padding:'4px 8px', borderRadius:4 }}>
                         {pp.live ? pp.publicUrl.replace('https://','') : 'rephuby.com/' + pp.route + '/' + pp.slug}
                       </div>
-                      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                      {/* Article count */}
+                      {(() => {
+                        const count = (sites.find((s:any)=>s.slug===pp.slug) as any)?.article_count || 0
+                        return null
+                      })()}
+                      <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
                         <a href={pp.publicUrl} target="_blank" rel="noopener noreferrer">
                           <button className={pp.live ? 'btn b-green' : 'btn b-ghost'} style={{ fontSize:11 }}>
-                            {pp.live ? '🌐 Live Site ↗' : 'View Site ↗'}
+                            {pp.live ? '🌐 Live Site ↗' : '👁 Preview ↗'}
                           </button>
                         </a>
                         <button className="btn b-blue" style={{ fontSize:11 }} onClick={() => { setGenPortal(pp.slug); setTab('content') }}>✍️ Write Article</button>
+                        {!pp.live && (
+                          <button className="btn" style={{ fontSize:11, background:'linear-gradient(135deg,#10B981,#059669)', color:'#fff', border:'none', cursor:'pointer' }}
+                            onClick={async () => {
+                              if (!confirm(`Flip ${pp.name} to LIVE? This will enable Google indexing.`)) return
+                              const r = await fetch('/api/admin/flip-live', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ slug: pp.slug }) })
+                              const d = await r.json()
+                              if (d.ok) { alert(`✅ ${pp.name} is now LIVE and indexable!`); window.location.reload() }
+                              else alert('Error: ' + d.error)
+                            }}>
+                            🚀 Flip to Live
+                          </button>
+                        )}
                       </div>
                     </div>
                   )

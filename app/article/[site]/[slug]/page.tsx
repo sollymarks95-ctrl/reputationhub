@@ -280,6 +280,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
   return (
     <div style={{ minHeight:'100vh', background:bg, fontFamily: isDark ? "'Inter',sans-serif" : '"Georgia","Times New Roman",serif', color:textPrimary }}>
+      <ArticleViewTracker siteSlug={siteSlug} slug={slug} />
+      <TrackView siteSlug={siteSlug} siteDomain={site?.domain || siteSlug} />
       {jsonLd.map((schema, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />)}
       {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
       <style>{`
