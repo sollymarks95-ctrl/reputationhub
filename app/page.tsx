@@ -16,13 +16,13 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      {/* Editorial independence — simple white text bar */}
-      <div style={{ background:'#0B0F19', borderBottom:'1px solid rgba(255,255,255,0.08)', padding:'7px 20px', textAlign:'center', fontSize:11, color:'rgba(255,255,255,0.55)', letterSpacing:'.02em' }}>
-        📋 Editorial Independence: Verivex is independent — not affiliated with, paid by, or endorsed by any broker including eToro. All reviews are genuine and editorially independent.
+      <div id="ei-banner" style={{background:'#064E3B',padding:'9px 16px',textAlign:'center',color:'#fff',fontSize:'13px',fontWeight:500,lineHeight:'1.5',display:'block',width:'100%',boxSizing:'border-box'}}>
+        📋 <strong>Editorial Independence:</strong> Verivex is not affiliated with, paid by, or endorsed by any broker — including eToro. All reviews are independent.
       </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
+        *{box-sizing:border-box;margin:0;padding:0}
+        #ei-banner{padding:9px 16px!important;display:block!important} a{text-decoration:none;color:inherit}
         .syne{font-family:'Syne',sans-serif}
         @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes float{0%,100%{transform:translateY(0) rotateY(-5deg)}50%{transform:translateY(-18px) rotateY(-3deg)}}
@@ -97,13 +97,13 @@ export default function HomePage() {
             ))}
           </div>
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ padding:'9px 18px', fontSize:14 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ padding:'9px 18px', fontSize:14 }}>
               Contact Us
             </a>
             <Link href="/portal" className="btn btn-login" style={{ padding:'9px 18px', fontSize:14 }}>
               Client Login
             </Link>
-            <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 20px', fontSize:14 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 20px', fontSize:14 }}>
               Get My Plan
             </a>
           </div>
@@ -131,15 +131,15 @@ export default function HomePage() {
                 We dominate your brand name across <strong style={{color:'#F1F5F9'}}>every Google search, AI assistant and review site</strong>. Negative reviews buried. Real credibility built through broker-authored articles, CEO podcasts, and video interviews — all published instantly on 300+ financial portals.
               </p>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:44 }}>
-                <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 30px' }}>
+                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 30px' }}>
                   Get My Brand Domination Plan
                 </a>
-                <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ fontSize:16, padding:'15px 28px' }}>
+                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ fontSize:16, padding:'15px 28px' }}>
                   ▶ Watch 2-Min Demo
                 </a>
               </div>
               <div style={{ display:'flex', gap:24, flexWrap:'wrap' }}>
-                {[['47+','Brokers Ranked #1'],['12','Elite Portals'],['96h','To Google P1']].map(([n,l]) => (
+                {[['47+','Brokers Ranked #1'],['300+','Portals'],['96h','To Google P1']].map(([n,l]) => (
                   <div key={l}>
                     <div className="syne" style={{ fontSize:28, fontWeight:900, lineHeight:1 }}>{n}</div>
                     <div style={{ fontSize:12, color:'#64748b', marginTop:3 }}>{l}</div>
@@ -212,7 +212,7 @@ export default function HomePage() {
       <div style={{ padding:'52px 0', background:'linear-gradient(135deg,#111827,#0F172A)', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div className="sg" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
-            {[{n:'100%',l:'Brand Name Searches Controlled',c:'#38BDF8'},{n:'12',l:'Elite Financial Portals',c:'#34D399'},{n:'96h',l:'Negatives Pushed to Page 3+',c:'#FCD34D'},{n:'42%',l:'Avg Conversion Rate Increase',c:'#F97316'}].map((s,i) => (
+            {[{n:'100%',l:'Brand Name Searches Controlled',c:'#38BDF8'},{n:'300+',l:'Financial Portals',c:'#34D399'},{n:'96h',l:'Negatives Pushed to Page 3+',c:'#FCD34D'},{n:'42%',l:'Avg Conversion Rate Increase',c:'#F97316'}].map((s,i) => (
               <div key={s.l} style={{ textAlign:'center', padding:'18px 12px', borderRight:i<3?'1px solid rgba(255,255,255,0.06)':'none' }}>
                 <div className="syne" style={{ fontSize:46, fontWeight:900, color:s.c, lineHeight:1, marginBottom:6 }}>{s.n}</div>
                 <div style={{ fontSize:13, color:'#64748b' }}>{s.l}</div>
@@ -245,12 +245,12 @@ export default function HomePage() {
                   <span style={{ background:`linear-gradient(${f.grad})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{f.accent}</span>
                 </h3>
                 <p style={{ fontSize:15, color:'#64748b', lineHeight:1.75, marginBottom:18 }}>{f.desc}</p>
-                <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" style={{ fontSize:13, fontWeight:700, color:f.tc }}>{f.cta}</a>
+                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ fontSize:13, fontWeight:700, color:f.tc }}>{f.cta}</a>
               </div>
             ))}
           </div>
           <div style={{ textAlign:'center', marginTop:44 }}>
-            <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-green" style={{ fontSize:16, padding:'16px 34px' }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-green" style={{ fontSize:16, padding:'16px 34px' }}>
               Start Your Authority Engine on Telegram →
             </a>
           </div>
@@ -364,7 +364,7 @@ export default function HomePage() {
                 <div style={{ fontSize:13, color:'#64748b', marginBottom:18 }}>per month · 3 month minimum</div>
                 <div style={{ height:1, background:'rgba(255,255,255,0.07)', marginBottom:18 }} />
                 {p.feats.map(f => <div key={f} style={{ display:'flex', gap:9, marginBottom:11, fontSize:14, alignItems:'flex-start' }}><span style={{color:'#10B981',flexShrink:0}}>✓</span><span style={{color:'#94A3B8',lineHeight:1.4}}>{f}</span></div>)}
-                <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" style={{ display:'block', marginTop:24 }}>
+                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ display:'block', marginTop:24 }}>
                   <button className={`btn ${p.ft?'btn-blue':p.price==='Custom'?'btn-gold':'btn-ghost'}`} style={{ width:'100%', justifyContent:'center', fontSize:14 }}>{p.cta}</button>
                 </a>
               </div>
@@ -423,10 +423,10 @@ export default function HomePage() {
               <input placeholder="Work Email" type="email" className="inp" style={{ gridColumn:'1/-1' }} />
             </div>
             <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap', marginTop:20 }}>
-              <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-green" style={{ fontSize:15, padding:'15px 32px' }}>
+              <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-green" style={{ fontSize:15, padding:'15px 32px' }}>
                 Contact Us on Telegram
               </a>
-              <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-gold" style={{ fontSize:15, padding:'15px 30px' }}>
+              <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-gold" style={{ fontSize:15, padding:'15px 30px' }}>
                 Free Brand Report
               </a>
             </div>
@@ -448,7 +448,7 @@ export default function HomePage() {
             ))}
           </div>
           <div style={{ textAlign:'right' }}>
-            <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" style={{ color:'#10B981', fontWeight:600, fontSize:13 }}>📱 @rephub_intelligence</a>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ color:'#10B981', fontWeight:600, fontSize:13 }}>📱 @rephub_intelligence</a>
             <div style={{ fontSize:12, color:'#334155', marginTop:4 }}>© 2025 RepHuby Intelligence Ltd</div>
           </div>
         </div>
@@ -471,7 +471,7 @@ function GEOSection() {
     { n:'01', title:'FAQ Schema on Every Article', desc:'Every article we publish contains 2-3 Q&A pairs in FAQPage JSON-LD — the exact format AI engines extract to build cited answers.' },
     { n:'02', title:'Entity Graph Signals', desc:'Your brand is declared as an Organization entity with regulation, URL, and sameAs links — AI engines use this to identify and mention you accurately.' },
     { n:'03', title:'Speakable Markup', desc:'Key paragraphs are flagged with speakable schema — Google, Siri and AI assistants pull these as voice and overview answers.' },
-    { n:'04', title:'Cross-Portal Citation Network', desc:'9 portals citing the same entity from different domains creates an authority signal no single site can generate. AI engines triangulate multiple sources.' },
+    { n:'04', title:'Cross-Portal Citation Network', desc:'300+ portals citing the same entities from different domains creates an authority signal no single site can generate. AI engines triangulate multiple sources.' },
   ]
 
   return (
@@ -563,8 +563,8 @@ function GEOSection() {
         {/* Stats bar */}
         <div style={{ display:'flex', justifyContent:'center', gap:40, flexWrap:'wrap', padding:'32px 0', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)', marginBottom:48 }}>
           {[
-            { n:'270+', l:'Articles published daily across all portals' },
-            { n:'9', l:'Portals generating AI citation signals' },
+            { n:'1,000+', l:'Articles published daily across all portals' },
+            { n:'300+', l:'Portals generating AI citation signals' },
             { n:'5', l:'AI engines targeted simultaneously' },
             { n:'2-3', l:'FAQ pairs per article for AI extraction' },
           ].map(s => (
@@ -580,7 +580,7 @@ function GEOSection() {
           <p style={{ fontSize:16, color:'#64748b', marginBottom:24, maxWidth:500, margin:'0 auto 24px' }}>
             Your competitors are still optimising for Google&apos;s 10 blue links. You&apos;ll be in the AI answer before they even load the SERP.
           </p>
-          <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer"
+          <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer"
             style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'16px 36px', background:'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius:12, color:'#fff', fontWeight:800, fontSize:15, textDecoration:'none', boxShadow:'0 0 40px rgba(99,102,241,0.3)' }}>
             ✦ Get Into Every AI Answer →
           </a>
@@ -765,7 +765,7 @@ function AIDefenseSection() {
             Every AI model — ChatGPT, Perplexity, Gemini, Claude — pulls from web sources.
             <br /><strong style={{color:'#F1F5F9'}}>RepHuby makes sure they all find your story, not your detractors&apos;.</strong>
           </p>
-          <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 34px' }}>
+          <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 34px' }}>
             Start Dominating Your Brand Searches →
           </a>
         </div>
