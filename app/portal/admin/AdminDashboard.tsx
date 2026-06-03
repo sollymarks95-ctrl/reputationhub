@@ -118,7 +118,7 @@ function EpisodeCard({ep, cfg}: {ep:any; cfg:{show:string;host:string;role:strin
 export default function AdminDashboard({
   clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[],
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
-  businessInquiries=[], portalArticlesToday={}, companies=[],
+  businessInquiries=[], portalArticlesToday={}, companies=[], invoices=[],
 }: any) {
   const [tab, setTab] = useState('overview')
   const [analytics, setAnalytics] = useState<any>(null)
@@ -128,6 +128,7 @@ export default function AdminDashboard({
   const [cronMsg, setCronMsg] = useState('')
   const [pendingReviews, setPendingReviews] = useState<any[]>(initialPending)
   const [selectedClient, setSelectedClient] = useState<string|null>(null)
+  const [showOnboard, setShowOnboard] = useState(false)
 
   useEffect(() => { if (tab==='analytics' && !analytics) loadAnalytics(30) }, [tab])
 
@@ -317,68 +318,220 @@ export default function AdminDashboard({
         {tab==='clients'&&(
           <div className="ti">
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-              <div className="syne" style={{fontSize:20,fontWeight:900}}>👥 Client Management</div>
-              <button className="btn b-green">➕ Onboard New Client</button>
+              <div>
+                <div className="syne" style={{fontSize:20,fontWeight:900}}>👥 Client Management</div>
+                <div style={{fontSize:12,color:'#475569',marginTop:2}}>
+                  {clients.length} client{clients.length!==1?'s':''} · ${clients.reduce((s:number,cl:any)=>s+(cl.monthly_value||0),0).toLocaleString()} MRR
+                </div>
+              </div>
+              <button className="btn b-green" onClick={()=>setShowOnboard(v=>!v)}>➕ Onboard New Client</button>
             </div>
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+
+            {/* MRR summary bar */}
+            {clients.length>0&&(
+              <div className="card" style={{padding:'14px 20px',marginBottom:16,display:'flex',gap:28,alignItems:'center'}}>
+                {[
+                  {l:'Monthly Revenue', v:`$${clients.reduce((s:number,cl:any)=>s+(cl.monthly_value||0),0).toLocaleString()}`, c:'#10b981'},
+                  {l:'Active Contracts', v:clients.filter((cl:any)=>cl.contract_status==='active').length, c:'#6366f1'},
+                  {l:'Invoices Paid', v:(invoices as any[]).filter((iv:any)=>iv.status==='paid').length, c:'#f59e0b'},
+                  {l:'Outstanding', v:`$${(invoices as any[]).filter((iv:any)=>iv.status==='pending'||iv.status==='overdue').reduce((s:number,iv:any)=>s+(iv.amount||0),0).toLocaleString()}`, c:'#ef4444'},
+                ].map(k=>(
+                  <div key={k.l}>
+                    <div className="syne" style={{fontSize:22,fontWeight:900,color:k.c as string}}>{k.v}</div>
+                    <div style={{fontSize:11,color:'#475569'}}>{k.l}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Client cards */}
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
               {clients.map((cl:any)=>{
-                const arts=allContent.filter((c:any)=>c.client_id===cl.id)
-                const byPortal:Record<string,number>={}
+                const arts = allContent.filter((a:any)=>a.client_id===cl.id)
+                const byPortal: Record<string,number> = {}
                 for(const a of arts) byPortal[a.portal_name]=(byPortal[a.portal_name]||0)+1
-                const open=selectedClient===cl.id
+                const clInvoices = (invoices as any[]).filter((iv:any)=>iv.client_id===cl.id)
+                const paidTotal = clInvoices.filter((iv:any)=>iv.status==='paid').reduce((s:number,iv:any)=>s+iv.amount,0)
+                const open = selectedClient===cl.id
+                const steps = cl.onboarding_steps||{}
+                const stepsTotal = Object.keys(steps).length
+                const stepsDone = Object.values(steps).filter(Boolean).length
+                const onboardPct = stepsTotal>0?Math.round(stepsDone/stepsTotal*100):0
+                const daysLeft = cl.contract_end ? Math.ceil((new Date(cl.contract_end).getTime()-Date.now())/86400000) : null
+                const statusColor = cl.contract_status==='active'?'#10b981':cl.contract_status==='paused'?'#f59e0b':'#ef4444'
+
                 return(
-                  <div key={cl.id} className="card" style={{overflow:'hidden'}}>
-                    <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14,cursor:'pointer'}} onClick={()=>setSelectedClient(open?null:cl.id)}>
-                      <div style={{width:42,height:42,borderRadius:10,background:'linear-gradient(135deg,#6366f1,#4f46e5)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:900,color:'#fff',flexShrink:0}}>{cl.company_name[0]}</div>
-                      <div style={{flex:1}}>
-                        <div style={{fontWeight:700,fontSize:15,color:'#f1f5f9'}}>{cl.company_name}</div>
-                        <div style={{fontSize:11,color:'#475569',marginTop:1}}>{cl.website_url}</div>
+                  <div key={cl.id} className="card" style={{overflow:'hidden',borderLeft:`3px solid ${cl.primary_color||'#6366f1'}`}}>
+                    {/* Card header — always visible */}
+                    <div style={{padding:'18px 22px',display:'flex',alignItems:'center',gap:14,cursor:'pointer',background:open?'rgba(255,255,255,0.03)':'transparent'}}
+                      onClick={()=>setSelectedClient(open?null:cl.id)}>
+                      {/* Logo / avatar */}
+                      <div style={{width:46,height:46,borderRadius:12,background:`linear-gradient(135deg,${cl.primary_color||'#6366f1'},${cl.primary_color||'#4f46e5'}99)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:900,color:'#fff',flexShrink:0}}>
+                        {cl.company_name[0]}
                       </div>
-                      {[
-                        {v:arts.length,l:'Articles',c:'#6366f1'},
-                        {v:Object.keys(byPortal).length,l:'Portals',c:'#10b981'},
-                        {v:allRankings.filter((r:any)=>r.client_id===cl.id&&r.current_position<=10).length,l:'Page 1',c:'#f59e0b'},
-                      ].map(k=>(
-                        <div key={k.l} style={{textAlign:'center',minWidth:52}}>
-                          <div className="syne" style={{fontSize:22,fontWeight:900,color:k.c,lineHeight:1}}>{k.v}</div>
-                          <div style={{fontSize:10,color:'#475569'}}>{k.l}</div>
+                      {/* Name + contact */}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:2}}>
+                          <div style={{fontWeight:800,fontSize:15,color:'#f1f5f9'}}>{cl.company_name}</div>
+                          <span style={{fontSize:10,padding:'2px 8px',borderRadius:99,fontWeight:700,background:`${statusColor}20`,color:statusColor,border:`1px solid ${statusColor}40`}}>
+                            {cl.contract_status||'active'}
+                          </span>
+                          <span style={{fontSize:10,padding:'2px 8px',borderRadius:99,fontWeight:600,background:'rgba(99,102,241,0.12)',color:'#818cf8',border:'1px solid rgba(99,102,241,0.2)'}}>
+                            {cl.tier||'pro'}
+                          </span>
                         </div>
-                      ))}
-                      <span style={{fontSize:9,padding:'3px 10px',borderRadius:99,background:cl.is_active?'rgba(16,185,129,0.15)':'rgba(100,116,139,0.15)',color:cl.is_active?'#10b981':'#64748b',fontWeight:600}}>{cl.is_active?'Active':'Inactive'}</span>
-                      <span style={{color:'#334155',fontSize:12,transform:open?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+                        <div style={{fontSize:11,color:'#475569',display:'flex',gap:12,flexWrap:'wrap'}}>
+                          {cl.contact_name&&<span>👤 {cl.contact_name}</span>}
+                          {cl.contact_email&&<span>✉️ {cl.contact_email}</span>}
+                          {cl.account_manager&&<span>🧑‍💼 AM: {cl.account_manager.split('—')[0].trim()}</span>}
+                        </div>
+                      </div>
+                      {/* KPIs */}
+                      <div style={{display:'flex',gap:18,flexShrink:0}}>
+                        {[
+                          {v:`$${(cl.monthly_value||0).toLocaleString()}`,l:'MRR',c:'#10b981'},
+                          {v:arts.length,l:'Articles',c:'#6366f1'},
+                          {v:`${onboardPct}%`,l:'Onboarded',c:onboardPct===100?'#10b981':'#f59e0b'},
+                          {v:`$${paidTotal.toLocaleString()}`,l:'Paid',c:'#f1f5f9'},
+                        ].map(k=>(
+                          <div key={k.l} style={{textAlign:'center'}}>
+                            <div className="syne" style={{fontSize:18,fontWeight:900,color:k.c,lineHeight:1}}>{k.v}</div>
+                            <div style={{fontSize:9,color:'#475569',marginTop:2,letterSpacing:'.05em',textTransform:'uppercase'}}>{k.l}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <span style={{color:'#334155',fontSize:12,transform:open?'rotate(180deg)':'none',transition:'transform .2s',flexShrink:0}}>▼</span>
                     </div>
+
+                    {/* Expanded full card */}
                     {open&&(
-                      <div style={{padding:'0 20px 20px',borderTop:'1px solid rgba(255,255,255,0.05)'}}>
-                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginTop:14}}>
+                      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',padding:'20px 22px'}}>
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
+
+                          {/* ── Col 1: Contract + Contact ── */}
                           <div>
-                            <div style={{fontSize:11,fontWeight:700,color:'#475569',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:8}}>Coverage by Portal</div>
-                            {Object.entries(byPortal).sort((a:any,b:any)=>b[1]-a[1]).map(([p,n]:any)=>(
-                              <div key={p} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:12}}>
-                                <span style={{color:'#cbd5e1'}}>{p}</span>
-                                <span style={{fontWeight:700,color:'#6366f1'}}>{n}</span>
-                              </div>
-                            ))}
+                            <div style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:10}}>Contract & Contact</div>
+                            <div style={{display:'flex',flexDirection:'column',gap:7}}>
+                              {[
+                                {l:'Company',    v:cl.company_name},
+                                {l:'Contact',    v:cl.contact_name||'—'},
+                                {l:'Email',      v:cl.contact_email||'—'},
+                                {l:'Phone',      v:cl.contact_phone||'—'},
+                                {l:'Website',    v:cl.website_url},
+                                {l:'Regulation', v:cl.regulation||'—'},
+                                {l:'AM',         v:cl.account_manager||'—'},
+                                {l:'Started',    v:cl.contract_start||cl.onboarded_at?.slice(0,10)||'—'},
+                                {l:'Renews',     v:cl.contract_end||'—'},
+                                {l:'MRR',        v:`$${(cl.monthly_value||0).toLocaleString()} ${cl.currency||'USD'}`},
+                              ].map(row=>(
+                                <div key={row.l} style={{display:'flex',gap:8,fontSize:12}}>
+                                  <span style={{color:'#475569',flexShrink:0,width:72}}>{row.l}</span>
+                                  <span style={{color:'#cbd5e1',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row.v}</span>
+                                </div>
+                              ))}
+                              {daysLeft!==null&&(
+                                <div style={{marginTop:6,padding:'6px 10px',borderRadius:6,background:daysLeft<30?'rgba(239,68,68,0.1)':'rgba(16,185,129,0.08)',border:`1px solid ${daysLeft<30?'rgba(239,68,68,0.25)':'rgba(16,185,129,0.2)'}`}}>
+                                  <span style={{fontSize:11,fontWeight:600,color:daysLeft<30?'#ef4444':'#10b981'}}>
+                                    {daysLeft<0?`⚠️ Expired ${Math.abs(daysLeft)}d ago`:`📅 ${daysLeft}d until renewal`}
+                                  </span>
+                                </div>
+                              )}
+                              {cl.notes&&(
+                                <div style={{marginTop:6,padding:'8px 10px',borderRadius:6,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',fontSize:11,color:'#94a3b8',lineHeight:1.5}}>
+                                  📝 {cl.notes}
+                                </div>
+                              )}
+                            </div>
                           </div>
+
+                          {/* ── Col 2: Onboarding + Portal coverage ── */}
                           <div>
-                            <div style={{fontSize:11,fontWeight:700,color:'#475569',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:8}}>Recent Articles</div>
-                            {arts.slice(0,5).map((a:any,i:number)=>(
-                              <div key={i} style={{padding:'5px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
-                                <a href={a.article_url} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#94a3b8',textDecoration:'none',display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.title||a.article_url}</a>
-                                <div style={{fontSize:10,color:'#334155',marginTop:1}}>{a.portal_name} · {timeAgo(a.published_at)} ago</div>
+                            <div style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:10}}>Onboarding Status</div>
+                            {/* Progress bar */}
+                            <div style={{marginBottom:12}}>
+                              <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:11}}>
+                                <span style={{color:'#94a3b8'}}>Progress</span>
+                                <span style={{fontWeight:700,color:onboardPct===100?'#10b981':'#f59e0b'}}>{onboardPct}%</span>
+                              </div>
+                              <div style={{height:5,background:'#1e293b',borderRadius:3}}>
+                                <div style={{height:5,width:`${onboardPct}%`,background:onboardPct===100?'linear-gradient(90deg,#10b981,#059669)':'linear-gradient(90deg,#f59e0b,#d97706)',borderRadius:3,transition:'width .3s'}}/>
+                              </div>
+                            </div>
+                            {/* Step list */}
+                            {Object.entries(steps).map(([step, done]:any)=>(
+                              <div key={step} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:12}}>
+                                <span style={{fontSize:14,flexShrink:0}}>{done?'✅':'⬜'}</span>
+                                <span style={{color:done?'#f1f5f9':'#475569',flex:1}}>{step.replace(/_/g,' ').replace(/\w/g,l=>l.toUpperCase())}</span>
                               </div>
                             ))}
+                            {/* Portal coverage */}
+                            <div style={{marginTop:14}}>
+                              <div style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:8}}>Portal Coverage</div>
+                              {Object.entries(byPortal).sort((a:any,b:any)=>b[1]-a[1]).map(([portal,n]:any)=>(
+                                <div key={portal} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:11}}>
+                                  <span style={{color:'#94a3b8'}}>{portal}</span>
+                                  <span style={{fontWeight:700,color:'#6366f1'}}>{n} articles</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* ── Col 3: Invoices ── */}
+                          <div>
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                              <div style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:'.08em',textTransform:'uppercase'}}>Invoices</div>
+                              <div style={{fontSize:11,color:'#10b981',fontWeight:600}}>${paidTotal.toLocaleString()} paid</div>
+                            </div>
+                            {clInvoices.length===0?(
+                              <div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'20px 0'}}>No invoices yet</div>
+                            ):(
+                              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                                {clInvoices.map((iv:any)=>{
+                                  const sColor = iv.status==='paid'?'#10b981':iv.status==='overdue'?'#ef4444':'#f59e0b'
+                                  const sIcon  = iv.status==='paid'?'✅':iv.status==='overdue'?'🔴':'🟡'
+                                  return(
+                                    <div key={iv.id} style={{padding:'10px 12px',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8}}>
+                                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
+                                        <div>
+                                          <div style={{fontSize:12,fontWeight:700,color:'#f1f5f9'}}>{iv.invoice_no}</div>
+                                          <div style={{fontSize:11,color:'#64748b',marginTop:1}}>{iv.description}</div>
+                                        </div>
+                                        <div style={{textAlign:'right'}}>
+                                          <div className="syne" style={{fontSize:16,fontWeight:900,color:'#f1f5f9'}}>${(iv.amount||0).toLocaleString()}</div>
+                                          <div style={{fontSize:9,color:sColor,fontWeight:700,marginTop:1}}>{sIcon} {iv.status.toUpperCase()}</div>
+                                        </div>
+                                      </div>
+                                      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#334155',marginTop:4}}>
+                                        <span>Issued {iv.issued_at?.slice(0,10)||'—'}</span>
+                                        <span>Due {iv.due_date||'—'}</span>
+                                        {iv.paid_at&&<span style={{color:'#10b981'}}>Paid {iv.paid_at.slice(0,10)}</span>}
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                                {/* Invoice totals */}
+                                <div style={{padding:'8px 12px',background:'rgba(99,102,241,0.07)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:8,display:'flex',justifyContent:'space-between',fontSize:12}}>
+                                  <span style={{color:'#818cf8',fontWeight:600}}>Total Invoiced</span>
+                                  <span className="syne" style={{fontWeight:900,color:'#f1f5f9'}}>${clInvoices.reduce((s:number,iv:any)=>s+iv.amount,0).toLocaleString()}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div style={{display:'flex',gap:8,marginTop:14}}>
-                          <a href={`/portal/dashboard`} target="_blank"><button className="btn b-blue" style={{fontSize:11}}>Client Dashboard ↗</button></a>
-                          <a href={cl.website_url} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{fontSize:11}}>Website ↗</button></a>
+
+                        {/* Action bar */}
+                        <div style={{display:'flex',gap:8,marginTop:18,paddingTop:16,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                          <a href="/portal/dashboard" target="_blank"><button className="btn b-blue" style={{fontSize:11}}>📊 Client Dashboard ↗</button></a>
+                          <a href={cl.website_url} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{fontSize:11}}>🌐 Website ↗</button></a>
+                          {cl.contact_email&&<a href={`mailto:${cl.contact_email}`}><button className="btn b-ghost" style={{fontSize:11}}>✉️ Email Client</button></a>}
+                          <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>setTab('analytics')}>📈 View Traffic</button>
                         </div>
                       </div>
                     )}
                   </div>
                 )
               })}
-              {clients.length===0&&<div className="card" style={{padding:60,textAlign:'center',color:'#334155'}}>No clients yet</div>}
+              {clients.length===0&&<div className="card" style={{padding:60,textAlign:'center',color:'#334155',fontSize:14}}>No clients yet — onboard your first client to get started</div>}
             </div>
           </div>
         )}
