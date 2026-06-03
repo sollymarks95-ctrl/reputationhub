@@ -24,19 +24,40 @@ async function getKey(name: string) {
   return data?.key_value || ''
 }
 
-async function speak(text: string, voiceId: string, apiKey: string): Promise<Buffer | null> {
+// Clean text for TTS — remove stage directions, normalize punctuation
+function cleanForTTS(text: string): string {
+  return text
+    .replace(/\[laughs?\]/gi, '')          // remove [laughs]
+    .replace(/\[both laugh\]/gi, '')        // remove [both laugh]
+    .replace(/\[chuckles?\]/gi, '')         // remove [chuckles]
+    .replace(/\[pauses?\]/gi, '...')        // pause → ellipsis
+    .replace(/\[sighs?\]/gi, '')
+    .replace(/--/g, ' — ')                 // normalize dashes
+    .replace(/\s{2,}/g, ' ')               // collapse spaces
+    .trim()
+}
+
+async function speak(text: string, voiceId: string, apiKey: string, isInterruption = false): Promise<Buffer | null> {
+  const cleaned = cleanForTTS(text).slice(0, 2500)
+  if (!cleaned || cleaned.length < 3) return null
   try {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey },
       body: JSON.stringify({
-        text: text.slice(0, 2000),
-        model_id: 'eleven_turbo_v2_5',
-        voice_settings: { stability: 0.45, similarity_boost: 0.72, style: 0.38, use_speaker_boost: true }
+        text: cleaned,
+        model_id: 'eleven_multilingual_v2',  // better naturalness than turbo
+        voice_settings: {
+          stability: 0.40,          // lower = more expressive/varied
+          similarity_boost: 0.75,
+          style: 0.45,              // higher = more emotional range
+          use_speaker_boost: true,
+          speed: isInterruption ? 1.08 : 1.0,  // interruptions slightly faster
+        }
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(35000),
     })
-    if (!r.ok) { console.error('EL error', r.status); return null }
+    if (!r.ok) { console.error('EL error', r.status, await r.text()); return null }
     return Buffer.from(await r.arrayBuffer())
   } catch (e) { console.error('speak err', e); return null }
 }
@@ -97,7 +118,12 @@ HARD RULES:
 - At least one personal story or specific anecdote from the guest (something that happened to them)
 - Natural filler: "you know", "I mean", "honestly", "look —", "right?", "here's the thing"
 - One tangent that drifts, then: "anyway — where were we"
-- Conversation sounds like it was recorded, not written`
+- Conversation sounds like it was recorded, not written
+- TRANSITIONS between topics: "right, so — " / "which actually brings me to..." / "that's interesting because..." — never a hard full stop before a new topic
+- BREATH MOMENTS after intense exchanges — one person says something very short: "God, yeah." / "Right." / "Exactly." / "Hm." — then the next thought
+- ENERGY VARIATION: some exchanges are rapid-fire (3-4 short lines each), some are long monologues (one person speaks 5+ sentences uninterrupted while the other just says "mm" or "right")
+- [laughs] stays inline inside a dialogue line — never on its own line
+- DO NOT end the episode with a formal goodbye or "thanks for listening" — just stop mid-conversation energy or trail off naturally`
           },
           {
             role: 'assistant',
@@ -144,21 +170,51 @@ HARD RULES:
 
     console.log(`${segments.length} segments. Host voice: ${cfg.hostVoiceId}, Guest: ${guestVoice.name}`)
 
-    // STEP 3: Generate audio (process sequentially, max 20 segments for speed)
-    const maxSegs = Math.min(segments.length, 20)
+    // STEP 3: Group consecutive same-speaker segments, then generate audio
+    // This avoids awkward mid-sentence pauses when one person speaks multiple lines
+    type Seg = { speaker: 'host'|'guest'; text: string; isInterruption?: boolean }
+    const grouped: Seg[] = []
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]
+      const prev = grouped[grouped.length - 1]
+      const isInterruption = seg.text.endsWith('—') || seg.text.startsWith('—') || seg.text.includes(' — ')
+      // Merge with previous if same speaker AND short utterance (natural continuation)
+      if (prev && prev.speaker === seg.speaker && prev.text.length < 300 && seg.text.length < 200) {
+        prev.text = prev.text + ' ' + seg.text
+      } else {
+        grouped.push({ ...seg, isInterruption })
+      }
+    }
+
+    const maxSegs = Math.min(grouped.length, 22)
     const buffers: Buffer[] = []
-    const silShort = Buffer.alloc(8000, 0) // 0.5s silence at 16kbps
-    const silLong = Buffer.alloc(12000, 0) // 0.75s silence
+
+    // Silence constants (at ~128kbps MP3, 1 second ≈ 16000 bytes)
+    // For MP3 we use a very short null buffer — actual gap from audio end/start is enough
+    const silTiny  = Buffer.alloc(2000, 0)  // ~125ms — same speaker continuation
+    const silShort = Buffer.alloc(5000, 0)  // ~310ms — fast speaker switch (interruption)
+    const silMid   = Buffer.alloc(9000, 0)  // ~560ms — normal speaker switch
+    const silBreath = Buffer.alloc(13000, 0) // ~810ms — after laugh/long pause
 
     for (let i = 0; i < maxSegs; i++) {
-      const seg = segments[i]
+      const seg = grouped[i]
       const voiceId = seg.speaker === 'host' ? cfg.hostVoiceId : guestVoice.id
-      const buf = await speak(seg.text, voiceId, elKey)
+      const buf = await speak(seg.text, voiceId, elKey, seg.isInterruption)
       if (buf) {
-        if (i > 0) buffers.push(segments[i - 1]?.speaker !== seg.speaker ? silLong : silShort)
+        if (i > 0) {
+          const prev = grouped[i - 1]
+          const speakerSwitch = prev.speaker !== seg.speaker
+          const hasLaugh = prev.text.toLowerCase().includes('[laugh') || seg.text.toLowerCase().includes('[laugh')
+          const isInterrupt = seg.isInterruption || prev.text.endsWith('—')
+          // Choose silence based on context
+          if (hasLaugh) buffers.push(silBreath)
+          else if (!speakerSwitch) buffers.push(silTiny)
+          else if (isInterrupt) buffers.push(silShort)
+          else buffers.push(silMid)
+        }
         buffers.push(buf)
       }
-      await new Promise(r => setTimeout(r, 150))
+      await new Promise(r => setTimeout(r, 100))
     }
 
     if (buffers.length === 0) return NextResponse.json({ error: 'No audio generated — ElevenLabs failed' }, { status: 500, headers: CORS })
