@@ -16,9 +16,6 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      <div style={{background:'#064E3B',color:'#fff',textAlign:'center',padding:'8px 16px',fontSize:'12px',position:'fixed',top:0,left:0,right:0,zIndex:9999}}>
-        📋 All content on RepHuby is produced independently — eToro has not hired or engaged our services. All data is editorial and for research purposes only.
-      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
@@ -83,7 +80,7 @@ export default function HomePage() {
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position:'fixed', top:34, left:0, right:0, zIndex:1000, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
         <div style={{padding:'12px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
@@ -112,7 +109,7 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'150px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
@@ -159,11 +156,11 @@ export default function HomePage() {
                   <div style={{ flex:1, background:'rgba(255,255,255,0.05)', padding:'4px 10px', borderRadius:4, fontSize:11, color:'#64748b' }}>google.com/search?q=your+broker+name</div>
                 </div>
                 {[
-                  { r:1, d:'finvex.rephuby.com', t:'eToro — Official Analysis | Finvexx', sn:'Full market analysis, regulation details...', st:true },
-                  { r:2, d:'nexwire.rephuby.com', t:'eToro Market Commentary | Nex-Wire', sn:'Daily expert market updates from your team...' },
-                  { r:3, d:'signalix.rephuby.com', t:'CEO Interview: eToro 2025 | Bizplezx', sn:'Exclusive AI podcast: leadership insights...' },
-                  { r:4, d:'verivex.rephuby.com', t:'eToro: 4.9★ Reviews | Verivex', sn:'2,400+ verified reviews. Regulated & trusted.' },
-                  { r:5, d:'invexhub.rephuby.com', t:'eToro Intelligence | InvexHub', sn:'Institutional-grade market data...' },
+                  { r:1, d:'finvex.rephuby.com', t:'[Your Broker] — Official Analysis | Finvexx', sn:'Full market analysis, regulation details...', st:true },
+                  { r:2, d:'nexwire.rephuby.com', t:'[Your Broker] Market Commentary | Nex-Wire', sn:'Daily expert market updates from your team...' },
+                  { r:3, d:'signalix.rephuby.com', t:'CEO Interview: [Your Broker] 2025 | Bizplezx', sn:'Exclusive AI podcast: leadership insights...' },
+                  { r:4, d:'verivex.rephuby.com', t:'[Your Broker]: 4.9★ Reviews | Verivex', sn:'2,400+ verified reviews. Regulated & trusted.' },
+                  { r:5, d:'invexhub.rephuby.com', t:'[Your Broker] Intelligence | InvexHub', sn:'Institutional-grade market data...' },
                 ].map(s => (
                   <div key={s.r} style={{ padding:'10px 0 10px 22px', borderBottom:'1px solid rgba(255,255,255,0.05)', position:'relative' }}>
                     <div style={{ position:'absolute', left:-6, top:'50%', transform:'translateY(-50%)', width:20, height:20, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:800, background:s.r===1?'linear-gradient(135deg,#F59E0B,#F97316)':'#1E2533', color:s.r===1?'#000':'#64748b' }}>{s.r}</div>
@@ -233,7 +230,7 @@ export default function HomePage() {
           </div>
           <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18 }}>
             {[
-              { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'eToro review', 'eToro scam', 'eToro legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
+              { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. '[Broker] review', '[Broker] scam', '[Broker] legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
               { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 300+ portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
               { icon:'🎬', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'Video & Podcast', accent:'Interviews', desc:"We produce real AI-powered audio and video interviews with your CEO, analysts and trading team. Published to Spotify, YouTube, Apple Podcasts. When prospects search your brand, they find a podcast. When they ask AI — it cites your CEO interview. That's authority.", cta:'Hear a sample →' },
               { icon:'✦', tag:'Pillar 04', tc:'#818CF8', grad:'135deg,#818CF8,#6366F1', title:'AI Engine', accent:'Optimisation', desc:'Every article we publish is structured for ChatGPT, Perplexity, Gemini and Google AI Overviews to cite. FAQ schema, entity graphs, speakable markup — your brand appears in AI answers, not just Google results. GEO is the 2026 frontier.', cta:'See how GEO works →' },
@@ -284,7 +281,7 @@ export default function HomePage() {
             <div style={{ display:'grid', gridTemplateColumns:'200px 1fr 200px', minHeight:380 }}>
               <div className="ds1" style={{ padding:18, borderRight:'1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ fontSize:9, fontWeight:700, color:'#475569', letterSpacing:'.08em', marginBottom:12 }}>🎯 GOOGLE RANK TRACKER</div>
-                {[['etoro review','#1',4,'Finvexx'],['etoro legit','#1',9,'Nex-Wire'],['etoro safe','#2',14,'Verivex'],['etoro scam','#18',5,'Signalix']].map(([k,p,prev,site]) => (
+                {[['[broker] review','#1',4,'Finvexx'],['[broker] legit','#1',9,'Nex-Wire'],['[broker] safe','#2',14,'Verivex'],['[broker] scam','#18',5,'Signalix']].map(([k,p,prev,site]) => (
                   <div key={k} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.04)', fontSize:11 }}>
                     <div style={{ width:18, height:18, borderRadius:3, background:p!=='#18'?'rgba(16,185,129,0.2)':'rgba(239,68,68,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:p!=='#18'?'#10B981':'#EF4444', flexShrink:0 }}>{p!=='#18'?'▲':'▼'}</div>
                     <div style={{ flex:1 }}><div style={{ color:'#F1F5F9' }}>{k}</div><div style={{ fontSize:9, color:'#475569' }}>{site}</div></div>
@@ -295,7 +292,7 @@ export default function HomePage() {
               </div>
               <div style={{ padding:20 }}>
                 <div style={{ fontSize:9, fontWeight:700, color:'#475569', letterSpacing:'.08em', marginBottom:12 }}>📰 RECENT ARTICLES PUBLISHED</div>
-                {[['Finvex','eToro Q2 2025 EUR/USD Outlook: Bull Case Builds'],['Nexwire','eToro Head of Research: Global Trade Commentary'],['Signalix','Bitcoin Weekly Signal: eToro Crypto Desk Analysis'],['AurexHQ','Gold Hits 3-Month High: eToro Commodities Strategy'],['Verivex','eToro: 4.9-Star — 2,400 Verified Client Reviews']].map(([portal,title]) => (
+                {[['Finvex','[Your Broker] Q2 2025 EUR/USD Outlook: Bull Case Builds'],['Nexwire','[Your Broker] Head of Research: Global Trade Commentary'],['Signalix','Bitcoin Weekly Signal: [Your Broker] Crypto Desk Analysis'],['AurexHQ','Gold Hits 3-Month High: [Your Broker] Commodities Strategy'],['Verivex','[Your Broker]: 4.9-Star — 2,400 Verified Client Reviews']].map(([portal,title]) => (
                   <div key={title} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.04)', alignItems:'center' }}>
                     <span style={{ fontSize:10, fontWeight:700, color:'#0EA5E9', minWidth:60 }}>{portal}</span>
                     <span style={{ flex:1, fontSize:12, fontWeight:500, color:'#F1F5F9', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{title}</span>
@@ -657,15 +654,15 @@ function AIDefenseSection() {
                 {/* Query */}
                 <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
                   <span style={{ fontSize:13 }}>🔎</span>
-                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="neg-query">is eToro a scam?</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="neg-query">is [your broker] a scam?</span>
                   <span className="cursor" style={{ color:'#EF4444' }}>|</span>
                 </div>
                 {/* Bad results */}
                 <div style={{ fontSize:11, fontWeight:700, color:'#EF4444', letterSpacing:'0.06em', marginBottom:10, opacity:0 }} className="neg-r1">⚠ RESULTS FOUND</div>
                 {[
-                  { icon:'🚨', src:'forexpeacearmy.com', title:'"eToro scammed me out of $12,000"', snippet:'User reports: withdrawal issues, account manipulation, fake profits...', color:'#EF4444' },
-                  { icon:'❌', src:'trustpilot.com/fake', title:'"DO NOT USE — eToro is a fraud"', snippet:'1.2 stars · "They disappeared with my deposit after 3 months"', color:'#F97316' },
-                  { icon:'⚠️', src:'reddit.com/r/Forex', title:'"Anyone else had issues with eToro?"', snippet:'247 comments · "Multiple complaints about impossible withdrawals..."', color:'#F59E0B' },
+                  { icon:'🚨', src:'forexpeacearmy.com', title:'"[Your Broker] scammed me out of $12,000"', snippet:'User reports: withdrawal issues, account manipulation, fake profits...', color:'#EF4444' },
+                  { icon:'❌', src:'trustpilot.com/fake', title:'"DO NOT USE — [your broker] is a fraud"', snippet:'1.2 stars · "They disappeared with my deposit after 3 months"', color:'#F97316' },
+                  { icon:'⚠️', src:'reddit.com/r/Forex', title:'"Anyone else had issues with [your broker]?"', snippet:'247 comments · "Multiple complaints about impossible withdrawals..."', color:'#F59E0B' },
                 ].map((r, i) => (
                   <div key={i} style={{ padding:'12px 0', borderBottom:'1px solid rgba(239,68,68,0.1)', opacity:0 }} className={`neg-r${i+1}`}>
                     <div style={{ fontSize:11, color:r.color, marginBottom:3, display:'flex', alignItems:'center', gap:6 }}>
@@ -704,26 +701,26 @@ function AIDefenseSection() {
                 {/* Query */}
                 <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:14, color:'#94A3B8', display:'flex', alignItems:'center', gap:8 }}>
                   <span style={{ fontSize:13 }}>💬</span>
-                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="ai-query-1">is eToro broker legit?</span>
+                  <span style={{ overflow:'hidden', whiteSpace:'nowrap' }} className="ai-query-1">is [your broker] legit?</span>
                   <span className="cursor" style={{ color:'#0EA5E9' }}>|</span>
                 </div>
                 {/* AI thinking */}
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14, opacity:0 }} className="ai-thinking">
                   <div style={{ width:16, height:16, border:'2px solid rgba(14,165,233,0.3)', borderTopColor:'#0EA5E9', borderRadius:'50%', animation:'spin2 .8s linear infinite' }} />
-                  <span style={{ fontSize:12, color:'#64748b' }}>Searching web for eToro...</span>
+                  <span style={{ fontSize:12, color:'#64748b' }}>Searching web for [your broker]...</span>
                 </div>
                 {/* AI Response */}
                 <div style={{ fontSize:12, fontWeight:700, color:'#10B981', letterSpacing:'0.05em', marginBottom:12, opacity:0 }} className="ai-resp">
-                  ✅ Based on my research, here&apos;s what I found about eToro:
+                  ✅ Based on my research, here&apos;s what I found about [your broker]:
                 </div>
                 {/* Positive results */}
                 {[
-                  { icon:'📊', src:'Finvexx · finvexx.com', title:'eToro — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://finvexx.com' },
-                  { icon:'🎙', src:'Bizplezx · bizplezx.com', title:'CEO Interview: eToro 2025 Vision', snippet:'eToro CEO discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://bizplezx.com' },
-                  { icon:'⭐', src:'Verivex · verivex.co', title:'eToro: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · FCA/CySEC/ASIC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://verivex.co' },
-                  { icon:'🏛', src:'Certivade · certivade.com', title:'eToro CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://certivade.com' },
-                  { icon:'📰', src:'Nex-Wire · nex-wire.com', title:'eToro Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://nex-wire.com' },
-                  { icon:'👔', src:'Execvex · execvex.com', title:'Executive Profile: eToro CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://execvex.com' },
+                  { icon:'📊', src:'Finvexx · finvexx.com', title:'[Your Broker] — Official Market Analysis Hub', snippet:'4.9★ verified · Full EUR/USD analysis, regulatory profile, expert reviews...', color:'#1a73e8', tag:'Market Analysis', cls:'ai-r1', href:'https://finvexx.com' },
+                  { icon:'🎙', src:'Bizplezx · bizplezx.com', title:'CEO Interview: [Your Broker] 2025 Vision', snippet:'[Your Broker] CEO discusses expansion plans, regulatory compliance & client protection...', color:'#7c3aed', tag:'Podcast · 24min', cls:'ai-r2', href:'https://bizplezx.com' },
+                  { icon:'⭐', src:'Verivex · verivex.co', title:'[Your Broker]: 2,400 Verified Client Reviews', snippet:'Average 4.9/5 stars · FCA/CySEC/ASIC regulated · Consistently praised for fast withdrawals...', color:'#059669', tag:'Verified Reviews', cls:'ai-r3', href:'https://verivex.co' },
+                  { icon:'🏛', src:'Certivade · certivade.com', title:'[Your Broker] CySEC Compliance Profile 2025', snippet:'Full regulatory documentation · License #XXX · Audited financials · Segregated funds...', color:'#1d4ed8', tag:'Regulation ✓', cls:'ai-r4', href:'https://certivade.com' },
+                  { icon:'📰', src:'Nex-Wire · nex-wire.com', title:'[Your Broker] Head of Research: Global Commentary', snippet:'Weekly market intelligence · Trusted by 50,000+ professional traders globally...', color:'#c0392b', tag:'Expert Analysis', cls:'ai-r5', href:'https://nex-wire.com' },
+                  { icon:'👔', src:'Execvex · execvex.com', title:'Executive Profile: [Your Broker] CTO & Leadership Team', snippet:'Full leadership bios · 15+ years combined forex industry experience · Board disclosed...', color:'#4f46e5', tag:'Leadership', cls:'ai-r6', href:'https://execvex.com' },
                 ].map((r) => (
                   <a key={r.cls} href={r.href} target="_blank" rel="noopener noreferrer" style={{ display:'block', padding:'11px 0', borderBottom:'1px solid rgba(16,185,129,0.1)', opacity:0, textDecoration:'none' }} className={r.cls}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
@@ -744,7 +741,7 @@ function AIDefenseSection() {
                     <span>🤖</span> AI Verdict
                   </div>
                   <div style={{ fontSize:13, color:'#94A3B8', lineHeight:1.65 }}>
-                    <strong style={{color:'#10B981'}}>eToro appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
+                    <strong style={{color:'#10B981'}}>[Your Broker] appears to be a legitimate, well-established broker.</strong> Multiple independent sources confirm their CySEC regulation, thousands of verified positive client reviews, transparent leadership team, and consistent expert market analysis. Their CEO has been interviewed across multiple financial publications. <strong style={{color:'#F1F5F9'}}>No credible complaints found.</strong>
                   </div>
                   <div style={{ marginTop:10, display:'flex', gap:8, flexWrap:'wrap' }}>
                     {['FCA/CySEC/ASIC ✓','4.9★ Reviews ✓','CEO Verified ✓','Podcast Active ✓'].map(t => (
