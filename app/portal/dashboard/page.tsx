@@ -26,7 +26,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     sb.from('portal_clients').select('*').eq('id', CLIENT_ID).single(),
     sb.from('portal_rankings').select('*').eq('client_id', CLIENT_ID).order('current_position'),
-    sb.from('portal_content').select('*').eq('client_id', CLIENT_ID).order('published_at', { ascending: false }).limit(200),
+    sb.from('portal_content').select('*').eq('client_id', CLIENT_ID).order('published_at', { ascending: false }).limit(500),
     sb.from('podcast_scripts').select('*').eq('client_id', CLIENT_ID).order('created_at', { ascending: false }),
     sb.from('portal_activity').select('*').eq('client_id', CLIENT_ID).order('created_at', { ascending: false }).limit(10),
     sb.from('portal_reports').select('*').eq('client_id', CLIENT_ID).order('report_month', { ascending: false }).limit(3),
