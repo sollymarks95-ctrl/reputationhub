@@ -68,14 +68,6 @@
       "schedule": "12 9 * * *"
     },
     {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=invest-data&batch=1",
-      "schedule": "15 9 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=market-radar&batch=1",
-      "schedule": "18 9 * * *"
-    },
-    {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=global-trade-wire&batch=2",
       "schedule": "0 11 * * *"
     },
@@ -124,14 +116,6 @@
       "schedule": "12 13 * * *"
     },
     {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=invest-data&batch=3",
-      "schedule": "15 13 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=market-radar&batch=3",
-      "schedule": "18 13 * * *"
-    },
-    {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=global-trade-wire&batch=4",
       "schedule": "0 15 * * *"
     },
@@ -152,18 +136,6 @@
       "schedule": "12 15 * * *"
     },
     {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=invest-data&batch=4",
-      "schedule": "15 15 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=market-radar&batch=4",
-      "schedule": "18 15 * * *"
-    },
-    {
-      "path": "/api/cron-new-sites?secret=REDACTED_CRON_SECRET",
-      "schedule": "0 8 * * *"
-    },
-    {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=executive-network&batch=0",
       "schedule": "21 7 * * *"
     },
@@ -172,36 +144,12 @@
       "schedule": "24 7 * * *"
     },
     {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=executive-network&batch=1",
-      "schedule": "21 9 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=crypto-hub&batch=1",
-      "schedule": "24 9 * * *"
-    },
-    {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=executive-network&batch=2",
       "schedule": "21 11 * * *"
     },
     {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=crypto-hub&batch=2",
       "schedule": "24 11 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=executive-network&batch=3",
-      "schedule": "21 13 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=crypto-hub&batch=3",
-      "schedule": "24 13 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=executive-network&batch=4",
-      "schedule": "21 15 * * *"
-    },
-    {
-      "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=crypto-hub&batch=4",
-      "schedule": "24 15 * * *"
     }
   ]
 }

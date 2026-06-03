@@ -44,6 +44,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
   const [tab, setTab] = useState('overview')
   const [generatingPodcast, setGeneratingPodcast] = useState<string|null>(null)
   const [podcastResult, setPodcastResult] = useState<Record<string,any>>({})
+  const [podcastTarget, setPodcastTarget] = useState<Record<string,string>>({})
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [analytics, setAnalytics] = useState<any>(null)
@@ -86,6 +87,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
 
   const generatePodcastAudio = async (pod: any) => {
     const key = pod.id
+    const targetSlug = podcastTarget[key] || pod.site_slug
     setGeneratingPodcast(key)
     try {
       const r = await fetch('/api/admin/generate-podcast', {
@@ -93,7 +95,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientId: 'a1b2c3d4-0000-0000-0000-000000000001',
-          siteSlug: pod.site_slug,
+          siteSlug: targetSlug,
           hostName: pod.host_name,
           guestName: pod.guest_name,
           guestRole: pod.guest_role,
@@ -565,16 +567,34 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                               ❌ {podcastResult[pod.id].error}
                             </div>
                           )}
-                          <button
-                            onClick={() => generatePodcastAudio(pod)}
-                            disabled={generatingPodcast === pod.id}
-                            className="btn"
-                            style={{ fontSize:12, padding:'7px 16px', background: generatingPodcast===pod.id ? '#334155' : '#0ea5e9', color:'#fff', border:'none', cursor: generatingPodcast===pod.id ? 'wait' : 'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:6, width:'100%', justifyContent:'center' }}
-                          >
-                            {generatingPodcast === pod.id
-                              ? <><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating audio (~2 min)…</>
-                              : <>🎙 Generate Audio</>}
-                          </button>
+                          {/* Portal selector + generate button */}
+                          <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+                            <div style={{ flex:1, minWidth:0 }}>
+                              <div style={{ fontSize:10, fontWeight:600, color:'#475569', marginBottom:4, letterSpacing:'.06em', textTransform:'uppercase' }}>Publish to portal</div>
+                              <select
+                                value={podcastTarget[pod.id] || pod.site_slug}
+                                onChange={e => setPodcastTarget(prev => ({ ...prev, [pod.id]: e.target.value }))}
+                                disabled={generatingPodcast === pod.id}
+                                style={{ width:'100%', padding:'6px 10px', background:'#1e293b', border:'1px solid #334155', color:'#e2e8f0', borderRadius:5, fontSize:12, cursor:'pointer' }}
+                              >
+                                {PORTALS.map(port => (
+                                  <option key={port.slug} value={port.slug}>{port.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div style={{ flexShrink:0, paddingTop:18 }}>
+                              <button
+                                onClick={() => generatePodcastAudio(pod)}
+                                disabled={generatingPodcast === pod.id}
+                                className="btn"
+                                style={{ fontSize:12, padding:'7px 16px', background: generatingPodcast===pod.id ? '#334155' : '#0ea5e9', color:'#fff', border:'none', cursor: generatingPodcast===pod.id ? 'wait' : 'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:6, whiteSpace:'nowrap' }}
+                              >
+                                {generatingPodcast === pod.id
+                                  ? <><span>⏳</span> Generating…</>
+                                  : <>🎙 Generate &amp; Publish</>}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       )}
                       {podcastResult[pod.id]?.audioUrl && (
