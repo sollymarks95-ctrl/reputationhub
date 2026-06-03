@@ -322,6 +322,29 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── EDITORIAL INDEPENDENCE ── */}
+      <section style={{ padding:'60px 0', background:'linear-gradient(135deg,#F0FDF4,#ECFDF5)', borderTop:'1px solid #D1FAE5', borderBottom:'1px solid #D1FAE5' }}>
+        <div style={{ maxWidth:900, margin:'0 auto', padding:'0 24px', textAlign:'center' }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'6px 16px', borderRadius:100, background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.3)', color:'#059669', fontWeight:700, fontSize:12, letterSpacing:'.06em', marginBottom:24, textTransform:'uppercase' }}>
+            📋 Editorial Independence Statement
+          </div>
+          <h2 className="syne" style={{ fontSize:30, fontWeight:800, color:'#064E3B', marginBottom:16, lineHeight:1.3 }}>
+            We&apos;re Not Hired by eToro. We&apos;re Not Affiliated with Any Broker.
+          </h2>
+          <p style={{ fontSize:17, color:'#065F46', lineHeight:1.75, maxWidth:720, margin:'0 auto 20px' }}>
+            eToro appears in our portfolio as a <strong>genuine case study</strong> — we independently built a full editorial and content authority programme for their brand across our portal network. No broker pays us to write positive reviews. No client has editorial control. Every article, every review, every podcast is produced under independent editorial standards.
+          </p>
+          <div style={{ display:'flex', justifyContent:'center', gap:32, flexWrap:'wrap', marginTop:24 }}>
+            {[['🚫','Not paid by any broker'],['✍️','100% independent editorial'],['🔍','Reviews based on real user data'],['📊','Clients buy distribution — not opinions']].map(([icon,text]) => (
+              <div key={text} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <span style={{ fontSize:16 }}>{icon}</span>
+                <span style={{ fontSize:13, fontWeight:600, color:'#065F46' }}>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* PRICING */}
       <section id="pricing" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>

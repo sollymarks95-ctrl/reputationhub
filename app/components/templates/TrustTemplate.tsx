@@ -12,12 +12,6 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
   return (
     <div style={{ display:'flex', gap:1 }}>
 
-      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
-        '@type': 'NewsMediaOrganization',
-        'name': 'Verivex',
-        'url': 'https://verivex.co',
-        'description': 'Verified broker and trading platform reviews and trust scores.',
-        'sameAs': ['https://verivex.co'],
             {[1,2,3,4,5].map(s => (
         <svg key={s} width={size} height={size} viewBox="0 0 24 24"
           fill={s <= full ? GREEN : (s === full+1 && half) ? 'url(#half)' : '#E8E8E8'}>
@@ -193,6 +187,17 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', color:DARK, minHeight:'100vh' }}>
+      {/* GEO schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />
+
+      {/* Editorial independence disclaimer */}
+      <div style={{ background:'#F0FDF4', borderBottom:'1px solid #BBF7D0', padding:'10px 20px', display:'flex', alignItems:'center', justifyContent:'center', gap:10, flexWrap:'wrap' }}>
+        <span style={{ fontSize:12, color:'#15803D', fontWeight:600 }}>📋 Editorial Independence Notice:</span>
+        <span style={{ fontSize:12, color:'#166534', lineHeight:1.5 }}>
+          Verivex is an independent review platform. We are not affiliated with, paid by, or endorsed by any broker listed here — including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
+        </span>
+      </div>
+
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
         .srch{padding:10px 16px 10px 40px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;width:100%;background:#fff;transition:all .2s}
