@@ -82,9 +82,6 @@ export default function HomePage() {
 
       {/* NAV */}
       <nav style={{ position:'fixed', top:34, left:0, right:0, zIndex:1000, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
-        <div style={{background:'#064E3B',padding:'6px 16px',textAlign:'center',color:'#fff',fontSize:'12px',lineHeight:1.4}}>
-          📋 <strong>Editorial Independence:</strong> Verivex is not affiliated with, paid by, or endorsed by any broker — including eToro.
-        </div>
         <div style={{padding:'12px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
@@ -338,10 +335,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Editorial independence — one line */}
-      <div style={{ background:'#F0FDF4', borderTop:'1px solid #D1FAE5', borderBottom:'1px solid #D1FAE5', padding:'10px 24px', textAlign:'center', fontSize:13, color:'#166534' }}>
-        eToro features in our portfolio as an independent case study — we are not affiliated with, hired by, or endorsed by any broker.
-      </div>
+
 
       {/* PRICING */}
       <section id="pricing" style={{ padding:'96px 0' }}>
