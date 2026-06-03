@@ -71,49 +71,39 @@ export async function POST(req: NextRequest) {
         model: 'claude-sonnet-4-6',
         max_tokens: Math.min(targetWords * 6, 8000),
         system: `You write ultra-realistic podcast scripts that sound like REAL recorded conversations — not scripted, not corporate. Think Joe Rogan, Lex Fridman, How I Built This. Natural human dialogue.`,
-        messages: [{
-          role: 'user',
-          content: `Write a ${duration}-minute podcast conversation. Make it sound like a REAL recording — messy, human, alive.
+        messages: [
+          {
+            role: 'user',
+            content: `You are writing a podcast script. Output ONLY raw dialogue lines. No preamble, no explanation, no scene direction except [laughs].
 
-HOST: ${HOST} (${PODCAST_CFG[siteSlug || 'trust-score']?.hostRole || 'podcast host'})
-GUEST: ${GUEST} (${guestRole || 'industry expert'})
-TOPIC: ${topic || `${clientBrand?.name || 'markets and strategy'} — deep dive`}
-${clientBrand ? `
-CLIENT CONTEXT: ${clientBrand.name} (${clientBrand.website}). Regulated by ${clientBrand.regulation || 'multiple authorities'}. Weave naturally 2-3 times as part of genuine discussion — never as an ad.` : ''}
+HOST NAME: ${HOST}
+GUEST NAME: ${GUEST}
+GUEST TITLE: ${guestRole || 'industry expert'}
+TOPIC: ${topic || (clientBrand?.name ? clientBrand.name + ' — strategy and positioning' : 'markets and strategy')}
+TARGET LENGTH: ~${targetWords} words
+${clientBrand ? `\nBRAND BRIEF: ${clientBrand.name} | ${clientBrand.website} | Regulated: ${clientBrand.regulation || 'multi-jurisdiction'}. Weave in naturally 2-3 times — expert discussion, not an ad.` : ''}
 
-BANNED OPENINGS — NEVER write any of these:
-❌ "Welcome to [show name]..."
-❌ "Hi, I'm [host] and this is [show]..."
-❌ "Today on [show]..."
-❌ "I'm [host], your host..."
-❌ "Today I have with me [guest] from [company] who is a [role]..."
-❌ Any formal self-introduction of host or guest by name at the start
-❌ Any statement of what the show is about at the start
+MANDATORY FORMAT — every single line must be one of:
+${HOST}: [what they say]
+${GUEST}: [what they say]
 
-INSTEAD — start in the MIDDLE of a thought, mid-conversation energy. Examples:
-✅ HOST: "So I was reading this report on my flight over and — actually, tell me your honest take first. Is this real or is it noise?"
-✅ HOST: "Okay, three things happened last week that I can't stop thinking about. You saw the numbers?"
-✅ HOST: "Right so — before we get into anything else, I have to ask you something."
-✅ HOST: "Look, I've been skeptical about this for a while. Talk me out of it."
-
-RULES FOR NATURALISM:
-1. COLD OPEN — jump straight in, no intro at all, host says something that implies they already started talking
-2. FILLER WORDS: "you know", "I mean", "honestly", "right?", "look —", "here's the thing"
-3. INTERRUPTIONS: host cuts in "—wait, hold on", "—okay but", "—sorry, say that again"
-4. LAUGHTER: [laughs] [both laugh] [chuckles] — minimum 5 times throughout
-5. SELF-CORRECTIONS: "I was going to say — actually no, scratch that"
-6. TANGENTS that get pulled back: "anyway — where were we"
-7. REAL PUSHBACK: host disagrees hard at least once "I don't buy that. Here's why—"
-8. PERSONAL story from guest — a moment of failure, doubt, or surprise
-9. HOST stays curious and slightly skeptical throughout
-10. ZERO corporate speak: no "synergies", "leverage", "ecosystem", "journey", "absolutely", "great question", "certainly", "touch base", "circle back"
-11. Guest NEVER introduces themselves — listener already knows who they are
-
-Format: "${HOST}: ..." and "${GUEST}: ..." on separate lines.
-Target ~${targetWords} words.
-
-BEGIN NOW with the host already mid-thought:`
-        }]
+HARD RULES:
+- Line 1 is ${HOST}: with a sharp, opinionated opening statement or provocative question — already mid-topic
+- NEVER: "Welcome", "hello everyone", "I'm your host", "joining me today", "introduce yourself", "today's episode", "today we'll be discussing" — these are banned
+- NEVER have the guest say their own name or explain who they are
+- [laughs] or [both laugh] must appear at least 6 times spread throughout
+- At least 4 interruptions where someone cuts off mid-sentence using " —"
+- At least one moment: ${HOST}: "I'm not buying that — " followed by pushback
+- At least one personal story or specific anecdote from the guest (something that happened to them)
+- Natural filler: "you know", "I mean", "honestly", "look —", "right?", "here's the thing"
+- One tangent that drifts, then: "anyway — where were we"
+- Conversation sounds like it was recorded, not written`
+          },
+          {
+            role: 'assistant',
+            content: `${HOST}: `
+          }
+        ]
       }),
       signal: AbortSignal.timeout(120000),
     })
@@ -125,7 +115,9 @@ BEGIN NOW with the host already mid-thought:`
     }
 
     const scriptData = await scriptRes.json()
-    const script = scriptData.content?.[0]?.text?.trim() || ''
+    // Prepend the assistant prefill (HOST: ) since Claude continues from it
+    const rawScript = scriptData.content?.[0]?.text?.trim() || ''
+    const script = rawScript.startsWith(`${HOST}:`) ? rawScript : `${HOST}: ${rawScript}`
     if (!script) return NextResponse.json({ error: 'Empty script from Claude' }, { status: 500, headers: CORS })
     console.log(`Script: ${script.split(' ').length} words`)
 
