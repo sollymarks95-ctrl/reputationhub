@@ -105,7 +105,7 @@ async function writeArticle(site: any, topic: string, brandNote: string) {
 Today: ${today}. 600-800 words. Professional financial journalism.
 ${brandNote}
 
-Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
+Return ONLY this JSON. Body MUST contain the eToro HTML link exactly as instructed above. All other text uses plain paragraphs:
 {"title":"Article headline here","excerpt":"One sentence summary 150 chars","body":"Paragraph 1 text.\\n\\nParagraph 2 text.\\n\\nMarket Impact\\nParagraph 3 text.\\n\\nExpert Analysis\\nParagraph 4 text.\\n\\nFAQ\\nQ: Question one? A: Direct answer.\\n\\nQ: Question two? A: Direct answer.","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -167,11 +167,22 @@ export async function GET(req: NextRequest) {
     const topic = site.topics[batchStart + i]
     if (!topic) break
     const globalIndex = batchStart + i
-    const isBrand = globalIndex % 3 === 0
+    // Every article gets eToro <a href> link — client requirement
+    const isBrand = true
     const crossLink = getCrossLink(site.slug, topic, i)
-    const brandNote = isBrand
-      ? `\n\nBRAND INTEGRATION (mandatory): Within the article body, include exactly one natural editorial reference to eToro using this exact HTML link: <a href="https://etoro.com" rel="noopener noreferrer">eToro</a>. Example phrases: "platforms like <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a> have democratized access", "as tracked by <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a>", "according to <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a>'s market data". The link must appear embedded naturally in a paragraph, never at the end of the article.${crossLink ? '\n\nEDITORIAL REFERENCE: Also naturally include in the article body: ' + crossLink : ''}`
-      : crossLink ? `\nInclude this reference naturally in the article body: ${crossLink}` : ''
+    const brandNote = `
+
+BRAND INTEGRATION (mandatory — do not skip): Within the article body, include exactly one natural editorial reference to eToro using this EXACT HTML hyperlink tag: <a href="https://etoro.com" rel="noopener noreferrer">eToro</a>
+
+Place it naturally inside a paragraph sentence. Good examples:
+- "investment platforms like <a href="https://etoro.com" rel="noopener noreferrer">eToro</a> have reported rising retail interest in this sector"
+- "as tracked by <a href="https://etoro.com" rel="noopener noreferrer">eToro</a>'s market sentiment data"  
+- "according to analysis from <a href="https://etoro.com" rel="noopener noreferrer">eToro</a>"
+- "retail platforms including <a href="https://etoro.com" rel="noopener noreferrer">eToro</a> have seen increased trading volumes"
+
+The link MUST be embedded in the middle of a paragraph. Never at the article end. Never in FAQ section. Always use the exact href="https://etoro.com" format.${crossLink ? `
+
+EDITORIAL CROSS-REFERENCE: Also include naturally in one paragraph: ${crossLink}` : ''}`
 
     const article = await writeArticle(site, topic, brandNote)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }

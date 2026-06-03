@@ -88,8 +88,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const bgHeader = isDark ? '#000000' : '#ffffff'
   const textPrimary = isDark ? '#f0f0f0' : '#1a1a1a'
   const textSecondary = isDark ? '#888888' : '#6b7280'
-  const textMuted = isDark ? '#444444' : '#9ca3af'
-  const borderColor = isDark ? '#1a1a1a' : '#e5e7eb'
+  const textMuted = isDark ? '#9ca3af' : '#9ca3af'
+  const borderColor = isDark ? '#2a2a2a' : '#e5e7eb'
+  const bodyText = isDark ? '#d1d5db' : '#222222'
+  const headingText = isDark ? '#f9fafb' : '#111111'
+  const blockquoteBg = isDark ? '#1a1a1a' : '#fafafa'
+  const blockquoteText = isDark ? '#94a3b8' : '#555555'
 
   const PORTAL_URLS: Record<string,{name:string,url:string}> = {
     'global-trade-wire':  { name:'Nex-Wire',   url:'https://nex-wire.com' },
@@ -290,12 +294,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         *{box-sizing:border-box;margin:0;padding:0}
         a{text-decoration:none;color:inherit}
         a:hover{color:${p}}
-        .body p{margin-bottom:1.5em;line-height:1.9;font-size:18px;color:#222}
-        .body h2{font-size:22px;font-weight:800;margin:2em 0 0.8em;color:#111;font-family:sans-serif;border-left:4px solid ${p};padding-left:12px}
-        .body h3{font-size:19px;font-weight:700;margin:1.6em 0 0.6em;color:#111;font-family:sans-serif}
-        .body blockquote{border-left:4px solid ${p};padding:14px 20px;margin:1.8em 0;background:#fafafa;font-style:italic;font-size:19px;color:#555;border-radius:0 4px 4px 0}
-        .body ul,.body ol{margin:1em 0 1em 2em;line-height:1.8;font-size:17px}
-        .body li{margin-bottom:0.5em}
+        .body p{margin-bottom:1.5em;line-height:1.9;font-size:18px;color:${bodyText}}
+        .body h2{font-size:22px;font-weight:800;margin:2em 0 0.8em;color:${headingText};font-family:sans-serif;border-left:4px solid ${p};padding-left:12px}
+        .body h3{font-size:19px;font-weight:700;margin:1.6em 0 0.6em;color:${headingText};font-family:sans-serif}
+        .body blockquote{border-left:4px solid ${p};padding:14px 20px;margin:1.8em 0;background:${blockquoteBg};font-style:italic;font-size:19px;color:${blockquoteText};border-radius:0 4px 4px 0}
+        .body ul,.body ol{margin:1em 0 1em 2em;line-height:1.8;font-size:17px;color:${bodyText}}
+        .body li{margin-bottom:0.5em;color:${bodyText}}
         .body a{color:${p};font-weight:600;text-decoration:underline}
         @media(max-width:900px){.layout{grid-template-columns:1fr!important}.sidebar{display:none!important}.art-body{padding:20px!important}}
       `}</style>
