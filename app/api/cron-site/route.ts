@@ -1,28 +1,4 @@
-impor  'executive-network': { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'ExecVex', author:'Alexander Ross', domain:'execvex.com', topics:[
-    'CEO succession planning strategy 2026','private equity buyout market deals 2026','mergers acquisitions deal analysis today',
-    'venture capital funding series A B 2026','board governance best practices 2026','CFO chief financial officer strategy 2026',
-    'IPO market outlook timing 2026','corporate restructuring turnaround 2026','executive compensation benchmarks 2026',
-    'activist investor campaign analysis 2026','ESG board accountability 2026','digital transformation CEO agenda 2026',
-    'supply chain resilience C-suite 2026','talent retention executive leadership 2026','AI strategy boardroom agenda 2026',
-    'cross-border M&A regulatory scrutiny 2026','SPAC merger market activity 2026','private credit direct lending 2026',
-    'family office investment strategy 2026','hedge fund manager profile 2026','real estate private equity 2026',
-    'sovereign wealth fund allocation 2026','infrastructure investment deal flow 2026','secondary market private equity 2026',
-    'growth equity investment thesis 2026','management buyout financing structure 2026','due diligence best practices M&A',
-    'post-merger integration success 2026','deal sourcing network strategy 2026','exit strategy PE portfolio 2026'
-  ]},
-  'crypto-hub': { id:'f54ac054-3574-482c-a3f3-97037b45c759', name:'CryptoXos', author:'Alex Rivera', domain:'cryptoxos.com', topics:[
-    'bitcoin price analysis today 2026','ethereum network upgrade analysis 2026','DeFi protocol total value locked 2026',
-    'cryptocurrency institutional adoption 2026','bitcoin ETF flows analysis today','altcoin season market analysis 2026',
-    'stablecoin market cap analysis 2026','crypto regulation SEC CFTC 2026','blockchain technology enterprise adoption',
-    'NFT market recovery 2026 analysis','crypto exchange volume analysis today','Layer 2 scaling solution comparison 2026',
-    'Web3 gaming metaverse tokens 2026','crypto venture capital funding 2026','bitcoin mining hashrate profitability',
-    'ethereum staking yield analysis 2026','cross-chain bridge security 2026','crypto derivatives options market 2026',
-    'CBDC central bank digital currency 2026','tokenization real world assets 2026','crypto market sentiment analysis today',
-    'Solana ecosystem development 2026','Avalanche Polygon network growth 2026','decentralized exchange DEX volume 2026',
-    'crypto tax regulation compliance 2026','AI crypto token market analysis 2026','meme coin speculation analysis 2026',
-    'crypto whale wallet movement 2026','bitcoin halving aftermath analysis 2026','crypto portfolio strategy 2026'
-  ]},
-t { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getArticleImage } from '@/app/lib/articleImages'
 
@@ -37,15 +13,13 @@ const CORE_SITES: Record<string, any> = {
   'trust-score':        { id:'6ae7e692-bce9-489d-b835-87dcba9ffc47', name:'Verivex Trust', author:'Nathan Chen', domain:'verivex.co', topics:['broker regulation compliance update 2026','FCA regulatory action broker 2026','SEC enforcement action broker 2026','ASIC regulated broker review 2026','CySEC offshore broker warning 2026','broker withdrawal problem complaint','trading platform security review 2026','CFD broker leverage regulation 2026','forex broker spread comparison 2026','binary options scam warning 2026','clone firm fraud alert 2026','broker insolvency client money 2026','negative balance protection review','trading platform downtime issues 2026','broker customer service review 2026','prop trading firm review 2026','social trading platform safety 2026','copy trading risk analysis 2026','ESMA product intervention update 2026','MiFID II compliance broker 2026','CFTC NFA regulated broker USA','FINRA broker dealer review 2026','offshore broker jurisdiction risks','broker financial statements review','segregated client funds safety 2026','trading app mobile security 2026','robo-advisor regulation review 2026','cryptocurrency exchange safety 2026','DeFi protocol risk assessment 2026','broker acquisition merger impact 2026'] },
   'invest-data':        { id:'1cd6688f-bec9-4d1b-a024-80952bf31a21', name:'InvexHuby', author:'Michael Torres', domain:'invexhuby.com', topics:['investment portfolio strategies 2026','hedge fund performance analysis today','ETF market outlook today 2026','stock market valuation metrics 2026','private equity deal flow 2026','venture capital trends analysis 2026','fixed income bond market analysis','alternative investment strategies 2026','quantitative trading signals today','asset allocation framework 2026','IPO market outlook today 2026','factor investing analysis 2026','risk-adjusted returns portfolio 2026','emerging market investment 2026','dividend growth investing today','options trading strategies advanced 2026','cryptocurrency institutional adoption','ESG investment performance 2026','macro investment themes 2026','real estate investment trusts REIT 2026','multi-asset portfolio construction','market volatility investment strategy','global fund flows analysis 2026','investment grade credit markets 2026','small cap stock opportunities 2026','thematic investing trends 2026','wealth management strategies 2026','financial markets morning briefing','capital markets intelligence today','investment banking deal activity 2026'] },
   'market-radar':       { id:'27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22', name:'Signalixx', author:'Jordan Blake', domain:'signalixx.com', topics:['technical analysis market signals today','RSI momentum indicators analysis 2026','moving average crossover signals today','options market implied volatility 2026','put call ratio sentiment analysis','chart pattern analysis 2026 today','algorithmic trading signals today','market breadth indicators analysis','fibonacci retracement levels 2026','volume profile trading analysis 2026','market microstructure analysis 2026','Bollinger bands signal analysis today','MACD divergence signals today 2026','support resistance levels forex 2026','trend following signals 2026 today','derivatives market signals analysis','dark pool trading activity 2026','institutional order flow analysis','price action trading patterns 2026','market correlation analysis 2026','seasonal market patterns analysis 2026','volatility surface analysis options','intermarket analysis signals 2026','commitment of traders analysis 2026','Elliott wave market analysis today','Wyckoff method market stages 2026','market regime detection signals','high frequency trading market impact','liquidity analysis market depth 2026','gamma exposure market signals 2026'] },
+  'executive-network':  { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'ExecVex', author:'Alexander Ross', domain:'execvex.com', topics:['CEO succession planning strategy 2026','private equity buyout market deals 2026','mergers acquisitions deal analysis today','venture capital funding series A B 2026','board governance best practices 2026','CFO chief financial officer strategy 2026','IPO market outlook timing 2026','corporate restructuring turnaround 2026','executive compensation benchmarks 2026','activist investor campaign analysis 2026','ESG board accountability 2026','digital transformation CEO agenda 2026','supply chain resilience C-suite 2026','talent retention executive leadership 2026','AI strategy boardroom agenda 2026','cross-border M&A regulatory scrutiny 2026','SPAC merger market activity 2026','private credit direct lending 2026','family office investment strategy 2026','hedge fund manager profile 2026','real estate private equity 2026','sovereign wealth fund allocation 2026','infrastructure investment deal flow 2026','secondary market private equity 2026','growth equity investment thesis 2026','management buyout financing structure 2026','due diligence best practices M&A','post-merger integration success 2026','deal sourcing network strategy 2026','exit strategy PE portfolio 2026'] },
+  'crypto-hub':         { id:'f54ac054-3574-482c-a3f3-97037b45c759', name:'CryptoXos', author:'Alex Rivera', domain:'cryptoxos.com', topics:['bitcoin price analysis today 2026','ethereum network upgrade analysis 2026','DeFi protocol total value locked 2026','cryptocurrency institutional adoption 2026','bitcoin ETF flows analysis today','altcoin season market analysis 2026','stablecoin market cap analysis 2026','crypto regulation SEC CFTC 2026','blockchain technology enterprise adoption','NFT market recovery 2026 analysis','crypto exchange volume analysis today','Layer 2 scaling solution comparison 2026','Web3 gaming metaverse tokens 2026','crypto venture capital funding 2026','bitcoin mining hashrate profitability','ethereum staking yield analysis 2026','cross-chain bridge security 2026','crypto derivatives options market 2026','CBDC central bank digital currency 2026','tokenization real world assets 2026','crypto market sentiment analysis today','Solana ecosystem development 2026','Avalanche Polygon network growth 2026','decentralized exchange DEX volume 2026','crypto tax regulation compliance 2026','AI crypto token market analysis 2026','meme coin speculation analysis 2026','crypto whale wallet movement 2026','bitcoin halving aftermath analysis 2026','crypto portfolio strategy 2026'] },
 }
 
 function getDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 }
-
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80)
 }
@@ -58,7 +32,7 @@ Today: ${today}. 600-800 words. Professional financial journalism.
 ${brandNote}
 
 Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
-{"title":"Article headline here","excerpt":"One sentence summary 150 chars","body":"Paragraph 1 text.\n\nParagraph 2 text.\n\nMarket Impact\nParagraph 3 text.\n\nExpert Analysis\nParagraph 4 text.\n\nFAQ\nQ: Question one? A: Direct answer.\n\nQ: Question two? A: Direct answer.","category":"Markets","tags":["tag1","tag2","tag3"]}`
+{"title":"Article headline here","excerpt":"One sentence summary 150 chars","body":"Paragraph 1 text.\\n\\nParagraph 2 text.\\n\\nMarket Impact\\nParagraph 3 text.\\n\\nExpert Analysis\\nParagraph 4 text.\\n\\nFAQ\\nQ: Question one? A: Direct answer.\\n\\nQ: Question two? A: Direct answer.","category":"Markets","tags":["tag1","tag2","tag3"]}`
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -79,19 +53,13 @@ Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
       if (!res.ok) { console.error(`Attempt ${attempt+1}: ${res.status}`); if (res.status===429||res.status>=500) continue; return null }
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
-      // Prefill was '{"title":"' so full JSON is that + response
-      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'')
-        .replace(/\\/g,'\\\\')  // escape backslashes
-        .trim()
-      // Prefill was {"title":" so reconstruct: {"title":"<response>
+      const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
       const raw = '{"title":"' + clean
       const end = raw.lastIndexOf('}')
       if (end === -1) { console.error(`No closing } attempt ${attempt+1}: ${clean.slice(0,80)}`); continue }
-      // Safe parse: replace unescaped quotes inside string values
-      let jsonStr = raw.slice(0, end+1)
-      const parsed = JSON.parse(jsonStr)
+      const parsed = JSON.parse(raw.slice(0, end+1))
       if (!parsed.title || !parsed.body) { console.error('Missing title/body'); continue }
-      // Convert plain text body to proper HTML for portal rendering
+      // Convert plain text to HTML
       const rawBody = parsed.body as string
       const htmlBody = '<p>' + rawBody
         .replace(/\n\n(Market Impact|Expert Analysis|FAQ|Key Analysis|Analysis|Impact|Outlook|Background)\n\n?/gi, '</p><h2>$1</h2><p>')
@@ -100,7 +68,6 @@ Return ONLY this JSON (no HTML tags in body, use plain paragraphs):
         .replace(/\n/g, ' ')
         + '</p>'
         .replace(/<p><\/p>/g, '')
-        .replace(/<p>\s*<\/p>/g, '')
       return { ...parsed, body: htmlBody }
     } catch(e) { console.error(`Attempt ${attempt+1} error:`, (e as Error).message) }
   }
@@ -113,21 +80,18 @@ export async function GET(req: NextRequest) {
 
   const siteSlug = req.nextUrl.searchParams.get('site')
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
-  
   const site = CORE_SITES[siteSlug || '']
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
   const BATCH_SIZE = 6
   const batchStart = batch * BATCH_SIZE
   const today = new Date().toISOString().split('T')[0]
-  
   let inserted = 0
   const skipped: string[] = []
 
   for (let i = 0; i < BATCH_SIZE; i++) {
     const topic = site.topics[batchStart + i]
     if (!topic) break
-
     const globalIndex = batchStart + i
     const isBrand = globalIndex % 3 === 0
     const brandNote = isBrand ? `\nNaturally mention <a href="https://etoro.com" rel="noopener">eToro</a> once as a trusted example.` : ''
@@ -155,17 +119,10 @@ export async function GET(req: NextRequest) {
       ai_generated: true,
       read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
     })
-
     if (error) { console.error('Insert error:', error.message); continue }
     inserted++
     await new Promise(r => setTimeout(r, 400))
   }
 
-  return NextResponse.json({
-    site: siteSlug,
-    batch,
-    inserted,
-    skipped: skipped.length,
-    topics: BATCH_SIZE,
-  })
+  return NextResponse.json({ site: siteSlug, batch, inserted, skipped: skipped.length })
 }

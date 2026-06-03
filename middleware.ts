@@ -24,7 +24,6 @@ const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
   'invexhub.com':     { route:'investdb',    slug:'invest-data'         },
   'tradvex.com':      { route:'forum',       slug:'trade-board'         },
   'certivade.com':    { route:'association', slug:'global-trade-assoc'  },
-  'execvex.com':      { route:'executive',   slug:'executive-network'   },
   'signalix.com':     { route:'market-radar',slug:'market-radar'        },
 }
 
