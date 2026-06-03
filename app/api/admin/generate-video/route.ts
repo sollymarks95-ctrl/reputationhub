@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
           episode_title: episode.title, portal_name: portalName,
           accent_color: accent, bg_url: bgUrl, duration,
         })
-        const r = await fetch('https://api.creatomate.com/v1/renders', {
+        const r = await fetch('https://api.nextcut.io/v1/renders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${creatomateKey}` },
           body: JSON.stringify({ source }),

@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     let allDone = true
     for (const fmt of fmts) {
-      const r = await fetch(`https://api.creatomate.com/v1/renders/${fmt.id}`, {
+      const r = await fetch(`https://api.nextcut.io/v1/renders/${fmt.id}`, {
         headers: { 'Authorization': `Bearer ${creatomateKey}` }
       })
       if (!r.ok) { allDone = false; continue }

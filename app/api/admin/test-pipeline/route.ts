@@ -55,7 +55,7 @@ export async function GET() {
   const ck = km.CREATOMATE_KEY
   if (ck && ck !== 'REPLACE_WITH_KEY') {
     try {
-      const r = await fetch('https://api.creatomate.com/v1/renders?limit=1', {
+      const r = await fetch('https://api.nextcut.io/v1/renders?limit=1', {
         headers: { 'Authorization': `Bearer ${ck}` },
         signal: AbortSignal.timeout(8000)
       })
