@@ -20,6 +20,7 @@ const NAV = [
   { icon:'📊', label:'Analytics', id:'analytics' },
   { icon:'🎙', label:'Podcasts', id:'podcasts' },
   { icon:'🔍', label:'Rankings', id:'rankings' },
+  { icon:'🔗', label:'Backlinks', id:'backlinks' },
   { icon:'🌐', label:'Coverage', id:'coverage' },
   { icon:'⭐', label:'Reviews', id:'reviews' },
 ]
@@ -55,6 +56,10 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
   
   // Podcast player
   const [playingPod, setPlayingPod] = useState<string | null>(null)
+  // Backlinks
+  const [backlinksData, setBacklinksData] = useState<any>(null)
+  const [loadingBacklinks, setLoadingBacklinks] = useState(false)
+  const [blFilter, setBlFilter] = useState<'all'|'dofollow'|'mention'>('all')
 
   const p = client?.primary_color || '#0ea5e9'
 
@@ -70,9 +75,23 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
 
   useEffect(() => { loadAnalytics() }, [loadAnalytics])
 
+  const loadBacklinks = useCallback(async () => {
+    setLoadingBacklinks(true)
+    try {
+      const r = await fetch('/api/client/backlinks?days=90')
+      const d = await r.json()
+      setBacklinksData(d)
+    } catch {}
+    setLoadingBacklinks(false)
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'backlinks' && !backlinksData) loadBacklinks()
+  }, [tab, backlinksData, loadBacklinks])
+
   const handleRefresh = async () => {
     setRefreshing(true)
-    await loadAnalytics()
+    await Promise.all([loadAnalytics(), loadBacklinks()])
     router.refresh()
     setLastRefresh(new Date())
     setTimeout(() => setRefreshing(false), 1000)
@@ -608,6 +627,157 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══ BACKLINKS ═══ */}
+          {tab === 'backlinks' && (
+            <div className="fade">
+              {loadingBacklinks && (
+                <div style={{ textAlign:'center', padding:40, color:'#475569' }}>
+                  <span className="spin" style={{ display:'inline-block', fontSize:24 }}>⟳</span>
+                  <div style={{ marginTop:8 }}>Loading backlink data…</div>
+                </div>
+              )}
+              {backlinksData && (
+                <div>
+                  {/* KPIs */}
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+                    {[
+                      { label:'Total Backlinks', value: backlinksData.total, icon:'🔗', color:'#0ea5e9', sub:'mentions + links' },
+                      { label:'Dofollow Links', value: backlinksData.dofollow, icon:'✅', color:'#10b981', sub:'direct href links' },
+                      { label:'Brand Mentions', value: backlinksData.mentions, icon:'💬', color:'#8b5cf6', sub:'text references' },
+                      { label:'Portals Linking', value: backlinksData.portals, icon:'🌐', color:'#f59e0b', sub:'active portals' },
+                    ].map(k => (
+                      <div key={k.label} className="kpi">
+                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
+                          <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em' }}>{k.label}</div>
+                          <span style={{ fontSize:16 }}>{k.icon}</span>
+                        </div>
+                        <div style={{ fontSize:36, fontWeight:900, color:k.color, lineHeight:1 }}>{k.value}</div>
+                        <div style={{ fontSize:11, color:'#475569', marginTop:6 }}>{k.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* By portal + daily trend */}
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1.6fr', gap:20, marginBottom:20 }}>
+                    <div className="card">
+                      <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Links by Portal</div>
+                      {backlinksData.byPortal?.map((b: any) => {
+                        const port = PORTALS.find(p2 => p2.name === b.portal)
+                        const max = backlinksData.byPortal?.[0]?.count || 1
+                        return (
+                          <div key={b.portal} style={{ marginBottom:10 }}>
+                            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                              <span style={{ fontSize:12, color:'#94a3b8' }}>{b.portal}</span>
+                              <span style={{ fontSize:12, fontWeight:700, color:port?.color || p }}>{b.count}</span>
+                            </div>
+                            <div className="bar">
+                              <div className="bar-fill" style={{ width:`${(b.count/max)*100}%`, background:port?.color || p }}/>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Daily trend */}
+                    <div className="card">
+                      <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Backlink Velocity (90 days)</div>
+                      {backlinksData.daily?.length > 0 ? (
+                        <div style={{ display:'flex', alignItems:'flex-end', gap:2, height:80 }}>
+                          {backlinksData.daily.slice(-45).map((d: any) => {
+                            const max = Math.max(...backlinksData.daily.map((x: any) => x.count), 1)
+                            return (
+                              <div key={d.date} style={{ flex:1 }}>
+                                <div title={`${d.date}: ${d.count} links`}
+                                  style={{ width:'100%', height:`${Math.max(4,(d.count/max)*72)}px`, background:p, borderRadius:'2px 2px 0 0', opacity:.8 }}/>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div style={{ color:'#334155', fontSize:12 }}>No data yet — backlinks will appear as articles are published</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Filter + table */}
+                  <div className="card">
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+                      <div style={{ fontWeight:700, fontSize:14 }}>All Brand Backlinks</div>
+                      <div style={{ display:'flex', gap:8 }}>
+                        {(['all','dofollow','mention'] as const).map(f => (
+                          <button key={f} className={`btn ${blFilter===f?'btn-primary':'btn-ghost'}`}
+                            style={{ fontSize:11, padding:'5px 12px', textTransform:'capitalize' }}
+                            onClick={() => setBlFilter(f)}>
+                            {f === 'all' ? `All (${backlinksData.total})` : f === 'dofollow' ? `✅ Dofollow (${backlinksData.dofollow})` : `💬 Mentions (${backlinksData.mentions})`}
+                          </button>
+                        ))}
+                        <button className="btn btn-ghost" style={{fontSize:11,padding:'5px 10px'}} onClick={loadBacklinks}>⟳</button>
+                      </div>
+                    </div>
+                    <div style={{ overflowX:'auto' }}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Article</th>
+                            <th>Portal</th>
+                            <th>Type</th>
+                            <th>Context / Anchor</th>
+                            <th>Published</th>
+                            <th style={{textAlign:'right'}}>Views</th>
+                            <th>Link</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(backlinksData.backlinks || [])
+                            .filter((b: any) => blFilter === 'all' || b.linkType === blFilter)
+                            .slice(0, 50)
+                            .map((b: any, i: number) => {
+                              const port = PORTALS.find(p2 => p2.name === b.portal)
+                              return (
+                                <tr key={i} style={{ background: b.linkType === 'dofollow' ? 'rgba(16,185,129,0.04)' : 'transparent' }}>
+                                  <td style={{ maxWidth:240 }}>
+                                    <div style={{ fontSize:12, fontWeight:500, color:'#e2e8f0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                      {b.title}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <span style={{ fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:4, background:`${port?.color || '#475569'}20`, color:port?.color || '#94a3b8' }}>
+                                      {b.portal}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span className="tag" style={{
+                                      background: b.linkType === 'dofollow' ? 'rgba(16,185,129,0.15)' : 'rgba(139,92,246,0.15)',
+                                      color: b.linkType === 'dofollow' ? '#10b981' : '#a78bfa'
+                                    }}>
+                                      {b.linkType === 'dofollow' ? '🔗 Dofollow' : '💬 Mention'}
+                                    </span>
+                                  </td>
+                                  <td style={{ maxWidth:180 }}>
+                                    <div style={{ fontSize:11, color:'#64748b', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                      …{b.anchorText}…
+                                    </div>
+                                  </td>
+                                  <td style={{ color:'#64748b', fontSize:12, whiteSpace:'nowrap' }}>
+                                    {new Date(b.publishedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+                                  </td>
+                                  <td style={{ textAlign:'right', fontWeight:700, color:'#38bdf8' }}>{b.views}</td>
+                                  <td>
+                                    <a href={b.articleUrl} target="_blank" rel="noopener" style={{ fontSize:11, color:p, fontWeight:600 }}>↗</a>
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          }
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
