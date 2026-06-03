@@ -128,7 +128,77 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
     return [...arr, ...extra].slice(0, count)
   }
 
+  const MobileLayout = () => (
+    <div style={{fontFamily:'Inter,system-ui,sans-serif',background:'#f8fafc',minHeight:'100vh'}}>
+      <style>{`
+        .tm2-title{font-size:16px;font-weight:700;color:#1a1a2e;line-height:1.3}
+        .tm2-cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:${accent};display:block;margin-bottom:4px}
+        .tm2-snav::-webkit-scrollbar{display:none}
+      `}</style>
+      <div style={{position:'sticky',top:0,zIndex:100,background:'#1a1a2e',borderBottom:`3px solid ${accent}`}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px'}}>
+          <a href="/" style={{textDecoration:'none'}}>
+            <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:17,fontWeight:700,letterSpacing:'.05em',color:'#fff'}}>{meta.name}<span style={{color:accent}}>_</span></div>
+            <div style={{fontSize:9,color:'rgba(255,255,255,0.3)',fontFamily:'monospace'}}>{meta.domain}</div>
+          </a>
+          <span style={{background:accent,color:'#000',fontSize:9,fontWeight:900,padding:'3px 8px',letterSpacing:'.06em',borderRadius:2}}>LIVE</span>
+        </div>
+        <div className="tm2-snav" style={{display:'flex',overflowX:'auto',scrollbarWidth:'none'}}>
+          {['All','Markets','Forex','Rates','Macro'].map(s=>(
+            <button key={s} style={{padding:'8px 14px',border:'none',background:'none',color:'rgba(255,255,255,0.5)',fontSize:10,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',fontFamily:'monospace',flexShrink:0}}>
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{padding:'16px'}}>
+        {articles[0] && (
+          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:8,overflow:'hidden',marginBottom:16,boxShadow:'0 1px 8px rgba(0,0,0,0.06)'}}>
+            <img referrerPolicy="no-referrer" crossOrigin="anonymous"
+              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70&fm=jpg`}
+              alt={articles[0].title} style={{width:'100%',height:180,objectFit:'cover'}}
+              onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
+            <div style={{padding:'14px'}}>
+              <span className="tm2-cat">{articles[0].category||'Markets'}</span>
+              <div className="tm2-title" style={{fontSize:19,marginBottom:6}}>{articles[0].title}</div>
+              <div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>{(articles[0].excerpt||'').slice(0,130)}…</div>
+            </div>
+          </a>
+        )}
+
+        <div style={{fontFamily:'monospace',fontSize:9,fontWeight:800,letterSpacing:'.1em',color:'#94a3b8',marginBottom:12}}>LATEST</div>
+        {articles.slice(1,20).map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
+            style={{display:'flex',gap:12,background:'#fff',borderRadius:6,marginBottom:8,overflow:'hidden',textDecoration:'none',boxShadow:'0 1px 4px rgba(0,0,0,0.04)'}}>
+            <img referrerPolicy="no-referrer" crossOrigin="anonymous"
+              src={a.cover_image_url||`https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=200&q=60&fm=jpg`}
+              alt={a.title} style={{width:80,height:68,objectFit:'cover',flexShrink:0}}
+              onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
+            <div style={{flex:1,padding:'10px 12px 10px 0',minWidth:0}}>
+              <span className="tm2-cat">{a.category}</span>
+              <div className="tm2-title" style={{fontSize:13,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div style={{background:'#1a1a2e',color:'#475569',padding:'20px 16px'}}>
+        <div style={{fontFamily:'monospace',fontSize:14,fontWeight:700,color:'#fff',marginBottom:4}}>{meta.name}</div>
+        <div style={{fontSize:11,marginBottom:12}}>{meta.desc} · For informational purposes only.</div>
+        <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+          {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#475569',fontSize:11,textDecoration:'none'}}>{l}</a>))}
+        </div>
+        <div style={{fontSize:10,color:'#334155',marginTop:10}}>© {new Date().getFullYear()} {meta.domain}</div>
+      </div>
+    </div>
+  )
+
+
   return (
+    <>
+      <div className="tm2-mobile" style={{display:"block"}}><MobileLayout/></div>
+      <div className="tm2-desktop" style={{display:"none"}}>
     <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",background:'#f8fafc',color:'#1a1a2e',minHeight:'100vh'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
@@ -315,5 +385,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
         </div>
       </div>
     </div>
+      </div>
+    </>
   )
 }
