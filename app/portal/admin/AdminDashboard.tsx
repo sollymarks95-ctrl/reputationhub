@@ -171,6 +171,7 @@ export default function AdminDashboard({
   const [analytics, setAnalytics] = useState<any>(null)
   const [anaLoading, setAnaLoading] = useState(false)
   const [anaDays, setAnaDays] = useState(30)
+  const [filterClient, setFilterClient] = useState('')
   const [cronRunning, setCronRunning] = useState(false)
   const [cronMsg, setCronMsg] = useState('')
   const [pendingReviews, setPendingReviews] = useState<any[]>(initialPending)
@@ -191,15 +192,16 @@ export default function AdminDashboard({
     duration: 8,
   })
 
-  useEffect(() => { if (tab==='analytics' && !analytics) loadAnalytics(30) }, [tab])
+  useEffect(() => { if (tab==='analytics') loadAnalytics(anaDays) }, [tab, filterClient])
 
   const loadAnalytics = useCallback(async (days=30) => {
     setAnaLoading(true)
     try {
-      const r = await fetch(`/api/analytics?secret=REDACTED_CRON_SECRET&days=${days}`)
+      const clientParam = filterClient ? `&client=${filterClient}` : ''
+    const r = await fetch(`/api/analytics?secret=REDACTED_CRON_SECRET&days=${days}${clientParam}`)
       setAnalytics(await r.json()); setAnaDays(days)
     } finally { setAnaLoading(false) }
-  }, [])
+  }, [filterClient])
 
   const createPodcastEpisode = async () => {
     if (!podForm.title || !podForm.guestName) {
@@ -663,19 +665,29 @@ export default function AdminDashboard({
         {tab==='analytics'&&(
           <div className="ti">
             {/* Header */}
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
               <div>
                 <div className="syne" style={{fontSize:20,fontWeight:900}}>📊 Business Intelligence</div>
-                <div style={{fontSize:12,color:'#475569',marginTop:2}}>CEO · CMO · CFO — full operational overview</div>
+                <div style={{fontSize:12,color:'#475569',marginTop:2}}>
+                  {filterClient ? `Filtered: ${clients.find((c:any)=>c.id===filterClient)?.company_name||'Client'}` : 'All Clients · CEO · CMO · CFO'}
+                </div>
               </div>
-              <div style={{display:'flex',gap:8}}>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+                {/* Client filter */}
+                <select value={filterClient}
+                  onChange={(e:any)=>{setFilterClient(e.target.value);setAnalytics(null)}}
+                  style={{padding:'5px 10px',borderRadius:6,fontSize:11,fontWeight:600,background:filterClient?'rgba(99,102,241,0.2)':'rgba(255,255,255,0.06)',border:'1px solid',borderColor:filterClient?'#6366f1':'rgba(255,255,255,0.1)',color:filterClient?'#818cf8':'#64748b',cursor:'pointer'}}>
+                  <option value="">👥 All Clients</option>
+                  {clients.map((cl:any)=><option key={cl.id} value={cl.id}>👤 {cl.company_name}</option>)}
+                </select>
+                {/* Day range */}
                 {[7,14,30,90].map(d=>(
                   <button key={d} onClick={()=>loadAnalytics(d)}
                     style={{padding:'5px 12px',borderRadius:6,fontSize:11,fontWeight:600,cursor:'pointer',border:'1px solid',borderColor:anaDays===d?'#6366f1':'rgba(255,255,255,0.1)',background:anaDays===d?'rgba(99,102,241,0.2)':'transparent',color:anaDays===d?'#818cf8':'#64748b'}}>
                     {d}d
                   </button>
                 ))}
-                <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>loadAnalytics(anaDays)}>↻ Refresh</button>
+                <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>loadAnalytics(anaDays)}>↻</button>
               </div>
             </div>
 

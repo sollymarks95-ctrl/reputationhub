@@ -32,14 +32,24 @@ export async function GET(req: NextRequest) {
   if (secret !== 'REDACTED_CRON_SECRET') return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
 
   const days = parseInt(req.nextUrl.searchParams.get('days')||'30')
+  const filterClientId = req.nextUrl.searchParams.get('client') || null  // optional client filter
   const db = getDb()
   const since = new Date(Date.now()-days*86400000).toISOString()
   const today = new Date().toISOString().slice(0,10)
   const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10)
   const weekAgo = new Date(Date.now()-7*86400000).toISOString().slice(0,10)
 
+  // If filtering by client, get their site slugs first
+  let clientSiteSlugs: string[] | null = null
+  if (filterClientId) {
+    const { data: cp } = await db.from('portal_content').select('site_slug').eq('client_id', filterClientId)
+    clientSiteSlugs = [...new Set((cp||[]).map((r:any)=>r.site_slug))]
+  }
+
   const [{data:views},{data:clientPortals},{data:clients},{data:invoices},{data:articleCount}] = await Promise.all([
-    db.from('page_views').select('created_at,site_slug,site_domain,path,device,country,referrer').gte('created_at',since),
+    clientSiteSlugs
+      ? db.from('page_views').select('created_at,site_slug,site_domain,path,device,country,referrer').gte('created_at',since).in('site_slug', clientSiteSlugs)
+      : db.from('page_views').select('created_at,site_slug,site_domain,path,device,country,referrer').gte('created_at',since),
     db.from('portal_content').select('client_id,site_slug,article_url,title'),
     db.from('portal_clients').select('id,company_name,monthly_value,currency,contract_status'),
     db.from('client_invoices').select('client_id,amount,status,paid_at,invoice_no,description,issued_at,due_date'),
@@ -119,6 +129,8 @@ export async function GET(req: NextRequest) {
   const pendingRevenue=(invoices||[]).filter((iv:any)=>iv.status==='pending'||iv.status==='overdue').reduce((s:number,iv:any)=>s+iv.amount,0)
 
   return NextResponse.json({
+    filterClientId,
+    clientSiteSlugs,
     total:all.length, todayViews, yesterdayViews, weekViews,
     growthPct:yesterdayViews>0?Math.round((todayViews-yesterdayViews)/yesterdayViews*100):0,
     uniquePaths:Object.keys(pathMap).length, uniqueCountries:Object.keys(countryMap).length,

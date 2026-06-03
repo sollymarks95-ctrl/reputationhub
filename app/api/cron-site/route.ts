@@ -175,11 +175,29 @@ Return ONLY this JSON (no markdown fences):
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
       const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
-      const raw = '{"title":"' + clean
-      const end = raw.lastIndexOf('}')
-      if (end === -1) { console.error(`No closing } attempt ${attempt+1}: ${clean.slice(0,80)}`); continue }
-      const parsed = JSON.parse(raw.slice(0, end+1))
-      if (!parsed.title || !parsed.body) { console.error('Missing title/body'); continue }
+      // Try direct JSON parse first
+      let parsed: any = null
+      try {
+        const raw = '{"title":"' + clean
+        const end = raw.lastIndexOf('}')
+        if (end !== -1) parsed = JSON.parse(raw.slice(0, end+1))
+      } catch(_) {
+        // Fallback: extract title and body via regex
+        try {
+          const fullText = '{"title":"' + clean
+          const titleM = fullText.match(/"title"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/s)
+          const bodyM = fullText.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+          const catM = fullText.match(/"category"\s*:\s*"([^"]+)"/s)
+          const excM = fullText.match(/"excerpt"\s*:\s*"([^"]+)"/s)
+          if (titleM && bodyM) parsed = {
+            title: titleM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n').slice(0,200),
+            body: bodyM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n'),
+            category: catM?.[1] || 'Markets',
+            excerpt: excM?.[1] || titleM[1].slice(0,120),
+          }
+        } catch(_) {}
+      }
+      if (!parsed?.title || !parsed?.body) { console.error(`Parse fail attempt ${attempt+1}: ${clean.slice(0,60)}`); continue }
       // Convert plain text to HTML
       const rawBody = parsed.body as string
       const htmlBody = '<p>' + rawBody
