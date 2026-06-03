@@ -346,8 +346,8 @@ export default function HomePage() {
           </div>
           <div className="pg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
             {[
-              { tier:'Authority Starter', price:'5,000', clr:'#94A3B8', ft:false, cta:'Start Dominating →', feats:['5 portals from our network','15 articles/week published','Google rank monitoring','2 AI podcast episodes/month','Monthly SEO report'] },
-              { tier:'Authority Pro', price:'9,500', clr:'#0EA5E9', ft:true, cta:'Get Authority Pro →', feats:['300+ portals in our network','35 articles/week published','Real-time rank tracking','8 AI podcast episodes/month','Brand crisis rapid response','Weekly executive briefing','Dedicated account manager'] },
+              { tier:'Authority Starter', price:'5,000', clr:'#94A3B8', ft:false, cta:'Start Dominating →', feats:['12 domains from our network','10 articles per day published','Real-time rank monitoring','2 AI podcast episodes/month','Monthly performance report'] },
+              { tier:'Authority Pro', price:'9,500', clr:'#0EA5E9', ft:true, cta:'Get Authority Pro →', feats:['Full 300+ portal network','30 articles per day published','Real-time rank tracking','8 AI podcast episodes/month','Brand crisis rapid response','Weekly executive briefing','Dedicated account manager'] },
               { tier:'Enterprise Command', price:'Custom', clr:'#F59E0B', ft:false, cta:'Request Quote →', feats:['Unlimited portal coverage','100+ articles/week','Multi-brand management','Daily AI podcast production','24/7 brand monitoring','Regulatory crisis PR','C-suite strategy sessions'] },
             ].map(p => (
               <div key={p.tier} className={`pc${p.ft?' ft':''}`} style={{ position:'relative' }}>
