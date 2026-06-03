@@ -129,6 +129,18 @@ export default function AdminDashboard({
   const [pendingReviews, setPendingReviews] = useState<any[]>(initialPending)
   const [selectedClient, setSelectedClient] = useState<string|null>(null)
   const [showOnboard, setShowOnboard] = useState(false)
+  const [podcastForm, setPodcastForm] = useState(false)
+  const [podCreating, setPodCreating] = useState(false)
+  const [podCreateResult, setPodCreateResult] = useState<any>(null)
+  const [podForm, setPodForm] = useState({
+    siteSlug: 'trust-score',
+    episodeNumber: 1,
+    guestName: '',
+    guestRole: '',
+    title: '',
+    topic: '',
+    duration: 8,
+  })
 
   useEffect(() => { if (tab==='analytics' && !analytics) loadAnalytics(30) }, [tab])
 
@@ -139,6 +151,39 @@ export default function AdminDashboard({
       setAnalytics(await r.json()); setAnaDays(days)
     } finally { setAnaLoading(false) }
   }, [])
+
+  const createPodcastEpisode = async () => {
+    if (!podForm.title || !podForm.guestName) {
+      setPodCreateResult({ error: 'Please fill in Title and Guest Name' }); return
+    }
+    setPodCreating(true); setPodCreateResult(null)
+    const cfg = PODCAST_CFG[podForm.siteSlug] || { show: podForm.siteSlug, host: 'Host', role: 'Host' }
+    try {
+      // Single call: generate-podcast writes script + audio + saves to podcast_scripts
+      const r = await fetch('/api/admin/generate-podcast', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: clients[0]?.id || 'a1b2c3d4-0000-0000-0000-000000000001',
+          siteSlug: podForm.siteSlug,
+          hostName: cfg.host,
+          guestName: podForm.guestName,
+          guestRole: podForm.guestRole,
+          topic: podForm.topic,
+          title: podForm.title,
+          episodeNumber: podForm.episodeNumber,
+          durationMinutes: podForm.duration,
+        })
+      })
+      const data = await r.json()
+      if (data.ok) {
+        setPodCreateResult({ ok: true, audioUrl: data.audioUrl, words: data.words })
+        setPodForm(f => ({ ...f, episodeNumber: f.episodeNumber + 1, title: '', topic: '', guestName: '', guestRole: '' }))
+      } else {
+        setPodCreateResult({ error: data.error || 'Generation failed' })
+      }
+    } catch(e:any) { setPodCreateResult({ error: e.message }) }
+    finally { setPodCreating(false) }
+  }
 
   const runCron = async () => {
     setCronRunning(true); setCronMsg('')
@@ -855,16 +900,88 @@ export default function AdminDashboard({
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
               <div>
                 <div className="syne" style={{fontSize:20,fontWeight:900}}>🎙 Podcast Studio</div>
-                <div style={{fontSize:12,color:'#475569',marginTop:2}}>
-                  {allPodcasts.filter((p:any)=>p.status==='published').length} published · {allPodcasts.filter((p:any)=>p.audio_url||p.mp3_url).length} with audio · Select portal per episode then click Generate
-                </div>
+                <div style={{fontSize:12,color:'#475569',marginTop:2}}>Create episodes, generate audio with ElevenLabs · {allPodcasts.filter((p:any)=>p.status==='published').length} episodes live</div>
               </div>
+              <button className="btn b-green" onClick={()=>setPodcastForm(v=>!v)}>
+                {podcastForm ? '✕ Close' : '➕ New Episode'}
+              </button>
             </div>
+
+            {/* CREATE FORM */}
+            {podcastForm&&(
+              <div className="card" style={{padding:22,marginBottom:20,borderTop:'3px solid #6366f1'}}>
+                <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8',marginBottom:16}}>CREATE NEW EPISODE</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Portal</label>
+                    <select value={podForm.siteSlug} onChange={(e:any)=>setPodForm(f=>({...f,siteSlug:e.target.value}))}
+                      style={{width:'100%',padding:'8px 10px',background:'#1e293b',border:'1px solid #334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
+                      {Object.entries(PORTAL_DOMAIN).map(([s,d])=><option key={s} value={s}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Episode #</label>
+                    <input type="number" min={1} value={podForm.episodeNumber}
+                      onChange={(e:any)=>setPodForm(f=>({...f,episodeNumber:parseInt(e.target.value)||1}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="1"/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Guest Name</label>
+                    <input value={podForm.guestName} onChange={(e:any)=>setPodForm(f=>({...f,guestName:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. James Richardson"/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Guest Role</label>
+                    <input value={podForm.guestRole} onChange={(e:any)=>setPodForm(f=>({...f,guestRole:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. CEO, eToro"/>
+                  </div>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Episode Title</label>
+                    <input value={podForm.title} onChange={(e:any)=>setPodForm(f=>({...f,title:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. The Future of Regulated Trading in 2026"/>
+                  </div>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Topic / Description</label>
+                    <input value={podForm.topic} onChange={(e:any)=>setPodForm(f=>({...f,topic:e.target.value}))}
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. eToro regulatory trust, CopyTrading performance, 2026 strategy"/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Duration (minutes)</label>
+                    <select value={podForm.duration} onChange={(e:any)=>setPodForm(f=>({...f,duration:parseInt(e.target.value)}))}
+                      style={{width:'100%',padding:'8px 10px',background:'#1e293b',border:'1px solid #334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
+                      {[5,8,10,15,20].map(d=><option key={d} value={d}>{d} minutes</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {podCreateResult?.error&&<div style={{padding:'8px 12px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:6,fontSize:12,color:'#ef4444',marginBottom:10}}>❌ {podCreateResult.error}</div>}
+                {podCreateResult?.ok&&(
+                  <div style={{padding:'10px 12px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:6,fontSize:12,color:'#10b981',marginBottom:10}}>
+                    ✅ Episode created! Audio generating… {podCreateResult.words} words
+                    {podCreateResult.audioUrl&&<audio controls src={podCreateResult.audioUrl} style={{width:'100%',height:28,marginTop:8}} preload="none"/>}
+                  </div>
+                )}
+
+                <button onClick={createPodcastEpisode} disabled={podCreating}
+                  style={{padding:'10px 24px',background:podCreating?'#334155':'linear-gradient(135deg,#6366f1,#4f46e5)',border:'none',borderRadius:8,color:podCreating?'#475569':'#fff',fontWeight:700,fontSize:13,cursor:podCreating?'default':'pointer',display:'flex',alignItems:'center',gap:8}}>
+                  {podCreating?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating script + audio (~2 min)…</>:<>🎙 Create Episode + Generate Audio</>}
+                </button>
+              </div>
+            )}
+
+            {/* EXISTING EPISODES grouped by portal */}
             {(()=>{
               const pub=allPodcasts.filter((p:any)=>p.status==='published')
               const byP:Record<string,any[]>={}
               for(const ep of pub){const s=ep.site_slug||'trust-score';if(!byP[s])byP[s]=[];byP[s].push(ep)}
-              if(Object.keys(byP).length===0) return <div className="card" style={{padding:60,textAlign:'center',color:'#334155'}}>No published episodes yet</div>
+              if(Object.keys(byP).length===0) return (
+                <div className="card" style={{padding:60,textAlign:'center'}}>
+                  <div style={{fontSize:40,marginBottom:12}}>🎙</div>
+                  <div style={{fontSize:16,fontWeight:700,color:'#64748b',marginBottom:8}}>No episodes yet</div>
+                  <div style={{fontSize:13,color:'#334155',marginBottom:20}}>Click 'New Episode' above to create your first podcast</div>
+                  <button className="btn b-green" onClick={()=>setPodcastForm(true)}>➕ Create First Episode</button>
+                </div>
+              )
               return Object.entries(byP).map(([slug,eps])=>{
                 const cfg=PODCAST_CFG[slug]||{show:slug,host:'Host',role:'Host'}
                 const domain=PORTAL_DOMAIN[slug]||'rephuby.com'

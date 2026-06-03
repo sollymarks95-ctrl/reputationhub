@@ -161,20 +161,38 @@ Start immediately with "${HOST}:"`
       duration_seconds: duration * 60,
     })
 
-    // Also update podcast_scripts.audio_url if a matching record exists
+    // Upsert podcast_scripts: update if exists, create if not
     const { data: existingScript } = await db()
       .from('podcast_scripts')
       .select('id')
       .eq('site_slug', siteSlug || '')
       .eq('episode_number', parseInt(episodeNumber) || 1)
-      .eq('status', 'published')
-      .single()
+      .maybeSingle()
 
     if (existingScript?.id) {
       await db()
         .from('podcast_scripts')
-        .update({ audio_url: audioUrl, script })
+        .update({ audio_url: audioUrl, script, status: 'published' })
         .eq('id', existingScript.id)
+    } else {
+      // Create new episode record
+      await db().from('podcast_scripts').insert({
+        site_slug: siteSlug || null,
+        episode_number: parseInt(episodeNumber) || 1,
+        title: title || `${cfg.showName} — Episode ${episodeNumber || 1}`,
+        script,
+        audio_url: audioUrl,
+        status: 'published',
+        host_name: HOST,
+        show_name: cfg.showName,
+        guest_name: GUEST,
+        guest_role: guestRole || 'Guest',
+        topic: topic || null,
+        duration_minutes: duration,
+        duration_seconds: duration * 60,
+        client_id: clientId || null,
+        word_count: script.split(/\s+/).length,
+      })
     }
 
     return NextResponse.json({
