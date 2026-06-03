@@ -16,9 +16,9 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      {/* Editorial independence — one line at the very top */}
-      <div style={{ background:'rgba(16,185,129,0.08)', borderBottom:'1px solid rgba(16,185,129,0.15)', padding:'8px 20px', textAlign:'center', fontSize:12, color:'#6EE7B7', lineHeight:1.5 }}>
-        <strong style={{ color:'#10B981' }}>📋 Editorial Independence:</strong>{' '}
+      {/* Editorial independence banner — solid, visible */}
+      <div style={{ background:'#064E3B', borderBottom:'2px solid #10B981', padding:'10px 24px', textAlign:'center', fontSize:13, color:'#D1FAE5', lineHeight:1.6 }}>
+        <strong style={{ color:'#34D399' }}>📋 Editorial Independence Notice:</strong>{' '}
         Verivex is an independent review platform. We are not affiliated with, paid by, or endorsed by any broker listed here — including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
       </div>
       <style>{`
