@@ -120,10 +120,10 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
   )
 }
 
-export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
+export default function TrustTemplate({ articles = [], site, siteSlug, searchParams }: any) {
   const [companies, setCompanies] = useState<any[]>([])
   const [reviewStats, setReviewStats] = useState<Record<string,{count:number,avg:number}>>({})
-  const [activeCategory, setActiveCategory] = useState('all')
+  const [activeCategory, setActiveCategory] = useState((searchParams?.category as string) || 'all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -196,7 +196,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         .cat-btn:hover:not(.active){border-color:${GREEN};color:${GREEN}}
         @media(max-width:768px){
           .trust-hero-grid{grid-template-columns:1fr!important;gap:12px!important}
-          .trust-company-grid{grid-template-columns:1fr!important}
+          .trust-company-grid{grid-template-columns:1fr!important} .grid4{grid-template-columns:1fr 1fr!important}
           .trust-sections{grid-template-columns:1fr!important}
           .trust-stats{flex-direction:column!important;gap:8px!important}
           .trust-nav{overflow-x:auto;white-space:nowrap}
@@ -264,7 +264,15 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         <div style={{ marginBottom:32 }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
             <h2 style={{ fontSize:20, fontWeight:800, color:DARK }}>
-              {search ? `Results for "${search}"` : CATS.find(c=>c.id===activeCategory)?.label || 'All Reviews'}
+              {search 
+                ? `Results for "${search}"` 
+                : activeCategory !== 'all'
+                  ? <span style={{display:'flex',alignItems:'center',gap:10}}>
+                      <a href="/" style={{fontSize:13,color:'#00B67A',fontWeight:600,textDecoration:'none'}}>← All Reviews</a>
+                      <span style={{color:'#E2E8F0'}}>|</span>
+                      {CATS.find(c=>c.id===activeCategory)?.icon} {CATS.find(c=>c.id===activeCategory)?.label || 'Reviews'}
+                    </span>
+                  : 'All Reviews'}
               <span style={{ fontSize:14, fontWeight:400, color:'#94A3B8', marginLeft:8 }}>({filtered.length} platforms)</span>
             </h2>
             {search && <button onClick={()=>setSearch('')} style={{ fontSize:12, color:GREEN, background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>Clear ×</button>}
@@ -289,22 +297,25 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             /* Grouped view — one section per category */
             <div>
               {Object.entries(GROUP_LABELS).map(([groupId, meta]) => {
-                const groupCos = (grouped[groupId] || []).slice(0, 6)
+                const allInGroup = grouped[groupId] || []
+                const groupCos = allInGroup.slice(0, 4)
                 if (groupCos.length === 0) return null
                 return (
-                  <div key={groupId} style={{ marginBottom:40 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16, paddingBottom:10, borderBottom:'2px solid #F1F5F9' }}>
-                      <span style={{ fontSize:22 }}>{meta.icon}</span>
-                      <h2 style={{ fontSize:17, fontWeight:800, color:'#0F172A', letterSpacing:'.01em' }}>{meta.label}</h2>
-                      <span style={{ fontSize:12, color:'#94A3B8', marginLeft:4 }}>({(grouped[groupId]||[]).length})</span>
-                      {(grouped[groupId]||[]).length > 6 && (
-                        <button onClick={()=>setActiveCategory(groupId)}
-                          style={{ marginLeft:'auto', fontSize:12, fontWeight:600, color:'#00B67A', background:'none', border:'none', cursor:'pointer' }}>
-                          See all {(grouped[groupId]||[]).length} →
-                        </button>
-                      )}
+                  <div key={groupId} style={{ marginBottom:44 }}>
+                    {/* Section header */}
+                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16, paddingBottom:12, borderBottom:'2px solid #F1F5F9' }}>
+                      <span style={{ fontSize:22 }}>{(meta as any).icon}</span>
+                      <h2 style={{ fontSize:17, fontWeight:800, color:'#0F172A', letterSpacing:'.01em' }}>{(meta as any).label}</h2>
+                      <span style={{ fontSize:12, color:'#94A3B8', marginLeft:4 }}>({allInGroup.length})</span>
+                      <a href={`/?category=${groupId}`}
+                        style={{ marginLeft:'auto', fontSize:12, fontWeight:700, color:'#00B67A', textDecoration:'none',
+                          padding:'5px 12px', border:'1px solid #00B67A33', borderRadius:6,
+                          background:'#00B67A0A', display:'flex', alignItems:'center', gap:4 }}>
+                        See all {allInGroup.length} <span>→</span>
+                      </a>
                     </div>
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }} className="grid3">
+                    {/* 4-column grid on desktop */}
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }} className="grid4">
                       {groupCos.map((co:any) => (
                         <CompanyCard key={co.id} company={co}
                           reviewCount={co.review_count||reviewStats[co.slug]?.count||0}
