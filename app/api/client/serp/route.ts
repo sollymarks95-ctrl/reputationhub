@@ -3,68 +3,98 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-const PORTALS = [
+const OUR_PORTALS = [
   'nex-wire.com','finvexx.com','bizplezx.com','aurexhq.com','verivex.co',
-  'invexhuby.com','signalixx.com','execvex.com','cryptoxos.com'
+  'invexhuby.com','signalixx.com','execvex.com','cryptoxos.com',
 ]
 
 export async function POST(req: NextRequest) {
   try {
     const { keyword } = await req.json()
-    if (!keyword) return NextResponse.json({ error: 'keyword required' }, { status: 400 })
-
-    const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
-    const prompt = `Search Google for: "${keyword}"
-Return the top 10 search results as JSON array with this exact format:
-[{"position":1,"title":"...","url":"...","domain":"...","snippet":"..."}]
-Only return the JSON array, nothing else.`
+    if (!keyword?.trim()) return NextResponse.json({ error: 'keyword required' }, { status: 400 })
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{
+          role: 'user',
+          content: `Search Google for: "${keyword}"
+
+Return ONLY a JSON array of the top 10 results. No preamble, no explanation, just the array:
+[
+  {"position":1,"title":"page title","url":"https://full-url.com/path","domain":"example.com","snippet":"brief description"},
+  ...
+]`,
+        }],
       }),
-      signal: AbortSignal.timeout(50000),
+      signal: AbortSignal.timeout(55000),
     })
 
     if (!res.ok) {
-      const err = await res.text()
-      return NextResponse.json({ error: err }, { status: 500 })
+      const errText = await res.text()
+      console.error('SERP API error:', res.status, errText.slice(0, 300))
+      return NextResponse.json({ error: `Search API error (${res.status}). Try again.` }, { status: 500 })
     }
 
     const data = await res.json()
-    // Extract text content from response
-    const text = (data.content || [])
-      .filter((b: any) => b.type === 'text')
-      .map((b: any) => b.text)
-      .join('')
 
-    // Parse JSON from response
-    const match = text.match(/\[[\s\S]*\]/)
-    if (!match) {
-      return NextResponse.json({ results: [], keyword, error: 'no_results' })
+    // Collect all text from content blocks
+    const allText = (data.content || [])
+      .filter((b: any) => b.type === 'text')
+      .map((b: any) => b.text as string)
+      .join('\n')
+
+    // Extract JSON array
+    const jsonMatch = allText.match(/\[\s*\{[\s\S]*?\}\s*\]/)
+    if (!jsonMatch) {
+      console.error('No JSON array found in SERP response:', allText.slice(0, 400))
+      return NextResponse.json({
+        results: [],
+        keyword,
+        error: 'Search returned no structured results. Try a more specific keyword.',
+        hint: allText.slice(0, 200),
+      })
     }
 
-    const results = JSON.parse(match[0])
+    let results: any[] = []
+    try {
+      results = JSON.parse(jsonMatch[0])
+    } catch {
+      return NextResponse.json({ results: [], keyword, error: 'Could not parse search results.' })
+    }
 
-    // Flag our portals
-    const enriched = results.map((r: any) => ({
-      ...r,
-      isOurs: PORTALS.some(p => (r.url || '').includes(p) || (r.domain || '').includes(p)),
-    }))
+    const enriched = results.slice(0, 10).map((r: any, i: number) => {
+      let domain = (r.domain || '').toLowerCase().replace(/^www\./, '')
+      if (!domain && r.url) {
+        try { domain = new URL(r.url).hostname.replace(/^www\./, '') } catch {}
+      }
+      return {
+        position: r.position ?? (i + 1),
+        title: r.title || '',
+        url: r.url || '',
+        domain,
+        snippet: r.snippet || '',
+        isOurs: OUR_PORTALS.some(p => r.url?.includes(p) || domain.includes(p)),
+      }
+    })
 
-    // Find what competitors we're pushing down
-    const competitors = enriched
-      .filter((r: any) => !r.isOurs)
-      .slice(0, 5)
-      .map((r: any) => ({ position: r.position, domain: r.domain || new URL(r.url || 'https://x.com').hostname }))
-
-    return NextResponse.json({ results: enriched, keyword, competitors, checkedAt: new Date().toISOString() })
+    return NextResponse.json({
+      results: enriched,
+      keyword,
+      ourPortals: enriched.filter(r => r.isOurs),
+      competitors: enriched.filter(r => !r.isOurs).slice(0, 5).map(r => ({ position: r.position, domain: r.domain })),
+      checkedAt: new Date().toISOString(),
+    })
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('SERP route error:', e)
+    return NextResponse.json({ error: e.message || 'Unknown error' }, { status: 500 })
   }
 }

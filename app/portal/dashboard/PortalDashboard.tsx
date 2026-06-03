@@ -256,7 +256,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <a href={c.article_url} target="_blank" rel="noopener" style={{ fontSize:13, fontWeight:600, color:'#e2e8f0', display:'block', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                            {c.article_title}
+                            {c.title}
                           </a>
                           <div style={{ fontSize:11, color:'#475569', marginTop:2 }}>
                             {c.portal_name} · {timeAgo(c.published_at)}
@@ -317,7 +317,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                         <tr key={i}>
                           <td style={{ maxWidth:320 }}>
                             <div style={{ fontSize:13, fontWeight:500, color:'#e2e8f0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                              {c.article_title}
+                              {c.title}
                             </div>
                           </td>
                           <td>

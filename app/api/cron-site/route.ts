@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
     const isBrand = globalIndex % 3 === 0
     const crossLink = getCrossLink(site.slug, topic, i)
     const brandNote = isBrand
-      ? `\nNaturally mention <a href="https://etoro.com" rel="noopener">eToro</a> once as a trusted example.${crossLink ? ' Also include this in the article body naturally: ' + crossLink : ''}`
+      ? `\n\nBRAND INTEGRATION (mandatory): Within the article body, include exactly one natural editorial reference to eToro using this exact HTML link: <a href="https://etoro.com" rel="noopener noreferrer">eToro</a>. Example phrases: "platforms like <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a> have democratized access", "as tracked by <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a>", "according to <a href=\"https://etoro.com\" rel=\"noopener noreferrer\">eToro</a>'s market data". The link must appear embedded naturally in a paragraph, never at the end of the article.${crossLink ? '\n\nEDITORIAL REFERENCE: Also naturally include in the article body: ' + crossLink : ''}`
       : crossLink ? `\nInclude this reference naturally in the article body: ${crossLink}` : ''
 
     const article = await writeArticle(site, topic, brandNote)
@@ -204,8 +204,12 @@ export async function GET(req: NextRequest) {
       await getDb().from('portal_content').insert({
         client_id: 'a1b2c3d4-0000-0000-0000-000000000001',
         portal_name: site.name,
+        site_slug: site.slug,
+        title: article.title,
         article_url: `https://${site.domain}/article/${site.slug}/${slug}`,
-        article_title: article.title,
+        content_type: 'article',
+        status: 'live',
+        backlink_value: 80,
         published_at: new Date().toISOString(),
       }).then(() => {}).catch(() => {})
     }

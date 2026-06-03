@@ -32,14 +32,14 @@ export async function GET(req: NextRequest) {
 
     // Article views from news_articles (client brand articles)
     db().from('portal_content')
-      .select('portal_name, article_title, article_url, published_at, news_articles(views, slug)')
+      .select('portal_name, title, article_url, published_at, news_article_id')
       .eq('client_id', 'a1b2c3d4-0000-0000-0000-000000000001')
       .order('published_at', { ascending: false })
       .limit(200),
 
     // Recent articles
     db().from('portal_content')
-      .select('portal_name, article_title, article_url, published_at')
+      .select('portal_name, title, article_url, published_at')
       .eq('client_id', 'a1b2c3d4-0000-0000-0000-000000000001')
       .order('published_at', { ascending: false })
       .limit(10),
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
   // Article views total
   const totalArticleViews = av.reduce((s: number, a: any) => s + (a.news_articles?.views || 0), 0)
   const topArticles = av
-    .map((a: any) => ({ title: a.article_title, url: a.article_url, portal: a.portal_name, views: a.news_articles?.views || 0, date: a.published_at }))
+    .map((a: any) => ({ title: a.title, url: a.article_url, portal: a.portal_name, views: 0, date: a.published_at }))
     .sort((x: any, y: any) => y.views - x.views)
     .slice(0, 20)
 
