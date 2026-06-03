@@ -190,12 +190,9 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
       {/* GEO schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />
 
-      {/* Editorial independence disclaimer */}
-      <div style={{ background:'#F0FDF4', borderBottom:'1px solid #BBF7D0', padding:'10px 20px', display:'flex', alignItems:'center', justifyContent:'center', gap:10, flexWrap:'wrap' }}>
-        <span style={{ fontSize:12, color:'#15803D', fontWeight:600 }}>📋 Editorial Independence Notice:</span>
-        <span style={{ fontSize:12, color:'#166534', lineHeight:1.5 }}>
-          Verivex is an independent review platform. We are not affiliated with, paid by, or endorsed by any broker listed here — including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
-        </span>
+      {/* Editorial independence — one line */}
+      <div style={{ background:'#F0FDF4', borderBottom:'1px solid #BBF7D0', padding:'8px 20px', textAlign:'center', fontSize:12, color:'#166534' }}>
+        Verivex is fully independent — we are not affiliated with, paid by, or endorsed by any broker listed on this site.
       </div>
 
       <style>{`
