@@ -16,13 +16,10 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      <div id="ei-banner" style={{background:'#064E3B',padding:'9px 16px',textAlign:'center',color:'#fff',fontSize:'13px',fontWeight:500,lineHeight:'1.5',display:'block',width:'100%',boxSizing:'border-box'}}>
-        📋 <strong>Editorial Independence:</strong> Verivex is not affiliated with, paid by, or endorsed by any broker — including eToro. All reviews are independent.
-      </div>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        #ei-banner{padding:9px 16px!important;display:block!important} a{text-decoration:none;color:inherit}
+        *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
         .syne{font-family:'Syne',sans-serif}
         @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes float{0%,100%{transform:translateY(0) rotateY(-5deg)}50%{transform:translateY(-18px) rotateY(-3deg)}}
@@ -84,7 +81,11 @@ export default function HomePage() {
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, padding:'14px 0', background:'rgba(11,15,25,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
+        <div style={{background:'#064E3B',padding:'6px 16px',textAlign:'center',color:'#fff',fontSize:'12px',lineHeight:1.4}}>
+          📋 <strong>Editorial Independence:</strong> Verivex is not affiliated with, paid by, or endorsed by any broker — including eToro.
+        </div>
+        <div style={{padding:'12px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
             <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
@@ -108,10 +109,11 @@ export default function HomePage() {
             </a>
           </div>
         </div>
+        </div>
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'140px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
@@ -187,7 +189,7 @@ export default function HomePage() {
         <div style={{ position:'absolute', left:0, top:0, bottom:0, width:180, background:'linear-gradient(90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ position:'absolute', right:0, top:0, bottom:0, width:180, background:'linear-gradient(-90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ textAlign:'center', marginBottom:26 }}>
-          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Broker-Authored Content Published Across Our <strong style={{color:'#F1F5F9'}}>9 Active Financial Portals</strong></h2>
+          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Broker-Authored Content Published Across Our <strong style={{color:'#F1F5F9'}}>300+ Financial Portals</strong></h2>
           <p style={{ fontSize:13, color:'#475569', marginTop:6 }}>Your broker's articles, CEO interviews &amp; market analysis published daily — real content that pushes negatives down and builds genuine industry authority</p>
         </div>
         <div style={{ overflow:'hidden' }}>
@@ -448,7 +450,7 @@ export default function HomePage() {
             ))}
           </div>
           <div style={{ textAlign:'right' }}>
-            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ color:'#10B981', fontWeight:600, fontSize:13 }}>📱 @rephub_intelligence</a>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ color:'#10B981', fontWeight:600, fontSize:13 }}>📱 @Benrephuby</a>
             <div style={{ fontSize:12, color:'#334155', marginTop:4 }}>© 2025 RepHuby Intelligence Ltd</div>
           </div>
         </div>
