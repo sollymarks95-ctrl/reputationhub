@@ -17,6 +17,51 @@ const CORE_SITES: Record<string, any> = {
   'crypto-hub':         { id:'f54ac054-3574-482c-a3f3-97037b45c759', name:'CryptoXos', shortName:'CryptoXos', author:'Alex Rivera', domain:'cryptoxos.com', topics:['bitcoin price analysis today 2026','ethereum network upgrade analysis 2026','DeFi protocol total value locked 2026','cryptocurrency institutional adoption 2026','bitcoin ETF flows analysis today','altcoin season market analysis 2026','stablecoin market cap analysis 2026','crypto regulation SEC CFTC 2026','blockchain technology enterprise adoption','NFT market recovery 2026 analysis','crypto exchange volume analysis today','Layer 2 scaling solution comparison 2026','Web3 gaming metaverse tokens 2026','crypto venture capital funding 2026','bitcoin mining hashrate profitability','ethereum staking yield analysis 2026','cross-chain bridge security 2026','crypto derivatives options market 2026','CBDC central bank digital currency 2026','tokenization real world assets 2026','crypto market sentiment analysis today','Solana ecosystem development 2026','Avalanche Polygon network growth 2026','decentralized exchange DEX volume 2026','crypto tax regulation compliance 2026','AI crypto token market analysis 2026','meme coin speculation analysis 2026','crypto whale wallet movement 2026','bitcoin halving aftermath analysis 2026','crypto portfolio strategy 2026'] },
 }
 
+// Author pools per portal — rotated randomly so each article has a different byline
+const PORTAL_AUTHORS: Record<string, string[]> = {
+  'global-trade-wire': [
+    'James Hart', 'Sarah Brennan', 'Michael Osei', 'Elena Vasquez', 'Tom Whitfield',
+    'Priya Nair', 'David Kowalski', 'Amara Okonkwo', 'Chris Flanagan', 'Leila Ahmadi',
+  ],
+  'finance-terminal': [
+    'Marcus Webb', 'Julia Hartmann', 'Ryan Chen', 'Fatima Al-Rashid', 'Ben Stafford',
+    'Sophie Leclerc', 'Omar Farouk', 'Natalie Pearce', 'Alex Drummond', 'Ingrid Svensson',
+  ],
+  'business-pulse': [
+    'Daniel Sterling', 'Rachel Kim', 'Patrick O'Brien', 'Aisha Mensah', 'Luke Thornton',
+    'Chloe Martínez', 'Sam Okafor', 'Hannah Fischer', 'Jack Brennan', 'Zara Ahmed',
+  ],
+  'gold-markets-today': [
+    'Richard Stone', 'Victoria Chen', 'Paul Nakamura', 'Clara Russo', 'Oliver Grant',
+    'Mei Lin', 'Stefan Müller', 'Isabella Rossi', 'Noah Clarke', 'Adaora Eze',
+  ],
+  'trust-score': [
+    'Nathan Chen', 'Emma Morrison', 'David Osei', 'Layla Hassan', 'George Patel',
+    'Anastasia Volkov', 'Marcus Johnson', 'Freya Andersen', 'Carlos Rivera', 'Yuki Tanaka',
+  ],
+  'invest-data': [
+    'Michael Torres', 'Sarah Kim', 'James Blackwood', 'Priya Sharma', 'Alex Morgan',
+    'Claudia Becker', 'Ben Adeyemi', 'Nina Kowalska', 'Tom Harrington', 'Sana Sheikh',
+  ],
+  'market-radar': [
+    'Jordan Blake', 'Petra Fischer', 'Callum MacLeod', 'Diana Ivanova', 'Ravi Kumar',
+    'Scarlett Thompson', 'Felix Weber', 'Amira El-Sayed', 'Chris Vaughan', 'Lena Johansson',
+  ],
+  'executive-network': [
+    'Alexander Ross', 'Caroline Hughes', 'William Park', 'Nadia Osman', 'Henry Stafford',
+    'Isabelle Morel', 'David Kamau', 'Emma Lindqvist', 'Marcus Reid', 'Jasmine Patel',
+  ],
+  'crypto-hub': [
+    'Alex Rivera', 'Sam Walsh', 'Mia Nakamura', 'Ethan Blake', 'Zoe Patel',
+    'Connor Murphy', 'Ava Chen', 'Leo Santos', 'Iris Bergström', 'Max Okonkwo',
+  ],
+}
+
+function getAuthor(siteSlug: string): string {
+  const pool = PORTAL_AUTHORS[siteSlug] || ['Editorial Team']
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
 function getDb() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 }
@@ -219,7 +264,7 @@ Never at article end. Never in FAQ section.`
       body: article.body || '',
       category: article.category || 'Markets',
       tags: Array.isArray(article.tags) ? article.tags : [],
-      author_name: site.author,
+      author_name: getAuthor(siteSlug || ''),
       cover_image_url: getArticleImage(article.category || 'Markets', slug),
       status: 'published',
       published_at: new Date().toISOString(),
