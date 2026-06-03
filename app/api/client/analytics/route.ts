@@ -8,83 +8,91 @@ function db() {
   )
 }
 
-const PORTAL_DOMAINS: Record<string, string> = {
-  'global-trade-wire': 'nex-wire.com',
-  'finance-terminal': 'finvexx.com',
-  'business-pulse': 'bizplezx.com',
-  'gold-markets-today': 'aurexhq.com',
-  'trust-score': 'verivex.co',
-  'invest-data': 'invexhuby.com',
-  'market-radar': 'signalixx.com',
-  'executive-network': 'execvex.com',
-  'crypto-hub': 'cryptoxos.com',
-}
+const CLIENT_ID = 'a1b2c3d4-0000-0000-0000-000000000001'
 
 export async function GET(req: NextRequest) {
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const since = new Date(Date.now() - days * 86400000).toISOString()
 
-  const [pageViews, articleViews, recentArticles] = await Promise.all([
-    // Page views by site and day
-    db().from('page_views')
-      .select('site_slug, created_at, device, country, referrer')
-      .gte('created_at', since),
-
-    // Article views from news_articles (client brand articles)
+  const [brandArticles, brandMentions, dofollowLinks, pageViews] = await Promise.all([
+    // Brand articles (portal_content = articles explicitly created for eToro)
     db().from('portal_content')
-      .select('portal_name, title, article_url, published_at, news_article_id')
-      .eq('client_id', 'a1b2c3d4-0000-0000-0000-000000000001')
+      .select('portal_name, site_slug, title, article_url, published_at, status')
+      .eq('client_id', CLIENT_ID)
       .order('published_at', { ascending: false })
       .limit(200),
 
-    // Recent articles
-    db().from('portal_content')
-      .select('portal_name, title, article_url, published_at')
-      .eq('client_id', 'a1b2c3d4-0000-0000-0000-000000000001')
-      .order('published_at', { ascending: false })
-      .limit(10),
+    // Brand mentions: news_articles that mention eToro in body (last 30d)
+    db().from('news_articles')
+      .select('id, title, slug, published_at, news_site_id')
+      .ilike('body', '%etoro%')
+      .gte('published_at', since)
+      .limit(500),
+
+    // Dofollow links: articles with actual <a href> linking to etoro.com
+    db().from('news_articles')
+      .select('id, title, slug, published_at, news_site_id')
+      .ilike('body', '%href%etoro.com%')
+      .gte('published_at', since)
+      .limit(500),
+
+    // Page views (kept for analytics tab detail, not shown in overview)
+    db().from('page_views')
+      .select('site_slug, created_at, device')
+      .gte('created_at', since),
   ])
 
+  const ba = brandArticles.data || []
+  const bm = brandMentions.data || []
+  const dl = dofollowLinks.data || []
   const pv = pageViews.data || []
-  const av = articleViews.data || []
 
-  // Aggregate by day
-  const dailyMap: Record<string, number> = {}
+  // Portals that have brand articles
+  const portalsWithContent = [...new Set(ba.map((a: any) => a.portal_name))].length
+
+  // Brand mentions by portal (from news_articles mentioning eToro)
+  const mentionsByPortal: Record<string, number> = {}
+  bm.forEach((a: any) => {
+    const siteId = a.news_site_id || 'unknown'
+    mentionsByPortal[siteId] = (mentionsByPortal[siteId] || 0) + 1
+  })
+
+  // Daily brand mentions (for chart in analytics tab)
+  const dailyMentions: Record<string, number> = {}
+  bm.forEach((a: any) => {
+    const day = a.published_at?.split('T')[0]
+    if (day) dailyMentions[day] = (dailyMentions[day] || 0) + 1
+  })
+
+  // Page views breakdown for analytics tab (internal use)
+  const dailyPageViews: Record<string, number> = {}
   pv.forEach((v: any) => {
     const day = v.created_at?.split('T')[0]
-    if (day) dailyMap[day] = (dailyMap[day] || 0) + 1
+    if (day) dailyPageViews[day] = (dailyPageViews[day] || 0) + 1
   })
-
-  // By portal
-  const portalMap: Record<string, number> = {}
-  pv.forEach((v: any) => {
-    const s = v.site_slug || 'unknown'
-    portalMap[s] = (portalMap[s] || 0) + 1
-  })
-
-  // Device split
-  const deviceMap: Record<string, number> = {}
-  pv.forEach((v: any) => { deviceMap[v.device || 'desktop'] = (deviceMap[v.device || 'desktop'] || 0) + 1 })
-
-  // Country
-  const countryMap: Record<string, number> = {}
-  pv.forEach((v: any) => { countryMap[v.country || 'Unknown'] = (countryMap[v.country || 'Unknown'] || 0) + 1 })
-
-  // Article views total
-  const totalArticleViews = av.reduce((s: number, a: any) => s + (a.news_articles?.views || 0), 0)
-  const topArticles = av
-    .map((a: any) => ({ title: a.title, url: a.article_url, portal: a.portal_name, views: 0, date: a.published_at }))
-    .sort((x: any, y: any) => y.views - x.views)
-    .slice(0, 20)
 
   return NextResponse.json({
+    // === CLIENT-FACING BRAND METRICS (used in Overview KPIs) ===
+    brandArticles: ba.length,              // articles explicitly created for eToro
+    brandMentions: bm.length,             // total articles mentioning eToro (30d)
+    dofollowLinks: dl.length,             // articles with <a href> to etoro.com (30d)
+    portalsActive: portalsWithContent,    // portals covering eToro
+
+    // === DETAILED DATA (used in Analytics tab) ===
+    topArticles: ba.slice(0, 20).map((a: any) => ({
+      title: a.title,
+      url: a.article_url,
+      portal: a.portal_name,
+      date: a.published_at,
+    })),
+    dailyMentions: Object.entries(dailyMentions)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, count]) => ({ date, count })),
+
+    // === ADMIN-ONLY (page views — not shown in client Overview) ===
     totalPageViews: pv.length,
-    totalArticleViews,
-    topArticles,
-    daily: Object.entries(dailyMap).sort(([a], [b]) => a.localeCompare(b)).map(([date, views]) => ({ date, views })),
-    byPortal: Object.entries(portalMap).map(([slug, views]) => ({ slug, domain: PORTAL_DOMAINS[slug] || slug, views })).sort((a, b) => b.views - a.views),
-    devices: deviceMap,
-    countries: Object.entries(countryMap).sort(([,a],[,b]) => b-a).slice(0, 10).map(([country, views]) => ({ country, views })),
-    recentArticles: recentArticles.data || [],
+    dailyPageViews: Object.entries(dailyPageViews)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, views]) => ({ date, views })),
   })
 }

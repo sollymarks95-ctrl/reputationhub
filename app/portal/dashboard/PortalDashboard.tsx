@@ -145,8 +145,8 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
 
 
   const totalArticles = content.length
-  const totalViews = analytics?.totalArticleViews || 0
-  const totalPageViews = analytics?.totalPageViews || 0
+  const totalViews = 0 // legacy — not shown to client
+  const totalPageViews = 0 // legacy — not shown to client
   const portalsActive = new Set(content.map((c: any) => c.portal_name)).size
   const podcastCount = podcasts.length
   const avgRating = reviews.length ? (reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length).toFixed(1) : '—'
@@ -248,10 +248,10 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
               {/* KPI Grid */}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:28 }}>
                 {[
-                  { label:'Total Article Views', value: fmtNum(totalViews), sub:'across all portals', icon:'👁', color:'#0ea5e9' },
-                  { label:'Page Views (30d)', value: fmtNum(totalPageViews), sub:'real visitors tracked', icon:'📊', color:'#10b981' },
-                  { label:'Articles Published', value: totalArticles, sub:`on ${portalsActive} portals`, icon:'📰', color:'#8b5cf6' },
-                  { label:'Podcasts Created', value: podcastCount, sub:'episodes produced', icon:'🎙', color:'#f59e0b' },
+                  { label:'Brand Mentions (30d)', value: analytics ? fmtNum(analytics.brandMentions || 0) : '—', sub:'articles mentioning eToro', icon:'🎯', color:'#0ea5e9' },
+                  { label:'Dofollow Backlinks', value: analytics ? fmtNum(analytics.dofollowLinks || 0) : '—', sub:'live links to etoro.com', icon:'🔗', color:'#10b981' },
+                  { label:'Articles Published', value: analytics ? fmtNum(analytics.brandArticles || totalArticles) : totalArticles, sub:`across ${analytics?.portalsActive || portalsActive} portals`, icon:'📰', color:'#8b5cf6' },
+                  { label:'Podcasts Created', value: podcastCount, sub:'branded episodes', icon:'🎙', color:'#f59e0b' },
                 ].map(k => (
                   <div key={k.label} className="kpi">
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
@@ -384,8 +384,8 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                   {/* KPIs */}
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:24 }}>
                     {[
-                      { label:'Page Views (30d)', value: fmtNum(analytics.totalPageViews) },
-                      { label:'Article Views', value: fmtNum(analytics.totalArticleViews) },
+                      { label:'Brand Mentions (30d)', value: fmtNum(analytics.brandMentions || 0) },
+                      { label:'Dofollow Links', value: fmtNum(analytics.dofollowLinks || 0) },
                       { label:'Top Country', value: analytics.countries?.[0]?.country || '—' },
                     ].map(k => (
                       <div key={k.label} className="kpi" style={{ padding:'16px 20px' }}>
@@ -452,13 +452,13 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                   {/* Daily chart */}
                   {analytics.daily?.length > 0 && (
                     <div className="card" style={{ marginTop:20 }}>
-                      <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Daily Page Views (30 days)</div>
+                      <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Daily Brand Mentions (30 days)</div>
                       <div style={{ display:'flex', alignItems:'flex-end', gap:3, height:80 }}>
-                        {analytics.daily.slice(-30).map((d: any) => {
-                          const max = Math.max(...analytics.daily.map((x: any) => x.views), 1)
+                        {(analytics.dailyMentions || []).slice(-30).map((d: any) => {
+                          const max = Math.max(...(analytics.dailyMentions || []).map((x: any) => x.count || 0), 1)
                           return (
                             <div key={d.date} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                              <div title={`${d.date}: ${d.views} views`} style={{ width:'100%', height:`${Math.max(4,(d.views/max)*72)}px`, background:p, borderRadius:'2px 2px 0 0', opacity:.8, cursor:'default' }}/>
+                              <div title={`${d.date}: ${d.count} mentions`} style={{ width:'100%', height:`${Math.max(4,(d.count/max)*72)}px`, background:p, borderRadius:'2px 2px 0 0', opacity:.8, cursor:'default' }}/>
                             </div>
                           )
                         })}
