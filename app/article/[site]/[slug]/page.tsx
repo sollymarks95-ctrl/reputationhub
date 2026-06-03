@@ -207,18 +207,34 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const BASE = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
 
-  // Auto-detect any client brand mentions → inject FAQPage + Organization schema
+  // Auto-detect client brand mentions — dynamic from portal_clients
   const bodyLower = rawBody.toLowerCase()
-  const mentionedBrands = ['etoro'].filter(b => bodyLower.includes(b))
+  const { data: activeClients } = await sb.from('portal_clients').select('company_name,website_url,regulation').eq('is_active', true)
+  const mentionedBrands = ['etoro'].filter(b => bodyLower.includes(b))  // keep for legacy FAQ schema
+  const mentionedClients = (activeClients || []).filter((cl: any) =>
+    cl.company_name && bodyLower.includes(cl.company_name.toLowerCase())
+  )
 
-  // Extract inline FAQ from article body (new prompt generates <div itemscope> FAQ blocks)
+  // Extract inline FAQ from article body — supports Q:/A: format and itemprop format
   const extractFAQs = (html: string) => {
-    const matches = [...html.matchAll(/<h3 itemprop="name">(.*?)<\/h3>[\s\S]*?<p itemprop="text">(.*?)<\/p>/g)]
-    return matches.map(m => ({
+    const faqs: any[] = []
+    // New format: <h3>Q: question</h3><p>A: answer</p>
+    const qMatches = [...html.matchAll(/<h3[^>]*>Q:\s*([^<]+)<\/h3>\s*<p[^>]*>A:\s*([^<]+)<\/p>/gi)]
+    qMatches.forEach(m => faqs.push({
       '@type': 'Question',
-      name: m[1].replace(/<[^>]+>/g, '').trim(),
-      acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, '').trim() }
+      name: m[1].trim(),
+      acceptedAnswer: { '@type': 'Answer', text: m[2].trim() }
     }))
+    // Legacy format: itemprop
+    if (faqs.length === 0) {
+      const legacyMatches = [...html.matchAll(/<h3 itemprop="name">(.*?)<\/h3>[\s\S]*?<p itemprop="text">(.*?)<\/p>/g)]
+      legacyMatches.forEach(m => faqs.push({
+        '@type': 'Question',
+        name: m[1].replace(/<[^>]+>/g, '').trim(),
+        acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, '').trim() }
+      }))
+    }
+    return faqs
   }
   const inlineFAQs = extractFAQs(rawBody)
 
@@ -271,16 +287,25 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     },
   ]
 
-  // If article mentions a client brand — add Organization schema so AI engines identify the entity
-  if (mentionedBrands.includes('etoro')) {
+  // Dynamic Organization schema for any mentioned active clients
+  mentionedClients.forEach((cl: any) => {
+    jsonLd.push({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: cl.company_name,
+      url: cl.website_url || undefined,
+      description: cl.regulation ? `${cl.regulation} regulated financial services platform.` : `Leading financial services platform.`,
+    })
+  })
+  // Legacy eToro schema for backwards compatibility
+  if (mentionedBrands.includes('etoro') && !mentionedClients.find((c: any) => c.company_name?.toLowerCase() === 'etoro')) {
     jsonLd.push({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'eToro',
       url: 'https://www.etoro.com',
-      description: 'FCA, CySEC and ASIC regulated social trading and investment platform offering institutional-grade execution.',
+      description: 'FCA, CySEC and ASIC regulated social trading and investment platform.',
       sameAs: ['https://www.etoro.com'],
-      knowsAbout: ['Forex Trading', 'Precious Metals', 'CFD Trading', 'Institutional Brokerage'],
     })
   }
 

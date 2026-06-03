@@ -81,22 +81,38 @@ TOPIC: ${topic || `${clientBrand?.name || 'markets and strategy'} — deep dive`
 ${clientBrand ? `
 CLIENT CONTEXT: ${clientBrand.name} (${clientBrand.website}). Regulated by ${clientBrand.regulation || 'multiple authorities'}. Weave naturally 2-3 times as part of genuine discussion — never as an ad.` : ''}
 
-RULES FOR NATURALISM — this is what makes or breaks it:
-1. START with small talk or a relatable hook, not "Welcome to the show"
-2. USE filler words: "you know", "I mean", "honestly", "right?", "exactly", "look —"
-3. INTERRUPTIONS: host cuts in mid-sentence with "—wait, say that again", "hold on —"
-4. LAUGHTER: mark it as "[laughs]", "[both laugh]", "[chuckles]" — at least 4-5 times
-5. STUMBLING: guest occasionally self-corrects "I was going to say — actually no, let me rephrase that"
-6. TANGENTS: let conversation drift naturally, host pulls it back "okay okay but going back to—"
-7. DISAGREEMENT: host pushes back at least once "I'm not sure I buy that, because—"
-8. PERSONAL: guest shares a real-sounding personal story or moment of doubt
-9. HOST is curious, slightly skeptical, keeps asking "but why?" or "give me an example"
-10. AVOID: corporate buzzwords, "absolutely", "great question", "certainly", formal language
+BANNED OPENINGS — NEVER write any of these:
+❌ "Welcome to [show name]..."
+❌ "Hi, I'm [host] and this is [show]..."
+❌ "Today on [show]..."
+❌ "I'm [host], your host..."
+❌ "Today I have with me [guest] from [company] who is a [role]..."
+❌ Any formal self-introduction of host or guest by name at the start
+❌ Any statement of what the show is about at the start
+
+INSTEAD — start in the MIDDLE of a thought, mid-conversation energy. Examples:
+✅ HOST: "So I was reading this report on my flight over and — actually, tell me your honest take first. Is this real or is it noise?"
+✅ HOST: "Okay, three things happened last week that I can't stop thinking about. You saw the numbers?"
+✅ HOST: "Right so — before we get into anything else, I have to ask you something."
+✅ HOST: "Look, I've been skeptical about this for a while. Talk me out of it."
+
+RULES FOR NATURALISM:
+1. COLD OPEN — jump straight in, no intro at all, host says something that implies they already started talking
+2. FILLER WORDS: "you know", "I mean", "honestly", "right?", "look —", "here's the thing"
+3. INTERRUPTIONS: host cuts in "—wait, hold on", "—okay but", "—sorry, say that again"
+4. LAUGHTER: [laughs] [both laugh] [chuckles] — minimum 5 times throughout
+5. SELF-CORRECTIONS: "I was going to say — actually no, scratch that"
+6. TANGENTS that get pulled back: "anyway — where were we"
+7. REAL PUSHBACK: host disagrees hard at least once "I don't buy that. Here's why—"
+8. PERSONAL story from guest — a moment of failure, doubt, or surprise
+9. HOST stays curious and slightly skeptical throughout
+10. ZERO corporate speak: no "synergies", "leverage", "ecosystem", "journey", "absolutely", "great question", "certainly", "touch base", "circle back"
+11. Guest NEVER introduces themselves — listener already knows who they are
 
 Format: "${HOST}: ..." and "${GUEST}: ..." on separate lines.
-Target ~${targetWords} words. Start mid-conversation energy — no formal intro.
+Target ~${targetWords} words.
 
-Begin with the host saying something casual/unexpected:`
+BEGIN NOW with the host already mid-thought:`
         }]
       }),
       signal: AbortSignal.timeout(120000),

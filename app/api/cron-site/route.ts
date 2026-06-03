@@ -147,13 +147,41 @@ async function writeArticle(site: any, topic: string, brandNote: string) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
-  const prompt = `Write a ${site.name} news article about: ${topic}
-Today: ${today}. 600-800 words. Professional financial journalism tone.
-${brandNote}
-${!isBrandArticle ? 'Write purely editorial financial news. Do NOT mention any specific trading platform, broker, or financial services company by name.' : ''}
+  const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}.
 
-Return ONLY this JSON (no markdown fences):
-{"title":"Article headline here","excerpt":"One sentence summary under 150 chars","body":"<p>Paragraph 1.</p><p>Paragraph 2.</p><h2>Section Header</h2><p>Paragraph 3.</p><p>Paragraph 4.</p><h2>Expert Analysis</h2><p>Paragraph 5.</p><h3>Key Takeaway</h3><p>Paragraph 6.</p>","category":"Markets","tags":["tag1","tag2","tag3"]}`
+TOPIC: ${topic}
+${brandNote}
+${!isBrandArticle ? 'IMPORTANT: Write purely editorial financial news. Do NOT name any specific broker, trading platform or financial services firm. Write about market dynamics, policy, trends only.' : ''}
+
+SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
+- Title: 6-12 words, front-load primary keyword, avoid clickbait
+- Excerpt: one factual sentence under 155 chars with primary keyword early
+- Length: 700-900 words
+- Structure: H2 every 150-200 words, use H3 for sub-points
+- Include at least 2 specific data points, percentages or figures (can be realistic estimates)
+- Include a "Key Takeaways" section with 3 bullet points (use <ul><li> tags)
+- Include a "Frequently Asked Questions" section at end with 2-3 Q&A pairs using <h3>Q: ...</h3><p>A: ...</p>
+- Write declarative, factual statements — avoid "may", "might", "could" where possible
+- Name specific entities: countries, organisations, institutions (not made-up, real ones)
+- First paragraph: answer WHO WHAT WHEN WHERE directly (inverted pyramid style)
+
+Body HTML format:
+<p>Lead paragraph — inverted pyramid, key facts first.</p>
+<h2>Section Title</h2>
+<p>Body paragraph with specific data point.</p>
+<p>Body paragraph with expert context.</p>
+<h2>Section Title</h2>
+<p>Body paragraph.</p>
+<h2>Key Takeaways</h2>
+<ul><li>First key fact or implication</li><li>Second key fact</li><li>Third actionable insight</li></ul>
+<h2>Frequently Asked Questions</h2>
+<h3>Q: [Common question about this topic]</h3>
+<p>A: [Direct, factual answer in 2-3 sentences]</p>
+<h3>Q: [Second common question]</h3>
+<p>A: [Direct, factual answer]</p>
+
+Return ONLY valid JSON, no markdown fences:
+{"title":"Headline here","excerpt":"One factual sentence under 155 chars","body":"<p>...</p>...","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}`
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -163,7 +191,7 @@ Return ONLY this JSON (no markdown fences):
         headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 3000,
+          max_tokens: 4000,
           messages: [
             { role: 'user', content: prompt },
             { role: 'assistant', content: '{"title":"' }
@@ -185,10 +213,10 @@ Return ONLY this JSON (no markdown fences):
         // Fallback: extract title and body via regex
         try {
           const fullText = '{"title":"' + clean
-          const titleM = fullText.match(/"title"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/s)
-          const bodyM = fullText.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-          const catM = fullText.match(/"category"\s*:\s*"([^"]+)"/s)
-          const excM = fullText.match(/"excerpt"\s*:\s*"([^"]+)"/s)
+          const titleM = fullText.match(/"title"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/)
+          const bodyM = fullText.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/)
+          const catM = fullText.match(/"category"\s*:\s*"([^"]+)"/)
+          const excM = fullText.match(/"excerpt"\s*:\s*"([^"]+)"/)
           if (titleM && bodyM) parsed = {
             title: titleM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n').slice(0,200),
             body: bodyM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n'),
