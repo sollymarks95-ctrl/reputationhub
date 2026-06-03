@@ -216,7 +216,20 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
 
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'32px 24px' }}>
 
-        {/* Hero */}
+        {/* Inline Search Bar */}
+      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
+        <input
+          value={search||''} onChange={e=>setSearch(e.target.value)}
+          placeholder="🔍 Search articles by keyword..."
+          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
+        />
+        {(searchQ||'').trim() && <>
+          <button onClick={()=>setSearch('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
+          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+        </>}
+      </div>
+
+      {/* Hero */}
         {!search && activeCategory === 'all' && (
           <div style={{ background:`linear-gradient(135deg,${DARK} 60%,#1e3a2f)`, borderRadius:16, padding:'40px 48px', marginBottom:32, color:'#fff', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:24 }} className="hero-flex">
             <div>
@@ -388,14 +401,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         </div>
         <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
           {/* Cross-portal intelligence network */}
-          <div style={{ borderTop:'1px solid #1e293b', paddingTop:20, marginTop:20 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:10 }}>Our Intelligence Network</div>
-            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-              {[['Nex-Wire','https://nex-wire.com','Global Trade'],['Finvexx','https://finvexx.com','Markets Terminal'],['Bizplezx','https://bizplezx.com','Business Pulse'],['AurexHQ','https://aurexhq.com','Commodities']].map(([n,u,d]) => (
-                <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{ fontSize:11, color:'#64748B', border:'1px solid #1e293b', padding:'4px 12px', borderRadius:6, textDecoration:'none' }}>{n} · {d}</a>
-              ))}
-            </div>
-          </div>
+          
                     {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
             <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
           ))}

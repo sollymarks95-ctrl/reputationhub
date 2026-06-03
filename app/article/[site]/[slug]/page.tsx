@@ -308,7 +308,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       <div style={{ background:'#0f172a', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <span>{formatDate(article.published_at || new Date().toISOString())}</span>
         <div style={{ display:'flex', gap:14 }}>
-          <Link href="/search"><span style={{ cursor:'pointer', color:'#94a3b8' }}>🔍 Search</span></Link>
+          <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#94a3b8', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
           <Link href={homeUrl}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Home</span></Link>
           <Link href={`${homeUrl}?category=Markets`}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Markets</span></Link>
         </div>
@@ -322,9 +322,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               <div style={{ fontWeight:900, fontSize:26, color:p, letterSpacing:'-1px' }}>{site.name}</div>
             </Link>
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <Link href="/search">
-                <div style={{ background:bg, borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:textPrimary }}>🔍 Search</div>
-              </Link>
+              <a href={homeUrl} style={{ background:bg, borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:textPrimary, textDecoration:'none' }}>← Back</a>
               <Link href={homeUrl}>
                 <div style={{ background:p, color:'#fff', borderRadius:5, padding:'6px 16px', fontSize:13, fontWeight:700, fontFamily:'sans-serif', cursor:'pointer' }}>Subscribe Free</div>
               </Link>
@@ -435,7 +433,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               <div style={{ background:bgHeader, padding:'14px 32px', borderTop:'1px solid #f3f4f6', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', fontFamily:'sans-serif', borderRadius:'0 0 4px 4px' }}>
                 <span style={{ fontSize:11, fontWeight:800, color:textMuted, textTransform:'uppercase', letterSpacing:'0.06em' }}>Topics:</span>
                 {article.tags.map((tag: string) => (
-                  <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}>
+                  <Link key={tag} href={`${homeUrl}?q=${encodeURIComponent(tag)}`}>
                     <span style={{ fontSize:12, fontWeight:600, color:p, border:`1px solid ${p}30`, background:`${p}08`, padding:'3px 10px', borderRadius:3, cursor:'pointer' }}>{tag}</span>
                   </Link>
                 ))}
@@ -553,7 +551,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* SEARCH */}
             <div style={{ background:bgHeader, borderRadius:6, padding:16, border:`1px solid ${borderColor}` }}>
               <div style={{ fontWeight:900, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10, fontFamily:'sans-serif' }}>Search</div>
-              <form action="/search" method="GET" style={{ display:'flex', gap:6 }}>
+              <form action={homeUrl} method="GET" style={{ display:'flex', gap:6 }}>
                 <input name="q" placeholder="Search articles..." style={{ flex:1, padding:'8px 10px', border:`1px solid ${borderColor}`, borderRadius:4, fontSize:13, fontFamily:'sans-serif', outline:'none' }} />
                 <button type="submit" style={{ background:p, color:'#fff', border:'none', borderRadius:4, padding:'8px 12px', cursor:'pointer', fontFamily:'sans-serif', fontWeight:700, fontSize:13 }}>→</button>
               </form>

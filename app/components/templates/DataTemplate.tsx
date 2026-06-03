@@ -41,9 +41,12 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
   const tagline = isAurex ? 'Precious Metals & Commodities Intelligence' : 'Trade Standards & Regulatory Intelligence'
 
   // Filter articles by active category if set
-  const filtered = activeCategory
+  const allFiltered = activeCategory
     ? articles.filter((a: any) => a.category === activeCategory)
     : articles
+  const filtered = searchQ.trim()
+    ? allFiltered.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase().includes(searchQ.toLowerCase()))
+    : allFiltered
   const hero = filtered[0]
   const side = filtered.slice(1, 7)
   const table = filtered.slice(7, 20)
@@ -146,7 +149,20 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         <div style={{ maxWidth:1300, margin:'0 auto', padding:'28px 24px' }}>
           {/* Main grid */}
           <div className="data-layout" style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:24, marginBottom:28 }}>
-            {/* Hero article */}
+            {/* Inline Search Bar */}
+      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
+        <input
+          value={searchQ||''} onChange={e=>setSearchQ(e.target.value)}
+          placeholder="🔍 Search articles by keyword..."
+          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
+        />
+        {(searchQ||'').trim() && <>
+          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
+          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+        </>}
+      </div>
+
+      {/* Hero article */}
             <div>
               {hero && (
                 <Link href={`/article/${siteSlug}/${hero.slug}`} className="data-link" style={{ display:'block', background:'#fff', border:'1px solid #E5E0D5', marginBottom:24 }}>
@@ -263,14 +279,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
       </footer>
       {/* Cross-portal network */}
       <div style={{ background:'#0f172a', padding:'16px 20px', borderTop:'1px solid #1e293b' }}>
-        <div style={{ maxWidth:1260, margin:'0 auto' }}>
-          <div style={{ fontSize:10, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:10 }}>Our Intelligence Network</div>
-          <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-            {[['Nex-Wire','https://nex-wire.com','Global Trade'],['Finvexx','https://finvexx.com','Markets Terminal'],['Bizplezx','https://bizplezx.com','Business Pulse'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
-              <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{ fontSize:11, color:'#64748B', border:'1px solid #1e293b', padding:'4px 12px', borderRadius:6, textDecoration:'none' }}>{n} · {d}</a>
-            ))}
-          </div>
-        </div>
+        
       </div>
       <CookieBanner primaryColor={primaryColor || '#B08700'} />
     </div>

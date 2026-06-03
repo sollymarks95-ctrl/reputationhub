@@ -60,7 +60,9 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
 
   const keywords = SEC_FILTER[section] || []
   const filtered = keywords.length ? articles.filter((a:any)=>keywords.some(k=>`${a.title} ${a.category} ${a.excerpt}`.toLowerCase().includes(k))) : articles
-  const visible = filtered.length > 1 ? filtered : articles
+  const [searchQ, setSearchQ] = useState((searchParams?.q as string) || '')
+  const searchFiltered = searchQ.trim() ? articles.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''} ${(a.tags||[]).join(' ')}`.toLowerCase().includes(searchQ.toLowerCase())) : null
+  const visible = searchFiltered || (filtered.length > 1 ? filtered : articles)
 
   const hero=visible[0]; const feat=visible.slice(1,4); const list=visible.slice(4,14)
 
@@ -112,7 +114,20 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
 
       {/* Content */}
       <div style={{maxWidth:1280,margin:'0 auto',padding:'32px 28px'}}>
-        {/* Hero */}
+        {/* Inline Search Bar */}
+      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
+        <input
+          value={searchQ||''} onChange={e=>setSearchQ(e.target.value)}
+          placeholder="🔍 Search articles by keyword..."
+          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
+        />
+        {(searchQ||'').trim() && <>
+          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
+          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+        </>}
+      </div>
+
+      {/* Hero */}
         {hero && (
           <div className="mhero" style={{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:44,marginBottom:44,paddingBottom:36,borderBottom:'1px solid #ddd'}}>
             <div className="mcard">
@@ -181,14 +196,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
           <div style={{borderTop:'1px solid #222',paddingTop:14,fontFamily:'Inter,sans-serif',fontSize:11,display:'flex',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
 
             {/* Cross-portal intelligence network */}
-            <div style={{borderTop:'1px solid #1e293b',paddingTop:16,marginTop:16}}>
-              <div style={{fontSize:10,fontWeight:700,color:'#666',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Our Intelligence Network</div>
-              <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-                {[['Finvexx','https://finvexx.com','Markets'],['Bizplezx','https://bizplezx.com','Business'],['AurexHQ','https://aurexhq.com','Commodities'],['Verivex','https://verivex.co','Trust Reviews']].map(([n,u,d]) => (
-                  <a key={n} href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#666',border:'1px solid #333',padding:'4px 10px',borderRadius:6,textDecoration:'none'}}>{n} · {d}</a>
-                ))}
-              </div>
-            </div>
+            
             <span>© {new Date().getFullYear()} {meta.domain} · All Rights Reserved</span>
             <span style={{color:'#444'}}>Content is editorial and does not constitute financial or business advice. Always consult a professional.</span>
           </div>
