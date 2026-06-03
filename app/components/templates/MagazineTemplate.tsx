@@ -58,11 +58,23 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
   const meta = SITE_META[siteSlug] || {name:site?.name||'Bizplezx',domain:'bizplezx.com',color:'#6741D9',tagline:'Business Intelligence'}
   const p = primaryColor || meta.color
 
-  const keywords = SEC_FILTER[section] || []
-  const filtered = keywords.length ? articles.filter((a:any)=>keywords.some(k=>`${a.title} ${a.category} ${a.excerpt}`.toLowerCase().includes(k))) : articles
   const [searchQ, setSearchQ] = useState((searchParams?.q as string) || '')
-  const searchFiltered = searchQ.trim() ? articles.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''} ${(a.tags||[]).join(' ')}`.toLowerCase().includes(searchQ.toLowerCase())) : null
-  const visible = searchFiltered || (filtered.length > 1 ? filtered : articles)
+
+  // Filter by section: exact category match OR keyword in title
+  const filtered = section === 'All'
+    ? articles
+    : articles.filter((a:any) => {
+        const cat = (a.category || '').toLowerCase().trim()
+        const title = (a.title || '').toLowerCase()
+        const sec = section.toLowerCase()
+        const kws = SEC_FILTER[section] || [sec]
+        return cat === sec || cat.startsWith(sec) || kws.some((k:string) => title.includes(k) || cat.includes(k))
+      })
+
+  // Search overrides section filter
+  const visible = searchQ.trim()
+    ? articles.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase().includes(searchQ.toLowerCase()))
+    : filtered
 
   const hero=visible[0]; const feat=visible.slice(1,4); const list=visible.slice(4,14)
 
@@ -108,7 +120,18 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
           <div style={{fontFamily:'Georgia,serif',fontSize:13,color:'#888',marginTop:5,fontStyle:'italic'}}>{meta.tagline}</div>
         </div>
         <nav className="mnav" style={{display:'flex',justifyContent:'center',flexWrap:'wrap'}}>
-          {SECTIONS.map(s=><button key={s} onClick={()=>setSection(s)} className={section===s?'on':''}>{s}</button>)}
+          {SECTIONS.map(s => {
+          const cnt = s === 'All' ? articles.length : articles.filter((a:any) => {
+            const cat = (a.category||'').toLowerCase().trim()
+            const kws = SEC_FILTER[s] || [s.toLowerCase()]
+            return cat === s.toLowerCase() || kws.some((k:string) => (a.title||'').toLowerCase().includes(k) || cat.includes(k))
+          }).length
+          return (
+            <button key={s} onClick={()=>setSection(s)} className={section===s?'on':''}>
+              {s}{s!=='All' && cnt>0 && <span style={{marginLeft:4,fontSize:9,opacity:.7}}>({cnt})</span>}
+            </button>
+          )
+        })}
         </nav>
       </div>
 

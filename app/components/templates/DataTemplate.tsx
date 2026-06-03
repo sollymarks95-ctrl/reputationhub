@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
 
@@ -40,13 +41,19 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
   const domain = isAurex ? 'aurexhq.com' : 'certivade.com'
   const tagline = isAurex ? 'Precious Metals & Commodities Intelligence' : 'Trade Standards & Regulatory Intelligence'
 
-  // Filter articles by active category if set
-  const allFiltered = activeCategory
-    ? articles.filter((a: any) => a.category === activeCategory)
+  const [searchQ, setSearchQ] = useState((searchParams?.q as string) || '')
+
+  // Filter by category (direct match) OR keyword in title, then by search query
+  const catFiltered = activeCategory
+    ? articles.filter((a: any) => {
+        const cat = (a.category || '').toLowerCase().trim()
+        const acl = activeCategory.toLowerCase()
+        return cat === acl || cat.startsWith(acl)
+      })
     : articles
   const filtered = searchQ.trim()
-    ? allFiltered.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase().includes(searchQ.toLowerCase()))
-    : allFiltered
+    ? articles.filter((a:any) => `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase().includes(searchQ.toLowerCase()))
+    : catFiltered
   const hero = filtered[0]
   const side = filtered.slice(1, 7)
   const table = filtered.slice(7, 20)
@@ -152,13 +159,13 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
             {/* Inline Search Bar */}
       <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
         <input
-          value={searchQ||''} onChange={e=>setSearchQ(e.target.value)}
+          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
           placeholder="🔍 Search articles by keyword..."
           style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
         />
         {(searchQ||'').trim() && <>
           <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+          <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} result{filtered.length!==1?'s':''}</span>
         </>}
       </div>
 

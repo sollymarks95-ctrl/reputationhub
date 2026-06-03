@@ -96,14 +96,24 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
     return () => clearInterval(t)
   }, [])
 
-  // Filter articles by active tab
+  const [searchQ, setSearchQ] = useState(('' as string))
+
+  // Filter by tab: exact category match first, then keyword match in title
   const keywords = NAV_FILTER[activeTab] || []
-  const filtered = keywords.length === 0 ? articles : articles.filter((a: any) => {
-    const text = `${a.title} ${a.category} ${a.excerpt}`.toLowerCase()
-    return keywords.some(k => text.includes(k))
-  })
-  // Fill with all articles if filter returns nothing
-  const visible = filtered.length > 2 ? filtered : articles
+  const filtered = keywords.length === 0
+    ? articles
+    : articles.filter((a: any) => {
+        const cat = (a.category || '').toLowerCase().trim()
+        const title = (a.title || '').toLowerCase()
+        const tab = activeTab.toLowerCase()
+        // Exact category match OR keyword in title
+        return cat === tab || cat.startsWith(tab) || keywords.some(k => title.includes(k) || cat.includes(k))
+      })
+
+  // Search overrides tab filter
+  const visible = searchQ.trim()
+    ? articles.filter((a: any) => `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase().includes(searchQ.toLowerCase()))
+    : filtered
 
   const hero = visible[0]
   const col1 = visible.slice(1, 7)
@@ -210,6 +220,19 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
         {(searchQ||'').trim() && <>
           <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
           <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+        </>}
+      </div>
+
+
+      {/* Search bar */}
+      <div style={{background:'#0a0a0a',borderBottom:'1px solid #1a1a1a',padding:'6px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
+        <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+          placeholder="🔍 Search articles by keyword..."
+          style={{flex:1,maxWidth:380,padding:'6px 12px',background:'#111',border:'1px solid #2a2a2a',color:'#e2e8f0',fontSize:12,outline:'none',borderRadius:2}}
+        />
+        {searchQ.trim() && <>
+          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#64748b',fontWeight:700,fontSize:12}}>✕</button>
+          <span style={{fontSize:11,color:'#475569'}}>{visible.length} result{visible.length!==1?'s':''}</span>
         </>}
       </div>
 
