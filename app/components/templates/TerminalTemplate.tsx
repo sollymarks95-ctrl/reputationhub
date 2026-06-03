@@ -189,6 +189,14 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
             {NAVTABS.map(tab => (
               <button key={tab} className={`nav-tab${activeTab===tab?' on':''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
             ))}
+          <div style={{marginLeft:'auto',display:'flex',alignItems:'center',padding:'0 8px',gap:6,flexShrink:0}}>
+            <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
+              placeholder="🔍 Search…"
+              style={{padding:'4px 10px',background:'#1a1a1a',border:'1px solid #333',color:'#e2e8f0',fontSize:11,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:140}}
+            />
+            {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#666',fontSize:11,fontWeight:700}}>✕</button>}
+          </div>
+          <a href="/podcasts" style={{fontFamily:'IBM Plex Mono,monospace',fontSize:10,fontWeight:700,color:'#F59E0B',letterSpacing:'.08em',padding:'0 12px',display:'flex',alignItems:'center',gap:4,textDecoration:'none',flexShrink:0,borderBottom:'2px solid transparent',height:'100%'}}>🎙 PODCAST</a>
           </nav>
         </div>
       </div>
@@ -210,33 +218,8 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
       <div style={{maxWidth:1400,margin:'0 auto',padding:'20px 24px'}}>
         <div className="term-cols" style={{display:'grid',gridTemplateColumns:'1.6fr 1fr 1fr 1fr',gap:1,background:'#ffffff',marginBottom:20}}>
 
-          {/* Inline Search Bar */}
-      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input
-          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
-          placeholder="🔍 Search articles by keyword..."
-          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
-        />
-        {(searchQ||'').trim() && <>
-          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
-        </>}
-      </div>
-
-
-      {/* Search bar */}
-      <div style={{background:'#0a0a0a',borderBottom:'1px solid #1a1a1a',padding:'6px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
-          placeholder="🔍 Search articles by keyword..."
-          style={{flex:1,maxWidth:380,padding:'6px 12px',background:'#111',border:'1px solid #2a2a2a',color:'#e2e8f0',fontSize:12,outline:'none',borderRadius:2}}
-        />
-        {searchQ.trim() && <>
-          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#64748b',fontWeight:700,fontSize:12}}>✕</button>
-          <span style={{fontSize:11,color:'#475569'}}>{visible.length} result{visible.length!==1?'s':''}</span>
-        </>}
-      </div>
-
-      {/* Hero */}
+          
+            {/* Hero */}
           {hero && (
             <div style={{background:'#f8fafc',padding:22}}>
               <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:9,fontWeight:700,color:accent,letterSpacing:'.1em',marginBottom:10,textTransform:'uppercase'}}>{hero.category} · FEATURED</div>

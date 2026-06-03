@@ -134,25 +134,23 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
             </button>
           )
         })}
-        </nav>
+        
+          <div style={{marginLeft:'auto',display:'flex',alignItems:'center',padding:'0 8px',gap:6,flexShrink:0}}>
+            <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
+              placeholder="🔍 Search…"
+              style={{padding:'5px 10px',border:'1px solid #ddd',fontSize:12,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:150,background:'transparent'}}
+            />
+            {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#aaa',fontSize:12,fontWeight:700}}>✕</button>}
+          </div>
+</nav>
+      <div style={{background:'#fff',borderBottom:'1px solid #eee',padding:'6px 28px',display:'flex',gap:20,alignItems:'center',fontFamily:'Inter,sans-serif'}}>
+        <a href="/podcasts" style={{fontSize:12,fontWeight:700,color:'#6741D9',letterSpacing:'.04em',display:'flex',alignItems:'center',gap:5}}>🎙 Podcast Series</a>
+      </div>
       </div>
 
       {/* Content */}
       <div style={{maxWidth:1280,margin:'0 auto',padding:'32px 28px'}}>
-        {/* Inline Search Bar */}
-      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input
-          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
-          placeholder="🔍 Search articles by keyword..."
-          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
-        />
-        {(searchQ||'').trim() && <>
-          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
-        </>}
-      </div>
-
-      {/* Hero */}
+              {/* Hero */}
         {hero && (
           <div className="mhero" style={{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:44,marginBottom:44,paddingBottom:36,borderBottom:'1px solid #ddd'}}>
             <div className="mcard">

@@ -473,69 +473,82 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
           {/* ═══ PODCASTS ═══ */}
           {tab === 'podcasts' && (
             <div className="fade">
-              <div className="card" style={{ marginBottom:20 }}>
-                <div style={{ fontWeight:700, fontSize:14 }}>
-                  🎙 {podcastCount} Podcast{podcastCount !== 1 ? 's' : ''} Produced
-                </div>
-                <div style={{ fontSize:12, color:'#475569', marginTop:4 }}>
-                  All episodes are published on your portal network. Download MP3 or share the live URL.
+              <div className="card" style={{ marginBottom:20, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:14 }}>🎙 {podcastCount} Episode{podcastCount !== 1 ? 's' : ''} Across {new Set(podcasts.map((p:any)=>p.site_slug)).size} Portals</div>
+                  <div style={{ fontSize:12, color:'#475569', marginTop:4 }}>Each portal hosts its own branded podcast series. Episodes link to the portal's /podcasts page.</div>
                 </div>
               </div>
               {podcasts.length === 0 ? (
                 <div className="card" style={{ textAlign:'center', padding:40, color:'#475569' }}>
-                  No podcasts published yet. Generate one from the Admin panel.
+                  No episodes yet. Episodes are added via the podcast generation tool.
                 </div>
               ) : (
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                  {podcasts.map((pod: any, i: number) => (
-                    <div key={pod.id} className="card" style={{ border:`1px solid rgba(14,165,233,0.15)` }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
-                        <div>
-                          <div style={{ fontWeight:700, fontSize:14, color:'#f1f5f9', marginBottom:4 }}>
-                            {pod.title || `Episode ${i+1}`}
-                          </div>
-                          <div style={{ fontSize:11, color:'#475569' }}>
-                            Hosted by {pod.host_name} · Guest: {pod.guest_name}
-                            {pod.duration_minutes ? ` · ${pod.duration_minutes} min` : ''}
-                          </div>
-                        </div>
-                        <span style={{ fontSize:11, padding:'3px 8px', borderRadius:6, background:'rgba(16,185,129,0.15)', color:'#10b981', fontWeight:600, flexShrink:0 }}>
-                          ✓ Published
+                  {podcasts.map((pod: any, i: number) => {
+                    const portal = PORTALS.find(p => p.slug === pod.site_slug)
+                    const portalDomain = portal?.domain || `${pod.site_slug}.com`
+                    const portalColor = portal?.color || '#0ea5e9'
+                    return (
+                    <div key={pod.id} className="card" style={{ border:`1px solid ${portalColor}22` }}>
+                      {/* Portal badge */}
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:4, background:portalColor+'22', color:portalColor, letterSpacing:'.06em', textTransform:'uppercase' }}>
+                          {pod.show_name || portal?.name || pod.site_slug}
+                        </span>
+                        <span style={{ fontSize:10, padding:'2px 7px', borderRadius:4, background:'rgba(16,185,129,0.15)', color:'#10b981', fontWeight:600 }}>
+                          EP {pod.episode_number || i+1}
                         </span>
                       </div>
 
-                      {/* Audio player */}
-                      {pod.mp3_url && (
-                        <div style={{ marginBottom:12 }}>
-                          <audio controls src={pod.mp3_url} style={{ width:'100%', height:36 }} preload="none">
-                            Your browser does not support audio playback.
-                          </audio>
+                      <div style={{ fontWeight:700, fontSize:14, color:'#f1f5f9', marginBottom:6, lineHeight:1.3 }}>
+                        {pod.title?.length > 70 ? pod.title.slice(0, 70) + '…' : pod.title || `Episode ${i+1}`}
+                      </div>
+
+                      {pod.guest_name && (
+                        <div style={{ fontSize:12, color:'#94a3b8', marginBottom:8 }}>
+                          👤 {pod.guest_name} <span style={{ color:'#475569' }}>· {pod.guest_role}</span>
+                          {pod.duration_minutes ? <span style={{ color:'#475569' }}> · {pod.duration_minutes} min</span> : ''}
                         </div>
                       )}
 
-                      <div style={{ fontSize:11, color:'#475569', marginBottom:12 }}>
-                        Published: {fmtDate(pod.published_at || pod.created_at)}
-                      </div>
+                      {pod.topic && (
+                        <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:12 }}>
+                          {pod.topic.length > 100 ? pod.topic.slice(0, 100) + '…' : pod.topic}
+                        </div>
+                      )}
 
-                      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                        {pod.mp3_url && (
-                          <a href={pod.mp3_url} download={`${pod.title || 'podcast'}.mp3`} target="_blank" rel="noopener">
-                            <button className="btn btn-ghost" style={{ fontSize:11, padding:'6px 12px' }}>
-                              ⬇ Download MP3
-                            </button>
+                      {/* Audio player */}
+                      {(pod.audio_url || pod.mp3_url) && (
+                        <div style={{ marginBottom:12 }}>
+                          <audio controls src={pod.audio_url || pod.mp3_url} style={{ width:'100%', height:32 }} preload="none" />
+                        </div>
+                      )}
+                      {!(pod.audio_url || pod.mp3_url) && (
+                        <div style={{ fontSize:11, color:'#475569', marginBottom:12, display:'flex', alignItems:'center', gap:6, padding:'6px 10px', background:'#1e293b', borderRadius:4 }}>
+                          <span style={{ width:6, height:6, borderRadius:'50%', background:'#f59e0b', display:'inline-block', flexShrink:0 }} />
+                          Audio production in progress
+                        </div>
+                      )}
+
+                      <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:4 }}>
+                        <a href={`https://${portalDomain}/podcasts`} target="_blank" rel="noopener" style={{ textDecoration:'none' }}>
+                          <button className="btn btn-ghost" style={{ fontSize:11, padding:'5px 12px', borderColor: portalColor+'44', color: portalColor }}>
+                            🌐 View on {portal?.name || 'Portal'}
+                          </button>
+                        </a>
+                        {(pod.audio_url || pod.mp3_url) && (
+                          <a href={pod.audio_url || pod.mp3_url} download target="_blank" rel="noopener" style={{ textDecoration:'none' }}>
+                            <button className="btn btn-ghost" style={{ fontSize:11, padding:'5px 12px' }}>⬇ Download</button>
                           </a>
                         )}
-                        {/* Show live portal URLs */}
-                        {PORTALS.filter(port => !pod.news_site_id || true).slice(0,3).map(port => (
-                          <a key={port.slug} href={`https://${port.domain}`} target="_blank" rel="noopener">
-                            <button className="btn btn-ghost" style={{ fontSize:10, padding:'5px 10px' }}>
-                              🌐 {port.name}
-                            </button>
-                          </a>
-                        ))}
+                        <div style={{ fontSize:10, color:'#475569', display:'flex', alignItems:'center', marginLeft:'auto' }}>
+                          {fmtDate(pod.created_at)}
+                        </div>
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>

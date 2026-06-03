@@ -164,19 +164,6 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         <div style={{ maxWidth:1300, margin:'0 auto', padding:'28px 24px' }}>
           {/* Main grid */}
           <div className="data-layout" style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:24, marginBottom:28 }}>
-            {/* Inline Search Bar */}
-      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input
-          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
-          placeholder="🔍 Search articles by keyword..."
-          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
-        />
-        {(searchQ||'').trim() && <>
-          <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} result{filtered.length!==1?'s':''}</span>
-        </>}
-      </div>
-
       {/* Category Filter Bar */}
       <div style={{background:'#fff',borderBottom:'2px solid #e8e0d0',padding:'0 24px',display:'flex',gap:0,overflowX:'auto',fontFamily:"'Inter',sans-serif"}}>
         {AUREX_CATEGORIES.map((cat:string) => {
@@ -191,7 +178,15 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
             </button>
           )
         })}
-      </div>
+          <div style={{marginLeft:'auto',display:'flex',alignItems:'center',padding:'0 8px',gap:6,flexShrink:0}}>
+            <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
+              placeholder="🔍 Search…"
+              style={{padding:'5px 10px',border:'1px solid #ddd',fontSize:12,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:150,background:'transparent'}}
+            />
+            {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#aaa',fontSize:12,fontWeight:700}}>✕</button>}
+          </div>
+      
+        <a href="/podcasts" style={{marginLeft:8,display:'flex',alignItems:'center',gap:5,fontSize:12,fontWeight:700,color:'#B08700',padding:'10px 12px',textDecoration:'none',whiteSpace:'nowrap',flexShrink:0}}>🎙 Podcast</a></div>
 
       {/* Hero article */}
             <div>

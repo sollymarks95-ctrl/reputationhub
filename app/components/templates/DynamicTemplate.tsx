@@ -87,6 +87,7 @@ function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSe
               <div style={{ fontSize:11, color:'#aaa', marginTop:8 }}>{a.author_name}</div>
             </div>
           ))}
+          <a href="/podcasts" style={{marginLeft:'auto',fontSize:11,fontWeight:700,color:'#F59E0B',letterSpacing:'.06em',display:'flex',alignItems:'center',gap:4,flexShrink:0,textDecoration:'none',padding:'2px 4px'}}>🎙 PODCAST</a>
         </div>
       </div>
       <footer style={{ borderTop:`4px solid ${p}`, padding:'16px 24px', textAlign:'center', fontSize:11, color:'#999', marginTop:40 }}>© {new Date().getFullYear()} {site.name}</footer>

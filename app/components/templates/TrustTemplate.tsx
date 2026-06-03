@@ -185,6 +185,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
       <div style={{ background:'linear-gradient(135deg,#004f35,#00B67A)', padding:'10px 24px', display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
         <span style={{ fontSize:13, color:'#fff' }}>📊 <strong>eToro</strong> — 4.5★ · FCA / CySEC / ASIC Regulated · 284,000+ verified reviews</span>
         <a href="/reviews" style={{ background:'#fff', color:GREEN, padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:800 }}>Read Reviews →</a>
+        <a href="/podcasts" style={{ background:'transparent', color:'#fff', padding:'6px 16px', borderRadius:6, fontSize:12, fontWeight:700, border:'1px solid rgba(255,255,255,0.3)' }}>🎙 Podcast</a>
       </div>
 
       {/* Header */}
@@ -215,20 +216,6 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
       </header>
 
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'32px 24px' }}>
-
-        {/* Inline Search Bar */}
-      <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input
-          value={search||''} onChange={(e:any)=>setSearch(e.target.value)}
-          placeholder="🔍 Search articles by keyword..."
-          style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
-        />
-        {(search||'').trim() && <>
-          <button onClick={()=>setSearch('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} result{filtered.length!==1?'s':''}</span>
-        </>}
-      </div>
-
       {/* Hero */}
         {!search && activeCategory === 'all' && (
           <div style={{ background:`linear-gradient(135deg,${DARK} 60%,#1e3a2f)`, borderRadius:16, padding:'40px 48px', marginBottom:32, color:'#fff', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:24 }} className="hero-flex">

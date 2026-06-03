@@ -115,16 +115,6 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
           .wlayout{grid-template-columns:1fr!important}
         }
       `}</style>
-
-      {/* Search bar */}
-      <div style={{background:'#f5f5f5',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
-          placeholder="🔍 Search articles by keyword..." 
-          style={{flex:1,maxWidth:400,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:2}}
-        />
-        {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>}
-        {searchQ && <span style={{fontSize:12,color:'#666'}}>{visible.length} result{visible.length!==1?'s':''}</span>}
-      </div>
       {/* Breaking ticker */}
       <div style={{background:p,color:'#fff',height:32,display:'flex',alignItems:'center',overflow:'hidden'}}>
         <div style={{fontFamily:'Inter,sans-serif',fontSize:10,fontWeight:800,letterSpacing:'.12em',padding:'0 16px',background:'rgba(0,0,0,0.25)',height:'100%',display:'flex',alignItems:'center',flexShrink:0}}>LIVE</div>
@@ -154,10 +144,11 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
             <div style={{fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,background:p,color:'#fff',padding:'3px 10px',borderRadius:2,letterSpacing:'.06em',marginBottom:6,display:'inline-block'}}>● LIVE</div>
             <div style={{fontFamily:'Inter,sans-serif',fontSize:11,color:'#888'}}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
             <div style={{fontFamily:'Inter,sans-serif',fontSize:11,color:'#aaa',marginTop:2}}>{articles.length} stories today</div>
+          <a href="/podcasts" style={{fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,color:p,marginTop:6,display:'inline-flex',alignItems:'center',gap:4,letterSpacing:'.04em'}}>🎙 Podcast</a>
           </div>
         </div>
         {/* Section nav */}
-        <nav className="snav" style={{display:'flex',flexWrap:'wrap',borderBottom:'1px solid #eee'}}>
+        <nav className="snav" style={{display:'flex',flexWrap:'wrap',borderBottom:'1px solid #eee',alignItems:'center'}}>
           {SECTIONS.map(s => {
           const cnt = s === 'All' ? articles.length : articles.filter((a:any) => {
             const cat = (a.category||'').toLowerCase().trim()
@@ -170,6 +161,13 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
             </button>
           )
         })}
+          <div style={{marginLeft:'auto',display:'flex',alignItems:'center',padding:'0 8px',gap:6,flexShrink:0}}>
+            <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
+              placeholder="🔍 Search…"
+              style={{padding:'5px 10px',border:'1px solid #ddd',fontSize:12,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:150,background:'transparent'}}
+            />
+            {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#aaa',fontSize:12,fontWeight:700}}>✕</button>}
+          </div>
         </nav>
       </div>
 
