@@ -252,3 +252,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
+
+export async function GET() {
+  return NextResponse.json({
+    keys: {
+      anthropic: !!process.env.ANTHROPIC_API_KEY,
+      perplexity: !!process.env.PERPLEXITY_API_KEY,
+      openai: !!process.env.OPENAI_API_KEY,
+      gemini: !!process.env.GEMINI_API_KEY,
+    }
+  })
+}
