@@ -1,4 +1,5 @@
 'use client'
+import MobileNav from '@/app/components/MobileNav'
 import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -187,107 +188,95 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
 
   // ── MOBILE LAYOUT ──
   const MobileLayout = () => {
-    const filteredMobile = companies.filter(co => {
+    const filteredMobile = companies.filter((co:any) => {
       if (search && !`${co.name} ${co.description||''}`.toLowerCase().includes(search.toLowerCase())) return false
       if (activeCategory !== 'all' && co.group !== activeCategory) return false
       return true
     })
+    const cats = [['all','All'],['forex','Forex/CFD'],['crypto','Crypto'],['stocks','Stocks'],['fintech','Fintech'],['prop','Prop'],['social','Social']]
     return (
-      <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f4f6f8',minHeight:'100vh'}}>
-        <style>{`
-          .vx-mob-card{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
-          .vx-mob-stars{color:#F59E0B;font-size:13px;letter-spacing:1px}
-          .vx-cats::-webkit-scrollbar{display:none}
-        `}</style>
+      <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f4f6f8',minHeight:'100vh',paddingTop:88}}>
 
-        {/* Header */}
-        <div style={{position:'sticky',top:0,zIndex:100,background:'#fff',boxShadow:'0 1px 8px rgba(0,0,0,0.08)'}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:`3px solid #00B67A`}}>
-            <a href="/" style={{textDecoration:'none'}}>
-              <div style={{fontFamily:"'Inter',sans-serif",fontSize:20,fontWeight:900,letterSpacing:'-0.02em',color:'#191919'}}>Veri<span style={{color:'#00B67A'}}>vex</span></div>
-              <div style={{fontSize:10,color:'#94a3b8'}}>Verified Broker Reviews</div>
-            </a>
-            <a href="/podcasts" style={{fontSize:11,color:'#00B67A',textDecoration:'none',fontWeight:600}}>🎙 Podcast</a>
-          </div>
-          {/* Category scroll */}
-          <div className="vx-cats" style={{display:'flex',overflowX:'auto',padding:'0 12px',borderBottom:'1px solid #eee',scrollbarWidth:'none'}}>
-            {[['all','All'],['forex','Forex'],['crypto','Crypto'],['stocks','Stocks'],['fintech','Fintech'],['prop','Prop']].map(([val,label])=>(
-              <button key={val} onClick={()=>setActiveCategory(val)}
-                style={{padding:'8px 12px',border:'none',background:'none',fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',color:activeCategory===val?'#00B67A':'#94a3b8',borderBottom:`2px solid ${activeCategory===val?'#00B67A':'transparent'}`,flexShrink:0}}>
-                {label}
-              </button>
-            ))}
-          </div>
-          {/* Search */}
-          <div style={{padding:'10px 16px'}}>
-            <input value={search} onChange={(e:any)=>setSearch(e.target.value)} placeholder="🔍 Search brokers..."
-              style={{width:'100%',padding:'9px 14px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:14,fontFamily:'Inter,sans-serif',outline:'none',background:'#f8fafc'}}/>
-          </div>
+        {/* Hamburger nav */}
+        <MobileNav siteName="Verivex" domain="verivex.co" accentColor="#00B67A"
+          sections={cats.map(([,l])=>l)} activeSection={cats.find(([v])=>v===activeCategory)?.[1]||'All'}
+          onSectionChange={(s)=>setActiveCategory(cats.find(([,l])=>l===s)?.[0]||'all')}
+          logoStyle="sans"/>
+
+        {/* Search + filter bar */}
+        <div style={{position:'sticky',top:88,zIndex:90,background:'#fff',borderBottom:'1px solid #e2e8f0',padding:'10px 16px'}}>
+          <input value={search} onChange={(e:any)=>setSearch(e.target.value)} placeholder="🔍 Search brokers & platforms..."
+            style={{width:'100%',padding:'10px 14px',border:'1px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:"'Inter',sans-serif",outline:'none',background:'#f8fafc'}}/>
         </div>
 
-        {/* Disclaimer */}
+        {/* Independence notice */}
         <div style={{background:'#F0FDF4',borderBottom:'1px solid #BBF7D0',padding:'8px 16px',fontSize:11,color:'#166534',textAlign:'center'}}>
-          Verivex is fully independent — not affiliated with any broker.
+          Verivex is fully independent — not affiliated with, paid by, or endorsed by any broker.
         </div>
 
         {/* Broker cards */}
         <div style={{padding:'12px 16px'}}>
           {loading ? (
-            <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8',fontSize:13}}>Loading brokers…</div>
+            <div style={{textAlign:'center',padding:'48px 0',color:'#94a3b8'}}>
+              <div style={{fontSize:24,marginBottom:8}}>⏳</div>
+              <div style={{fontSize:14}}>Loading brokers...</div>
+            </div>
           ) : filteredMobile.length === 0 ? (
-            <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8',fontSize:13}}>No brokers found</div>
+            <div style={{textAlign:'center',padding:'48px 0',color:'#94a3b8'}}>
+              <div style={{fontSize:24,marginBottom:8}}>🔍</div>
+              <div style={{fontSize:14}}>No brokers found</div>
+            </div>
           ) : filteredMobile.map((co:any)=>{
-            const stats = reviewStats[co.slug] || {count:0,avg:0}
-            const rating = stats.avg || co.trust_score || 4.2
-            const ratingNum = typeof rating === 'number' ? rating : parseFloat(rating) || 4.2
+            const stats = reviewStats[co.slug]||{count:0,avg:0}
+            const rating = parseFloat(stats.avg||co.trust_score||4.2)||4.2
             return (
-              <a key={co.id} href={`/reviews/${co.slug}`} className="vx-mob-card" style={{display:'block',textDecoration:'none'}}>
-                <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:10}}>
+              <a key={co.id} href={`/reviews/${co.slug}`}
+                style={{display:'block',background:'#fff',borderRadius:12,padding:'16px',marginBottom:12,textDecoration:'none',boxShadow:'0 1px 8px rgba(0,0,0,0.06)',border:'1px solid #f0f4f8'}}>
+                <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:8}}>
                   {co.logo_url
-                    ? <img src={co.logo_url} alt={co.name} style={{width:44,height:44,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',flexShrink:0}} onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
-                    : <div style={{width:44,height:44,borderRadius:8,background:`#00B67A18`,border:`1px solid #00B67A30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#00B67A',flexShrink:0}}>{}</div>
+                    ? <img src={co.logo_url} alt={co.name} style={{width:44,height:44,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',flexShrink:0,background:'#fff'}} onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
+                    : <div style={{width:44,height:44,borderRadius:8,background:`#00B67A15`,border:`1px solid #00B67A30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:900,color:'#00B67A',flexShrink:0}}>{co.name[0]}</div>
                   }
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:15,fontWeight:800,color:'#191919',marginBottom:2}}>{co.name}</div>
-                    <div style={{fontSize:11,color:'#64748b',marginBottom:4}}>{co.regulation||'Regulated'} · {co.headquarters||''}</div>
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
-                      <span className="vx-mob-stars">{'★'.repeat(Math.round(ratingNum))}</span>
-                      <span style={{fontSize:13,fontWeight:700,color:'#191919'}}>{ratingNum.toFixed(1)}</span>
-                      {stats.count > 0 && <span style={{fontSize:11,color:'#94a3b8'}}>{stats.count} reviews</span>}
+                    <div style={{fontSize:16,fontWeight:800,color:'#1E293B',marginBottom:2}}>{co.name}</div>
+                    <div style={{fontSize:11,color:'#64748b',marginBottom:6}}>{[co.regulation,co.headquarters].filter(Boolean).join(' · ')}</div>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <span style={{color:'#F59E0B',fontSize:14,letterSpacing:'1px'}}>{'★'.repeat(Math.round(rating))}<span style={{color:'#e2e8f0'}}>{'★'.repeat(5-Math.round(rating))}</span></span>
+                      <span style={{fontSize:14,fontWeight:800,color:'#1E293B'}}>{rating.toFixed(1)}</span>
+                      {stats.count>0 && <span style={{fontSize:11,color:'#94a3b8'}}>{stats.count} reviews</span>}
                     </div>
                   </div>
-                  <div style={{fontSize:11,color:'#00B67A',fontWeight:700,flexShrink:0,paddingTop:4}}>Review →</div>
+                  <div style={{fontSize:20,color:'#e2e8f0'}}>›</div>
                 </div>
                 {co.description && (
-                  <div style={{fontSize:12,color:'#64748b',lineHeight:1.5,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{co.description}</div>
+                  <div style={{fontSize:12,color:'#64748b',lineHeight:1.55,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}> {co.description}</div>
                 )}
+                <div style={{marginTop:10,padding:'6px 10px',background:`#00B67A08`,borderRadius:6,fontSize:11,color:'#00B67A',fontWeight:700,display:'inline-block'}}>Read Review →</div>
               </a>
             )
           })}
         </div>
 
-        {/* Articles on mobile */}
-        {articles.length > 0 && (
+        {/* Articles */}
+        {articles.length>0 && (
           <div style={{padding:'0 16px 16px'}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:'.1em',color:'#94a3b8',marginBottom:10,paddingTop:8,borderTop:'1px solid #e2e8f0'}}>LATEST REVIEWS & ANALYSIS</div>
-            {articles.slice(0,6).map((a:any,i:number)=>(
-              <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
-                style={{display:'flex',gap:10,marginBottom:12,paddingBottom:12,borderBottom:'1px solid #f0f0f0',textDecoration:'none'}}>
+            <div style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',color:'#94a3b8',marginBottom:10,paddingTop:8,borderTop:'1px solid #e2e8f0',textTransform:'uppercase'}}>Analysis & Reviews</div>
+            {articles.slice(0,8).map((a:any)=>(
+              <a key={a.id} href={`/article/${siteSlug}/${a.slug}`} style={{display:'flex',gap:10,marginBottom:12,paddingBottom:12,borderBottom:'1px solid #f0f4f8',textDecoration:'none'}}>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:9,fontWeight:800,letterSpacing:'.08em',color:'#00B67A',marginBottom:3,textTransform:'uppercase'}}>{a.category||'Review'}</div>
-                  <div style={{fontSize:14,fontWeight:700,color:'#191919',lineHeight:1.3,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#1E293B',lineHeight:1.3,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
                 </div>
               </a>
             ))}
           </div>
         )}
 
-        {/* Footer */}
         <div style={{background:'#1e293b',color:'#475569',padding:'20px 16px'}}>
           <div style={{fontSize:16,fontWeight:900,color:'#fff',marginBottom:4}}>Verivex</div>
           <div style={{fontSize:11,lineHeight:1.6,marginBottom:12}}>Independent broker reviews. Not financial advice.</div>
           <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:8}}>
-            {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#475569',fontSize:11,textDecoration:'none'}}>{}</a>))}
+            {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#475569',fontSize:11,textDecoration:'none'}}> {l}</a>))}
           </div>
           <div style={{fontSize:10,color:'#334155'}}>© {new Date().getFullYear()} verivex.co</div>
         </div>
@@ -295,10 +284,11 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
     )
   }
 
+
   return (
     <>
-      <div className="vx-mobile" style={{display:'block'}}><MobileLayout/></div>
-      <div className="vx-desktop" style={{display:'none'}}>
+      <div className="vx-mobile"><MobileLayout/></div>
+      <div className="vx-desktop">
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', color:DARK, minHeight:'100vh' }}>
       {/* GEO schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />
@@ -320,7 +310,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
           .trust-company-grid{grid-template-columns:1fr!important}
           .grid4{grid-template-columns:1fr 1fr!important}
           .trust-sections{grid-template-columns:1fr!important}
-          .trust-filters{flex-wrap:wrap!important;gap:6px!important}.vx-mobile{display:block}.vx-desktop{display:none}@media(min-width:768px){.vx-mobile{display:none!important}.vx-desktop{display:block!important}}
+          .trust-filters{flex-wrap:wrap!important;gap:6px!important}@media(min-width:768px){}
           .cat-btn{font-size:11px!important;padding:5px 12px!important}
         }
         @media(max-width:480px){

@@ -1,4 +1,5 @@
 'use client'
+import MobileNav from '@/app/components/MobileNav'
 import React, { useState } from 'react'
 
 
@@ -82,67 +83,40 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
 
 
   const MobileLayout = () => (
-    <div style={{fontFamily:'Inter,system-ui,sans-serif',background:'#f9f7f4',minHeight:'100vh'}}>
-      <style>{`
-        .mm-title{font-family:'Georgia',serif;font-weight:800;line-height:1.25;color:#1a1a1a}
-        .mm-cat{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:6px}
-        .mm-snav::-webkit-scrollbar{display:none}
-        .mag-mobile{display:block}.mag-desktop{display:none}
-        @media(min-width:768px){.mag-mobile{display:none!important}.mag-desktop{display:block!important}}
-      `}</style>
-      {/* Header */}
-      <div style={{position:'sticky',top:0,zIndex:100,background:'#fff',borderBottom:'2px solid #1a1a1a',boxShadow:'0 1px 6px rgba(0,0,0,0.08)'}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px'}}>
-          <a href="/" style={{textDecoration:'none'}}>
-            <div style={{fontFamily:'Georgia,serif',fontSize:20,fontWeight:900,letterSpacing:'-0.02em',color:'#1a1a1a'}}>
-              {(site?.name||'BIZPLEZX').slice(0,-1)}<span style={{color:primaryColor||'#6741D9'}}>{(site?.name||'BIZPLEZX').slice(-1)}</span>
-            </div>
-          </a>
-          <a href="/podcasts" style={{fontSize:12,color:primaryColor||'#6741D9',textDecoration:'none',fontWeight:600}}>🎙 Podcast</a>
-        </div>
-        <div className="mm-snav" style={{display:'flex',overflowX:'auto',scrollbarWidth:'none',borderTop:'1px solid #f0ebe3'}}>
-          {['All','Strategy','Leadership','Innovation','Finance'].map(s=>(
-            <button key={s} style={{padding:'8px 14px',border:'none',background:'none',color:'#888',fontSize:11,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',letterSpacing:'.04em',flexShrink:0,borderBottom:'2px solid transparent'}}>
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{padding:'16px'}}>
-        {/* Hero */}
+    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#FAFAF8',minHeight:'100vh',paddingTop:88}}>
+      <MobileNav siteName={site?.name||'Bizplezx'} domain="bizplezx.com" accentColor={primaryColor||'#6741D9'}
+        sections={['All','Strategy','Leadership','Innovation','Finance']} activeSection="All" onSectionChange={()=>{}}
+        logoStyle="serif"/>
+      <div style={{padding:'0 16px 32px'}}>
         {articles[0] && (
-          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',marginBottom:24,paddingBottom:24,borderBottom:'1px solid #e8e0d6'}}>
+          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',paddingBottom:20,marginBottom:20,marginTop:16,borderBottom:'2px solid #1a1a1a'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=70&fm=jpg`}
-              alt={articles[0].title} style={{width:'100%',height:200,objectFit:'cover',borderRadius:4,marginBottom:14}}
+              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=700&q=75`}
+              alt={articles[0].title} style={{width:'100%',height:210,objectFit:'cover',borderRadius:6,marginBottom:14}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
-            <span className="mm-cat" style={{color:primaryColor||'#6741D9'}}>{articles[0].category||'Strategy'}</span>
-            <div className="mm-title" style={{fontSize:22,marginBottom:8}}>{articles[0].title}</div>
-            <div style={{fontSize:14,color:'#666',lineHeight:1.7,marginBottom:8}}>{(articles[0].excerpt||'').slice(0,150)}…</div>
-            <div style={{fontSize:11,color:'#999'}}>{articles[0].author_name||'Editorial'} · {articles[0].read_time_minutes||5} min</div>
+            <span style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:primaryColor||'#6741D9',display:'block',marginBottom:8}}>{articles[0].category||'Strategy'}</span>
+            <div style={{fontFamily:"'Georgia',serif",fontSize:22,fontWeight:800,lineHeight:1.25,color:'#1a1a1a',marginBottom:8}}>{articles[0].title}</div>
+            <div style={{fontSize:14,color:'#555',lineHeight:1.7,marginBottom:8}}>{(articles[0].excerpt||'').slice(0,150)}…</div>
+            <div style={{fontSize:11,color:'#999'}}>{articles[0].author_name||'Staff'} · {articles[0].read_time_minutes||5} min read</div>
           </a>
         )}
-
-        {/* List */}
-        {articles.slice(1,20).map((a:any,i:number)=>(
+        {articles.slice(1,25).map((a:any,i:number)=>(
           <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
-            style={{display:'flex',gap:12,marginBottom:20,paddingBottom:20,borderBottom:'1px solid #ede8e0',textDecoration:'none',alignItems:'flex-start'}}>
+            style={{display:'flex',gap:12,paddingBottom:18,marginBottom:18,borderBottom:'1px solid #ede8e0',textDecoration:'none',alignItems:'flex-start'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={a.cover_image_url||`https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=60&fm=jpg`}
-              alt={a.title} style={{width:88,height:66,objectFit:'cover',borderRadius:3,flexShrink:0}}
+              src={a.cover_image_url||`https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=60`}
+              alt={a.title} style={{width:90,height:68,objectFit:'cover',borderRadius:4,flexShrink:0}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
             <div style={{flex:1,minWidth:0}}>
-              <span className="mm-cat" style={{color:primaryColor||'#6741D9'}}>{a.category||'Business'}</span>
-              <div className="mm-title" style={{fontSize:15,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:primaryColor||'#6741D9',display:'block',marginBottom:4}}>{a.category||'Business'}</span>
+              <div style={{fontFamily:"'Georgia',serif",fontSize:15,fontWeight:700,lineHeight:1.3,color:'#1a1a1a',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
               <div style={{fontSize:11,color:'#999',marginTop:4}}>{a.author_name||'Staff'} · {a.read_time_minutes||4} min</div>
             </div>
           </a>
         ))}
       </div>
-
       <div style={{background:'#1a1a1a',color:'#888',padding:'20px 16px'}}>
-        <div style={{fontFamily:'Georgia,serif',fontSize:16,fontWeight:900,color:'#fff',marginBottom:6}}>{site?.name||'Bizplezx'}</div>
+        <div style={{fontFamily:"'Georgia',serif",fontSize:16,fontWeight:900,color:'#fff',marginBottom:6}}>{site?.name||'Bizplezx'}</div>
         <div style={{fontSize:11,lineHeight:1.6,marginBottom:12}}>Business strategy and leadership intelligence.</div>
         <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:8}}>
           {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#888',fontSize:11,textDecoration:'none'}}>{l}</a>))}
@@ -152,12 +126,14 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
     </div>
   )
 
+
+
   return (
     <>
-      <div className="mag-mobile" style={{display:'block'}}>
+      <div className="mag-mobile">
         <MobileLayout/>
       </div>
-      <div className="mag-desktop" style={{display:'none'}}>
+      <div className="mag-desktop">
     <div style={{fontFamily:'Georgia,serif',background:'#FAFAF8',color:'#1A1A1A',minHeight:'100vh'}}>
 
             <style>{`

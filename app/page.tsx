@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import Link from 'next/link'
 
 const PORTALS = [
@@ -14,6 +15,7 @@ const PORTALS = [
 ]
 
 export default function HomePage() {
+  const [menuOpen, setMenuOpen] = React.useState(false)
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
       <style>{`
@@ -73,6 +75,9 @@ export default function HomePage() {
         /* ── MOBILE 640px ── */
         @media(max-width:640px){
           .nav-hide-mobile{display:none!important}
+          .ham-btn{display:flex!important}
+          .nl{display:none!important}
+          .btn-blue{font-size:12px!important;padding:8px 14px!important}
           .hg{gap:24px!important}
           .fg{grid-template-columns:1fr 1fr!important;gap:10px!important}
           .pg{grid-template-columns:1fr!important}
@@ -112,34 +117,75 @@ export default function HomePage() {
         }
       `}</style>
 
-      {/* NAV */}
-      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
-        <div style={{padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
-        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 16px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
+      {/* NAV — desktop + mobile hamburger */}
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.96)', backdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 20px', display:'flex', alignItems:'center', justifyContent:'space-between', height:56, gap:8 }}>
+          
+          {/* Hamburger — mobile only */}
+          <button className="ham-btn" onClick={()=>setMenuOpen(!menuOpen)}
+            style={{ background:'none', border:'none', cursor:'pointer', padding:'8px 6px', display:'none', flexDirection:'column', gap:4.5, flexShrink:0 }}
+            aria-label="Menu">
+            <span style={{ display:'block', width:22, height:2, background:'#F1F5F9', borderRadius:1, transition:'all .2s' }}/>
+            <span style={{ display:'block', width:16, height:2, background:'#F1F5F9', borderRadius:1 }}/>
+            <span style={{ display:'block', width:22, height:2, background:'#F1F5F9', borderRadius:1 }}/>
+          </button>
+
           <Link href="/">
-            <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
+            <div className="syne" style={{ fontSize:22, fontWeight:900, letterSpacing:'-0.03em', flexShrink:0 }}>
               Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Huby</span>
             </div>
           </Link>
-          <div className="nl" style={{ display:'flex', gap:4 }}>
-            {[['#portals','Network'],['#features','Platform'],['#dashboard','Dashboard'],['#pricing','Pricing'],['#proof','Results']].map(([h,l]) => (
+          
+          {/* Desktop nav links */}
+          <div className="nl" style={{ display:'flex', gap:2, flex:1, justifyContent:'center' }}>
+            {[['#portals','Network'],['#features','Platform'],['#pricing','Pricing'],['#proof','Results']].map(([h,l]) => (
               <a key={h} href={h} className="nav-link">{l}</a>
             ))}
           </div>
-          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost nav-hide-mobile" style={{ padding:'9px 18px', fontSize:14 }}>
-              Contact Us
+
+          {/* Desktop CTA buttons */}
+          <div style={{ display:'flex', gap:8, alignItems:'center', flexShrink:0 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost nav-hide-mobile" style={{ padding:'8px 16px', fontSize:13 }}>
+              Contact
             </a>
-            <Link href="/portal" className="btn btn-login nav-hide-mobile" style={{ padding:'9px 18px', fontSize:14 }}>
-              Client Login
+            <Link href="/portal" className="btn btn-login nav-hide-mobile" style={{ padding:'8px 16px', fontSize:13 }}>
+              Login
             </Link>
-            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 16px', fontSize:13 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'8px 18px', fontSize:13 }}>
               Get My Plan
             </a>
           </div>
         </div>
-        </div>
       </nav>
+
+      {/* Mobile drawer menu */}
+      {menuOpen && (
+        <div style={{ position:'fixed', inset:0, zIndex:999, background:'rgba(0,0,0,0.6)' }} onClick={()=>setMenuOpen(false)}>
+          <div onClick={e=>e.stopPropagation()}
+            style={{ position:'absolute', top:0, left:0, bottom:0, width:'80%', maxWidth:300, background:'#0F172A', display:'flex', flexDirection:'column', boxShadow:'4px 0 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+              <div className="syne" style={{ fontSize:18, fontWeight:900, color:'#F1F5F9' }}>Rep<span style={{ color:'#10B981' }}>Huby</span></div>
+              <button onClick={()=>setMenuOpen(false)} style={{ background:'none', border:'none', color:'#64748b', fontSize:24, cursor:'pointer', lineHeight:1 }}>✕</button>
+            </div>
+            <div style={{ flex:1, overflowY:'auto', padding:'12px 0' }}>
+              {[['#portals','🌐 Network'],['#features','⚡ Platform'],['#pricing','💰 Pricing'],['#proof','📈 Results'],['#dashboard','📊 Dashboard']].map(([h,l])=>(
+                <a key={h} href={h} onClick={()=>setMenuOpen(false)}
+                  style={{ display:'block', padding:'14px 20px', color:'#E2E8F0', textDecoration:'none', fontSize:15, fontWeight:600, borderLeft:'3px solid transparent', transition:'all .15s' }}>
+                  {l}
+                </a>
+              ))}
+              <div style={{ height:1, background:'rgba(255,255,255,0.07)', margin:'8px 20px' }}/>
+              <a href="/portal" style={{ display:'block', padding:'14px 20px', color:'#64748b', textDecoration:'none', fontSize:14 }}>Client Login</a>
+            </div>
+            <div style={{ padding:'16px 20px', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+              <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer"
+                style={{ display:'block', padding:'14px', background:'linear-gradient(135deg,#10B981,#059669)', borderRadius:10, color:'#fff', textAlign:'center', fontWeight:700, fontSize:15, textDecoration:'none' }}>
+                Get My Plan →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* HERO */}
       <section className="hero-sec" style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
@@ -153,7 +199,7 @@ export default function HomePage() {
                 <span className="tag" style={{ background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)', color:'#10B981' }}>🤖 AI-Powered</span>
                 <span className="tag" style={{ background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.3)', color:'#F59E0B' }}>✦ From $5,000/mo</span>
               </div>
-              <h1 className="syne h1s" style={{ fontSize:56, fontWeight:900, lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:22 }} className="h1s">
+              <h1 className="syne h1s" style={{ fontSize:56, fontWeight:900, lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:22 }}>
                 We Bury Negative Reviews.{' '}
                 <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Build Real Authority.</span>{' '}
                 <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Own Your Brand Search.</span>
@@ -439,7 +485,7 @@ export default function HomePage() {
           <div className="contact-box" style={{ background:'linear-gradient(135deg,#141B2D,#1C2333)', borderRadius:20, padding:'64px 52px', textAlign:'center', border:'1px solid rgba(14,165,233,0.3)', boxShadow:'0 0 60px rgba(14,165,233,0.15)', position:'relative' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg,transparent,#0EA5E9,#10B981,transparent)' }} />
             <span className="tag" style={{ background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', marginBottom:18, display:'inline-flex' }}>🚨 Only 4 Slots Remaining — June 2025</span>
-            <h2 className="syne h2s" className="syne h2s contact-h" style={{ fontSize:48, fontWeight:900, marginBottom:16, lineHeight:1.05 }}>
+            <h2 className="syne h2s contact-h" style={{ fontSize:48, fontWeight:900, marginBottom:16, lineHeight:1.05 }}>
               Your Brand Is Being{' '}
               <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Searched Right</span>{' '}
               <span style={{ background:'linear-gradient(135deg,#F59E0B,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Now.</span>

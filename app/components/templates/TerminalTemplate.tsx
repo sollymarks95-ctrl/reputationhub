@@ -1,4 +1,5 @@
 'use client'
+import MobileNav from '@/app/components/MobileNav'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -129,76 +130,58 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
   }
 
   const MobileLayout = () => (
-    <div style={{fontFamily:'Inter,system-ui,sans-serif',background:'#f8fafc',minHeight:'100vh'}}>
-      <style>{`
-        .tm2-title{font-size:16px;font-weight:700;color:#1a1a2e;line-height:1.3}
-        .tm2-cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:${accent};display:block;margin-bottom:4px}
-        .tm2-snav::-webkit-scrollbar{display:none}
-      `}</style>
-      <div style={{position:'sticky',top:0,zIndex:100,background:'#1a1a2e',borderBottom:`3px solid ${accent}`}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px'}}>
-          <a href="/" style={{textDecoration:'none'}}>
-            <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:17,fontWeight:700,letterSpacing:'.05em',color:'#fff'}}>{meta.name}<span style={{color:accent}}>_</span></div>
-            <div style={{fontSize:9,color:'rgba(255,255,255,0.3)',fontFamily:'monospace'}}>{meta.domain}</div>
-          </a>
-          <span style={{background:accent,color:'#000',fontSize:9,fontWeight:900,padding:'3px 8px',letterSpacing:'.06em',borderRadius:2}}>LIVE</span>
-        </div>
-        <div className="tm2-snav" style={{display:'flex',overflowX:'auto',scrollbarWidth:'none'}}>
-          {['All','Markets','Forex','Rates','Macro'].map(s=>(
-            <button key={s} style={{padding:'8px 14px',border:'none',background:'none',color:'rgba(255,255,255,0.5)',fontSize:10,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',fontFamily:'monospace',flexShrink:0}}>
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{padding:'16px'}}>
+    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f1f5f9',minHeight:'100vh',paddingTop:88}}>
+      <MobileNav siteName={meta.name} domain={meta.domain} accentColor={accent}
+        sections={['All','Markets','Forex','Rates','Macro','Analysis']} activeSection="All" onSectionChange={()=>{}}
+        logoStyle="mono"/>
+      <div style={{padding:'12px 16px 28px'}}>
         {articles[0] && (
-          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:8,overflow:'hidden',marginBottom:16,boxShadow:'0 1px 8px rgba(0,0,0,0.06)'}}>
+          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:10,overflow:'hidden',marginBottom:16,marginTop:16,boxShadow:'0 2px 12px rgba(0,0,0,0.07)'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70&fm=jpg`}
-              alt={articles[0].title} style={{width:'100%',height:180,objectFit:'cover'}}
+              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&q=75`}
+              alt={articles[0].title} style={{width:'100%',height:200,objectFit:'cover'}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
             <div style={{padding:'14px'}}>
-              <span className="tm2-cat">{articles[0].category||'Markets'}</span>
-              <div className="tm2-title" style={{fontSize:19,marginBottom:6}}>{articles[0].title}</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:accent,display:'block',marginBottom:6}}>{articles[0].category||'Markets'}</span>
+              <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",fontSize:18,fontWeight:700,lineHeight:1.25,color:'#1a1a2e',marginBottom:8}}>{articles[0].title}</div>
               <div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>{(articles[0].excerpt||'').slice(0,130)}…</div>
+              <div style={{fontSize:11,color:'#94a3b8',marginTop:8,fontFamily:'monospace'}}>{new Date(articles[0].published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · {articles[0].read_time_minutes||4} min</div>
             </div>
           </a>
         )}
-
-        <div style={{fontFamily:'monospace',fontSize:9,fontWeight:800,letterSpacing:'.1em',color:'#94a3b8',marginBottom:12}}>LATEST</div>
-        {articles.slice(1,20).map((a:any,i:number)=>(
+        <div style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',color:'#94a3b8',marginBottom:12,fontFamily:'monospace',textTransform:'uppercase'}}>Latest</div>
+        {articles.slice(1,25).map((a:any,i:number)=>(
           <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
-            style={{display:'flex',gap:12,background:'#fff',borderRadius:6,marginBottom:8,overflow:'hidden',textDecoration:'none',boxShadow:'0 1px 4px rgba(0,0,0,0.04)'}}>
+            style={{display:'flex',gap:12,background:'#fff',borderRadius:8,marginBottom:10,overflow:'hidden',textDecoration:'none',boxShadow:'0 1px 6px rgba(0,0,0,0.05)',alignItems:'stretch'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={a.cover_image_url||`https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=200&q=60&fm=jpg`}
-              alt={a.title} style={{width:80,height:68,objectFit:'cover',flexShrink:0}}
+              src={a.cover_image_url||`https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=200&q=60`}
+              alt={a.title} style={{width:88,height:72,objectFit:'cover',flexShrink:0}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
             <div style={{flex:1,padding:'10px 12px 10px 0',minWidth:0}}>
-              <span className="tm2-cat">{a.category}</span>
-              <div className="tm2-title" style={{fontSize:13,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:accent,display:'block',marginBottom:3}}>{a.category||'Markets'}</span>
+              <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:13,fontWeight:600,lineHeight:1.3,color:'#1a1a2e',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <div style={{fontSize:10,color:'#94a3b8',marginTop:4,fontFamily:'monospace'}}>{new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
             </div>
           </a>
         ))}
       </div>
-
       <div style={{background:'#1a1a2e',color:'#475569',padding:'20px 16px'}}>
-        <div style={{fontFamily:'monospace',fontSize:14,fontWeight:700,color:'#fff',marginBottom:4}}>{meta.name}</div>
-        <div style={{fontSize:11,marginBottom:12}}>{meta.desc} · For informational purposes only.</div>
-        <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+        <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:14,fontWeight:700,color:'#fff',marginBottom:4}}>{meta.name}</div>
+        <div style={{fontSize:11,marginBottom:12,lineHeight:1.6}}>{meta.desc} · For informational purposes only.</div>
+        <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:8}}>
           {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#475569',fontSize:11,textDecoration:'none'}}>{l}</a>))}
         </div>
-        <div style={{fontSize:10,color:'#334155',marginTop:10}}>© {new Date().getFullYear()} {meta.domain}</div>
+        <div style={{fontSize:10,color:'#334155',marginTop:8}}>© {new Date().getFullYear()} {meta.domain}</div>
       </div>
     </div>
   )
 
 
+
   return (
     <>
-      <div className="tm2-mobile" style={{display:"block"}}><MobileLayout/></div>
-      <div className="tm2-desktop" style={{display:"none"}}>
+      <div className="tm2-mobile"><MobileLayout/></div>
+      <div className="tm2-desktop">
     <div style={{fontFamily:"'IBM Plex Mono','Courier New',monospace",background:'#f8fafc',color:'#1a1a2e',minHeight:'100vh'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');

@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import MobileNav from '@/app/components/MobileNav'
 
 
 const IMGS = [
@@ -92,90 +93,67 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
   // ── MOBILE LAYOUT ──
   const MobileLayout = () => (
-    <div style={{fontFamily:'Inter,system-ui,sans-serif',background:'#fff',color:'#111',minHeight:'100vh'}}>
-      <style>{`
-        .m-art-title{font-family:'Georgia',serif;font-size:22px;font-weight:800;line-height:1.25;color:#111}
-        .m-cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:${p};border-left:3px solid ${p};padding-left:6px;display:block;margin-bottom:6px}
-        .m-snav::-webkit-scrollbar{display:none}
-        .m-inp{width:100%;padding:10px 14px;border:1px solid #e5e5e5;font-size:14px;outline:none;border-radius:8px;background:#f8f8f8;font-family:Inter,sans-serif}
-      `}</style>
-      {/* Sticky header */}
-      <div style={{position:'sticky',top:0,zIndex:100,background:'#fff',boxShadow:'0 1px 8px rgba(0,0,0,0.08)'}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:`3px solid ${p}`}}>
-          <a href="/" style={{textDecoration:'none'}}>
-            <div style={{fontFamily:'Georgia,serif',fontSize:20,fontWeight:900,letterSpacing:'-0.02em',color:'#111'}}>
-              {meta.name.includes('-')
-                ? <>{meta.name.split('-')[0]}<span style={{color:p}}>-</span>{meta.name.split('-')[1]}</>
-                : <>{meta.name.slice(0,-3)}<span style={{color:p}}>{meta.name.slice(-3)}</span></>}
-            </div>
-          </a>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <a href="/podcasts" style={{fontSize:12,color:p,textDecoration:'none'}}>🎙 Podcast</a>
-            <span style={{background:p,color:'#fff',fontSize:9,fontWeight:800,padding:'3px 8px',letterSpacing:'.06em',borderRadius:2}}>LIVE</span>
-          </div>
-        </div>
-        <div className="m-snav" style={{display:'flex',overflowX:'auto',borderBottom:'1px solid #eee',scrollbarWidth:'none'}}>
-          {SECTIONS.map(s=>(
-            <button key={s} onClick={()=>setSection(s)} style={{padding:'9px 14px',border:'none',background:'none',fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,letterSpacing:'.04em',textTransform:'uppercase',cursor:'pointer',whiteSpace:'nowrap',color:section===s?p:'#888',borderBottom:`2px solid ${section===s?p:'transparent'}`,flexShrink:0,transition:'all .15s'}}>
-              {s}
-            </button>
-          ))}
-        </div>
+    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f5f5f3',minHeight:'100vh',paddingTop:94}}>
+
+      <MobileNav
+        siteName={meta.name} domain={meta.domain} accentColor={p}
+        sections={SECTIONS} activeSection={section} onSectionChange={setSection}
+        logoStyle="serif"
+      />
+
+      <div style={{padding:'12px 16px',background:'#fff',borderBottom:'1px solid #eee',position:'sticky',top:94,zIndex:99}}>
+        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)} placeholder="Search stories..."
+          style={{width:'100%',padding:'9px 14px',border:'1px solid #e5e5e5',borderRadius:8,fontSize:14,fontFamily:"'Inter',system-ui,sans-serif",outline:'none',background:'#f8f8f8'}}/>
       </div>
 
-      {/* Search */}
-      <div style={{padding:'12px 16px',borderBottom:'1px solid #f0f0f0'}}>
-        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)} placeholder="Search stories…" className="m-inp"/>
-      </div>
-
-      <div style={{padding:'16px'}}>
-        {/* Hero */}
+      <div style={{padding:'0 16px 32px'}}>
         {hero && (
-          <a href={`/article/${siteSlug}/${hero.slug}`} style={{display:'block',textDecoration:'none',marginBottom:24,paddingBottom:24,borderBottom:`2px solid #111`}}>
+          <a href={`/article/${siteSlug}/${hero.slug}`} style={{display:'block',textDecoration:'none',borderBottom:`3px solid #111`,paddingBottom:20,marginBottom:20,marginTop:16}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(hero,0)} alt={hero.title}
-              style={{width:'100%',height:210,objectFit:'cover',borderRadius:6,marginBottom:12}}
+              style={{width:'100%',height:220,objectFit:'cover',borderRadius:6,marginBottom:12}}
               onError={(e:any)=>{e.currentTarget.src=IMGS[0]}}/>
-            <span className="m-cat">{hero.category||'Analysis'}</span>
-            <div className="m-art-title" style={{fontSize:24,marginBottom:8}}>{hero.title}</div>
+            <span style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:p,borderLeft:`3px solid ${p}`,paddingLeft:7,marginBottom:8,display:'block'}}>{hero.category||'Analysis'}</span>
+            <div style={{fontFamily:"'Georgia',serif",fontSize:22,fontWeight:800,lineHeight:1.25,color:'#111',marginBottom:8}}>{hero.title}</div>
             <div style={{fontSize:14,color:'#555',lineHeight:1.65,marginBottom:8}}>{(hero.excerpt||'').slice(0,150)}…</div>
-            <div style={{fontSize:11,color:'#999',fontFamily:'Inter,sans-serif'}}>{hero.author_name||'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes||4} min</div>
+            <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:'#999'}}>{hero.author_name||'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes||4} min</div>
           </a>
         )}
 
-        {/* Article list */}
-        {visible.slice(1,25).map((a:any,i:number)=>(
+        <div style={{fontFamily:"'Inter',sans-serif",fontSize:9,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:'#999',marginBottom:14,paddingBottom:6,borderBottom:`2px solid #111`}}>Latest Intelligence</div>
+
+        {visible.slice(1,30).map((a:any,i:number)=>(
           <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
             style={{display:'flex',gap:12,paddingBottom:16,marginBottom:16,borderBottom:'1px solid #efefef',textDecoration:'none',alignItems:'flex-start'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous" src={getImg(a,i+1)} alt={a.title}
-              style={{width:90,height:66,objectFit:'cover',borderRadius:4,flexShrink:0}}
+              style={{width:90,height:68,objectFit:'cover',borderRadius:4,flexShrink:0}}
               onError={(e:any)=>{e.currentTarget.src=IMGS[(i+1)%IMGS.length]}}/>
             <div style={{flex:1,minWidth:0}}>
-              <span className="m-cat">{a.category||'News'}</span>
-              <div className="m-art-title" style={{fontSize:15,marginBottom:4,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
-              <div style={{fontSize:11,color:'#999',fontFamily:'Inter,sans-serif'}}>{timeAgo(a.published_at)} · {a.read_time_minutes||3} min</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:p,borderLeft:`2px solid ${p}`,paddingLeft:5,marginBottom:4,display:'block'}}>{a.category||'News'}</span>
+              <div style={{fontFamily:"'Georgia',serif",fontSize:15,fontWeight:700,lineHeight:1.3,color:'#111',marginBottom:4,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,color:'#999'}}>{timeAgo(a.published_at)} · {a.read_time_minutes||3} min</div>
             </div>
           </a>
         ))}
 
-        {/* Newsletter */}
-        <div style={{background:`${p}08`,border:`2px solid ${p}`,borderRadius:8,padding:'20px 16px',margin:'8px 0 24px'}}>
-          <div style={{fontFamily:'Georgia,serif',fontSize:18,fontWeight:800,marginBottom:4,color:'#111'}}>Free Daily Briefing</div>
-          <div style={{fontSize:13,color:'#666',marginBottom:14}}>Top market intelligence every morning.</div>
+        <div style={{background:`${p}08`,border:`2px solid ${p}`,borderRadius:8,padding:'20px 16px',marginTop:8}}>
+          <div style={{fontFamily:"'Georgia',serif",fontSize:18,fontWeight:800,marginBottom:4}}>Free Daily Briefing</div>
+          <div style={{fontFamily:"'Inter',sans-serif",fontSize:13,color:'#666',marginBottom:14}}>Top market intelligence every morning.</div>
           <Newsletter siteName={meta.name} p={p}/>
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={{background:'#111',color:'#777',padding:'20px 16px'}}>
-        <div style={{fontFamily:'Georgia,serif',fontSize:16,fontWeight:900,color:'#fff',marginBottom:6}}>{meta.name}</div>
-        <div style={{fontSize:11,lineHeight:1.6,marginBottom:14,color:'#555'}}>{meta.tagline}. For informational purposes only — not financial advice.</div>
+      <div style={{background:'#111',color:'#666',padding:'20px 16px'}}>
+        <div style={{fontFamily:"'Georgia',serif",fontSize:16,fontWeight:900,color:'#fff',marginBottom:6}}>{meta.name}</div>
+        <div style={{fontFamily:"'Inter',sans-serif",fontSize:11,lineHeight:1.6,marginBottom:14,color:'#555'}}>{meta.tagline}. For informational purposes only — not financial advice.</div>
         <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:12}}>
-          {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about'],['Disclaimer','/legal/disclaimer']].map(([l,h])=>(<a key={l} href={h} style={{color:'#666',fontSize:11,textDecoration:'none'}}>{l}</a>))}
+          {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about'],['Disclaimer','/legal/disclaimer']].map(([l,h])=>(<a key={l} href={h} style={{color:'#666',fontFamily:"'Inter',sans-serif",fontSize:11,textDecoration:'none'}}>{l}</a>))}
         </div>
-        <div style={{fontSize:10,color:'#444'}}>© {new Date().getFullYear()} {meta.domain} · All Rights Reserved</div>
+        <div style={{fontFamily:"'Inter',sans-serif",fontSize:10,color:'#444'}}>© {new Date().getFullYear()} {meta.domain} · All Rights Reserved</div>
       </div>
     </div>
   )
+
+
 
   return (
     <>
@@ -200,11 +178,11 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
         @keyframes wtick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         .flink{font-family:Inter,sans-serif;font-size:12px;color:#666}
         .flink:hover{color:${p}}}
-        .wire-mobile{display:block}
-        .wire-desktop{display:none}
+        
+        
         @media(min-width:768px){
-          .wire-mobile{display:none!important}
-          .wire-desktop{display:block!important}
+          
+          
         }
 
         @media(max-width:768px){

@@ -1,5 +1,6 @@
 const AUREX_CATEGORIES = ['All','Markets','Gold','Commodities','Silver','Analysis']
 'use client'
+import MobileNav from '@/app/components/MobileNav'
 import { useState } from 'react'
 import CookieBanner from '@/app/components/CookieBanner'
 import Link from 'next/link'
@@ -68,64 +69,42 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
 
 
   const MobileLayout = () => (
-    <div style={{fontFamily:'Inter,system-ui,sans-serif',background:'#f0ece4',minHeight:'100vh'}}>
-      <style>{`
-        .dm-title{font-family:'Georgia',serif;font-weight:800;line-height:1.25;color:#2d2417}
-        .dm-cat{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:${primaryColor||'#B08700'};display:block;margin-bottom:6px}
-        .dm-snav::-webkit-scrollbar{display:none}
-        .data-mobile{display:block}.data-desktop{display:none}
-        @media(min-width:768px){.data-mobile{display:none!important}.data-desktop{display:block!important}}
-      `}</style>
-      {/* Header */}
-      <div style={{position:'sticky',top:0,zIndex:100,background:'#2d2417',boxShadow:'0 2px 8px rgba(0,0,0,0.2)'}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:`2px solid ${primaryColor||'#B08700'}`}}>
-          <a href="/" style={{textDecoration:'none'}}>
-            <div style={{fontFamily:'Georgia,serif',fontSize:20,fontWeight:900,color:'#f0ece4',letterSpacing:'-0.01em'}}>
-              {site?.name||'AurexHQ'}<span style={{color:primaryColor||'#B08700'}}>.</span>
-            </div>
-            <div style={{fontSize:9,color:'rgba(240,236,228,0.5)',fontFamily:'monospace',letterSpacing:'.06em'}}>GOLD & COMMODITIES</div>
-          </a>
-          <a href="/podcasts" style={{fontSize:11,color:primaryColor||'#B08700',textDecoration:'none'}}>🎙 Podcast</a>
-        </div>
-      </div>
-
-      <div style={{padding:'16px'}}>
-        {/* Hero */}
+    <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f0ece4',minHeight:'100vh',paddingTop:88}}>
+      <MobileNav siteName={site?.name||'AurexHQ'} domain="aurexhq.com" accentColor={primaryColor||'#B08700'}
+        sections={['All','Gold','Oil','Metals','Agriculture','Energy']} activeSection="All" onSectionChange={()=>{}}
+        logoStyle="serif"/>
+      <div style={{padding:'0 16px 28px'}}>
         {articles[0] && (
-          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:8,overflow:'hidden',marginBottom:20,boxShadow:'0 2px 12px rgba(45,36,23,0.1)'}}>
+          <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:10,overflow:'hidden',marginBottom:16,marginTop:16,boxShadow:'0 2px 12px rgba(45,36,23,0.1)'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=600&q=70&fm=jpg`}
-              alt={articles[0].title} style={{width:'100%',height:190,objectFit:'cover'}}
+              src={articles[0].cover_image_url||`https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=700&q=75`}
+              alt={articles[0].title} style={{width:'100%',height:200,objectFit:'cover'}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
             <div style={{padding:'14px'}}>
-              <span className="dm-cat">{articles[0].category||'Gold'}</span>
-              <div className="dm-title" style={{fontSize:20,marginBottom:8}}>{articles[0].title}</div>
-              <div style={{fontSize:13,color:'#7a6a55',lineHeight:1.65,marginBottom:8}}>{(articles[0].excerpt||'').slice(0,140)}…</div>
-              <div style={{fontSize:11,color:'#a89070'}}>{articles[0].author_name||'Markets Desk'} · {articles[0].read_time_minutes||4} min</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:primaryColor||'#B08700',display:'block',marginBottom:6}}>{articles[0].category||'Gold'}</span>
+              <div style={{fontFamily:"'Georgia',serif",fontSize:20,fontWeight:800,lineHeight:1.25,color:'#2d2417',marginBottom:8}}>{articles[0].title}</div>
+              <div style={{fontSize:13,color:'#7a6a55',lineHeight:1.65}}>{(articles[0].excerpt||'').slice(0,140)}…</div>
             </div>
           </a>
         )}
-
-        {/* Article list */}
-        <div style={{fontFamily:'monospace',fontSize:9,fontWeight:800,letterSpacing:'.1em',color:'#a89070',marginBottom:12,paddingBottom:6,borderBottom:`1px solid ${primaryColor||'#B08700'}44`}}>LATEST COVERAGE</div>
-        {articles.slice(1,20).map((a:any,i:number)=>(
+        <div style={{fontSize:9,fontWeight:800,letterSpacing:'.12em',color:'#a89070',marginBottom:12,fontFamily:'monospace',textTransform:'uppercase',borderBottom:`1px solid ${primaryColor||'#B08700'}44`,paddingBottom:6}}>Latest Coverage</div>
+        {articles.slice(1,25).map((a:any,i:number)=>(
           <a key={a.id} href={`/article/${siteSlug}/${a.slug}`}
-            style={{display:'flex',gap:12,background:'#fff',borderRadius:6,marginBottom:10,overflow:'hidden',textDecoration:'none',boxShadow:'0 1px 4px rgba(45,36,23,0.08)'}}>
+            style={{display:'flex',gap:12,background:'#fff',borderRadius:8,marginBottom:10,overflow:'hidden',textDecoration:'none',boxShadow:'0 1px 6px rgba(45,36,23,0.07)'}}>
             <img referrerPolicy="no-referrer" crossOrigin="anonymous"
-              src={a.cover_image_url||`https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=200&q=60&fm=jpg`}
-              alt={a.title} style={{width:80,height:72,objectFit:'cover',flexShrink:0}}
+              src={a.cover_image_url||`https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=200&q=60`}
+              alt={a.title} style={{width:88,height:72,objectFit:'cover',flexShrink:0}}
               onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
             <div style={{flex:1,padding:'10px 12px 10px 0',minWidth:0}}>
-              <span className="dm-cat">{a.category||'Commodities'}</span>
-              <div className="dm-title" style={{fontSize:14,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:'.1em',textTransform:'uppercase',color:primaryColor||'#B08700',display:'block',marginBottom:3}}>{a.category||'Commodities'}</span>
+              <div style={{fontFamily:"'Georgia',serif",fontSize:14,fontWeight:700,lineHeight:1.3,color:'#2d2417',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
               <div style={{fontSize:10,color:'#a89070',marginTop:4}}>{a.read_time_minutes||3} min · {new Date(a.published_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
             </div>
           </a>
         ))}
       </div>
-
       <div style={{background:'#2d2417',color:'#7a6a55',padding:'20px 16px'}}>
-        <div style={{fontFamily:'Georgia,serif',fontSize:16,fontWeight:900,color:'#f0ece4',marginBottom:6}}>{site?.name||'AurexHQ'}</div>
+        <div style={{fontFamily:"'Georgia',serif",fontSize:16,fontWeight:900,color:'#f0ece4',marginBottom:6}}>{site?.name||'AurexHQ'}</div>
         <div style={{fontSize:11,lineHeight:1.6,marginBottom:12}}>Gold & commodities intelligence. Not financial advice.</div>
         <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:8}}>
           {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about']].map(([l,h])=>(<a key={l} href={h} style={{color:'#7a6a55',fontSize:11,textDecoration:'none'}}>{l}</a>))}
@@ -135,12 +114,13 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
     </div>
   )
 
+
   return (
     <>
-      <div className="data-mobile" style={{display:'block'}}>
+      <div className="data-mobile">
         <MobileLayout/>
       </div>
-      <div className="data-desktop" style={{display:'none'}}>
+      <div className="data-desktop">
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F8F6F0', color:'#2D2D2D', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
 
             <style>{`
