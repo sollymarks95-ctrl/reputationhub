@@ -16,7 +16,9 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-
+      <div style={{background:'#064E3B',color:'#fff',textAlign:'center',padding:'8px 16px',fontSize:'12px',position:'fixed',top:0,left:0,right:0,zIndex:9999}}>
+        📋 All content on RepHuby is produced independently — eToro has not hired or engaged our services. All data is editorial and for research purposes only.
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
