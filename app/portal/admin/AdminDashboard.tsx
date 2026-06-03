@@ -52,6 +52,53 @@ function KPI({icon,value,label,color,sub}:{icon:string;value:any;label:string;co
   )
 }
 
+// Inline editable field — click pencil to edit, enter/blur to save
+function EditableField({ clientId, field, value, label, type='text', options=[] }:
+  { clientId:string; field:string; value:any; label:string; type?:string; options?:string[] }) {
+  const [editing, setEditing] = React.useState(false)
+  const [val, setVal] = React.useState(value??'')
+  const [saving, setSaving] = React.useState(false)
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      await fetch('/api/admin/update-client', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id: clientId, field, value: type==='number' ? parseFloat(val)||0 : val })
+      })
+    } finally { setSaving(false); setEditing(false) }
+  }
+
+  if (editing) return (
+    <div style={{display:'flex',gap:4,alignItems:'center',flex:1}}>
+      {options.length>0 ? (
+        <select value={val} onChange={(e:any)=>setVal(e.target.value)} onBlur={save} autoFocus
+          style={{flex:1,padding:'2px 6px',background:'#1e293b',border:'1px solid #6366f1',color:'#f1f5f9',borderRadius:4,fontSize:12}}>
+          {options.map(o=><option key={o} value={o}>{o}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={val} autoFocus
+          onChange={(e:any)=>setVal(e.target.value)}
+          onBlur={save}
+          onKeyDown={(e:any)=>{if(e.key==='Enter')save();if(e.key==='Escape')setEditing(false)}}
+          style={{flex:1,padding:'2px 8px',background:'#1e293b',border:'1px solid #6366f1',color:'#f1f5f9',borderRadius:4,fontSize:12,outline:'none'}}/>
+      )}
+      <button onClick={save} disabled={saving} style={{background:'#10b981',border:'none',color:'#fff',padding:'2px 8px',borderRadius:4,fontSize:11,cursor:'pointer',flexShrink:0}}>
+        {saving?'…':'✓'}
+      </button>
+    </div>
+  )
+
+  return (
+    <span style={{display:'flex',alignItems:'center',gap:4,flex:1,minWidth:0,cursor:'pointer',color:'#cbd5e1'}}
+      onClick={()=>setEditing(true)}
+      title={`Click to edit ${label}`}>
+      <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{val||<span style={{color:'#334155',fontStyle:'italic'}}>—</span>}</span>
+      <span style={{color:'#334155',fontSize:10,flexShrink:0,opacity:.6,marginLeft:2}}>✏️</span>
+    </span>
+  )
+}
+
 function EpisodeCard({ep, cfg}: {ep:any; cfg:{show:string;host:string;role:string}}) {
   const [gen, setGen] = useState(false)
   const [res, setRes] = useState<any>(null)
@@ -458,20 +505,20 @@ export default function AdminDashboard({
                             <div style={{fontSize:10,fontWeight:700,color:'#475569',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:10}}>Contract & Contact</div>
                             <div style={{display:'flex',flexDirection:'column',gap:7}}>
                               {[
-                                {l:'Company',    v:cl.company_name},
-                                {l:'Contact',    v:cl.contact_name||'—'},
-                                {l:'Email',      v:cl.contact_email||'—'},
-                                {l:'Phone',      v:cl.contact_phone||'—'},
-                                {l:'Website',    v:cl.website_url},
-                                {l:'Regulation', v:cl.regulation||'—'},
-                                {l:'AM',         v:cl.account_manager||'—'},
-                                {l:'Started',    v:cl.contract_start||cl.onboarded_at?.slice(0,10)||'—'},
-                                {l:'Renews',     v:cl.contract_end||'—'},
-                                {l:'MRR',        v:`$${(cl.monthly_value||0).toLocaleString()} ${cl.currency||'USD'}`},
+                                {l:'Company',    f:'company_name',    v:cl.company_name,      t:'text'},
+                                {l:'Contact',    f:'contact_name',    v:cl.contact_name,      t:'text'},
+                                {l:'Email',      f:'contact_email',   v:cl.contact_email,     t:'email'},
+                                {l:'Phone',      f:'contact_phone',   v:cl.contact_phone,     t:'text'},
+                                {l:'Website',    f:'website_url',     v:cl.website_url,       t:'url'},
+                                {l:'Regulation', f:'regulation',      v:cl.regulation,        t:'text'},
+                                {l:'AM',         f:'account_manager', v:cl.account_manager,   t:'text'},
+                                {l:'Started',    f:'contract_start',  v:cl.contract_start,    t:'date'},
+                                {l:'Renews',     f:'contract_end',    v:cl.contract_end,      t:'date'},
+                                {l:'MRR ($)',    f:'monthly_value',   v:cl.monthly_value,     t:'number'},
                               ].map(row=>(
-                                <div key={row.l} style={{display:'flex',gap:8,fontSize:12}}>
+                                <div key={row.l} style={{display:'flex',gap:8,fontSize:12,alignItems:'center'}}>
                                   <span style={{color:'#475569',flexShrink:0,width:72}}>{row.l}</span>
-                                  <span style={{color:'#cbd5e1',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row.v}</span>
+                                  <EditableField clientId={cl.id} field={row.f} value={row.v} label={row.l} type={row.t}/>
                                 </div>
                               ))}
                               {daysLeft!==null&&(
@@ -481,11 +528,20 @@ export default function AdminDashboard({
                                   </span>
                                 </div>
                               )}
-                              {cl.notes&&(
-                                <div style={{marginTop:6,padding:'8px 10px',borderRadius:6,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',fontSize:11,color:'#94a3b8',lineHeight:1.5}}>
-                                  📝 {cl.notes}
-                                </div>
-                              )}
+                              {/* Editable status + tier */}
+                              <div style={{display:'flex',gap:8,fontSize:12,alignItems:'center',marginTop:4}}>
+                                <span style={{color:'#475569',flexShrink:0,width:72}}>Status</span>
+                                <EditableField clientId={cl.id} field="contract_status" value={cl.contract_status||'active'} label="Status" options={['active','paused','cancelled']}/>
+                              </div>
+                              <div style={{display:'flex',gap:8,fontSize:12,alignItems:'center',marginTop:4}}>
+                                <span style={{color:'#475569',flexShrink:0,width:72}}>Tier</span>
+                                <EditableField clientId={cl.id} field="tier" value={cl.tier||'pro'} label="Tier" options={['starter','pro','enterprise']}/>
+                              </div>
+                              {/* Notes — editable textarea */}
+                              <div style={{marginTop:8}}>
+                                <div style={{fontSize:10,color:'#475569',marginBottom:3}}>Notes</div>
+                                <EditableField clientId={cl.id} field="notes" value={cl.notes} label="Notes" type="text"/>
+                              </div>
                             </div>
                           </div>
 
@@ -504,9 +560,11 @@ export default function AdminDashboard({
                             </div>
                             {/* Step list */}
                             {Object.entries(steps).map(([step, done]:any)=>(
-                              <div key={step} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:12}}>
+                              <div key={step}
+                                onClick={async()=>{const ns={...steps,[step]:!done};await fetch('/api/admin/update-client',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cl.id,field:'onboarding_steps',value:ns})})}}
+                                style={{display:'flex',alignItems:'center',gap:8,padding:'6px 4px',borderBottom:'1px solid rgba(255,255,255,0.04)',fontSize:12,cursor:'pointer'}}>
                                 <span style={{fontSize:14,flexShrink:0}}>{done?'✅':'⬜'}</span>
-                                <span style={{color:done?'#f1f5f9':'#475569',flex:1}}>{step.replace(/_/g,' ').replace(/\w/g,l=>l.toUpperCase())}</span>
+                                <span style={{color:done?'#f1f5f9':'#475569',flex:1,textTransform:'capitalize'}}>{step.replace(/_/g,' ')}</span>
                               </div>
                             ))}
                             {/* Portal coverage */}

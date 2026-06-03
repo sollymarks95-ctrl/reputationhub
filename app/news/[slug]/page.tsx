@@ -52,7 +52,7 @@ export default async function SitePage({
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
   const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
-  const p = site.primary_color || '#c0392b'
+  const p = site.template_config?.primary || site.primary_color || '#c0392b'
 
   // JSON-LD structured data for AI agents and search engines
   const schemas = [
