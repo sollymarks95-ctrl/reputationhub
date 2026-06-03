@@ -135,7 +135,7 @@ export default function AdminDashboard({
   const loadAnalytics = useCallback(async (days=30) => {
     setAnaLoading(true)
     try {
-      const r = await fetch(`/api/track?secret=REDACTED_CRON_SECRET&days=${days}`)
+      const r = await fetch(`/api/analytics?secret=REDACTED_CRON_SECRET&days=${days}`)
       setAnalytics(await r.json()); setAnaDays(days)
     } finally { setAnaLoading(false) }
   }, [])
@@ -539,8 +539,12 @@ export default function AdminDashboard({
         {/* ANALYTICS */}
         {tab==='analytics'&&(
           <div className="ti">
+            {/* Header */}
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-              <div className="syne" style={{fontSize:20,fontWeight:900}}>📈 Traffic Analytics</div>
+              <div>
+                <div className="syne" style={{fontSize:20,fontWeight:900}}>📊 Business Intelligence</div>
+                <div style={{fontSize:12,color:'#475569',marginTop:2}}>CEO · CMO · CFO — full operational overview</div>
+              </div>
               <div style={{display:'flex',gap:8}}>
                 {[7,14,30,90].map(d=>(
                   <button key={d} onClick={()=>loadAnalytics(d)}
@@ -548,80 +552,300 @@ export default function AdminDashboard({
                     {d}d
                   </button>
                 ))}
-                <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>loadAnalytics(anaDays)}>↻</button>
+                <button className="btn b-ghost" style={{fontSize:11}} onClick={()=>loadAnalytics(anaDays)}>↻ Refresh</button>
               </div>
             </div>
 
-            {anaLoading&&<div style={{textAlign:'center',padding:60,color:'#334155'}}>Loading analytics…</div>}
+            {anaLoading&&<div style={{textAlign:'center',padding:60,color:'#334155',fontSize:13}}>Loading intelligence data…</div>}
 
             {analytics&&!anaLoading&&(
               <>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
-                  <KPI icon="👁" value={(analytics.total||0).toLocaleString()} label="Total Views" color="#6366f1" sub={`Last ${anaDays} days`}/>
-                  <KPI icon="📅" value={(analytics.todayViews||0).toLocaleString()} label="Today" color={analytics.growthPct>=0?'#10b981':'#ef4444'} sub={`${analytics.growthPct>=0?'+':''}${analytics.growthPct||0}% vs yesterday`}/>
-                  <KPI icon="📆" value={(analytics.yesterdayViews||0).toLocaleString()} label="Yesterday" color="#64748b"/>
-                  <KPI icon="📊" value={analytics.daily?.length>0?Math.round((analytics.total||0)/analytics.daily.length).toLocaleString():'0'} label="Daily Avg" color="#f59e0b"/>
+                {/* ── CEO ROW: Top-level KPIs ── */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:10,marginBottom:20}}>
+                  {[
+                    {icon:'👁',v:(analytics.total||0).toLocaleString(),l:'Total Views',s:`Last ${anaDays}d`,c:'#6366f1'},
+                    {icon:'📅',v:(analytics.todayViews||0).toLocaleString(),l:'Today',s:`${analytics.growthPct>=0?'+':''}${analytics.growthPct||0}% vs yesterday`,c:analytics.growthPct>=0?'#10b981':'#ef4444'},
+                    {icon:'📆',v:(analytics.weekViews||0).toLocaleString(),l:'This Week',s:'Rolling 7d',c:'#0ea5e9'},
+                    {icon:'🌍',v:analytics.uniqueCountries||0,l:'Countries',s:'Geo reach',c:'#f59e0b'},
+                    {icon:'🔗',v:analytics.uniquePaths||0,l:'Unique Pages',s:'Tracked URLs',c:'#a855f7'},
+                    {icon:'💰',v:`$${(analytics.finance?.mrr||0).toLocaleString()}`,l:'Monthly Revenue',s:`ARR $${((analytics.finance?.mrr||0)*12).toLocaleString()}`,c:'#10b981'},
+                  ].map((k:any)=>(
+                    <div key={k.l} className="card" style={{padding:'14px 16px'}}>
+                      <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                        <span style={{fontSize:18}}>{k.icon}</span>
+                        <div style={{width:6,height:6,borderRadius:'50%',background:k.c,animation:'pulse 2s ease-in-out infinite',marginTop:4}}/>
+                      </div>
+                      <div className="syne" style={{fontSize:22,fontWeight:900,color:k.c,lineHeight:1,marginBottom:2}}>{k.v}</div>
+                      <div style={{fontSize:11,color:'#64748b'}}>{k.l}</div>
+                      {k.s&&<div style={{fontSize:10,color:'#334155',marginTop:2}}>{k.s}</div>}
+                    </div>
+                  ))}
                 </div>
 
-                {/* Chart */}
+                {/* ── PAGEVIEWS CHART + HOURLY HEATMAP ── */}
+                <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:16,marginBottom:16}}>
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:12}}>PAGEVIEWS OVER TIME</div>
+                    <div style={{display:'flex',alignItems:'flex-end',gap:2,height:120}}>
+                      {(()=>{const data=analytics.daily||[];const max=Math.max(...data.map((d:any)=>d.views),1);return data.map((d:any,i:number)=>{const h=Math.max(3,(d.views/max)*108);const isT=d.date===new Date().toISOString().slice(0,10);return(<div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={`${d.date}: ${d.views} views`}><div style={{width:'100%',background:isT?'#6366f1':'#1e293b',height:h,borderRadius:'2px 2px 0 0',border:`1px solid ${isT?'#818cf8':'#334155'}`}}/>{data.length<=14&&<div style={{fontSize:7,color:'#334155',transform:'rotate(-45deg)',whiteSpace:'nowrap'}}>{d.date.slice(5)}</div>}</div>)})})()}
+                    </div>
+                    {(!analytics.daily||analytics.daily.length===0)&&<div style={{textAlign:'center',padding:'20px 0',color:'#334155',fontSize:12}}>No traffic data yet</div>}
+                  </div>
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:12}}>TRAFFIC BY HOUR (UTC)</div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2}}>
+                      {(analytics.byHour||[]).map((h:any)=>{const max=Math.max(...(analytics.byHour||[]).map((x:any)=>x.views),1);const intensity=h.views/max;return(
+                        <div key={h.hour} title={`${String(h.hour).padStart(2,'0')}:00 — ${h.views} views`}
+                          style={{aspectRatio:'1',borderRadius:3,background:h.views>0?`rgba(99,102,241,${0.15+intensity*0.85})`:'#1e293b',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,color:intensity>0.5?'#fff':'#334155',cursor:'default'}}>
+                          {h.hour}
+                        </div>
+                      )})}
+                    </div>
+                    <div style={{fontSize:10,color:'#334155',marginTop:8,textAlign:'center'}}>Darker = more traffic</div>
+                  </div>
+                </div>
+
+                {/* ── TOP URLS — the most important table ── */}
                 <div className="card" style={{padding:20,marginBottom:16}}>
-                  <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>PAGEVIEWS OVER TIME</div>
-                  <div style={{display:'flex',alignItems:'flex-end',gap:3,height:120}}>
-                    {(()=>{const data=analytics.daily||[];const max=Math.max(...data.map((d:any)=>d.views),1);return data.map((d:any,i:number)=>{const h=Math.max(3,(d.views/max)*108);const isT=d.date===new Date().toISOString().slice(0,10);return(<div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={`${d.date}: ${d.views}`}><div style={{width:'100%',background:isT?'#6366f1':'#1e293b',height:h,borderRadius:'2px 2px 0 0',border:`1px solid ${isT?'#818cf8':'#334155'}`}}/>{data.length<=14&&<div style={{fontSize:7,color:'#334155',transform:'rotate(-45deg)',whiteSpace:'nowrap'}}>{d.date.slice(5)}</div>}</div>)})})()}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+                    <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8'}}>🔗 TOP URLS BY TRAFFIC</div>
+                    <div style={{fontSize:11,color:'#475569'}}>{analytics.uniquePaths} unique pages tracked</div>
                   </div>
-                  {(!analytics.daily||analytics.daily.length===0)&&<div style={{textAlign:'center',padding:'30px 0',color:'#334155',fontSize:12}}>No traffic data yet</div>}
+                  <div style={{overflowX:'auto'}}>
+                    <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                      <thead>
+                        <tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+                          <th style={{padding:'8px 10px',textAlign:'left',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',width:40}}>#</th>
+                          <th style={{padding:'8px 10px',textAlign:'left',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase'}}>Page / Article</th>
+                          <th style={{padding:'8px 10px',textAlign:'left',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',width:90}}>Portal</th>
+                          <th style={{padding:'8px 10px',textAlign:'left',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',width:70}}>Type</th>
+                          <th style={{padding:'8px 10px',textAlign:'right',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',width:70}}>Views</th>
+                          <th style={{padding:'8px 10px',textAlign:'right',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase',width:70}}>Share</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(analytics.topUrls||[]).slice(0,20).map((row:any,i:number)=>{
+                          const maxV=(analytics.topUrls||[])[0]?.views||1
+                          const pct=Math.round(row.views/Math.max(analytics.total,1)*100)
+                          const typeColor=row.type==='article'?'#6366f1':row.type==='podcast'?'#f97316':'#10b981'
+                          return(
+                            <tr key={i} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}
+                              onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.02)'}
+                              onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
+                              <td style={{padding:'9px 10px',color:'#334155',fontWeight:700}}>{i+1}</td>
+                              <td style={{padding:'9px 10px',maxWidth:420}}>
+                                <a href={row.url} target="_blank" rel="noopener noreferrer" style={{textDecoration:'none'}}>
+                                  <div style={{fontSize:12,fontWeight:600,color:'#f1f5f9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',marginBottom:2}}>{row.title||row.path}</div>
+                                  <div style={{fontSize:10,color:'#334155',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row.url}</div>
+                                </a>
+                              </td>
+                              <td style={{padding:'9px 10px'}}><span style={{fontSize:10,fontWeight:600,color:'#94a3b8'}}>{row.siteName}</span></td>
+                              <td style={{padding:'9px 10px'}}><span style={{fontSize:10,padding:'2px 6px',borderRadius:4,fontWeight:600,background:`${typeColor}18`,color:typeColor}}>{row.type}</span></td>
+                              <td style={{padding:'9px 10px',textAlign:'right'}}><span className="syne" style={{fontSize:14,fontWeight:900,color:'#f1f5f9'}}>{row.views}</span></td>
+                              <td style={{padding:'9px 10px',textAlign:'right'}}>
+                                <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:6}}>
+                                  <div style={{width:40,height:3,background:'#1e293b',borderRadius:2}}><div style={{height:3,width:`${(row.views/maxV)*100}%`,background:'#6366f1',borderRadius:2}}/></div>
+                                  <span style={{fontSize:10,color:'#64748b',width:28,textAlign:'right'}}>{pct}%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                    {(!analytics.topUrls||analytics.topUrls.length===0)&&<div style={{textAlign:'center',padding:'30px 0',color:'#334155',fontSize:12}}>No URL data yet — traffic will appear here as visitors arrive</div>}
+                  </div>
                 </div>
 
-                {/* Per-Client */}
-                {analytics.byClient?.length>0&&(
-                  <div className="card" style={{padding:20,marginBottom:16}}>
-                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TRAFFIC BY CLIENT</div>
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
-                      {analytics.byClient.map((item:any)=>{
-                        const cl=clients.find((x:any)=>x.id===item.clientId)
-                        if(!cl) return null
-                        const tot=analytics.byClient.reduce((s:number,x:any)=>s+x.views,0)||1
-                        return(
-                          <div key={item.clientId} style={{padding:14,background:'rgba(99,102,241,0.07)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:9}}>
-                            <div style={{fontSize:12,fontWeight:700,color:'#f1f5f9',marginBottom:6}}>{cl.company_name}</div>
-                            <div className="syne" style={{fontSize:28,fontWeight:900,color:'#6366f1',lineHeight:1}}>{item.views.toLocaleString()}</div>
-                            <div style={{fontSize:10,color:'#475569',marginTop:4}}>{Math.round(item.views/tot*100)}% of total</div>
-                            <div style={{height:3,background:'rgba(99,102,241,0.15)',borderRadius:2,marginTop:8}}><div style={{height:3,width:`${item.views/tot*100}%`,background:'#6366f1',borderRadius:2}}/></div>
+                {/* ── ACQUISITION: Sources + Referrers + Geo ── */}
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16,marginBottom:16}}>
+                  {/* Traffic Sources */}
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TRAFFIC SOURCES</div>
+                    {(analytics.bySource||[]).map((s:any)=>{
+                      const icon=s.source==='Direct'?'🔵':s.source==='Organic Search'?'🟢':s.source==='Social'?'🟣':'🟡'
+                      const color=s.source==='Direct'?'#6366f1':s.source==='Organic Search'?'#10b981':s.source==='Social'?'#a855f7':'#f59e0b'
+                      return(
+                        <div key={s.source} style={{marginBottom:12}}>
+                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:12,alignItems:'center'}}>
+                            <span style={{color:'#cbd5e1',display:'flex',alignItems:'center',gap:6}}><span>{icon}</span>{s.source}</span>
+                            <span style={{fontWeight:700,color:'#f1f5f9'}}>{s.views} <span style={{color:'#334155',fontWeight:400}}>({s.pct}%)</span></span>
                           </div>
-                        )
-                      })}
-                    </div>
+                          <div style={{height:4,background:'#1e293b',borderRadius:2}}>
+                            <div style={{height:4,width:`${s.pct}%`,background:color,borderRadius:2}}/>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {(!analytics.bySource||analytics.bySource.length===0)&&<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No source data</div>}
                   </div>
-                )}
 
-                {/* Portal + Geo */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
-                  <div className="card" style={{padding:20}}>
-                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>VIEWS BY PORTAL</div>
-                    {(analytics.bySite?.length>0)?analytics.bySite.map((s:any)=>{const max=analytics.bySite[0]?.views||1;const color=PORTAL_COLORS[s.slug]||'#6366f1';const name=PORTAL_NAMES[s.slug]||s.slug;return(<div key={s.slug} style={{marginBottom:10}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:3,fontSize:12}}><span style={{color:'#cbd5e1',fontWeight:600,display:'flex',alignItems:'center',gap:6}}><span style={{width:8,height:8,borderRadius:'50%',background:color,display:'inline-block',flexShrink:0}}/>{name}</span><span style={{color:'#64748b'}}>{s.views}</span></div><div style={{height:3,background:'#1e293b',borderRadius:2}}><div style={{height:3,width:`${(s.views/max)*100}%`,background:color,borderRadius:2}}/></div></div>)}):<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'20px 0'}}>No data yet</div>}
-                  </div>
-                  <div className="card" style={{padding:20}}>
-                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>🌍 GEO BREAKDOWN</div>
-                    {(analytics.byCountry?.length>0)?analytics.byCountry.slice(0,10).map((item:any)=>{const max=analytics.byCountry[0]?.views||1;const pct=item.pct??Math.round(item.views/Math.max(analytics.total,1)*100);return(<div key={item.country} style={{marginBottom:9}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:3,alignItems:'center'}}><span style={{fontSize:12,color:'#cbd5e1',display:'flex',alignItems:'center',gap:6}}><span style={{fontSize:15}}>{item.flag||'🌍'}</span><span style={{fontWeight:600}}>{item.country}</span></span><span style={{fontSize:11,color:'#64748b'}}>{item.views} ({pct}%)</span></div><div style={{height:3,background:'#1e293b',borderRadius:2}}><div style={{height:3,width:`${(item.views/max)*100}%`,background:'linear-gradient(90deg,#6366f1,#818cf8)',borderRadius:2}}/></div></div>)}):<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'20px 0'}}>No geo data yet</div>}
-                  </div>
-                </div>
-
-                {/* Device + Referrers */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:16}}>
-                  <div className="card" style={{padding:20}}>
-                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>DEVICES</div>
-                    <div style={{display:'flex',gap:8}}>
-                      {(analytics.byDevice?.length>0?analytics.byDevice:[{device:'desktop',views:0},{device:'mobile',views:0}]).map((d:any)=>{const tot=analytics.byDevice?.reduce((a:number,x:any)=>a+x.views,0)||1;const ic:Record<string,string>={desktop:'🖥️',mobile:'📱',tablet:'📋'};const co:Record<string,string>={desktop:'#6366f1',mobile:'#10b981',tablet:'#f59e0b'};return(<div key={d.device} style={{flex:1,textAlign:'center',padding:'10px 6px',background:'rgba(255,255,255,0.03)',borderRadius:8}}><div style={{fontSize:20,marginBottom:4}}>{ic[d.device]||'💻'}</div><div className="syne" style={{fontSize:18,fontWeight:900,color:co[d.device]||'#6366f1'}}>{d.views>0?Math.round(d.views/tot*100)+'%':'—'}</div><div style={{fontSize:10,color:'#64748b',textTransform:'capitalize'}}>{d.device}</div></div>)})}
-                    </div>
-                  </div>
+                  {/* Top Referrers */}
                   <div className="card" style={{padding:20}}>
                     <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TOP REFERRERS</div>
-                    {(analytics.byReferrer?.length>0)?analytics.byReferrer.slice(0,6).map((r:any)=>{const max=analytics.byReferrer[0]?.views||1;return(<div key={r.referrer} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}><span style={{fontSize:12,color:'#94a3b8',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.referrer}</span><div style={{width:80,height:3,background:'#1e293b',borderRadius:2,flexShrink:0}}><div style={{height:3,width:`${(r.views/max)*100}%`,background:'#f59e0b',borderRadius:2}}/></div><span style={{fontSize:11,color:'#64748b',width:28,textAlign:'right',flexShrink:0}}>{r.views}</span></div>)}):<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'20px 0'}}>No referrer data</div>}
+                    {(analytics.byReferrer||[]).slice(0,10).length>0?(analytics.byReferrer||[]).slice(0,10).map((r:any,i:number)=>{
+                      const max=(analytics.byReferrer||[])[0]?.views||1
+                      return(
+                        <div key={r.referrer} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,fontSize:12}}>
+                          <span style={{color:'#334155',width:14,flexShrink:0,textAlign:'right',fontWeight:700}}>{i+1}</span>
+                          <span style={{flex:1,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.referrer}</span>
+                          <div style={{width:50,height:3,background:'#1e293b',borderRadius:2,flexShrink:0}}>
+                            <div style={{height:3,width:`${(r.views/max)*100}%`,background:'#f59e0b',borderRadius:2}}/>
+                          </div>
+                          <span style={{fontSize:11,color:'#64748b',width:24,textAlign:'right',flexShrink:0,fontWeight:700}}>{r.views}</span>
+                        </div>
+                      )
+                    }):(
+                      <div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No referral traffic yet<br/><span style={{fontSize:10,marginTop:4,display:'block'}}>All traffic is direct for now</span></div>
+                    )}
                   </div>
+
+                  {/* Geo */}
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>🌍 GEO BREAKDOWN</div>
+                    {(analytics.byCountry||[]).slice(0,12).map((item:any)=>{
+                      const max=(analytics.byCountry||[])[0]?.views||1
+                      return(
+                        <div key={item.country} style={{marginBottom:8}}>
+                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:2,alignItems:'center',fontSize:12}}>
+                            <span style={{color:'#cbd5e1',display:'flex',alignItems:'center',gap:5}}>
+                              <span style={{fontSize:14}}>{item.flag}</span>
+                              <span style={{fontWeight:600}}>{item.country}</span>
+                            </span>
+                            <span style={{fontSize:11,color:'#64748b'}}>{item.views} ({item.pct}%)</span>
+                          </div>
+                          <div style={{height:3,background:'#1e293b',borderRadius:2}}>
+                            <div style={{height:3,width:`${(item.views/max)*100}%`,background:'linear-gradient(90deg,#6366f1,#818cf8)',borderRadius:2}}/>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {(!analytics.byCountry||analytics.byCountry.length===0)&&<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No geo data</div>}
+                  </div>
+                </div>
+
+                {/* ── PORTAL BREAKDOWN + DEVICE + CLIENT TRAFFIC ── */}
+                <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',gap:16,marginBottom:16}}>
+                  {/* By Portal */}
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>VIEWS BY PORTAL</div>
+                    {(analytics.bySite||[]).map((s:any)=>{
+                      const max=(analytics.bySite||[])[0]?.views||1
+                      const COLORS:Record<string,string>={'global-trade-wire':'#E03131','finance-terminal':'#1971C2','business-pulse':'#6741D9','gold-markets-today':'#B08700','trust-score':'#0CA678','invest-data':'#0EA5E9','market-radar':'#A21CAF','executive-network':'#DC2626','crypto-hub':'#F97316'}
+                      const color=COLORS[s.slug]||'#6366f1'
+                      const pct=Math.round(s.views/Math.max(analytics.total,1)*100)
+                      return(
+                        <div key={s.slug} style={{marginBottom:10}}>
+                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:3,fontSize:12}}>
+                            <span style={{color:'#cbd5e1',fontWeight:600,display:'flex',alignItems:'center',gap:6}}><span style={{width:8,height:8,borderRadius:'50%',background:color,display:'inline-block',flexShrink:0}}/>{s.name}</span>
+                            <span style={{color:'#64748b'}}>{s.views} <span style={{color:'#334155'}}>({pct}%)</span></span>
+                          </div>
+                          <div style={{height:4,background:'#1e293b',borderRadius:2}}><div style={{height:4,width:`${(s.views/max)*100}%`,background:color,borderRadius:2}}/></div>
+                        </div>
+                      )
+                    })}
+                    {(!analytics.bySite||analytics.bySite.length===0)&&<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No data</div>}
+                  </div>
+
+                  {/* Devices */}
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>DEVICES</div>
+                    {(analytics.byDevice||[]).map((d:any)=>{
+                      const tot=(analytics.byDevice||[]).reduce((a:number,x:any)=>a+x.views,0)||1
+                      const ic:Record<string,string>={desktop:'🖥️',mobile:'📱',tablet:'📋'}
+                      const co:Record<string,string>={desktop:'#6366f1',mobile:'#10b981',tablet:'#f59e0b'}
+                      const pct=Math.round(d.views/tot*100)
+                      return(
+                        <div key={d.device} style={{marginBottom:14}}>
+                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:12}}>
+                            <span style={{color:'#cbd5e1',display:'flex',alignItems:'center',gap:6}}><span style={{fontSize:16}}>{ic[d.device]||'💻'}</span><span style={{textTransform:'capitalize'}}>{d.device}</span></span>
+                            <span className="syne" style={{fontWeight:900,color:co[d.device]||'#6366f1',fontSize:16}}>{pct}%</span>
+                          </div>
+                          <div style={{height:5,background:'#1e293b',borderRadius:2}}><div style={{height:5,width:`${pct}%`,background:co[d.device]||'#6366f1',borderRadius:2}}/></div>
+                          <div style={{fontSize:10,color:'#334155',marginTop:3}}>{d.views} views</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Per-Client Traffic */}
+                  <div className="card" style={{padding:20}}>
+                    <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TRAFFIC BY CLIENT</div>
+                    {(analytics.byClient||[]).length>0?(analytics.byClient||[]).map((item:any)=>{
+                      const cl=clients.find((x:any)=>x.id===item.clientId)
+                      if(!cl) return null
+                      const tot=(analytics.byClient||[]).reduce((s:number,x:any)=>s+x.views,0)||1
+                      const pct=Math.round(item.views/tot*100)
+                      return(
+                        <div key={item.clientId} style={{marginBottom:14}}>
+                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:12}}>
+                            <span style={{color:'#cbd5e1',fontWeight:600}}>{cl.company_name}</span>
+                            <span className="syne" style={{fontWeight:900,color:'#6366f1',fontSize:16}}>{item.views}</span>
+                          </div>
+                          <div style={{height:4,background:'#1e293b',borderRadius:2}}><div style={{height:4,width:`${pct}%`,background:'#6366f1',borderRadius:2}}/></div>
+                          <div style={{fontSize:10,color:'#334155',marginTop:2}}>{pct}% of total traffic</div>
+                        </div>
+                      )
+                    }):<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>Client attribution<br/><span style={{fontSize:10}}>grows as traffic increases</span></div>}
+                  </div>
+                </div>
+
+                {/* ── CFO: FINANCE OVERVIEW ── */}
+                <div className="card" style={{padding:20,borderTop:'3px solid #10b981'}}>
+                  <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8',marginBottom:16}}>💰 FINANCIAL OVERVIEW</div>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+                    {[
+                      {l:'Monthly Recurring Revenue',v:`$${(analytics.finance?.mrr||0).toLocaleString()}`,c:'#10b981',icon:'📈'},
+                      {l:'Annual Run Rate',v:`$${(analytics.finance?.arr||0).toLocaleString()}`,c:'#6366f1',icon:'🎯'},
+                      {l:'Revenue Collected',v:`$${(analytics.finance?.paidRevenue||0).toLocaleString()}`,c:'#f59e0b',icon:'✅'},
+                      {l:'Outstanding',v:`$${(analytics.finance?.pendingRevenue||0).toLocaleString()}`,c:analytics.finance?.pendingRevenue>0?'#ef4444':'#334155',icon:'🟡'},
+                    ].map(k=>(
+                      <div key={k.l} style={{padding:'16px 18px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10}}>
+                        <div style={{fontSize:20,marginBottom:6}}>{k.icon}</div>
+                        <div className="syne" style={{fontSize:26,fontWeight:900,color:k.c,lineHeight:1,marginBottom:4}}>{k.v}</div>
+                        <div style={{fontSize:11,color:'#475569'}}>{k.l}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Invoice table */}
+                  {(analytics.finance?.invoices||[]).length>0&&(
+                    <div>
+                      <div style={{fontSize:11,fontWeight:700,color:'#475569',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:10}}>Recent Invoices</div>
+                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                        <thead><tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+                          {['Invoice','Description','Amount','Status','Issued','Due','Paid'].map(h=><th key={h} style={{padding:'6px 10px',textAlign:'left',fontSize:10,color:'#475569',fontWeight:700,letterSpacing:'.07em',textTransform:'uppercase'}}>{h}</th>)}
+                        </tr></thead>
+                        <tbody>
+                          {(analytics.finance?.invoices||[]).map((iv:any)=>{
+                            const sColor=iv.status==='paid'?'#10b981':iv.status==='overdue'?'#ef4444':'#f59e0b'
+                            const cl=clients.find((c:any)=>c.id===iv.client_id)
+                            return(
+                              <tr key={iv.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                                <td style={{padding:'8px 10px',color:'#818cf8',fontWeight:600}}>{iv.invoice_no}</td>
+                                <td style={{padding:'8px 10px',color:'#94a3b8'}}>{iv.description} {cl&&<span style={{color:'#475569'}}>· {cl.company_name}</span>}</td>
+                                <td style={{padding:'8px 10px'}}><span className="syne" style={{fontWeight:900,color:'#f1f5f9',fontSize:14}}>${(iv.amount||0).toLocaleString()}</span></td>
+                                <td style={{padding:'8px 10px'}}><span style={{fontSize:10,padding:'2px 8px',borderRadius:99,fontWeight:700,background:`${sColor}18`,color:sColor,border:`1px solid ${sColor}35`}}>{iv.status}</span></td>
+                                <td style={{padding:'8px 10px',color:'#475569',fontSize:11}}>{(iv.issued_at||'').slice(0,10)}</td>
+                                <td style={{padding:'8px 10px',color:'#475569',fontSize:11}}>{iv.due_date||'—'}</td>
+                                <td style={{padding:'8px 10px',color:'#10b981',fontSize:11}}>{iv.paid_at?(iv.paid_at.slice(0,10)):'—'}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </>
             )}
-            {!analytics&&!anaLoading&&<div style={{textAlign:'center',padding:60}}><button className="btn b-blue" onClick={()=>loadAnalytics(30)}>Load Analytics</button></div>}
+
+            {!analytics&&!anaLoading&&(
+              <div style={{textAlign:'center',padding:80}}>
+                <div style={{fontSize:40,marginBottom:16}}>📊</div>
+                <div style={{fontSize:14,color:'#475569',marginBottom:20}}>Load intelligence data to see the full business picture</div>
+                <button className="btn b-blue" style={{padding:'12px 28px',fontSize:14}} onClick={()=>loadAnalytics(30)}>Load Intelligence Dashboard</button>
+              </div>
+            )}
           </div>
         )}
 
