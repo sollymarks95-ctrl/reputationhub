@@ -72,6 +72,7 @@ export default function HomePage() {
         }
         /* ── MOBILE 640px ── */
         @media(max-width:640px){
+          .nav-hide-mobile{display:none!important}
           .hg{gap:24px!important}
           .fg{grid-template-columns:1fr 1fr!important;gap:10px!important}
           .pg{grid-template-columns:1fr!important}
@@ -85,7 +86,7 @@ export default function HomePage() {
           .pc{padding:24px 16px!important}
           .fc{padding:20px 14px!important}
           .tc{padding:20px 16px!important}
-          .hero-sec{padding:90px 0 48px!important;min-height:auto!important}
+          .hero-sec{padding:88px 0 40px!important;min-height:unset!important}
           .hero-btns{flex-direction:column!important;align-items:stretch!important}
           .hero-btns a{text-align:center!important;justify-content:center!important}
           .hero-stats{gap:16px!important}
@@ -99,19 +100,22 @@ export default function HomePage() {
         }
         /* ── SMALL MOBILE 400px ── */
         @media(max-width:400px){
-          .h1s{font-size:24px!important}
-          .h2s{font-size:19px!important}
+          .h1s{font-size:22px!important}
+          .h2s{font-size:18px!important}
           .fg{grid-template-columns:1fr!important}
           .sg{grid-template-columns:1fr 1fr!important}
-          .hero-sec{padding:80px 0 40px!important}
-          .sec{padding:40px 0!important}
+          .hero-sec{padding:76px 0 36px!important}
+          .sec{padding:36px 0!important}
+          .hero-inner{padding:0 14px!important}
+          .pc{padding:20px 14px!important}
+          .btn{font-size:12px!important;padding:10px 14px!important}
         }
       `}</style>
 
       {/* NAV */}
       <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
-        <div style={{padding:'12px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
-        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
+        <div style={{padding:'10px 0', borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
+        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 16px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
           <Link href="/">
             <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
               Rep<span style={{ background:'linear-gradient(135deg,#0EA5E9,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Huby</span>
@@ -123,13 +127,13 @@ export default function HomePage() {
             ))}
           </div>
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost" style={{ padding:'9px 18px', fontSize:14 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-ghost nav-hide-mobile" style={{ padding:'9px 18px', fontSize:14 }}>
               Contact Us
             </a>
-            <Link href="/portal" className="btn btn-login" style={{ padding:'9px 18px', fontSize:14 }}>
+            <Link href="/portal" className="btn btn-login nav-hide-mobile" style={{ padding:'9px 18px', fontSize:14 }}>
               Client Login
             </Link>
-            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 20px', fontSize:14 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ padding:'9px 16px', fontSize:13 }}>
               Get My Plan
             </a>
           </div>
@@ -141,7 +145,7 @@ export default function HomePage() {
       <section className="hero-sec" style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
-        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
+        <div className="hero-inner" style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
           <div className="hg" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center' }}>
             <div style={{ position:'relative', zIndex:2, animation:'fadeup .6s ease' }}>
               <div style={{ display:'flex', gap:10, marginBottom:22, flexWrap:'wrap' }}>
@@ -210,7 +214,7 @@ export default function HomePage() {
       </section>
 
       {/* PORTAL TICKER */}
-      <section id="portals" style={{ padding:'56px 0', overflow:'hidden', position:'relative', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+      <section id="portals" className="sec" style={{ padding:'56px 0', overflow:'hidden', position:'relative', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ position:'absolute', left:0, top:0, bottom:0, width:180, background:'linear-gradient(90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ position:'absolute', right:0, top:0, bottom:0, width:180, background:'linear-gradient(-90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ textAlign:'center', marginBottom:26 }}>
@@ -499,7 +503,7 @@ function GEOSection() {
   ]
 
   return (
-    <section style={{ padding:'100px 0', background:'linear-gradient(180deg,#080C14,#0B0F19)', position:'relative', overflow:'hidden' }}>
+    <section className="sec" style={{ padding:'100px 0', background:'linear-gradient(180deg,#080C14,#0B0F19)', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px)', backgroundSize:'60px 60px' }} />
       <div style={{ position:'absolute', top:'20%', left:'10%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(99,102,241,0.07),transparent 70%)', filter:'blur(40px)' }} />
       <div style={{ position:'absolute', bottom:'20%', right:'10%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(16,185,129,0.06),transparent 70%)', filter:'blur(40px)' }} />
@@ -616,7 +620,7 @@ function GEOSection() {
 
 function AIDefenseSection() {
   return (
-    <section style={{ padding:'100px 0', background:'#0B0F19', position:'relative', overflow:'hidden' }}>
+    <section className="sec" style={{ padding:'100px 0', background:'#0B0F19', position:'relative', overflow:'hidden' }}>
       <style>{`
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes slideR{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}

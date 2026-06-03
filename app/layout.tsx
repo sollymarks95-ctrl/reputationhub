@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import './mobile.css'
 import CookieConsent from './components/CookieConsent'
 
 export const metadata: Metadata = {

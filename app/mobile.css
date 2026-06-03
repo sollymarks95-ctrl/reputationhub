@@ -1,0 +1,91 @@
+/* ── REPHUBY GLOBAL MOBILE OVERRIDES ──
+   These use !important to override React inline styles.
+   Loaded via layout.tsx — applies to ALL pages. */
+
+* { box-sizing: border-box; }
+img { max-width: 100%; height: auto; }
+
+/* Prevent horizontal scroll on all pages */
+body { overflow-x: hidden; }
+
+/* ── TABLET 900px ── */
+@media (max-width: 900px) {
+  /* Portal templates */
+  .whero, .wgrid, .wtop, .wlayout,
+  .term-grid, .term-list,
+  .mag-grid, .mag-featured,
+  .data-grid,
+  .trust-hero-grid, .trust-company-grid, .trust-sections {
+    grid-template-columns: 1fr !important;
+  }
+  .wsidebar, .term-sidebar, .mag-sidebar, .data-sidebar { display: none !important; }
+}
+
+/* ── MOBILE 640px ── */
+@media (max-width: 640px) {
+
+  /* NAV — every site */
+  nav { padding: 8px 0 !important; }
+  nav .nav-link { display: none !important; }
+
+  /* Typography — every site */
+  h1 { font-size: 22px !important; line-height: 1.2 !important; }
+  h2 { font-size: 19px !important; line-height: 1.25 !important; }
+  h3 { font-size: 16px !important; }
+  p  { font-size: 14px !important; line-height: 1.65 !important; }
+
+  /* Sections — every site */
+  section { padding: 44px 0 !important; }
+
+  /* Container padding — every site */
+  [style*="padding:0 24px"],
+  [style*="padding: 0 24px"] { padding: 0 14px !important; }
+
+  /* Grids — every site */
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="repeat(2,1fr)"],
+  [style*="repeat(3,1fr)"],
+  [style*="repeat(4,1fr)"] { grid-template-columns: 1fr !important; }
+
+  [style*="repeat(4,1fr)"].sg,
+  [style*="repeat(2,1fr)"].sg { grid-template-columns: 1fr 1fr !important; }
+
+  /* Gaps */
+  [style*="gap:60"], [style*="gap: 60"] { gap: 20px !important; }
+  [style*="gap:40"], [style*="gap: 40"] { gap: 16px !important; }
+  [style*="gap:24"], [style*="gap: 24"] { gap: 12px !important; }
+
+  /* Cards */
+  .fc  { padding: 18px 14px !important; }
+  .pc  { padding: 22px 14px !important; }
+  .tc  { padding: 18px 14px !important; }
+
+  /* Portal template cards */
+  .wcard, .term-card, .mag-card, .data-card { padding: 12px !important; }
+
+  /* Buttons */
+  .btn { padding: 10px 14px !important; font-size: 12px !important; white-space: nowrap !important; }
+
+  /* Article pages */
+  .art-body { padding: 14px 12px !important; font-size: 14px !important; line-height: 1.7 !important; }
+  .art-title { font-size: 20px !important; }
+  .art-meta  { flex-wrap: wrap !important; gap: 6px !important; font-size: 11px !important; }
+
+  /* Verivex trust template */
+  .cat-btn { font-size: 10px !important; padding: 4px 10px !important; }
+  .trust-filters { flex-wrap: wrap !important; gap: 6px !important; }
+
+  /* Ticker / portals strip */
+  .tkr a { padding: 8px 14px !important; }
+}
+
+/* ── SMALL PHONE 390px (iPhone 16) ── */
+@media (max-width: 390px) {
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 17px !important; }
+  section { padding: 36px 0 !important; }
+  .btn { padding: 9px 12px !important; font-size: 11px !important; }
+  .fc, .pc, .tc { padding: 16px 12px !important; }
+  nav { padding: 6px 0 !important; }
+}
