@@ -16,7 +16,16 @@ function gf(f: string) {
 }
 
 // ─── Main dispatcher — reads archetype + variant from config ──────────────
+// Per-site category config matching actual article categories in DB
+const SITE_CATEGORIES: Record<string, string[]> = {
+  'invest-data':      ['All','Markets','Finance','Analysis','Investing'],
+  'market-radar':     ['All','Markets','Analysis','Signals','Energy','Commodities'],
+  'executive-network':['All','Markets','Leadership','Strategy','Business'],
+  'crypto-hub':       ['All','Markets','Crypto','Analysis','DeFi'],
+}
+
 export default function DynamicTemplate({ site, articles }: { site: any; articles: any[] }) {
+  const [selectedCat, setSelectedCat] = useState('All')
   const cfg = site.template_config || {}
   const archetype = cfg.archetype || 'editorial'
   const variant   = parseInt(cfg.variant  || '1')
@@ -24,7 +33,16 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
   const sec       = cfg.secondary  || '#f59e0b'
   const font      = gf(cfg.font    || 'sans')
   const slug      = site.slug
-  const props     = { site, articles, p, sec, font, slug, variant }
+  const siteCategories = SITE_CATEGORIES[site.slug] || ['All','Markets','Analysis']
+  const filteredArticles = selectedCat === 'All'
+    ? articles
+    : articles.filter((a:any) => {
+        const cat = (a.category||'').toLowerCase().trim()
+        const sel = selectedCat.toLowerCase()
+        return cat === sel || cat.startsWith(sel)
+      })
+
+  const props     = { site, articles: filteredArticles, allArticles: articles, p, sec, font, slug, variant, selectedCat, setSelectedCat, siteCategories }
 
   const dispatch: Record<string, any> = {
     editorial: Editorial, tech: Tech, wire: Wire, dashboard: Dashboard,
@@ -39,7 +57,7 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 1 — EDITORIAL (3 variants: classic / compact / wide)
 // ═══════════════════════════════════════════════════════════════════════════
-function Editorial({ site, articles, p, font, slug, variant }: any) {
+function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   const hero = articles[0], cols = articles.slice(1,7), sidebar = articles.slice(7,12)
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#fffef9', fontFamily:font, color:'#1a1a1a' }}>
@@ -129,8 +147,15 @@ function Editorial({ site, articles, p, font, slug, variant }: any) {
       </div>
       <div style={{ background:'#111', padding:'6px 0', marginBottom:0 }}>
         <div style={{ maxWidth:1200, margin:'0 auto', padding:'0 24px', display:'flex', gap:24, overflowX:'auto' }}>
-          {['Markets','Economy','Investing','Policy','Opinion'].map(c=>(
-            <a key={c} href={`/?category=${c}`} style={{ color:'#ccc', fontSize:12, fontWeight:700, whiteSpace:'nowrap' }}>{c}</a>
+          <button onClick={()=>setSelectedCat('All')}
+            style={{ color:selectedCat==='All'?p:'#ccc', fontSize:12, fontWeight:700, background:'none', border:'none', cursor:'pointer', borderBottom:selectedCat==='All'?`2px solid ${p}`:'2px solid transparent', paddingBottom:4, whiteSpace:'nowrap' }}>
+            ALL
+          </button>
+          {siteCategories.filter((cat:string)=>cat!=='All').map((cat:string)=>(
+            <button key={cat} onClick={()=>setSelectedCat(selectedCat===cat?'All':cat)}
+              style={{ color: selectedCat===cat ? p : '#ccc', fontSize:12, fontWeight:700, whiteSpace:'nowrap', background:'none', border:'none', cursor:'pointer', borderBottom: selectedCat===cat ? `2px solid ${p}` : '2px solid transparent', paddingBottom:4 }}>
+              {cat}
+            </button>
           ))}
         </div>
       </div>
@@ -171,7 +196,7 @@ function Editorial({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 2 — TECH (3 variants: dark cards / light matrix / neon)
 // ═══════════════════════════════════════════════════════════════════════════
-function Tech({ site, articles, p, font, slug, variant }: any) {
+function Tech({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#f0f4ff', fontFamily:font }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -181,7 +206,7 @@ function Tech({ site, articles, p, font, slug, variant }: any) {
       @media(max-width:768px){.tv2-g{grid-template-columns:1fr}}`}</style>
       <div style={{ background:'#fff', borderBottom:'1px solid #e0e7ff', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:22, color:p }}>{site.name}</div></a>
-        <div style={{ display:'flex', gap:12 }}>{['Feed','Markets','Tech','AI'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}</div>
+        <div style={{ display:'flex', gap:12 }}>{siteCategories.filter((cat:string)=>cat!=='All').map((cat:string)=><button key={cat} onClick={()=>setSelectedCat(selectedCat===cat?'All':cat)} style={{ color:selectedCat===cat?p:'#64748b', fontSize:12, fontWeight:600, background:'none', border:'none', cursor:'pointer' }}>{cat}</button>)}</div>
       </div>
       {articles[0] && (
         <div style={{ background:`linear-gradient(135deg,${p},${p}cc)`, color:'#fff', padding:'48px 24px', margin:'0 0 24px' }}>
@@ -244,7 +269,7 @@ function Tech({ site, articles, p, font, slug, variant }: any) {
       <div style={{ background:'#020617', borderBottom:`2px solid ${p}` }}>
         <div style={{ maxWidth:1400, margin:'0 auto', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <a href="/"><span style={{ fontSize:20, fontWeight:900, color:'#fff', letterSpacing:'.08em' }}>{site.name.toUpperCase()}</span></a>
-          <div style={{ display:'flex', gap:20 }}>{['Markets','Tech','AI','Crypto','Data'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#94a3b8', fontSize:12, fontWeight:600 }}>{c}</a>)}</div>
+          <div style={{ display:'flex', gap:20 }}>{siteCategories.filter((cat:string)=>cat!=='All').map((cat:string)=><button key={cat} onClick={()=>setSelectedCat(selectedCat===cat?'All':cat)} style={{ color:selectedCat===cat?p:'#94a3b8', fontSize:12, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:selectedCat===cat?`1px solid ${p}`:'none', paddingBottom:2 }}>{cat}</button>)}</div>
         </div>
       </div>
       {articles[0] && (
@@ -273,7 +298,7 @@ function Tech({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 3 — WIRE (3 variants: ticker / split / agency)
 // ═══════════════════════════════════════════════════════════════════════════
-function Wire({ site, articles, p, font, slug, variant }: any) {
+function Wire({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#f9fafb', fontFamily:font }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -322,7 +347,7 @@ function Wire({ site, articles, p, font, slug, variant }: any) {
           <div style={{ fontSize:11, color:'#888', textTransform:'uppercase', letterSpacing:'.1em' }}>News Wire Service</div>
         </div>
         <div style={{ background:p, padding:'5px 24px', display:'flex', gap:20 }}>
-          {['FLASH','MARKETS','ECONOMY','FX','COMMODITIES'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#fff', fontSize:11, fontWeight:800, letterSpacing:'.05em' }}>{c}</a>)}
+          {['FLASH','MARKETS','ECONOMY','FX','COMMODITIES'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#fff', fontSize:11, fontWeight:800, letterSpacing:'.05em' }}>{c}</a>)}
         </div>
       </div>
       <div style={{ maxWidth:960, margin:'0 auto', padding:'16px 24px' }}>
@@ -351,7 +376,7 @@ function Wire({ site, articles, p, font, slug, variant }: any) {
         <span style={{ color:'rgba(255,255,255,.7)', fontSize:11 }}>{new Date().toUTCString()}</span>
       </div>
       <div style={{ background:'#f5f5f5', borderBottom:'1px solid #ddd', padding:'5px 24px', display:'flex', gap:20 }}>
-        {['BREAKING','MARKETS','ECONOMY','FX','CRYPTO'].map(c=><a key={c} href={`/?category=${c}`} style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
+        {['BREAKING','MARKETS','ECONOMY','FX','CRYPTO'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px' }}>
         <div className="wv1-cols" style={{ display:'flex', gap:32 }}>
@@ -390,7 +415,7 @@ function Wire({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 4 — DASHBOARD (3 variants: KPI cards / list / heatmap)
 // ═══════════════════════════════════════════════════════════════════════════
-function Dashboard({ site, articles, p, font, slug, variant }: any) {
+function Dashboard({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#1e2130', fontFamily:font, color:'#e2e8f0' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -508,7 +533,7 @@ function Dashboard({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 5 — MAGAZINE (3 variants: glossy / columns / journal)
 // ═══════════════════════════════════════════════════════════════════════════
-function Magazine({ site, articles, p, sec, font, slug, variant }: any) {
+function Magazine({ site, articles, p, sec, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   const hero = articles[0], feat = articles.slice(1,4), rest = articles.slice(4,12)
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:gf('display'), color:'#1a1a1a' }}>
@@ -520,7 +545,7 @@ function Magazine({ site, articles, p, sec, font, slug, variant }: any) {
         <div style={{ fontSize:12, color:'#666', fontStyle:'italic', maxWidth:300, textAlign:'right' }}>{site.tagline}</div>
       </header>
       <div style={{ background:p, color:'#fff', padding:'6px 24px', display:'flex', gap:20 }}>
-        {['COVER STORY','MARKETS','OPINION','LIFE','TRAVEL'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'rgba(255,255,255,.85)', fontSize:11, fontWeight:700, letterSpacing:'.05em' }}>{c}</a>)}
+        {['COVER STORY','MARKETS','OPINION','LIFE','TRAVEL'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.85)', fontSize:11, fontWeight:700, letterSpacing:'.05em' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'32px auto', padding:'0 24px' }}>
         <div className="mv2-g">
@@ -596,7 +621,7 @@ function Magazine({ site, articles, p, sec, font, slug, variant }: any) {
       @media(max-width:768px){.mv1-f,.mv1-r{grid-template-columns:1fr!important}}`}</style>
       <header style={{ padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:`3px solid ${p}` }}>
         <a href="/"><div style={{ fontSize:30, fontWeight:900, letterSpacing:'-1px', fontFamily:gf('display') }}>{site.name}</div></a>
-        <div style={{ display:'flex', gap:16 }}>{['Features','Finance','Markets','Life'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'#555', fontSize:13, fontWeight:600 }}>{c}</a>)}</div>
+        <div style={{ display:'flex', gap:16 }}>{['Features','Finance','Markets','Life'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#555', fontSize:13, fontWeight:600 }}>{c}</a>)}</div>
       </header>
       {hero && (
         <div style={{ background:`linear-gradient(to right, #0f172a 55%, ${p}cc)`, color:'#fff', padding:'72px 24px' }}>
@@ -635,7 +660,7 @@ function Magazine({ site, articles, p, sec, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 6 — MINIMAL (3 variants: blog / newsletter / digest)
 // ═══════════════════════════════════════════════════════════════════════════
-function Minimal({ site, articles, p, font, slug, variant }: any) {
+function Minimal({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -732,7 +757,7 @@ function Minimal({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 7 — NEWSPAPER (variants handled inline)
 // ═══════════════════════════════════════════════════════════════════════════
-function Newspaper({ site, articles, p, font, slug, variant }: any) {
+function Newspaper({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   const cols = [articles.slice(0,4), articles.slice(4,7), articles.slice(7,10)]
   return (
     <div style={{ minHeight:'100vh', background: variant===2?'#fff':variant===3?'#1a1410':'#f7f3e9', fontFamily:gf('serif'), color:variant===3?'#e8dcc8':'#1a1a1a' }}>
@@ -775,7 +800,7 @@ function Newspaper({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 8 — RESEARCH (3 variants)
 // ═══════════════════════════════════════════════════════════════════════════
-function Research({ site, articles, p, font, slug, variant }: any) {
+function Research({ site, articles, p, font, slug, variant , selectedCat, setSelectedCat, siteCategories }: any) {
   return (
     <div style={{ minHeight:'100vh', background:variant===2?'#0f172a':variant===3?'#fefefe':'#f8f9fa', fontFamily:font, color:variant===2?'#e2e8f0':variant===3?'#1a1a1a':'#212529' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -816,7 +841,7 @@ function Research({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 9 — GRID (3 variants: masonry / square / bento)
 // ═══════════════════════════════════════════════════════════════════════════
-function Grid({ site, articles, p, font, slug, variant }: any) {
+function Grid({ site, articles, p, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   const palette = ['#dbeafe','#dcfce7','#fef3c7','#fce7f3','#ede9fe','#ffedd5','#f0fdf4','#fef9c3']
   if (variant === 2) return (
     <div style={{ minHeight:'100vh', background:'#111', fontFamily:font }}>
@@ -912,7 +937,7 @@ function Grid({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 10 — BRUTALIST (bold, raw, high contrast)
 // ═══════════════════════════════════════════════════════════════════════════
-function Brutalist({ site, articles, p, font, slug, variant }: any) {
+function Brutalist({ site, articles, p, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   return (
     <div style={{ minHeight:'100vh', background: variant===2?'#ffff00':variant===3?'#ff3c00':'#fff', fontFamily:gf('condensed'), color: variant===2||variant===3?'#000':'#000' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -949,7 +974,7 @@ function Brutalist({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 11 — DARK EDITORIAL (financial paper, dark premium — 3 distinct variants)
 // ═══════════════════════════════════════════════════════════════════════════
-function DarkEditorial({ site, articles, p, font, slug, variant }: any) {
+function DarkEditorial({ site, articles, p, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   const cats = ['Analysis','Markets','Opinion','Global']
   const featured = articles[0]
   const rest = articles.slice(1)
@@ -1108,7 +1133,7 @@ function DarkEditorial({ site, articles, p, font, slug, variant }: any) {
 
 // ARCHETYPE 12 — SPLIT (two-column feed, Bloomberg split)
 // ═══════════════════════════════════════════════════════════════════════════
-function Split({ site, articles, p, font, slug, variant }: any) {
+function Split({ site, articles, p, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   return (
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
@@ -1120,7 +1145,7 @@ function Split({ site, articles, p, font, slug, variant }: any) {
       <div style={{ background:p, padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:100 }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:16, color:'#fff', letterSpacing:'.02em' }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:2 }}>
-          {['Markets','Tech','FX','Macro'].map(c=><a key={c} href={`/?category=${c}`} style={{ color:'rgba(255,255,255,.7)', fontSize:11, fontWeight:600, padding:'3px 8px' }}>{c}</a>)}
+          {['Markets','Tech','FX','Macro'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.7)', fontSize:11, fontWeight:600, padding:'3px 8px' }}>{c}</a>)}
         </div>
       </div>
       <div className="sp-main">
@@ -1169,7 +1194,7 @@ function Split({ site, articles, p, font, slug, variant }: any) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ARCHETYPE 13 — FEED (Reddit/HN community style)
 // ═══════════════════════════════════════════════════════════════════════════
-function Feed({ site, articles, p, font, slug, variant }: any) {
+function Feed({ site, articles, p, font, slug, variant, selectedCat, setSelectedCat, siteCategories }: any) {
   return (
     <div style={{ minHeight:'100vh', background:variant===2?'#dae0e6':variant===3?'#f6f0e4':'#dae0e6', fontFamily:font }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}

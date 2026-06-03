@@ -35,12 +35,13 @@ const SITE_META: Record<string, {name:string;domain:string;color:string;tagline:
   'press-central':     {name:'PresxWire',domain:'presxwire.com',  color:'#DC2626', tagline:'Press Releases & Corporate Announcements'},
 }
 
-const SECTIONS = ['All','Markets','Trade','Finance','Commodities','Analysis','Opinion','Policy']
+const SECTIONS = ['All','Markets','Trade','Analysis','Technology','Business']
 const SEC_FILTER: Record<string,string[]> = {
-  'Markets':['markets','stocks','equities'],'Trade':['trade','global','supply'],
-  'Finance':['finance','banking','rates'],'Commodities':['gold','oil','commodities','silver'],
-  'Analysis':['analysis','research','outlook'],'Opinion':['opinion','editorial','perspective'],
-  'Policy':['policy','federal','central bank','regulation'],
+  'Markets':   ['markets','equities','stocks'],
+  'Trade':     ['trade','supply chain','export','import'],
+  'Analysis':  ['analysis','research','outlook','report'],
+  'Technology':['technology','tech','digital','fintech','blockchain'],
+  'Business':  ['business','corporate','company','enterprise'],
 }
 
 function timeAgo(d: string) {
@@ -56,17 +57,17 @@ function Newsletter({siteName,p}:any) {
   return done
     ?<div style={{padding:'12px 18px',background:`${p}15`,border:`1px solid ${p}`,fontFamily:'Inter,sans-serif',fontSize:14,fontWeight:700,color:p}}>✓ Subscribed! First briefing tomorrow.</div>
     :<form onSubmit={sub} style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-      <input value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="Your email address" required
+      <input value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" placeholder="Your email address" required
         style={{flex:1,padding:'10px 16px',border:'1px solid #ddd',fontFamily:'Inter,sans-serif',fontSize:13,outline:'none',minWidth:200}}/>
       <button type="submit" style={{padding:'10px 22px',background:p,color:'#fff',border:'none',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:13,cursor:'pointer'}}>Subscribe Free</button>
     </form>
 }
-export default function WireTemplate({ articles=[], site, siteSlug, primaryColor }:any) {
+export default function WireTemplate({ articles=[], site, siteSlug, primaryColor , searchParams}:any) {
   const [section, setSection] = useState('All')
   const meta = SITE_META[siteSlug] || {name:site?.name||'Nex-Wire',domain:'nex-wire.com',color:'#E03131',tagline:'Global Intelligence'}
   const p = primaryColor || meta.color
 
-  const [searchQ, setSearchQ] = useState((searchParams?.q as string) || '')
+  const [searchQ, setSearchQ] = useState(((searchParams as any)?.q as string) || '')
 
   // Filter by section: exact category match first, then keyword match in title
   const filtered = section === 'All'
@@ -117,7 +118,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
       {/* Search bar */}
       <div style={{background:'#f5f5f5',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
           placeholder="🔍 Search articles by keyword..." 
           style={{flex:1,maxWidth:400,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:2}}
         />

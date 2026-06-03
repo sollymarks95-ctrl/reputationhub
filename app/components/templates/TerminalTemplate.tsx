@@ -48,15 +48,15 @@ const SITE_META: Record<string, { name:string; domain:string; accent:string; des
   'invest-data':      { name:'InvexHub',domain:'invexhub.com',  accent:'#0EA5E9', desc:'Investment Intelligence & Fund Data'         },
 }
 
-const NAVTABS = ['LIVE','MARKETS','ANALYSIS','SIGNALS','DATA','FOREX','CRYPTO']
+const NAVTABS = ['LIVE','MARKETS','FINANCE','FOREX','COMMODITIES','ANALYSIS','CRYPTO']
 const NAV_FILTER: Record<string, string[]> = {
-  'LIVE':     [],
-  'MARKETS':  ['markets','equities','stocks'],
-  'ANALYSIS': ['analysis','research','report'],
-  'SIGNALS':  ['signals','technical','forex'],
-  'DATA':     ['data','commodities','bonds'],
-  'FOREX':    ['forex','currency','fx'],
-  'CRYPTO':   ['crypto','bitcoin','digital'],
+  'LIVE':        [],
+  'MARKETS':     ['markets','equities','stocks'],
+  'FINANCE':     ['finance','banking','rates','bonds'],
+  'FOREX':       ['forex','currency','fx','dollar'],
+  'COMMODITIES': ['commodities','gold','oil','silver'],
+  'ANALYSIS':    ['analysis','research','report','outlook'],
+  'CRYPTO':      ['crypto','bitcoin','ethereum','digital'],
 }
 
 function timeAgo(d: string) {
@@ -77,7 +77,7 @@ function Newsletter({ siteName, accent }: any) {
   if (done) return <div style={{fontFamily:'IBM Plex Mono,monospace',fontSize:12,color:accent,padding:'10px 16px',border:`1px solid ${accent}`,borderRadius:2}}>✓ SUBSCRIBED — BRIEFING ACTIVE</div>
   return (
     <form onSubmit={sub} style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-      <input value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="your@email.com" required
+      <input value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" placeholder="your@email.com" required
         style={{flex:1,padding:'8px 14px',background:'#ffffff',border:'1px solid #e5e7eb',color:'#1a1a2e',fontFamily:'IBM Plex Mono,monospace',fontSize:12,outline:'none',minWidth:180}}/>
       <button type="submit" style={{padding:'8px 18px',background:accent,color:'#000',border:'none',fontFamily:'IBM Plex Mono,monospace',fontWeight:700,fontSize:12,cursor:'pointer'}}>SUBSCRIBE</button>
     </form>
@@ -213,7 +213,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
           {/* Inline Search Bar */}
       <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
         <input
-          value={searchQ||''} onChange={e=>setSearchQ(e.target.value)}
+          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
           placeholder="🔍 Search articles by keyword..."
           style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
         />
@@ -226,7 +226,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
       {/* Search bar */}
       <div style={{background:'#0a0a0a',borderBottom:'1px solid #1a1a1a',padding:'6px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
-        <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+        <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
           placeholder="🔍 Search articles by keyword..."
           style={{flex:1,maxWidth:380,padding:'6px 12px',background:'#111',border:'1px solid #2a2a2a',color:'#e2e8f0',fontSize:12,outline:'none',borderRadius:2}}
         />

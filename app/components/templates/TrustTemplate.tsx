@@ -36,8 +36,8 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
   return (
     <a href={`/reviews/${company.slug}`} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
       <div style={{ border:'1px solid #E2E8F0', borderRadius:12, padding:0, background:'#fff', transition:'all .2s', overflow:'hidden', height:'100%' }}
-        onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.boxShadow='0 8px 30px rgba(0,0,0,0.12)';(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
-        onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.boxShadow='none';(e.currentTarget as HTMLElement).style.transform='none'}}>
+        onMouseEnter={(e:any)=>{(e.currentTarget as HTMLElement).style.boxShadow='0 8px 30px rgba(0,0,0,0.12)';(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
+        onMouseLeave={(e:any)=>{(e.currentTarget as HTMLElement).style.boxShadow='none';(e.currentTarget as HTMLElement).style.transform='none'}}>
 
         {/* Card header */}
         <div style={{ padding:'20px 20px 0' }}>
@@ -50,7 +50,7 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
                   alt={company.name}
                   width={48} height={48}
                   style={{ width:48, height:48, objectFit:'contain', display:'block', maxWidth:'100%' }}
-                  onError={(e) => {
+                  onError={(e:any) => {
                     const t = e.currentTarget
                     // Try DuckDuckGo favicon as fallback
                     if (!t.dataset.tried2) {
@@ -109,7 +109,7 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
         <div style={{ borderTop:'1px solid #F1F5F9', padding:'12px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAFBFC' }}>
           <span style={{ fontSize:13, fontWeight:700, color:GREEN }}>Read {reviewCount} reviews →</span>
           {company.website && (
-            <span onClick={e=>{e.preventDefault();e.stopPropagation();window.open(company.website,'_blank')}}
+            <span onClick={(e:any)=>{e.preventDefault();e.stopPropagation();window.open(company.website,'_blank')}}
               style={{ fontSize:12, color:'#64748B', padding:'4px 10px', border:'1px solid #E2E8F0', borderRadius:6, cursor:'pointer', background:'#fff', display:'flex', alignItems:'center', gap:4 }}>
               🌐 Visit site
             </span>
@@ -146,7 +146,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
     {id:'regulated',label:'Regulated Brokers',icon:'✅'},
   ]
 
-  const filtered = companies.filter(c => {
+  const filtered = companies.filter((c:any) => {
     if (activeCategory !== 'all' && c.category !== activeCategory) return false
     if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
@@ -196,7 +196,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
           </a>
           <div style={{ flex:1, maxWidth:480, position:'relative' }}>
             <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', fontSize:15 }}>🔍</span>
-            <input className="srch" placeholder="Search broker or platform..." value={search} onChange={e=>setSearch(e.target.value)} />
+            <input className="srch" placeholder="Search broker or platform..." value={search} onChange={(e:any)=>setSearch(e.target.value)} />
           </div>
           <div className="hide-m" style={{ display:'flex', gap:8, alignItems:'center' }}>
             <a href="/for-businesses" style={{ fontSize:13, color:'#475569', padding:'8px 14px', border:'1px solid #E2E8F0', borderRadius:8 }}>For Businesses</a>
@@ -219,13 +219,13 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
         {/* Inline Search Bar */}
       <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
         <input
-          value={search||''} onChange={e=>setSearch(e.target.value)}
+          value={search||''} onChange={(e:any)=>setSearch(e.target.value)}
           placeholder="🔍 Search articles by keyword..."
           style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
         />
-        {(searchQ||'').trim() && <>
+        {(search||'').trim() && <>
           <button onClick={()=>setSearch('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
-          <span style={{fontSize:12,color:'#64748b'}}>{visible.length} result{visible.length!==1?'s':''}</span>
+          <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} result{filtered.length!==1?'s':''}</span>
         </>}
       </div>
 
@@ -278,7 +278,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
             </div>
           ) : (
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, alignItems:'start' }} className="grid3">
-              {filtered.map(co=>(
+              {filtered.map((co:any)=>(
                 <CompanyCard key={co.id} company={co}
                   reviewCount={reviewStats[co.slug]?.count||0}
                   avgRating={reviewStats[co.slug]?.avg||0} />
@@ -297,8 +297,8 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
               {articles.slice(0,4).map((a:any)=>(
                 <a key={a.slug} href={`/article/${siteSlug}/${a.slug}`}
                   style={{ border:'1px solid #E2E8F0', borderRadius:12, overflow:'hidden', background:'#fff', display:'block', transition:'all .2s' }}
-                  onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.boxShadow='0 4px 20px rgba(0,0,0,0.1)';(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
-                  onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.boxShadow='none';(e.currentTarget as HTMLElement).style.transform='none'}}>
+                  onMouseEnter={(e:any)=>{(e.currentTarget as HTMLElement).style.boxShadow='0 4px 20px rgba(0,0,0,0.1)';(e.currentTarget as HTMLElement).style.transform='translateY(-2px)'}}
+                  onMouseLeave={(e:any)=>{(e.currentTarget as HTMLElement).style.boxShadow='none';(e.currentTarget as HTMLElement).style.transform='none'}}>
                   {a.cover_image_url && <img src={a.cover_image_url} alt={a.title} style={{ width:'100%', height:150, objectFit:'cover' }}/>}
                   <div style={{ padding:18 }}>
                     <div style={{ fontSize:10, fontWeight:700, color:GREEN, textTransform:'uppercase', letterSpacing:'.08em', marginBottom:6 }}>{a.category||'Analysis'}</div>

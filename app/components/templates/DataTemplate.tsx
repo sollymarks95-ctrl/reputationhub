@@ -1,3 +1,4 @@
+const AUREX_CATEGORIES = ['All','Markets','Gold','Commodities','Silver','Analysis']
 'use client'
 import { useState } from 'react'
 import CookieBanner from '@/app/components/CookieBanner'
@@ -34,7 +35,8 @@ const NAV_LINKS = [
 ]
 
 export default function DataTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor, searchParams }: any) {
-  const activeCategory = (searchParams as any)?.category || null
+  const [activeCat, setActiveCat] = useState<string|null>((searchParams as any)?.category || null)
+  const activeCategory = activeCat
   const p = primaryColor || '#B08700'
   const isAurex = siteSlug === 'gold-markets-today'
   const siteName = site?.name || (isAurex ? 'AUREXHQ' : 'CERTIVADE')
@@ -57,6 +59,12 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
   const hero = filtered[0]
   const side = filtered.slice(1, 7)
   const table = filtered.slice(7, 20)
+
+  const categories = AUREX_CATEGORIES
+  const catCounts: Record<string,number> = {}
+  AUREX_CATEGORIES.filter(c=>c!=='All').forEach(cat => {
+    catCounts[cat] = articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
+  })
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F8F6F0', color:'#2D2D2D', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
@@ -167,6 +175,22 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
           <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontWeight:700,fontSize:13}}>✕ Clear</button>
           <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} result{filtered.length!==1?'s':''}</span>
         </>}
+      </div>
+
+      {/* Category Filter Bar */}
+      <div style={{background:'#fff',borderBottom:'2px solid #e8e0d0',padding:'0 24px',display:'flex',gap:0,overflowX:'auto',fontFamily:"'Inter',sans-serif"}}>
+        {AUREX_CATEGORIES.map((cat:string) => {
+          const isActive = cat === 'All' ? !activeCat : activeCat?.toLowerCase() === cat.toLowerCase()
+          const cnt = cat === 'All' ? articles.length : articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
+          return (
+            <button key={cat} onClick={()=>setActiveCat(cat==='All'?null:cat)}
+              style={{padding:'10px 16px',background:'none',border:'none',borderBottom:isActive?'2px solid #B08700':'2px solid transparent',
+                fontSize:12,fontWeight:700,letterSpacing:'.04em',cursor:'pointer',whiteSpace:'nowrap',
+                color:isActive?'#1A1A1A':'#666'}}>
+              {cat}{cnt>0&&cat!=='All'&&<span style={{marginLeft:4,fontSize:10,opacity:.6}}>({cnt})</span>}
+            </button>
+          )
+        })}
       </div>
 
       {/* Hero article */}

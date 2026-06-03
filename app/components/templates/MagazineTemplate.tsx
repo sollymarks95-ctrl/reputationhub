@@ -27,12 +27,14 @@ const SITE_META: Record<string,{name:string;domain:string;color:string;tagline:s
   'executive-network': {name:'Execvex',  domain:'execvex.com',  color:'#3B5BDB', tagline:'Executive Leadership & Career Intelligence'},
 }
 
-const SECTIONS = ['All','Strategy','Leadership','Innovation','Finance','Markets','Interviews','Opinion']
+const SECTIONS = ['All','Markets','Strategy','Leadership','ESG','Analysis','Business']
 const SEC_FILTER: Record<string,string[]> = {
-  'Strategy':['strategy','growth','scaling','business'],'Leadership':['leadership','ceo','executive','management'],
-  'Innovation':['innovation','tech','ai','startup'],'Finance':['finance','investment','funding','capital'],
-  'Markets':['market','trading','stocks','forex'],'Interviews':['interview','ceo','profile','conversation'],
-  'Opinion':['opinion','perspective','editorial','view'],
+  'Markets':   ['markets','equities','stocks','financial'],
+  'Strategy':  ['strategy','strategic','execution','planning'],
+  'Leadership':['leadership','executive','ceo','management','director'],
+  'ESG':       ['esg','sustainability','environment','governance','social'],
+  'Analysis':  ['analysis','research','report','outlook'],
+  'Business':  ['business','corporate','enterprise','company'],
 }
 
 function timeAgo(d:string) {
@@ -48,17 +50,17 @@ function Newsletter({siteName,p}:any) {
   return done
     ?<div style={{padding:'14px 18px',background:'rgba(255,255,255,0.15)',borderRadius:4,fontSize:14,fontWeight:700,color:'#fff',fontFamily:'Inter,sans-serif'}}>✓ Subscribed! First issue tomorrow morning.</div>
     :<form onSubmit={sub} style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-      <input value={email} onChange={e=>setEmail(e.target.value)} type="email" placeholder="Your work email" required
+      <input value={email} onChange={(e:any)=>setEmail(e.target.value)} type="email" placeholder="Your work email" required
         style={{flex:1,padding:'11px 16px',border:'none',fontFamily:'Inter,sans-serif',fontSize:13,minWidth:200,outline:'none'}}/>
       <button type="submit" style={{padding:'11px 22px',background:'#1A1A1A',color:'#fff',border:'none',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>Join Free →</button>
     </form>
 }
-export default function MagazineTemplate({ articles=[], site, siteSlug, primaryColor }:any) {
+export default function MagazineTemplate({ articles=[], site, siteSlug, primaryColor , searchParams}:any) {
   const [section, setSection] = useState('All')
   const meta = SITE_META[siteSlug] || {name:site?.name||'Bizplezx',domain:'bizplezx.com',color:'#6741D9',tagline:'Business Intelligence'}
   const p = primaryColor || meta.color
 
-  const [searchQ, setSearchQ] = useState((searchParams?.q as string) || '')
+  const [searchQ, setSearchQ] = useState(((searchParams as any)?.q as string) || '')
 
   // Filter by section: exact category match OR keyword in title
   const filtered = section === 'All'
@@ -140,7 +142,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         {/* Inline Search Bar */}
       <div style={{background:'#f8fafc',borderBottom:'1px solid #e5e7eb',padding:'8px 20px',display:'flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif'}}>
         <input
-          value={searchQ||''} onChange={e=>setSearchQ(e.target.value)}
+          value={searchQ||''} onChange={(e:any)=>setSearchQ(e.target.value)}
           placeholder="🔍 Search articles by keyword..."
           style={{flex:1,maxWidth:420,padding:'8px 14px',border:'1px solid #ddd',fontSize:13,outline:'none',borderRadius:3}}
         />
