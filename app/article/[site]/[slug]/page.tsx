@@ -372,7 +372,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             </div>
 
             {/* HEADLINE */}
-            <h1 style={{ fontSize:38, fontWeight:900, lineHeight:1.15, marginBottom:14, letterSpacing:'-0.5px', fontFamily:'sans-serif', color:'#111' }}>
+            <h1 style={{ fontSize:38, fontWeight:900, lineHeight:1.15, marginBottom:14, letterSpacing:'-0.5px', fontFamily:'sans-serif', color:headingText }}>
               {article.title}
             </h1>
 
@@ -384,10 +384,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             )}
 
             {/* AUTHOR META — NO AVATAR IMAGE */}
-            <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18, paddingBottom:14, borderBottom:'2px solid #111', fontFamily:'sans-serif', flexWrap:'wrap' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:18, paddingBottom:14, borderBottom:`2px solid ${borderColor}`, fontFamily:'sans-serif', flexWrap:'wrap' }}>
 
               <div>
-                <div style={{ fontWeight:800, fontSize:14, color:'#111' }}>By {article.author_name || 'Editorial Team'}</div>
+                <div style={{ fontWeight:800, fontSize:14, color:headingText }}>By {article.author_name || 'Editorial Team'}</div>
                 <div style={{ fontSize:12, color:textMuted, marginTop:2 }}>
                   {site.name} · {article.published_at ? formatShort(article.published_at) : 'Today'}
                 </div>
@@ -410,16 +410,24 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
             {/* ARTICLE BODY */}
             <div className="body" style={{ background:bgHeader, padding:'28px 32px', borderRadius:4, marginBottom:4 }}>
-              {paragraphs.map((para: string, i: number) => {
-                if (para.startsWith('##') || para.startsWith('# ')) return <h2 key={i}>{para.replace(/^#{1,3}\s*/, '')}</h2>
-                if (para.startsWith('>')) return <blockquote key={i}>{para.replace(/^>\s*/, '')}</blockquote>
-                if (para.startsWith('- ') || para.startsWith('* ')) {
-                  const items = para.split('\n').filter(l => l.startsWith('- ') || l.startsWith('* '))
-                  return <ul key={i}>{items.map((item, j) => <li key={j}>{item.replace(/^[-*]\s*/, '')}</li>)}</ul>
+              {(() => {
+                // If body contains HTML tags, render as HTML (new articles from improved cron)
+                const hasHTML = /<[a-z][^>]*>/i.test(rawBody)
+                if (hasHTML) {
+                  return <div dangerouslySetInnerHTML={{ __html: rawBody }} />
                 }
-                if (para.toUpperCase() === para && para.length < 80 && para.trim().length > 3) return <h3 key={i}>{para}</h3>
-                return <p key={i}>{para.replace(/\n/g, ' ').trim()}</p>
-              })}
+                // Legacy: plain text with markdown-style headers
+                return paragraphs.map((para: string, i: number) => {
+                  if (para.startsWith('##') || para.startsWith('# ')) return <h2 key={i}>{para.replace(/^#{1,3}\s*/, '')}</h2>
+                  if (para.startsWith('>')) return <blockquote key={i}>{para.replace(/^>\s*/, '')}</blockquote>
+                  if (para.startsWith('- ') || para.startsWith('* ')) {
+                    const items = para.split('\n').filter(l => l.startsWith('- ') || l.startsWith('* '))
+                    return <ul key={i}>{items.map((item, j) => <li key={j}>{item.replace(/^[-*]\s*/, '')}</li>)}</ul>
+                  }
+                  if (para.toUpperCase() === para && para.length < 80 && para.trim().length > 3) return <h3 key={i}>{para}</h3>
+                  return <p key={i}>{para.replace(/\n/g, ' ').trim()}</p>
+                })
+              })()}
             </div>
 
             {/* TAGS */}
@@ -440,7 +448,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* AUTHOR BIO — NO AVATAR IMAGE, JUST INITIAL */}
             <div style={{ background:bgHeader, border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
               <div>
-                  <div style={{ fontWeight:800, fontSize:15, color:'#111' }}>{article.author_name || 'Editorial Team'}</div>
+                  <div style={{ fontWeight:800, fontSize:15, color:headingText }}>{article.author_name || 'Editorial Team'}</div>
                   <div style={{ fontSize:11, color:p, fontWeight:700, marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>{site.name} Correspondent · {article.category || 'Markets'}</div>
                   <p style={{ fontSize:13, color:textSecondary, lineHeight:1.65 }}>
                     {article.author_name || 'The editorial team'} at {site.name} delivers expert analysis and breaking coverage across global markets, trade intelligence, and business strategy — combining deep industry expertise with rigorous reporting standards to provide actionable intelligence for business leaders worldwide.
@@ -455,7 +463,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {resolvedCrossPortal.map((item: any, i: number) => (
                     <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom: i < resolvedCrossPortal.length-1 ? '1px solid #f3f4f6' : 'none', textDecoration:'none' }}>
-                      <span style={{ fontSize:13, color:'#111', fontWeight:500, lineHeight:1.4, flex:1, marginRight:12 }}>{item.title}</span>
+                      <span style={{ fontSize:13, color:headingText, fontWeight:500, lineHeight:1.4, flex:1, marginRight:12 }}>{item.title}</span>
                       <span style={{ fontSize:10, fontWeight:700, color:p, background:`${p}12`, padding:'3px 8px', borderRadius:3, whiteSpace:'nowrap', flexShrink:0 }}>{item.portal}</span>
                     </a>
                   ))}
@@ -476,7 +484,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                         {rel.cover_image_url && <img src={rel.cover_image_url} alt={rel.title} style={{ width:'100%', height:130, objectFit:'cover', display:'block' }} loading="lazy" />}
                         <div style={{ padding:12 }}>
                           {rel.category && <span style={{ fontSize:9, fontWeight:900, color:p, letterSpacing:'0.08em', fontFamily:'sans-serif', textTransform:'uppercase' }}>{rel.category}</span>}
-                          <div style={{ fontSize:14, fontWeight:700, lineHeight:1.3, marginTop:4, marginBottom:5, fontFamily:'sans-serif', color:'#111' }}>{rel.title}</div>
+                          <div style={{ fontSize:14, fontWeight:700, lineHeight:1.3, marginTop:4, marginBottom:5, fontFamily:'sans-serif', color:headingText }}>{rel.title}</div>
                           <div style={{ fontSize:11, color:textMuted, fontFamily:'sans-serif', display:'flex', gap:8 }}>
                             <span>By {rel.author_name || 'Editorial'}</span>
                             <span>·</span>
@@ -509,7 +517,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                     {rel.cover_image_url && <img src={rel.cover_image_url} alt="" style={{ width:70, height:50, objectFit:'cover', borderRadius:3, flexShrink:0 }} loading="lazy" />}
                     <div>
                       {rel.category && <span style={{ fontSize:9, fontWeight:900, color:p, letterSpacing:'0.06em', fontFamily:'sans-serif', textTransform:'uppercase' }}>{rel.category}</span>}
-                      <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.3, color:'#111', marginTop:2 }}>{rel.title}</div>
+                      <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.3, color:headingText, marginTop:2 }}>{rel.title}</div>
                       <div style={{ fontSize:11, color:textMuted, marginTop:3, fontFamily:'sans-serif' }}>{rel.published_at ? timeAgo(rel.published_at) : ''}</div>
                     </div>
                   </div>
@@ -524,7 +532,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 <Link key={i} href={`/article/${siteSlug}/${rel.slug}`}>
                   <div style={{ display:'flex', gap:10, marginBottom:12, paddingBottom:12, borderBottom:i<4?'1px solid #f3f4f6':'none', cursor:'pointer', alignItems:'flex-start' }}>
                     <span style={{ fontSize:24, fontWeight:900, color:'#e5e7eb', lineHeight:1, flexShrink:0, minWidth:28, fontFamily:'sans-serif' }}>{i+1}</span>
-                    <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.35, color:'#111' }}>{rel.title}</div>
+                    <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.35, color:headingText }}>{rel.title}</div>
                   </div>
                 </Link>
               ))}
