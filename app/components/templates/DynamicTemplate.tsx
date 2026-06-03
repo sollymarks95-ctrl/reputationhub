@@ -75,12 +75,12 @@ function Editorial({ site, articles, p, font, slug, variant }: any) {
     </div>
   )
   if (variant === 3) return (
-    <div style={{ minHeight:'100vh', background:'#f4f1eb', fontFamily:gf('serif'), color:'#2d2516' }}>
+    <div style={{ minHeight:'100vh', background:'#fafbfc', fontFamily:font, color:'#0f172a' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
       .ev3-main{display:grid;grid-template-columns:2fr 1fr;gap:0}
       .ev3-col{padding:24px}
       @media(max-width:768px){.ev3-main{grid-template-columns:1fr!important}}`}</style>
-      <header style={{ background:'#2d2516', color:'#f4f1eb', padding:'16px 32px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <header style={{ background:p, color:'#fff', padding:'16px 32px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontSize:26, fontWeight:900, letterSpacing:'-0.5px', color:'#f4f1eb' }}>{site.name}</div></a>
         <div style={{ background:p, color:'#fff', fontSize:10, fontWeight:700, padding:'4px 10px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{site.category}</div>
       </header>

@@ -28,11 +28,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const category = site?.template_config?.category || site?.category || 'Finance'
   const noindex = site?.noindex ?? true
 
+  const faviconMap: Record<string,string> = {
+    'invest-data': '/icon-rephuby.svg',
+    'market-radar': '/icon-rephuby.svg',
+    'executive-network': '/icon-execvex.svg',
+    'crypto-hub': '/icon-cryptoxos.svg',
+  }
+  const favicon = faviconMap[site?.slug || ''] || '/icon-rephuby.svg'
+
   return {
     title: `${siteName} — ${tagline}`,
     description: tagline,
     robots: noindex ? 'noindex,nofollow' : 'index,follow',
     alternates: { canonical },
+    icons: { icon: favicon, shortcut: favicon, apple: favicon },
     openGraph: {
       title: `${siteName} — ${tagline}`,
       description: tagline,

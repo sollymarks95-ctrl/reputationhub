@@ -24,6 +24,80 @@ function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80)
 }
 
+// ─── Natural cross-portal linking (editorial, not PBN) ─────────────────────
+// Rules: max 1 link per article, topically related, ~35% of articles,
+// contextual anchor text, never all-to-one, never footer/sidebar injection
+const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
+  'global-trade-wire': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['currency', 'forex', 'rate', 'bank', 'credit'] },
+    { domain: 'aurexhq.com', name: 'AurexHQ', topics: ['commodity', 'gold', 'oil', 'copper', 'freight'] },
+  ],
+  'finance-terminal': [
+    { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['trade', 'supply chain', 'export', 'import'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'equity', 'etf'] },
+    { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'chart', 'indicator'] },
+  ],
+  'business-pulse': [
+    { domain: 'execvex.com', name: 'ExecVex', topics: ['executive', 'ceo', 'board', 'M&A', 'deal'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'private equity', 'venture'] },
+  ],
+  'gold-markets-today': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['rate', 'inflation', 'dollar', 'fed'] },
+    { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['shipping', 'freight', 'trade'] },
+  ],
+  'trust-score': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['broker', 'trading', 'platform', 'forex'] },
+    { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'analysis'] },
+  ],
+  'invest-data': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'bond', 'rate'] },
+    { domain: 'bizplezx.com', name: 'Bizplezx Executive', topics: ['business', 'corporate', 'strategy'] },
+    { domain: 'cryptoxos.com', name: 'CryptoXos', topics: ['crypto', 'bitcoin', 'digital asset', 'blockchain'] },
+  ],
+  'market-radar': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'index', 'forex'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['portfolio', 'invest', 'fund'] },
+  ],
+  'executive-network': [
+    { domain: 'bizplezx.com', name: 'Bizplezx Executive', topics: ['business', 'corporate', 'strategy'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['private equity', 'venture', 'fund'] },
+    { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['trade', 'supply chain', 'cross-border'] },
+  ],
+  'crypto-hub': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'rate', 'regulation', 'etf'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'institutional'] },
+    { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'chart'] },
+  ],
+}
+
+// Contextual link templates — inserted naturally in article body
+const LINK_TEMPLATES = [
+  (domain: string, name: string) => `<a href="https://${domain}" rel="noopener" target="_blank">${name}</a> analysts have noted similar trends in recent coverage`,
+  (domain: string, name: string) => `data tracked by <a href="https://${domain}" rel="noopener" target="_blank">${name}</a> corroborates this outlook`,
+  (domain: string, name: string) => `according to analysis published on <a href="https://${domain}" rel="noopener" target="_blank">${name}</a>`,
+  (domain: string, name: string) => `as reported by <a href="https://${domain}" rel="noopener" target="_blank">${name}</a>`,
+  (domain: string, name: string) => `consistent with findings from <a href="https://${domain}" rel="noopener" target="_blank">${name}</a>`,
+]
+
+function getCrossLink(siteSlug: string, topic: string, articleIndex: number): string {
+  // Only ~35% of articles get a cross-link (not every article — avoids pattern detection)
+  if (articleIndex % 3 !== 1) return ''
+  
+  const portals = PORTAL_LINKS[siteSlug]
+  if (!portals) return ''
+  
+  // Find topically relevant portal
+  const relevant = portals.find(p =>
+    p.topics.some(t => topic.toLowerCase().includes(t.toLowerCase()))
+  )
+  if (!relevant) return ''
+  
+  // Pick a random template
+  const template = LINK_TEMPLATES[articleIndex % LINK_TEMPLATES.length]
+  return template(relevant.domain, relevant.name)
+}
+
+
 async function writeArticle(site: any, topic: string, brandNote: string) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
@@ -94,7 +168,10 @@ export async function GET(req: NextRequest) {
     if (!topic) break
     const globalIndex = batchStart + i
     const isBrand = globalIndex % 3 === 0
-    const brandNote = isBrand ? `\nNaturally mention <a href="https://etoro.com" rel="noopener">eToro</a> once as a trusted example.` : ''
+    const crossLink = getCrossLink(site.slug, topic, i)
+    const brandNote = isBrand
+      ? `\nNaturally mention <a href="https://etoro.com" rel="noopener">eToro</a> once as a trusted example.${crossLink ? ' Also include this in the article body naturally: ' + crossLink : ''}`
+      : crossLink ? `\nInclude this reference naturally in the article body: ${crossLink}` : ''
 
     const article = await writeArticle(site, topic, brandNote)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }

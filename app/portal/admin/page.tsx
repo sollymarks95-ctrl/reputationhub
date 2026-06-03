@@ -21,7 +21,7 @@ async function getData() {
 
   const [clients, content, rankings, podcasts, activity, articleCount, subCount, reviewsData, pendingReviews, businessInquiries, allSitesData, companiesData] = await Promise.all([
     sb.from('portal_clients').select('*').order('created_at', { ascending: false }),
-    sb.from('portal_content').select('*').order('published_at', { ascending: false }).limit(50),
+    sb.from('portal_content').select('*').order('published_at', { ascending: false }).limit(200),
     sb.from('portal_rankings').select('*').order('current_position'),
     sb.from('podcast_scripts').select('*').order('created_at', { ascending: false }),
     sb.from('portal_activity').select('*').order('created_at', { ascending: false }).limit(25),
@@ -29,7 +29,7 @@ async function getData() {
     sb.from('newsletter_subscribers').select('*', { count: 'exact', head: true }),
     sb.from('verivex_reviews').select('*').order('created_at', { ascending: false }).limit(100),
     sb.from('verivex_reviews').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-    sb.from('business_inquiries').select('*').order('created_at', { ascending: false }).limit(50),
+    sb.from('business_inquiries').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('news_sites').select('id,name,slug,domain,noindex,is_active,template_config,category,tagline').eq('is_active', true).order('created_at', { ascending: false }),
     sb.from('verivex_companies').select('*').order('is_featured', { ascending: false }),
   ])
