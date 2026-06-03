@@ -2,23 +2,25 @@
 import Link from 'next/link'
 
 const PORTALS = [
-  { name:'NEX-WIRE',  domain:'nex-wire.com',    type:'Global Trade Intelligence', color:'#E03131', accent:'#FF6B6B', abbr:'NW', route:'news/global-trade-wire'          },
-  { name:'FINVEXX',   domain:'finvexx.com',      type:'Financial Markets & Data',  color:'#1971C2', accent:'#74C0FC', abbr:'FX', route:'finance/finance-terminal'        },
-  { name:'AUREXHQ',   domain:'aurexhq.com',      type:'Gold & Commodities',        color:'#B08700', accent:'#FFD43B', abbr:'AX', route:'commodities/gold-markets-today'  },
-  { name:'BIZPLEZX',  domain:'bizplezx.com',      type:'Business Strategy',         color:'#6741D9', accent:'#B197FC', abbr:'BX', route:'magazine/business-pulse'         },
-  { name:'VERIVEX',   domain:'verivex.co',       type:'Verified Reviews',          color:'#0CA678', accent:'#63E6BE', abbr:'VX', route:'reviews-hub/trust-score'         },
-  { name:'BIZPEDIA',  domain:'bizpedia.com',     type:'Company Intelligence',      color:'#1864AB', accent:'#74C0FC', abbr:'BZ', route:'wiki/company-pedia'              },
-  { name:'PRESXWIRE', domain:'presxwire.com',    type:'Press & Announcements',     color:'#C92A2A', accent:'#FF8787', abbr:'PW', route:'pressroom/press-central'         },
-  { name:'INVEXHUB',  domain:'invexhub.com',     type:'Investment Intelligence',   color:'#0B6E4F', accent:'#63E6BE', abbr:'IH', route:'investdb/invest-data'            },
-  { name:'TRADVEX',   domain:'tradvex.com',      type:'Trade Community',           color:'#D9480F', accent:'#FFA94D', abbr:'TV', route:'forum/trade-board'               },
-  { name:'CERTIVADE', domain:'certivade.com',    type:'Trade & Compliance',        color:'#1864AB', accent:'#A5D8FF', abbr:'CV', route:'association/global-trade-assoc'  },
-  { name:'EXECVEX',   domain:'execvex.com',      type:'Executive Network',         color:'#3B5BDB', accent:'#BAC8FF', abbr:'EV', route:'executive/executive-network'     },
-  { name:'SIGNALIX',  domain:'signalix.com',     type:'Market Signals & Radar',    color:'#A61E4D', accent:'#F783AC', abbr:'SX', route:'market-radar/market-radar'       },
+  { name:'NEX-WIRE',   domain:'nex-wire.com',    type:'Global Trade Intelligence',  color:'#E03131' },
+  { name:'FINVEXX',    domain:'finvexx.com',      type:'Financial Markets & Data',   color:'#1971C2' },
+  { name:'AUREXHQ',    domain:'aurexhq.com',      type:'Gold & Commodities',         color:'#B08700' },
+  { name:'BIZPLEZX',   domain:'bizplezx.com',     type:'Business Strategy',          color:'#6741D9' },
+  { name:'VERIVEX',    domain:'verivex.co',       type:'Verified Broker Reviews',    color:'#0CA678' },
+  { name:'INVEXHUBY',  domain:'invexhuby.com',    type:'Investment Intelligence',    color:'#0EA5E9' },
+  { name:'SIGNALIXX',  domain:'signalixx.com',    type:'Market Signals & Radar',     color:'#7C3AED' },
+  { name:'EXECVEX',    domain:'execvex.com',      type:'Executive Network',          color:'#3B5BDB' },
+  { name:'CRYPTOXOS',  domain:'cryptoxos.com',    type:'Crypto Markets',             color:'#F97316' },
 ]
 
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
+      {/* Editorial independence — one line at the very top */}
+      <div style={{ background:'rgba(16,185,129,0.08)', borderBottom:'1px solid rgba(16,185,129,0.15)', padding:'8px 20px', textAlign:'center', fontSize:12, color:'#6EE7B7', lineHeight:1.5 }}>
+        <strong style={{ color:'#10B981' }}>📋 Editorial Independence:</strong>{' '}
+        Verivex is an independent review platform. We are not affiliated with, paid by, or endorsed by any broker listed here — including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit}
@@ -174,19 +176,20 @@ export default function HomePage() {
         <div style={{ position:'absolute', left:0, top:0, bottom:0, width:180, background:'linear-gradient(90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ position:'absolute', right:0, top:0, bottom:0, width:180, background:'linear-gradient(-90deg,#0B0F19,transparent)', zIndex:2 }} />
         <div style={{ textAlign:'center', marginBottom:26 }}>
-          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Broker-Authored Content Published Across Our <strong style={{color:'#F1F5F9'}}>12 Elite Financial Portals</strong></h2>
+          <h2 className="syne" style={{ fontSize:22, fontWeight:400, color:'#64748b' }}>Broker-Authored Content Published Across Our <strong style={{color:'#F1F5F9'}}>9 Active Financial Portals</strong></h2>
           <p style={{ fontSize:13, color:'#475569', marginTop:6 }}>Your broker's articles, CEO interviews &amp; market analysis published daily — real content that pushes negatives down and builds genuine industry authority</p>
         </div>
         <div style={{ overflow:'hidden' }}>
           <div style={{ display:'flex', animation:'ticker 30s linear infinite', whiteSpace:'nowrap' }}>
             {[...PORTALS,...PORTALS].map((p, i) => (
-              <a key={i} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 22px', flexShrink:0, textDecoration:'none' }}>
-                <div style={{ width:36, height:36, borderRadius:8, background:`${p.color}28`, border:`1px solid ${p.color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:15, color:p.color }}>
-                  {p.name.charAt(0)}
+              <a key={i} href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer"
+                style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'10px 24px', flexShrink:0, textDecoration:'none' }}>
+                <div style={{ width:34, height:34, borderRadius:8, background:`${p.color}22`, border:`1px solid ${p.color}44`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:13, color:p.color, letterSpacing:'-.02em' }}>
+                  {p.name.slice(0,2)}
                 </div>
                 <div>
-                  <div className="syne" style={{ fontWeight:700, fontSize:14, color:p.color }}>{p.name}</div>
-                  <div style={{ fontSize:11, color:'#475569' }}>{p.type}</div>
+                  <div className="syne" style={{ fontWeight:800, fontSize:13, color:p.color, letterSpacing:'-.01em' }}>{p.name}</div>
+                  <div style={{ fontSize:10, color:'#475569', marginTop:1 }}>{p.domain}</div>
                 </div>
               </a>
             ))}
