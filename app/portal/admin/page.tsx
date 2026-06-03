@@ -19,7 +19,7 @@ async function getData() {
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   )
 
-  const [clients, content, rankings, podcasts, activity, articleCount, subCount, reviewsData, pendingReviews, businessInquiries, allSitesData, companiesData] = await Promise.all([
+  const [clients, content, rankings, podcasts, activity, articleCount, subCount, reviewsData, pendingReviews, businessInquiries, allSitesData, companiesData, todayArticles] = await Promise.all([
     sb.from('portal_clients').select('*').order('created_at', { ascending: false }),
     sb.from('portal_content').select('*').order('published_at', { ascending: false }).limit(200),
     sb.from('portal_rankings').select('*').order('current_position'),
@@ -32,6 +32,7 @@ async function getData() {
     sb.from('business_inquiries').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('news_sites').select('id,name,slug,domain,noindex,is_active,template_config,category,tagline').eq('is_active', true).order('created_at', { ascending: false }),
     sb.from('verivex_companies').select('*').order('is_featured', { ascending: false }),
+    sb.from('news_articles').select('news_site_id,published_at').eq('status','published').gte('published_at', new Date(Date.now()-86400000).toISOString()),
   ])
 
   return {
@@ -46,6 +47,11 @@ async function getData() {
     pendingReviews: pendingReviews.data || [],
     businessInquiries: businessInquiries.data || [],
     allDbSites: allSitesData.data || [],
+    portalArticlesToday: (() => {
+      const t: Record<string,number> = {}
+      for (const a of (todayArticles?.data || [])) t[a.news_site_id] = (t[a.news_site_id]||0)+1
+      return t
+    })(),
     companies: companiesData.data || [],
   }
 }
