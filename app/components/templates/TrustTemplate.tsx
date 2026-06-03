@@ -139,18 +139,40 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
   },[])
 
   const CATS = [
-    {id:'all',label:'All Reviews',icon:'⭐'},
-    {id:'forex',label:'Forex Brokers',icon:'📈'},
-    {id:'crypto',label:'Crypto Exchanges',icon:'₿'},
-    {id:'prop',label:'Prop Firms',icon:'🏦'},
-    {id:'regulated',label:'Regulated Brokers',icon:'✅'},
+    {id:'all',       label:'All',          icon:'⭐'},
+    {id:'forex',     label:'Forex / CFD',  icon:'📈'},
+    {id:'crypto',    label:'Crypto',       icon:'₿'},
+    {id:'stocks',    label:'Stocks',       icon:'📊'},
+    {id:'investment',label:'Investing',    icon:'🏦'},
+    {id:'fintech',   label:'Fintech',      icon:'📱'},
+    {id:'prop',      label:'Prop Firms',   icon:'🎯'},
+    {id:'social',    label:'Copy Trading', icon:'👥'},
   ]
 
-  const filtered = companies.filter((c:any) => {
-    if (activeCategory !== 'all' && c.category !== activeCategory) return false
-    if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false
+  // Use normalised .group field from API (added by verivex/companies route)
+  const filtered = companies.filter((co:any) => {
+    if (activeCategory !== 'all' && co.group !== activeCategory) return false
+    if (search && !co.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
+
+  // Grouped view for "All" tab
+  const GROUP_LABELS: Record<string,{label:string;icon:string}> = {
+    forex:     {label:'Top Forex & CFD Brokers', icon:'📈'},
+    crypto:    {label:'Top Crypto Exchanges',     icon:'₿'},
+    stocks:    {label:'Stock Brokers & Apps',     icon:'📊'},
+    investment:{label:'Investment Platforms',     icon:'🏦'},
+    fintech:   {label:'Fintech & Neobanks',       icon:'📱'},
+    prop:      {label:'Prop Trading Firms',       icon:'🎯'},
+    social:    {label:'Copy & Social Trading',    icon:'👥'},
+    other:     {label:'Other Platforms',          icon:'⭐'},
+  }
+  const grouped: Record<string, any[]> = {}
+  for (const co of companies) {
+    const g = co.group || 'other'
+    if (!grouped[g]) grouped[g] = []
+    grouped[g].push(co)
+  }
 
   // SEO: structured data
   const aggregateRating = {
@@ -263,12 +285,43 @@ export default function TrustTemplate({ articles = [], site, siteSlug }: any) {
               <div style={{ fontSize:48, marginBottom:12 }}>🔍</div>
               <div style={{ fontWeight:600 }}>No results found for "{search}"</div>
             </div>
+          ) : activeCategory === 'all' && !search ? (
+            /* Grouped view — one section per category */
+            <div>
+              {Object.entries(GROUP_LABELS).map(([groupId, meta]) => {
+                const groupCos = (grouped[groupId] || []).slice(0, 6)
+                if (groupCos.length === 0) return null
+                return (
+                  <div key={groupId} style={{ marginBottom:40 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16, paddingBottom:10, borderBottom:'2px solid #F1F5F9' }}>
+                      <span style={{ fontSize:22 }}>{meta.icon}</span>
+                      <h2 style={{ fontSize:17, fontWeight:800, color:'#0F172A', letterSpacing:'.01em' }}>{meta.label}</h2>
+                      <span style={{ fontSize:12, color:'#94A3B8', marginLeft:4 }}>({(grouped[groupId]||[]).length})</span>
+                      {(grouped[groupId]||[]).length > 6 && (
+                        <button onClick={()=>setActiveCategory(groupId)}
+                          style={{ marginLeft:'auto', fontSize:12, fontWeight:600, color:'#00B67A', background:'none', border:'none', cursor:'pointer' }}>
+                          See all {(grouped[groupId]||[]).length} →
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }} className="grid3">
+                      {groupCos.map((co:any) => (
+                        <CompanyCard key={co.id} company={co}
+                          reviewCount={co.review_count||reviewStats[co.slug]?.count||0}
+                          avgRating={co.avg_rating||reviewStats[co.slug]?.avg||0} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           ) : (
+            /* Filtered / search view */
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, alignItems:'start' }} className="grid3">
               {filtered.map((co:any)=>(
                 <CompanyCard key={co.id} company={co}
-                  reviewCount={reviewStats[co.slug]?.count||0}
-                  avgRating={reviewStats[co.slug]?.avg||0} />
+                  reviewCount={co.review_count||reviewStats[co.slug]?.count||0}
+                  avgRating={co.avg_rating||reviewStats[co.slug]?.avg||0} />
               ))}
             </div>
           )}

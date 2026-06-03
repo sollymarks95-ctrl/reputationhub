@@ -154,14 +154,12 @@ export async function GET(req: NextRequest) {
       category: company.category,
       regulation: company.regulation,
       founded: company.founded,
-      hq: company.hq,
+      headquarters: company.hq,
       website: company.website,
       tagline: company.tagline,
       description: company.description,
-      trust_score: Math.floor(Math.random() * 20) + 74, // 74-94
-      review_count: 0,
       is_featured: false,
-      status: 'active',
+      is_verified: true,
     })
 
     if (compErr) { console.error('Company insert error:', company.slug, compErr.message); continue }
@@ -172,12 +170,13 @@ export async function GET(req: NextRequest) {
 
     const toInsert = reviews.map((r: any, i: number) => ({
       company_slug: company.slug,
+      company_name: company.name,
       reviewer_name: rand(NAMES),
       rating: r.rating || 4,
       title: r.title || 'Review',
-      body: r.body || '',
+      review_text: r.body || '',
       verified: true,
-      status: 'published',
+      status: 'approved',
       created_at: new Date(Date.now() - i * 86400000 * Math.floor(Math.random() * 7)).toISOString(),
     }))
 

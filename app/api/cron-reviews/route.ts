@@ -72,7 +72,6 @@ export async function GET(req: NextRequest) {
   const { data: companies } = await db
     .from('verivex_companies')
     .select('slug, name, category, regulation, description, tagline, trust_score')
-    .eq('status', 'active')
     .order('slug')
 
   if (!companies || companies.length === 0) return NextResponse.json({ ok: true, message: 'No companies yet' })
@@ -84,7 +83,7 @@ export async function GET(req: NextRequest) {
     .eq('status', 'published')
 
   const counts: Record<string, number> = {}
-  for (const co of companies) counts[co.slug] = 0
+  for (const co of (companies as any[])) counts[co.slug] = 0
   for (const r of reviewCounts || []) counts[r.company_slug] = (counts[r.company_slug] || 0) + 1
 
   // Weighted random: lower review count = higher chance of being picked
@@ -98,7 +97,7 @@ export async function GET(req: NextRequest) {
   const picked: any[] = []
   const seen = new Set<string>()
   for (let i = 0; i < 200 && picked.length < 5; i++) {
-    const co = rand(weighted)
+    const co = rand(weighted) as any
     if (!seen.has(co.slug)) { picked.push(co); seen.add(co.slug) }
   }
 
@@ -112,12 +111,13 @@ export async function GET(req: NextRequest) {
 
     const toInsert = reviews.map((r: any, i: number) => ({
       company_slug: company.slug,
+      company_name: company.name,
       reviewer_name: rand(REVIEWER_NAMES),
       rating: Math.max(1, Math.min(5, parseInt(r.rating) || 4)),
       title: (r.title || 'Review').slice(0, 120),
-      body: r.body || '',
-      verified: Math.random() > 0.2, // 80% verified
-      status: 'published',
+      review_text: r.body || '',
+      verified: Math.random() > 0.2,
+      status: 'approved',
       created_at: new Date(Date.now() - randInt(0, 48) * 3600000).toISOString(),
     }))
 
@@ -126,10 +126,7 @@ export async function GET(req: NextRequest) {
       totalInserted += toInsert.length
       results.push({ company: company.name, added: toInsert.length })
 
-      // Update trust score slightly
-      const avgRating = reviews.reduce((s: number, r: any) => s + (parseInt(r.rating) || 4), 0) / reviews.length
-      const newScore = Math.min(99, Math.max(40, (company.trust_score || 75) * 0.95 + avgRating * 4))
-      await db.from('verivex_companies').update({ trust_score: Math.round(newScore) }).eq('slug', company.slug)
+      // trust_score column removed from schema
     }
 
     await new Promise(r => setTimeout(r, 400))
