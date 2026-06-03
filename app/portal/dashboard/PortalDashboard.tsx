@@ -53,6 +53,13 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
   const [serpLoading, setSerpLoading] = useState(false)
   const [serpError, setSerpError] = useState('')
   const [savedKeywords] = useState(['eToro review', 'eToro broker', 'eToro trading platform', 'eToro fees', 'is eToro safe'])
+  // AI Review state
+  const [rankingMode, setRankingMode] = useState<'serp'|'ai'>('serp')
+  const [aiQuestion, setAiQuestion] = useState('')
+  const [aiResults, setAiResults] = useState<any>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
+  const [savedQuestions] = useState(['Is eToro safe?', 'What is eToro?', 'Best trading platforms 2025', 'eToro vs competitors', 'Is eToro regulated?'])
   
   // Podcast player
   const [playingPod, setPlayingPod] = useState<string | null>(null)
@@ -116,6 +123,26 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
     }
     setSerpLoading(false)
   }
+
+  const checkAiReview = async (q: string) => {
+    if (!q.trim()) return
+    setAiLoading(true); setAiError(''); setAiResults(null)
+    try {
+      const r = await fetch('/api/client/ai-review', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ question: q }),
+      })
+      const data = await r.json()
+      if (!r.ok || data.error) throw new Error(data.error || 'AI review failed')
+      setAiResults(data)
+    } catch (e: any) {
+      setAiError(e.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
 
   const totalArticles = content.length
   const totalViews = analytics?.totalArticleViews || 0
@@ -514,11 +541,32 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
             </div>
           )}
 
-          {/* ═══ RANKINGS / LIVE SEARCH ═══ */}
+          {/* ═══ RANKINGS / LIVE SEARCH + AI REVIEW ═══ */}
           {tab === 'rankings' && (
             <div className="fade">
+              {/* Mode toggle */}
+              <div style={{ display:'flex', gap:0, marginBottom:20, background:'#0f172a', borderRadius:8, padding:4, border:'1px solid #1e293b', width:'fit-content' }}>
+                <button
+                  onClick={() => setRankingMode('serp')}
+                  style={{ padding:'8px 20px', borderRadius:6, border:'none', cursor:'pointer', fontSize:13, fontWeight:700, transition:'all 0.2s',
+                    background: rankingMode === 'serp' ? p : 'transparent',
+                    color: rankingMode === 'serp' ? '#fff' : '#475569' }}>
+                  🔍 SERP Rankings
+                </button>
+                <button
+                  onClick={() => setRankingMode('ai')}
+                  style={{ padding:'8px 20px', borderRadius:6, border:'none', cursor:'pointer', fontSize:13, fontWeight:700, transition:'all 0.2s',
+                    background: rankingMode === 'ai' ? p : 'transparent',
+                    color: rankingMode === 'ai' ? '#fff' : '#475569' }}>
+                  🤖 AI Engine Review
+                </button>
+              </div>
+
+              {/* ── SERP MODE ── */}
+              {rankingMode === 'serp' && (
+              <div>
               <div className="card" style={{ marginBottom:20 }}>
-                <div style={{ fontWeight:700, fontSize:14, marginBottom:4 }}>🔍 Live Search Rankings</div>
+                <div style={{ fontWeight:700, fontSize:14, marginBottom:4 }}>🔍 Live Google Rankings</div>
                 <div style={{ fontSize:12, color:'#475569', marginBottom:16 }}>
                   Check real-time Google results for any keyword. See where your brand ranks and what competitors we're displacing.
                 </div>
@@ -534,8 +582,6 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                     {serpLoading ? <span className="spin">⟳</span> : '🔍'} {serpLoading ? 'Checking…' : 'Check Now'}
                   </button>
                 </div>
-
-                {/* Quick keywords */}
                 <div style={{ marginTop:12, display:'flex', gap:8, flexWrap:'wrap' }}>
                   <span style={{ fontSize:11, color:'#475569' }}>Quick check:</span>
                   {savedKeywords.map(kw => (
@@ -563,65 +609,44 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
 
               {serpResults && (
                 <div className="fade">
-                  {/* Summary */}
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:20 }}>
                     <div className="kpi">
                       <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Your Portals Found</div>
-                      <div style={{ fontSize:36, fontWeight:900, color:'#10b981' }}>
-                        {serpResults.results?.filter((r: any) => r.isOurs).length || 0}
-                      </div>
+                      <div style={{ fontSize:36, fontWeight:900, color:'#10b981' }}>{serpResults.results?.filter((r: any) => r.isOurs).length || 0}</div>
                       <div style={{ fontSize:11, color:'#475569' }}>in top 10 results</div>
                     </div>
                     <div className="kpi">
                       <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Competitors Found</div>
-                      <div style={{ fontSize:36, fontWeight:900, color:'#f59e0b' }}>
-                        {serpResults.results?.filter((r: any) => !r.isOurs).length || 0}
-                      </div>
+                      <div style={{ fontSize:36, fontWeight:900, color:'#f59e0b' }}>{serpResults.results?.filter((r: any) => !r.isOurs).length || 0}</div>
                       <div style={{ fontSize:11, color:'#475569' }}>other domains</div>
                     </div>
                     <div className="kpi">
                       <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Checked At</div>
-                      <div style={{ fontSize:16, fontWeight:700, color:'#f1f5f9', marginTop:4 }}>
-                        {new Date(serpResults.checkedAt).toLocaleTimeString()}
-                      </div>
+                      <div style={{ fontSize:16, fontWeight:700, color:'#f1f5f9', marginTop:4 }}>{new Date(serpResults.checkedAt).toLocaleTimeString()}</div>
                       <div style={{ fontSize:11, color:'#475569' }}>live result</div>
                     </div>
                   </div>
-
-                  {/* Results table */}
                   <div className="card">
                     <div style={{ fontWeight:700, fontSize:14, marginBottom:16, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                      Results for "{serpResults.keyword}"
-                      <button className="btn btn-ghost" style={{fontSize:11,padding:'5px 10px'}} onClick={() => checkRankings(serpResults.keyword)}>
-                        ⟳ Re-check
-                      </button>
+                      Results for &quot;{serpResults.keyword}&quot;
+                      <button className="btn btn-ghost" style={{fontSize:11,padding:'5px 10px'}} onClick={() => checkRankings(serpResults.keyword)}>⟳ Re-check</button>
                     </div>
                     <table>
-                      <thead>
-                        <tr>
-                          <th style={{width:40}}>#</th>
-                          <th>Title</th>
-                          <th>Domain</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
+                      <thead><tr><th style={{width:40}}>#</th><th>Title</th><th>Domain</th><th>Status</th></tr></thead>
                       <tbody>
                         {(serpResults.results || []).map((r: any, i: number) => (
                           <tr key={i} style={{ background: r.isOurs ? 'rgba(16,185,129,0.05)' : 'transparent' }}>
                             <td style={{ fontWeight:700, color: r.isOurs ? '#10b981' : '#475569' }}>{r.position || i+1}</td>
                             <td>
-                              <a href={r.url} target="_blank" rel="noopener" style={{ color: r.isOurs ? '#6ee7b7' : '#e2e8f0', fontWeight: r.isOurs ? 600 : 400, fontSize:13 }}>
-                                {r.title}
-                              </a>
+                              <a href={r.url} target="_blank" rel="noopener" style={{ color: r.isOurs ? '#6ee7b7' : '#e2e8f0', fontWeight: r.isOurs ? 600 : 400, fontSize:13 }}>{r.title}</a>
                               {r.snippet && <div style={{ fontSize:11, color:'#475569', marginTop:2 }}>{r.snippet?.slice(0,100)}…</div>}
                             </td>
-                            <td style={{ fontSize:12, color:'#64748b' }}>{r.domain || (r.url ? new URL(r.url).hostname : '—')}</td>
+                            <td style={{ fontSize:12, color:'#64748b' }}>{r.domain || '—'}</td>
                             <td>
-                              {r.isOurs ? (
-                                <span className="tag" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981' }}>✓ Our Portal</span>
-                              ) : (
-                                <span className="tag" style={{ background:'rgba(100,116,139,0.15)', color:'#64748b' }}>Competitor</span>
-                              )}
+                              {r.isOurs
+                                ? <span className="tag" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981' }}>✓ Our Portal</span>
+                                : <span className="tag" style={{ background:'rgba(100,116,139,0.15)', color:'#64748b' }}>Competitor</span>
+                              }
                             </td>
                           </tr>
                         ))}
@@ -630,6 +655,115 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                   </div>
                 </div>
               )}
+              </div>
+              )}
+
+              {/* ── AI REVIEW MODE ── */}
+              {rankingMode === 'ai' && (
+              <div>
+                <div className="card" style={{ marginBottom:20 }}>
+                  <div style={{ fontWeight:700, fontSize:14, marginBottom:4 }}>🤖 AI Engine Review</div>
+                  <div style={{ fontSize:12, color:'#475569', marginBottom:16 }}>
+                    Ask how AI engines (Claude, ChatGPT, Perplexity, Gemini) answer questions about your brand. Simulates GEO — Generative Engine Optimization.
+                  </div>
+                  <div style={{ display:'flex', gap:10 }}>
+                    <input
+                      className="inp"
+                      placeholder='e.g. "What is eToro?" or "Best trading platforms 2025"'
+                      value={aiQuestion}
+                      onChange={e => setAiQuestion(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && checkAiReview(aiQuestion)}
+                    />
+                    <button className="btn btn-primary" onClick={() => checkAiReview(aiQuestion)} disabled={aiLoading || !aiQuestion.trim()} style={{ whiteSpace:'nowrap' }}>
+                      {aiLoading ? <span className="spin">⟳</span> : '🤖'} {aiLoading ? 'Asking AI…' : 'Ask AI'}
+                    </button>
+                  </div>
+                  <div style={{ marginTop:12, display:'flex', gap:8, flexWrap:'wrap' }}>
+                    <span style={{ fontSize:11, color:'#475569' }}>Quick questions:</span>
+                    {savedQuestions.map(q => (
+                      <button key={q} className="btn btn-ghost" style={{ fontSize:11, padding:'4px 10px' }}
+                        onClick={() => { setAiQuestion(q); checkAiReview(q) }}>
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {aiLoading && (
+                  <div className="card" style={{ textAlign:'center', padding:40 }}>
+                    <span className="spin" style={{ display:'inline-block', fontSize:28, color:p }}>⟳</span>
+                    <div style={{ marginTop:12, color:'#64748b' }}>Asking 4 AI engines: <strong style={{color:'#f1f5f9'}}>"{aiQuestion}"</strong></div>
+                    <div style={{ fontSize:11, color:'#334155', marginTop:4 }}>Querying Claude, ChatGPT, Perplexity, Gemini…</div>
+                  </div>
+                )}
+
+                {aiError && (
+                  <div className="card" style={{ background:'rgba(239,68,68,0.08)', borderColor:'rgba(239,68,68,0.2)', color:'#fca5a5' }}>
+                    Error: {aiError}
+                  </div>
+                )}
+
+                {aiResults && (
+                  <div className="fade">
+                    {/* Summary KPIs */}
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:20 }}>
+                      <div className="kpi">
+                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Brand Mentioned</div>
+                        <div style={{ fontSize:36, fontWeight:900, color: aiResults.summary.mentionRate >= 50 ? '#10b981' : '#f59e0b' }}>
+                          {aiResults.summary.mentionClient}/{aiResults.summary.enginesChecked}
+                        </div>
+                        <div style={{ fontSize:11, color:'#475569' }}>AI engines mention eToro</div>
+                      </div>
+                      <div className="kpi">
+                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention Rate</div>
+                        <div style={{ fontSize:36, fontWeight:900, color: aiResults.summary.mentionRate >= 50 ? '#10b981' : '#f59e0b' }}>
+                          {aiResults.summary.mentionRate}%
+                        </div>
+                        <div style={{ fontSize:11, color:'#475569' }}>of AI answers include brand</div>
+                      </div>
+                      <div className="kpi">
+                        <div style={{ fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Checked At</div>
+                        <div style={{ fontSize:16, fontWeight:700, color:'#f1f5f9', marginTop:4 }}>{new Date(aiResults.checkedAt).toLocaleTimeString()}</div>
+                        <div style={{ fontSize:11, color:'#475569' }}>live result</div>
+                      </div>
+                    </div>
+
+                    {/* AI Engine Answers */}
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+                      {aiResults.results.map((r: any) => (
+                        <div key={r.engine} className="card" style={{ borderColor: r.mentionsClient ? 'rgba(16,185,129,0.3)' : '#1e293b' }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                              <span style={{ fontSize:18 }}>{r.icon}</span>
+                              <div style={{ fontWeight:700, fontSize:13 }}>{r.name}</div>
+                            </div>
+                            {r.answer && (
+                              r.mentionsClient
+                                ? <span className="tag" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981' }}>✓ Mentions eToro</span>
+                                : <span className="tag" style={{ background:'rgba(100,116,139,0.15)', color:'#64748b' }}>No mention</span>
+                            )}
+                          </div>
+                          {r.error ? (
+                            <div style={{ fontSize:12, color:'#ef4444' }}>Error: {r.error}</div>
+                          ) : (
+                            <div style={{ fontSize:13, color:'#cbd5e1', lineHeight:1.7 }}>
+                              {r.answer}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ marginTop:12, display:'flex', justifyContent:'flex-end' }}>
+                      <button className="btn btn-ghost" style={{fontSize:11,padding:'5px 10px'}} onClick={() => checkAiReview(aiResults.question)}>
+                        ⟳ Re-ask
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              )}
+
             </div>
           )}
 
