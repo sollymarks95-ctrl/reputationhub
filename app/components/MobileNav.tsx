@@ -11,11 +11,18 @@ interface MobileNavProps {
   onSectionChange: (s: string) => void
   podcastHref?: string
   logoStyle?: 'serif' | 'mono' | 'sans'
+  darkMode?: boolean
 }
 
 export default function MobileNav({
-  siteName, domain, accentColor, sections, activeSection, onSectionChange, podcastHref = '/podcasts', logoStyle = 'serif'
+  siteName, domain, accentColor, sections, activeSection, onSectionChange, podcastHref = '/podcasts', logoStyle = 'serif', darkMode = false
 }: MobileNavProps) {
+  const navBg    = darkMode ? '#0d1117' : '#fff'
+  const navBorder = darkMode ? '#21262d' : '#f0f0f0'
+  const textColor = darkMode ? '#f0f6fc' : '#111'
+  const subText   = darkMode ? '#8b949e' : '#94a3b8'
+  const drawerBg  = darkMode ? '#161b22' : '#fff'
+  const itemColor = darkMode ? '#c9d1d9' : '#374151'
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -28,19 +35,19 @@ export default function MobileNav({
   return (
     <>
       {/* Fixed nav bar */}
-      <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:200, background:'#fff', borderBottom:`3px solid ${accentColor}`, boxShadow:'0 1px 8px rgba(0,0,0,0.08)' }}>
+      <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:200, background:navBg, borderBottom:`3px solid ${accentColor}`, boxShadow:darkMode?'0 1px 8px rgba(0,0,0,0.3)':'0 1px 8px rgba(0,0,0,0.08)' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 16px' }}>
 
           {/* Hamburger */}
           <button onClick={() => setOpen(true)} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 6px', display:'flex', flexDirection:'column', gap:4 }} aria-label="Menu">
-            <span style={{ display:'block', width:22, height:2, background:'#111', borderRadius:2 }}/>
-            <span style={{ display:'block', width:16, height:2, background:'#111', borderRadius:2 }}/>
-            <span style={{ display:'block', width:22, height:2, background:'#111', borderRadius:2 }}/>
+            <span style={{ display:'block', width:22, height:2, background:textColor, borderRadius:2 }}/>
+            <span style={{ display:'block', width:16, height:2, background:textColor, borderRadius:2 }}/>
+            <span style={{ display:'block', width:22, height:2, background:textColor, borderRadius:2 }}/>
           </button>
 
           {/* Logo center */}
           <a href="/" style={{ textDecoration:'none', position:'absolute', left:'50%', transform:'translateX(-50%)' }}>
-            <div style={{ fontFamily:fontFam, fontSize:18, fontWeight:900, letterSpacing:logoStyle==='mono'?'.04em':'-0.02em', color:'#111', textAlign:'center' }}>
+            <div style={{ fontFamily:fontFam, fontSize:18, fontWeight:900, letterSpacing:logoStyle==='mono'?'.04em':'-0.02em', color:textColor, textAlign:'center' }}>
               {siteName.includes('-')
                 ? <>{siteName.split('-')[0]}<span style={{ color:accentColor }}>-</span>{siteName.split('-').slice(1).join('-')}</>
                 : <>{siteName.slice(0,-2)}<span style={{ color:accentColor }}>{siteName.slice(-2)}</span></>}
@@ -55,10 +62,10 @@ export default function MobileNav({
         </div>
 
         {/* Section pills */}
-        <div style={{ display:'flex', overflowX:'auto', scrollbarWidth:'none', borderTop:'1px solid #f0f0f0', WebkitOverflowScrolling:'touch' }}>
+        <div style={{ display:'flex', overflowX:'auto', scrollbarWidth:'none', borderTop:`1px solid ${navBorder}`, WebkitOverflowScrolling:'touch', background:navBg }}>
           {sections.map(s => (
             <button key={s} onClick={() => onSectionChange(s)}
-              style={{ padding:'8px 14px', border:'none', background:'none', fontFamily:"'Inter',system-ui,sans-serif", fontSize:11, fontWeight:700, letterSpacing:'.04em', textTransform:'uppercase', cursor:'pointer', whiteSpace:'nowrap', color:activeSection===s?accentColor:'#94a3b8', borderBottom:`2px solid ${activeSection===s?accentColor:'transparent'}`, flexShrink:0, transition:'color .15s' }}>
+              style={{ padding:'8px 14px', border:'none', background:'none', fontFamily:"'Inter',system-ui,sans-serif", fontSize:11, fontWeight:700, letterSpacing:'.04em', textTransform:'uppercase', cursor:'pointer', whiteSpace:'nowrap', color:activeSection===s?accentColor:subText, borderBottom:`2px solid ${activeSection===s?accentColor:'transparent'}`, flexShrink:0, transition:'color .15s' }}>
               {s}
             </button>
           ))}
@@ -69,11 +76,11 @@ export default function MobileNav({
       {open && (
         <div style={{ position:'fixed', inset:0, zIndex:999, background:'rgba(0,0,0,0.5)' }} onClick={() => setOpen(false)}>
           <div onClick={e => e.stopPropagation()}
-            style={{ position:'absolute', top:0, left:0, bottom:0, width:'82%', maxWidth:320, background:'#fff', boxShadow:'4px 0 24px rgba(0,0,0,0.18)', display:'flex', flexDirection:'column', overflowY:'auto' }}>
+            style={{ position:'absolute', top:0, left:0, bottom:0, width:'82%', maxWidth:320, background:drawerBg, boxShadow:'4px 0 24px rgba(0,0,0,0.3)', display:'flex', flexDirection:'column', overflowY:'auto' }}>
 
             {/* Drawer header */}
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', borderBottom:`3px solid ${accentColor}` }}>
-              <div style={{ fontFamily:fontFam, fontSize:16, fontWeight:900, color:'#111' }}>{siteName}</div>
+              <div style={{ fontFamily:fontFam, fontSize:16, fontWeight:900, color:textColor }}>{siteName}</div>
               <button onClick={() => setOpen(false)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#666', lineHeight:1 }}>✕</button>
             </div>
 
@@ -90,7 +97,7 @@ export default function MobileNav({
               {sections.map(s => (
                 <button key={s} onClick={() => { onSectionChange(s); setOpen(false) }}
                   style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'13px 16px', border:'none', background:activeSection===s?`${accentColor}10`:'none', cursor:'pointer', textAlign:'left', borderLeft:activeSection===s?`3px solid ${accentColor}`:'3px solid transparent' }}>
-                  <span style={{ fontFamily:"'Inter',system-ui,sans-serif", fontSize:14, fontWeight:600, color:activeSection===s?accentColor:'#374151' }}>{s}</span>
+                  <span style={{ fontFamily:"'Inter',system-ui,sans-serif", fontSize:14, fontWeight:600, color:activeSection===s?accentColor:itemColor }}>{s}</span>
                 </button>
               ))}
             </div>

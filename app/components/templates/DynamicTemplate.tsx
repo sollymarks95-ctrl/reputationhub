@@ -31,9 +31,22 @@ const SITE_CATEGORIES: Record<string, string[]> = {
 // ═══════════════════════════════════════════════════════════════════════════
 function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selectedCat, setSelectedCat }: any) {
   const cfg = site?.template_config || {}
+  const archetype = cfg.archetype || 'editorial'
   const siteName = site?.name || 'News'
   const domain = site?.domain || ''
   const accent = p || '#1a56db'
+
+  // Dark theme for dark archetypes
+  const isDark = ['dark_editorial','feed','brutalist'].includes(archetype)
+  const bg       = isDark ? '#0d1117' : '#f8fafc'
+  const cardBg   = isDark ? '#161b22' : '#ffffff'
+  const textPri  = isDark ? '#f0f6fc' : '#111827'
+  const textSec  = isDark ? '#8b949e' : '#6b7280'
+  const divider  = isDark ? '#21262d' : '#f0f4f8'
+  const searchBg = isDark ? '#161b22' : '#f8fafc'
+  const searchBorder = isDark ? '#30363d' : '#e2e8f0'
+  const footerBg = isDark ? '#010409' : '#0f172a'
+  const logoStyle = archetype === 'research' ? 'sans' : archetype === 'dark_editorial' ? 'mono' : 'sans'
 
   const IMGS = [
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&q=75&fm=jpg',
@@ -42,6 +55,8 @@ function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selecte
     'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=75&fm=jpg',
     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=75&fm=jpg',
     'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1518183214770-9cffbec72538?w=700&q=75&fm=jpg',
+    'https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?w=700&q=75&fm=jpg',
   ]
   const getImg = (a: any, i: number) => {
     if (a?.cover_image_url?.startsWith('http')) return a.cover_image_url
@@ -58,48 +73,72 @@ function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selecte
   const rest = articles.slice(1, 30)
 
   return (
-    <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: '#f8fafc', minHeight: '100vh', paddingTop: 88 }}>
+    <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: bg, minHeight: '100vh', paddingTop: 88 }}>
+      <style>{`
+        .dyn-nav-dark nav { background: #0d1117 !important; }
+        .dyn-mob-search { background: ${searchBg}; border-color: ${searchBorder}; color: ${textPri}; }
+        .dyn-mob-search::placeholder { color: ${textSec}; }
+      `}</style>
+
       <MobileNav
         siteName={siteName} domain={domain} accentColor={accent}
-        sections={siteCategories || ['All', 'Markets', 'Analysis']}
+        sections={siteCategories || ['All','Markets','Analysis']}
         activeSection={selectedCat || 'All'}
         onSectionChange={setSelectedCat || (() => {})}
-        logoStyle="sans"
+        logoStyle={logoStyle as any} darkMode={isDark}
       />
 
-      {/* Search bar */}
-      <div style={{ padding: '10px 16px', background: '#fff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 88, zIndex: 90 }}>
-        <input placeholder={`Search ${siteName}...`}
-          style={{ width: '100%', padding: '9px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: "'Inter',sans-serif", outline: 'none', background: '#f8fafc' }} />
+      {/* Sticky search */}
+      <div style={{ padding: '10px 16px', background: cardBg, borderBottom: `1px solid ${divider}`, position: 'sticky', top: 88, zIndex: 90 }}>
+        <input placeholder={`Search ${siteName}...`} className="dyn-mob-search"
+          style={{ width: '100%', padding: '9px 14px', border: `1px solid ${searchBorder}`, borderRadius: 10, fontSize: 14, fontFamily: "'Inter',sans-serif", outline: 'none', background: searchBg, color: textPri }} />
       </div>
+
+      {/* Breaking ticker for dark portals */}
+      {isDark && articles.length > 0 && (
+        <div style={{ background: accent, overflow: 'hidden', height: 28, display: 'flex', alignItems: 'center' }}>
+          <span style={{ fontSize: 9, fontWeight: 900, padding: '0 10px', background: 'rgba(0,0,0,0.25)', height: '100%', display: 'flex', alignItems: 'center', letterSpacing: '.1em', color: '#fff', flexShrink: 0, whiteSpace: 'nowrap' }}>LIVE</span>
+          <div style={{ overflow: 'hidden', flex: 1 }}>
+            <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: 'dtick 30s linear infinite' }}>
+              {[...articles.slice(0, 6), ...articles.slice(0, 6)].map((a: any, i: number) => (
+                <span key={i} style={{ fontSize: 11, padding: '0 20px', color: 'rgba(255,255,255,0.9)', borderRight: '1px solid rgba(255,255,255,0.15)' }}>▸ {a.title?.slice(0, 60)}</span>
+              ))}
+            </div>
+          </div>
+          <style>{`@keyframes dtick{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
+        </div>
+      )}
 
       <div style={{ padding: '0 16px 32px' }}>
         {/* Hero */}
         {hero && (
           <a href={`/article/${slug}/${hero.slug}`}
-            style={{ display: 'block', textDecoration: 'none', marginTop: 16, marginBottom: 24, paddingBottom: 24, borderBottom: `3px solid ${accent}` }}>
-            <img src={getImg(hero, 0)} alt={hero.title}
-              style={{ width: '100%', height: 210, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }}
-              onError={(e: any) => { e.currentTarget.src = IMGS[0] }}
-              referrerPolicy="no-referrer" crossOrigin="anonymous" />
-            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: accent, borderLeft: `3px solid ${accent}`, paddingLeft: 7, marginBottom: 8, display: 'block' }}>
-              {hero.category || 'Latest'}
-            </span>
-            <div style={{ fontFamily: "'Georgia',serif", fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#111', marginBottom: 8 }}>{hero.title}</div>
-            <div style={{ fontSize: 14, color: '#555', lineHeight: 1.65, marginBottom: 8 }}>{(hero.excerpt || '').slice(0, 150)}…</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{hero.author_name || 'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes || 4} min</div>
+            style={{ display: 'block', textDecoration: 'none', marginTop: 16, marginBottom: 20, paddingBottom: 20, borderBottom: `2px solid ${accent}` }}>
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <img src={getImg(hero, 0)} alt={hero.title}
+                style={{ width: '100%', height: 210, objectFit: 'cover', borderRadius: 8 }}
+                onError={(e: any) => { e.currentTarget.src = IMGS[0] }}
+                referrerPolicy="no-referrer" crossOrigin="anonymous" />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)', borderRadius: 8 }} />
+              <span style={{ position: 'absolute', bottom: 10, left: 10, background: accent, color: '#fff', fontSize: 9, fontWeight: 900, padding: '3px 8px', letterSpacing: '.1em', textTransform: 'uppercase', borderRadius: 3 }}>
+                {hero.category || 'Latest'}
+              </span>
+            </div>
+            <div style={{ fontFamily: isDark ? "'IBM Plex Mono','Courier New',monospace" : "'Georgia',serif", fontSize: 21, fontWeight: 800, lineHeight: 1.25, color: textPri, marginBottom: 8 }}>{hero.title}</div>
+            <div style={{ fontSize: 14, color: textSec, lineHeight: 1.65, marginBottom: 8 }}>{(hero.excerpt || '').slice(0, 150)}…</div>
+            <div style={{ fontSize: 11, color: textSec }}>{hero.author_name || 'Editorial'} · {timeAgo(hero.published_at)} · {hero.read_time_minutes || 4} min</div>
           </a>
         )}
 
         {/* Section label */}
-        <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 14, paddingBottom: 6, borderBottom: `1px solid ${accent}33` }}>
+        <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: accent, marginBottom: 14, paddingBottom: 8, borderBottom: `1px solid ${accent}30`, fontFamily: 'monospace' }}>
           {selectedCat !== 'All' ? selectedCat : 'Latest Stories'}
         </div>
 
         {/* Article list */}
         {rest.map((a: any, i: number) => (
           <a key={a.id || i} href={`/article/${slug}/${a.slug}`}
-            style={{ display: 'flex', gap: 12, paddingBottom: 16, marginBottom: 16, borderBottom: '1px solid #f0f4f8', textDecoration: 'none', alignItems: 'flex-start' }}>
+            style={{ display: 'flex', gap: 12, paddingBottom: 16, marginBottom: 16, borderBottom: `1px solid ${divider}`, textDecoration: 'none', alignItems: 'flex-start' }}>
             <img src={getImg(a, i + 1)} alt={a.title}
               style={{ width: 90, height: 68, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
               onError={(e: any) => { e.currentTarget.src = IMGS[(i + 1) % IMGS.length] }}
@@ -108,21 +147,21 @@ function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selecte
               <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: accent, display: 'block', marginBottom: 4 }}>
                 {a.category || 'News'}
               </span>
-              <div style={{ fontFamily: "'Georgia',serif", fontSize: 15, fontWeight: 700, lineHeight: 1.3, color: '#111', marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <div style={{ fontFamily: isDark ? "'IBM Plex Mono',monospace" : "'Georgia',serif", fontSize: 14, fontWeight: 700, lineHeight: 1.3, color: textPri, marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {a.title}
               </div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(a.published_at)} · {a.read_time_minutes || 3} min</div>
+              <div style={{ fontSize: 11, color: textSec }}>{timeAgo(a.published_at)} · {a.read_time_minutes || 3} min</div>
             </div>
           </a>
         ))}
       </div>
 
       {/* Footer */}
-      <div style={{ background: '#0f172a', color: '#475569', padding: '20px 16px' }}>
-        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', marginBottom: 4 }}>{siteName}</div>
+      <div style={{ background: footerBg, color: '#475569', padding: '20px 16px' }}>
+        <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', marginBottom: 4, fontFamily: isDark ? 'monospace' : 'inherit' }}>{siteName}</div>
         <div style={{ fontSize: 11, lineHeight: 1.6, marginBottom: 12 }}>{cfg.tagline || 'News & Intelligence'} · For informational purposes only.</div>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 8 }}>
-          {[['Privacy', '/legal/privacy'], ['Terms', '/legal/terms'], ['About', '/legal/about']].map(([l, h]) => (
+          {[['Privacy','/legal/privacy'],['Terms','/legal/terms'],['About','/legal/about'],['Disclaimer','/legal/disclaimer']].map(([l,h]) => (
             <a key={l} href={h} style={{ color: '#475569', fontSize: 11, textDecoration: 'none' }}>{l}</a>
           ))}
         </div>

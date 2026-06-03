@@ -107,20 +107,37 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
 
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F4F6F8', minHeight:'100vh', color:'#191919' }}>
-      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}.inp{width:100%;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;background:#fff}.inp:focus{border-color:${GREEN};box-shadow:0 0 0 3px ${GREEN}18}@media(max-width:768px){.layout{flex-direction:column!important}.grid2{grid-template-columns:1fr!important}}`}</style>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}.inp{width:100%;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;background:#fff}.inp:focus{border-color:${GREEN};box-shadow:0 0 0 3px ${GREEN}18}@media(max-width:768px){
+  .layout{flex-direction:column!important}
+  .grid2{grid-template-columns:1fr!important}
+  .rev-header{padding:10px 14px!important;gap:8px!important}
+  .rev-header h1{font-size:20px!important}
+  .rev-main{padding:16px 14px!important}
+  .rev-card{padding:16px!important}
+  .rev-logo-rating{flex-direction:column!important;align-items:flex-start!important;gap:12px!important}
+  .rev-rating-box{width:100%!important;min-width:unset!important;flex-direction:row!important;align-items:center!important;padding:14px!important}
+  .rev-rating-n{font-size:36px!important}
+}
+@media(max-width:480px){
+  .layout{gap:12px!important}
+  .rev-header a{font-size:16px!important}
+  .rev-write-btn{padding:8px 14px!important;font-size:12px!important}
+  h2{font-size:16px!important}
+  h3{font-size:14px!important}
+}`}</style>
 
       {/* Header */}
-      <header style={{ background:'#fff', borderBottom:'1px solid #E2E8F0', padding:'14px 24px', display:'flex', alignItems:'center', gap:16, position:'sticky', top:0, zIndex:100, boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
+      <header className="rev-header" style={{ background:'#fff', borderBottom:'1px solid #E2E8F0', padding:'14px 24px', display:'flex', alignItems:'center', gap:16, position:'sticky', top:0, zIndex:100, boxShadow:'0 1px 4px rgba(0,0,0,0.06)' }}>
         <a href="/" style={{ fontWeight:900, fontSize:20, color:'#191919', letterSpacing:'-0.02em' }}>VERI<span style={{ color:GREEN }}>VEX</span></a>
         <span style={{ color:'#E2E8F0' }}>›</span>
         <span style={{ fontSize:13, color:'#64748B' }}>{companyName}</span>
         <div style={{ flex:1 }}/>
-        <button onClick={() => setShowForm(true)} style={{ background:GREEN, color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
+        <button onClick={() => setShowForm(true)} className="rev-write-btn" style={{ background:GREEN, color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', fontWeight:700, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
           ✍️ Write a Review
         </button>
       </header>
 
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'28px 24px' }}>
+      <div className="rev-main" style={{ maxWidth:1100, margin:'0 auto', padding:'28px 24px' }}>
         <div style={{ display:'flex', gap:24, alignItems:'flex-start' }} className="layout">
 
           {/* Main column */}
@@ -128,7 +145,7 @@ export default function ReviewPage({ params }: { params: Promise<{ company: stri
 
             {/* Company header card */}
             <div style={{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:14, padding:28, marginBottom:20 }}>
-              <div style={{ display:'flex', alignItems:'flex-start', gap:20, marginBottom:24 }}>
+              <div className="rev-logo-rating" style={{ display:'flex', alignItems:'flex-start', gap:20, marginBottom:24 }}>
                 <CompanyLogo slug={company} name={companyName} size={80} />
                 <div style={{ flex:1 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', marginBottom:4 }}>
