@@ -23,7 +23,7 @@ async function getData() {
     sb.from('portal_clients').select('*').order('created_at', { ascending: false }),
     sb.from('portal_content').select('*').order('published_at', { ascending: false }).limit(200),
     sb.from('portal_rankings').select('*').order('current_position'),
-    sb.from('podcast_scripts').select('*').order('created_at', { ascending: false }),
+    sb.from('podcast_scripts').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('portal_activity').select('*').order('created_at', { ascending: false }).limit(25),
     sb.from('news_articles').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     sb.from('newsletter_subscribers').select('*', { count: 'exact', head: true }),

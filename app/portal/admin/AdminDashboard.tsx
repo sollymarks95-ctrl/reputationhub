@@ -99,6 +99,130 @@ function EditableField({ clientId, field, value, label, type='text', options=[] 
   )
 }
 
+function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
+  const [status, setStatus] = React.useState(ep.status || 'draft')
+  const [loading, setLoading] = React.useState(false)
+  const [deleted, setDeleted] = React.useState(false)
+  const [generating, setGenerating] = React.useState(false)
+  const [audioUrl, setAudioUrl] = React.useState(ep.audio_url || ep.mp3_url || '')
+
+  const SLUG_DOMAIN: Record<string,string> = {
+    'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com',
+    'business-pulse':'bizplezx.com','gold-markets-today':'aurexhq.com',
+    'trust-score':'verivex.co','invest-data':'invexhuby.com',
+    'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
+  }
+
+  const manage = async (action: 'publish'|'unpublish'|'delete') => {
+    setLoading(true)
+    try {
+      const r = await fetch('/api/admin/manage-podcast', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ id: ep.id, action })
+      })
+      const d = await r.json()
+      if (d.ok) {
+        if (action === 'delete') setDeleted(true)
+        else setStatus(d.status)
+        onStatusChange?.(ep.id, d.status)
+      }
+    } finally { setLoading(false) }
+  }
+
+  const generateAudio = async () => {
+    setGenerating(true)
+    const cfg = PODCAST_CFG[ep.site_slug] || { show: ep.site_slug, host: ep.host_name || 'Host', role: 'Host' }
+    try {
+      const r = await fetch('/api/admin/generate-podcast', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          clientId: ep.client_id, siteSlug: ep.site_slug,
+          hostName: ep.host_name, guestName: ep.guest_name,
+          guestRole: ep.guest_role, topic: ep.topic,
+          title: ep.title, episodeNumber: ep.episode_number || 1,
+          durationMinutes: ep.duration_minutes || 8,
+        })
+      })
+      const d = await r.json()
+      if (d.ok && d.audioUrl) setAudioUrl(d.audioUrl)
+    } finally { setGenerating(false) }
+  }
+
+  if (deleted) return null
+
+  const cl = clients.find((c:any) => c.id === ep.client_id)
+  const domain = SLUG_DOMAIN[ep.site_slug] || ep.site_slug
+  const isPublished = status === 'published'
+
+  return (
+    <div style={{
+      background:'rgba(255,255,255,0.02)',border:'1px solid',
+      borderColor:isPublished?'rgba(16,185,129,0.2)':'rgba(255,255,255,0.06)',
+      borderLeft:`3px solid ${isPublished?'#10b981':'#475569'}`,
+      borderRadius:9,padding:14,
+    }}>
+      <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+        {/* EP number badge */}
+        <div style={{background:isPublished?'rgba(16,185,129,0.15)':'rgba(71,85,105,0.2)',border:`1px solid ${isPublished?'rgba(16,185,129,0.3)':'rgba(71,85,105,0.3)'}`,borderRadius:6,padding:'4px 8px',textAlign:'center',flexShrink:0,minWidth:42}}>
+          <div style={{fontSize:8,fontWeight:700,color:isPublished?'#10b981':'#475569',letterSpacing:'.08em'}}>EP</div>
+          <div style={{fontSize:18,fontWeight:900,color:isPublished?'#10b981':'#64748b',lineHeight:1}}>{ep.episode_number||1}</div>
+        </div>
+
+        {/* Main info */}
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4,flexWrap:'wrap'}}>
+            <div style={{fontSize:13,fontWeight:700,color:'#f1f5f9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:400}}>{ep.title||'Untitled'}</div>
+            <span style={{fontSize:10,padding:'2px 7px',borderRadius:99,fontWeight:700,background:isPublished?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)',color:isPublished?'#10b981':'#f59e0b',flexShrink:0}}>
+              {isPublished?'● Published':'○ Draft'}
+            </span>
+          </div>
+          <div style={{display:'flex',gap:12,fontSize:11,color:'#64748b',flexWrap:'wrap',marginBottom:8}}>
+            {ep.guest_name&&<span>👤 {ep.guest_name}{ep.guest_role?` — ${ep.guest_role}`:''}</span>}
+            <span>🌐 {domain}</span>
+            {cl&&<span>🏢 {cl.company_name}</span>}
+            <span>⏱ {ep.duration_minutes||8} min</span>
+            <span>📅 {ep.created_at?.slice(0,10)}</span>
+          </div>
+
+          {/* Audio player or generate button */}
+          {audioUrl ? (
+            <audio controls src={audioUrl} style={{width:'100%',maxWidth:500,height:28}} preload="none"/>
+          ) : (
+            <button onClick={generateAudio} disabled={generating}
+              style={{padding:'6px 14px',background:generating?'#1e293b':'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:6,color:generating?'#475569':'#818cf8',fontWeight:600,fontSize:11,cursor:generating?'default':'pointer',display:'inline-flex',alignItems:'center',gap:6}}>
+              {generating?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating…</>:<>🎙 Generate Audio</>}
+            </button>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
+          {isPublished ? (
+            <button onClick={()=>manage('unpublish')} disabled={loading}
+              style={{padding:'5px 12px',background:'rgba(245,158,11,0.12)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:6,color:'#f59e0b',fontWeight:600,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>
+              {loading?'…':'○ Unpublish'}
+            </button>
+          ) : (
+            <button onClick={()=>manage('publish')} disabled={loading}
+              style={{padding:'5px 12px',background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.25)',borderRadius:6,color:'#10b981',fontWeight:700,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>
+              {loading?'…':'● Publish'}
+            </button>
+          )}
+          {isPublished&&domain&&(
+            <a href={`https://${domain}/podcasts`} target="_blank" rel="noopener noreferrer">
+              <button style={{width:'100%',padding:'5px 12px',background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',borderRadius:6,color:'#818cf8',fontWeight:600,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>View ↗</button>
+            </a>
+          )}
+          <button onClick={()=>{if(confirm('Delete this episode?'))manage('delete')}} disabled={loading}
+            style={{padding:'5px 12px',background:'rgba(239,68,68,0.07)',border:'1px solid rgba(239,68,68,0.15)',borderRadius:6,color:'#ef4444',fontWeight:600,fontSize:11,cursor:'pointer'}}>
+            🗑 Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function EpisodeCard({ep, cfg}: {ep:any; cfg:{show:string;host:string;role:string}}) {
   const [gen, setGen] = useState(false)
   const [res, setRes] = useState<any>(null)
@@ -988,45 +1112,49 @@ export default function AdminDashboard({
         {/* PODCASTS */}
         {tab==='podcasts'&&(
           <div className="ti">
+
+            {/* ── Header ── */}
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
               <div>
                 <div className="syne" style={{fontSize:20,fontWeight:900}}>🎙 Podcast Studio</div>
-                <div style={{fontSize:12,color:'#475569',marginTop:2}}>Create episodes, generate audio with ElevenLabs · {allPodcasts.filter((p:any)=>p.status==='published').length} episodes live</div>
+                <div style={{fontSize:12,color:'#475569',marginTop:2}}>
+                  {allPodcasts.length} total · {allPodcasts.filter((p:any)=>p.status==='published').length} published · {allPodcasts.filter((p:any)=>p.audio_url||p.mp3_url).length} with audio
+                </div>
               </div>
               <button className="btn b-green" onClick={()=>setPodcastForm(v=>!v)}>
                 {podcastForm ? '✕ Close' : '➕ New Episode'}
               </button>
             </div>
 
-            {/* CREATE FORM */}
+            {/* ── CREATE FORM ── */}
             {podcastForm&&(
               <div className="card" style={{padding:22,marginBottom:20,borderTop:'3px solid #6366f1'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
                   <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8'}}>CREATE NEW EPISODE</div>
                   <button onClick={fetchTopics} disabled={topicsLoading}
                     style={{padding:'6px 14px',background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:6,color:'#818cf8',fontWeight:700,fontSize:11,cursor:topicsLoading?'wait':'pointer',display:'flex',alignItems:'center',gap:6}}>
-                    {topicsLoading?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Searching trends…</>:<>🔥 Suggest Trending Topics</>}
+                    {topicsLoading?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Searching…</>:<>🔥 Suggest Topics</>}
                   </button>
                 </div>
 
-                {/* Trending topic suggestions */}
+                {/* Topic suggestions */}
                 {podTopics.length>0&&(
                   <div style={{marginBottom:16}}>
-                    <div style={{fontSize:10,fontWeight:700,color:'#64748b',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:8}}>Click a topic to auto-fill the form</div>
-                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    <div style={{fontSize:10,fontWeight:700,color:'#64748b',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:8}}>Click to auto-fill</div>
+                    <div style={{display:'flex',flexDirection:'column',gap:5,maxHeight:240,overflowY:'auto'}}>
                       {podTopics.map((t:any,i:number)=>(
                         <div key={i}
                           onClick={()=>setPodForm(f=>({...f,title:t.title,topic:t.topic,guestRole:t.guest||f.guestRole}))}
-                          style={{padding:'10px 14px',background:'rgba(99,102,241,0.07)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:7,cursor:'pointer',display:'flex',gap:12,alignItems:'flex-start',transition:'background .15s'}}
+                          style={{padding:'8px 12px',background:'rgba(99,102,241,0.07)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:6,cursor:'pointer',display:'flex',gap:10,alignItems:'flex-start'}}
                           onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(99,102,241,0.15)'}
                           onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='rgba(99,102,241,0.07)'}>
-                          <span style={{fontSize:11,fontWeight:700,color:'#475569',flexShrink:0,marginTop:2,width:16}}>{i+1}</span>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:12,fontWeight:700,color:'#f1f5f9',marginBottom:3}}>{t.title}</div>
-                            <div style={{fontSize:11,color:'#64748b',lineHeight:1.4}}>{t.topic}</div>
-                            {t.guest&&<div style={{fontSize:10,color:'#475569',marginTop:3}}>💡 Suggested guest: {t.guest}</div>}
+                          <span style={{fontSize:11,fontWeight:700,color:'#475569',flexShrink:0,width:16,marginTop:1}}>{i+1}</span>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:12,fontWeight:700,color:'#f1f5f9',marginBottom:2}}>{t.title}</div>
+                            <div style={{fontSize:11,color:'#64748b'}}>{t.topic}</div>
+                            {t.guest&&<div style={{fontSize:10,color:'#475569',marginTop:2}}>💡 {t.guest}</div>}
                           </div>
-                          <span style={{fontSize:10,color:'#6366f1',flexShrink:0,marginTop:3}}>Use →</span>
+                          <span style={{fontSize:10,color:'#6366f1',flexShrink:0}}>Use →</span>
                         </div>
                       ))}
                     </div>
@@ -1034,50 +1162,35 @@ export default function AdminDashboard({
                 )}
 
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-                  {/* Row 0: Client */}
+                  {/* Client */}
                   <div style={{gridColumn:'1/-1'}}>
-                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>
-                      🏢 Client — podcast will feature this brand
-                    </label>
+                    <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>🏢 Client (brand featured in script)</label>
                     <select value={podClientId}
-                      onChange={(e:any)=>{
-                        setPodClientId(e.target.value)
-                        const cl=clients.find((c:any)=>c.id===e.target.value)
-                        if(cl) setPodForm(f=>({...f,guestRole:cl.company_name}))
-                      }}
-                      style={{width:'100%',padding:'9px 12px',background:podClientId?'rgba(99,102,241,0.12)':'#1e293b',border:'1px solid',borderColor:podClientId?'#6366f1':'#334155',color:'#e2e8f0',borderRadius:6,fontSize:13,fontWeight:podClientId?700:400}}>
-                      <option value="">— No specific client (general podcast)</option>
-                      {clients.map((cl:any)=>(
-                        <option key={cl.id} value={cl.id}>
-                          {cl.company_name} · {cl.website_url}
-                        </option>
-                      ))}
+                      onChange={(e:any)=>{setPodClientId(e.target.value);const cl=clients.find((c:any)=>c.id===e.target.value);if(cl)setPodForm(f=>({...f,guestRole:cl.company_name}))}}
+                      style={{width:'100%',padding:'8px 10px',background:podClientId?'rgba(99,102,241,0.12)':'#1e293b',border:'1px solid',borderColor:podClientId?'#6366f1':'#334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
+                      <option value="">— General podcast (no client brand)</option>
+                      {clients.map((cl:any)=><option key={cl.id} value={cl.id}>{cl.company_name} · {cl.website_url}</option>)}
                     </select>
-                    {podClientId && (
-                      <div style={{fontSize:11,color:'#6366f1',marginTop:5,display:'flex',alignItems:'center',gap:5}}>
-                        ✓ Script will naturally feature {clients.find((c:any)=>c.id===podClientId)?.company_name} — regulation, trust, platform strengths
-                      </div>
-                    )}
+                    {podClientId&&<div style={{fontSize:11,color:'#6366f1',marginTop:4}}>✓ Script will naturally feature {clients.find((c:any)=>c.id===podClientId)?.company_name}</div>}
                   </div>
-                  {/* Row 1: Portal + Episode # */}
+                  {/* Portal + Episode # */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Portal</label>
                     <select value={podForm.siteSlug}
-                      onChange={(e:any)=>{setPodForm(f=>({...f,siteSlug:e.target.value,hostName:PODCAST_CFG[e.target.value]?.host||''}));setPodTopics([])}}
+                      onChange={(e:any)=>{setPodForm(f=>({...f,siteSlug:e.target.value,hostName:'',hostRole:''}));setPodTopics([])}}
                       style={{width:'100%',padding:'8px 10px',background:'#1e293b',border:'1px solid #334155',color:'#e2e8f0',borderRadius:6,fontSize:12}}>
                       {Object.entries(PORTAL_DOMAIN).map(([s,d])=><option key={s} value={s}>{d}</option>)}
                     </select>
                   </div>
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Episode #</label>
-                    <input type="number" min={1} value={podForm.episodeNumber}
-                      onChange={(e:any)=>setPodForm(f=>({...f,episodeNumber:parseInt(e.target.value)||1}))}
+                    <input type="number" min={1} value={podForm.episodeNumber} onChange={(e:any)=>setPodForm(f=>({...f,episodeNumber:parseInt(e.target.value)||1}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="1"/>
                   </div>
-                  {/* Row 2: Host + Guest Name */}
+                  {/* Host + Guest */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Host Name</label>
-                    <input value={podForm.hostName||PODCAST_CFG[podForm.siteSlug]?.host||''} onChange={(e:any)=>setPodForm(f=>({...f,hostName:e.target.value}))}
+                    <input value={podForm.hostName||(PODCAST_CFG[podForm.siteSlug]?.host||'')} onChange={(e:any)=>setPodForm(f=>({...f,hostName:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. Nathan Chen"/>
                   </div>
                   <div>
@@ -1085,10 +1198,9 @@ export default function AdminDashboard({
                     <input value={podForm.guestName} onChange={(e:any)=>setPodForm(f=>({...f,guestName:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. James Richardson"/>
                   </div>
-                  {/* Row 3: Host Role + Guest Role */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Host Role</label>
-                    <input value={podForm.hostRole||PODCAST_CFG[podForm.siteSlug]?.role||''} onChange={(e:any)=>setPodForm(f=>({...f,hostRole:e.target.value}))}
+                    <input value={podForm.hostRole||(PODCAST_CFG[podForm.siteSlug]?.role||'')} onChange={(e:any)=>setPodForm(f=>({...f,hostRole:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. Head of Research"/>
                   </div>
                   <div>
@@ -1096,19 +1208,18 @@ export default function AdminDashboard({
                     <input value={podForm.guestRole} onChange={(e:any)=>setPodForm(f=>({...f,guestRole:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. CEO, eToro"/>
                   </div>
-                  {/* Row 4: Title */}
+                  {/* Title + Topic */}
                   <div style={{gridColumn:'1/-1'}}>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Episode Title</label>
                     <input value={podForm.title} onChange={(e:any)=>setPodForm(f=>({...f,title:e.target.value}))}
                       className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. The Future of Regulated Trading in 2026"/>
                   </div>
-                  {/* Row 5: Topic */}
                   <div style={{gridColumn:'1/-1'}}>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Topic / What to discuss</label>
                     <input value={podForm.topic} onChange={(e:any)=>setPodForm(f=>({...f,topic:e.target.value}))}
-                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. eToro regulatory trust, CopyTrading performance, 2026 strategy"/>
+                      className="inp" style={{fontSize:12,padding:'8px 10px'}} placeholder="e.g. Regulation trust, CopyTrading performance, 2026 strategy"/>
                   </div>
-                  {/* Row 6: Duration */}
+                  {/* Duration */}
                   <div>
                     <label style={{fontSize:11,color:'#64748b',fontWeight:600,display:'block',marginBottom:4}}>Duration</label>
                     <select value={podForm.duration} onChange={(e:any)=>setPodForm(f=>({...f,duration:parseInt(e.target.value)}))}
@@ -1121,14 +1232,14 @@ export default function AdminDashboard({
                 {podCreateResult?.error&&<div style={{padding:'8px 12px',background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',borderRadius:6,fontSize:12,color:'#ef4444',marginBottom:10}}>❌ {podCreateResult.error}</div>}
                 {podCreateResult?.ok&&(
                   <div style={{padding:'10px 12px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:6,marginBottom:10}}>
-                    <div style={{fontSize:12,color:'#10b981',fontWeight:700,marginBottom:6}}>✅ Episode created! {podCreateResult.words} words generated.</div>
+                    <div style={{fontSize:12,color:'#10b981',fontWeight:700,marginBottom:6}}>✅ Episode created + audio generated — {podCreateResult.words} words</div>
                     {podCreateResult.audioUrl&&<audio controls src={podCreateResult.audioUrl} style={{width:'100%',height:28}} preload="none"/>}
                   </div>
                 )}
 
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <div style={{display:'flex',gap:8}}>
                   <button onClick={createPodcastEpisode} disabled={podCreating}
-                    style={{flex:1,padding:'11px 24px',background:podCreating?'#334155':'linear-gradient(135deg,#6366f1,#4f46e5)',border:'none',borderRadius:8,color:podCreating?'#475569':'#fff',fontWeight:700,fontSize:13,cursor:podCreating?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                    style={{flex:1,padding:'11px',background:podCreating?'#334155':'linear-gradient(135deg,#6366f1,#4f46e5)',border:'none',borderRadius:8,color:podCreating?'#475569':'#fff',fontWeight:700,fontSize:13,cursor:podCreating?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
                     {podCreating?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Generating script + audio (~2–3 min)…</>:<>🎙 Create Episode + Generate Audio</>}
                   </button>
                   <button onClick={()=>{setPodCreateResult(null);setPodTopics([])}} className="btn b-ghost" style={{fontSize:11}}>Clear</button>
@@ -1136,43 +1247,34 @@ export default function AdminDashboard({
               </div>
             )}
 
-            {/* EXISTING EPISODES grouped by portal */}
-            {(()=>{
-              const pub=allPodcasts.filter((p:any)=>p.status==='published')
-              const byP:Record<string,any[]>={}
-              for(const ep of pub){const s=ep.site_slug||'trust-score';if(!byP[s])byP[s]=[];byP[s].push(ep)}
-              if(Object.keys(byP).length===0) return (
-                <div className="card" style={{padding:60,textAlign:'center'}}>
-                  <div style={{fontSize:40,marginBottom:12}}>🎙</div>
-                  <div style={{fontSize:16,fontWeight:700,color:'#64748b',marginBottom:8}}>No episodes yet</div>
-                  <div style={{fontSize:13,color:'#334155',marginBottom:20}}>Click 'New Episode' above to create your first podcast</div>
+            {/* ── EPISODE LIBRARY ── all episodes */}
+            <div className="card" style={{marginBottom:16}}>
+              <div style={{padding:'16px 20px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div className="syne" style={{fontSize:13,fontWeight:800,color:'#94a3b8'}}>📚 EPISODE LIBRARY</div>
+                <div style={{display:'flex',gap:8,fontSize:11,color:'#475569'}}>
+                  <span style={{color:'#10b981'}}>● {allPodcasts.filter((p:any)=>p.status==='published').length} Published</span>
+                  <span>·</span>
+                  <span style={{color:'#f59e0b'}}>○ {allPodcasts.filter((p:any)=>p.status!=='published').length} Draft</span>
+                </div>
+              </div>
+              {allPodcasts.length===0 ? (
+                <div style={{padding:'48px 20px',textAlign:'center',color:'#334155'}}>
+                  <div style={{fontSize:32,marginBottom:12}}>🎙</div>
+                  <div style={{fontSize:14,color:'#64748b',marginBottom:16}}>No episodes yet</div>
                   <button className="btn b-green" onClick={()=>setPodcastForm(true)}>➕ Create First Episode</button>
                 </div>
-              )
-              return Object.entries(byP).map(([slug,eps])=>{
-                const cfg=PODCAST_CFG[slug]||{show:slug,host:'Host',role:'Host'}
-                const domain=PORTAL_DOMAIN[slug]||'rephuby.com'
-                const color=PORTAL_COLORS[slug]||'#6366f1'
-                const withA=eps.filter((e:any)=>e.audio_url||e.mp3_url).length
-                return(
-                  <div key={slug} className="card" style={{marginBottom:16,overflow:'hidden'}}>
-                    <div style={{padding:'14px 18px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',gap:10,background:`linear-gradient(90deg,${color}12,transparent)`}}>
-                      <div style={{width:4,height:32,background:color,borderRadius:2,flexShrink:0}}/>
-                      <div style={{flex:1}}>
-                        <div style={{fontWeight:800,fontSize:14}}>{cfg.show}</div>
-                        <div style={{fontSize:11,color:'#475569'}}>{eps.length} episode{eps.length!==1?'s':''} · {withA}/{eps.length} with audio · Host: {cfg.host}</div>
-                      </div>
-                      <a href={`https://${domain}/podcasts`} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{fontSize:11}}>View on site ↗</button></a>
-                    </div>
-                    <div style={{padding:16,display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
-                      {(eps as any[]).sort((a,b)=>(a.episode_number||1)-(b.episode_number||1)).map((ep:any)=>(
-                        <EpisodeCard key={ep.id} ep={ep} cfg={cfg}/>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })
-            })()}
+              ) : (
+                <div style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
+                  {allPodcasts.map((ep:any)=>(
+                    <PodcastLibraryCard key={ep.id} ep={ep} clients={clients}
+                      onStatusChange={(id:string,status:string)=>{
+                        // Local optimistic update — page will refetch on next load
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
