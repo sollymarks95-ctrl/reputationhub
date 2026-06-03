@@ -16,10 +16,10 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      {/* Editorial independence banner — solid, visible */}
-      <div style={{ background:'#064E3B', borderBottom:'2px solid #10B981', padding:'10px 24px', textAlign:'center', fontSize:13, color:'#D1FAE5', lineHeight:1.6 }}>
+      {/* Editorial independence banner — fixed at very top, above nav */}
+      <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:200, background:'#064E3B', borderBottom:'2px solid #10B981', padding:'7px 24px', textAlign:'center', fontSize:12, color:'#D1FAE5', lineHeight:1.5 }}>
         <strong style={{ color:'#34D399' }}>📋 Editorial Independence Notice:</strong>{' '}
-        Verivex is an independent review platform. We are not affiliated with, paid by, or endorsed by any broker listed here — including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
+        Verivex is an independent review platform — not affiliated with, paid by, or endorsed by any broker, including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
       </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -73,7 +73,7 @@ export default function HomePage() {
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, padding:'14px 0', background:'rgba(11,15,25,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+      <nav style={{ position:'fixed', top:36, left:0, right:0, zIndex:100, padding:'14px 0', background:'rgba(11,15,25,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
             <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
@@ -100,7 +100,7 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'120px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'156px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
