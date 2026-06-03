@@ -81,7 +81,7 @@ export default function HomePage() {
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
+      <nav style={{ position:'fixed', top:34, left:0, right:0, zIndex:1000, background:'rgba(11,15,25,0.95)', backdropFilter:'blur(16px)' }}>
         <div style={{background:'#064E3B',padding:'6px 16px',textAlign:'center',color:'#fff',fontSize:'12px',lineHeight:1.4}}>
           📋 <strong>Editorial Independence:</strong> Verivex is not affiliated with, paid by, or endorsed by any broker — including eToro.
         </div>
@@ -113,7 +113,7 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'140px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'150px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
