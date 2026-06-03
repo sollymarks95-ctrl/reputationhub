@@ -6,7 +6,7 @@ import { getArticleImage } from '@/app/lib/articleImages'
 const PORTAL_AUTHORS: Record<string, string[]> = {
   'global-trade-wire': ['James Hart','Sarah Brennan','Michael Osei','Elena Vasquez','Tom Whitfield','Priya Nair','David Kowalski','Amara Okonkwo','Chris Flanagan','Leila Ahmadi'],
   'finance-terminal':  ['Marcus Webb','Julia Hartmann','Ryan Chen','Fatima Al-Rashid','Ben Stafford','Sophie Leclerc','Omar Farouk','Natalie Pearce','Alex Drummond','Ingrid Svensson'],
-  'business-pulse':    ['Daniel Sterling','Rachel Kim','Patrick O'Brien','Aisha Mensah','Luke Thornton','Chloe Martínez','Sam Okafor','Hannah Fischer','Jack Brennan','Zara Ahmed'],
+  'business-pulse':    ['Daniel Sterling','Rachel Kim','Patrick Obrien','Aisha Mensah','Luke Thornton','Chloe Martínez','Sam Okafor','Hannah Fischer','Jack Brennan','Zara Ahmed'],
   'gold-markets-today':['Richard Stone','Victoria Chen','Paul Nakamura','Clara Russo','Oliver Grant','Mei Lin','Stefan Müller','Isabella Rossi','Noah Clarke','Adaora Eze'],
   'trust-score':       ['Nathan Chen','Emma Morrison','David Osei','Layla Hassan','George Patel','Anastasia Volkov','Marcus Johnson','Freya Andersen','Carlos Rivera','Yuki Tanaka'],
   'invest-data':       ['Michael Torres','Sarah Kim','James Blackwood','Priya Sharma','Alex Morgan','Claudia Becker','Ben Adeyemi','Nina Kowalska','Tom Harrington','Sana Sheikh'],

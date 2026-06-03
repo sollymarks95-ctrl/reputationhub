@@ -28,7 +28,7 @@ const PORTAL_AUTHORS: Record<string, string[]> = {
     'Sophie Leclerc', 'Omar Farouk', 'Natalie Pearce', 'Alex Drummond', 'Ingrid Svensson',
   ],
   'business-pulse': [
-    'Daniel Sterling', 'Rachel Kim', 'Patrick O'Brien', 'Aisha Mensah', 'Luke Thornton',
+    'Daniel Sterling', 'Rachel Kim', 'Patrick Obrien', 'Aisha Mensah', 'Luke Thornton',
     'Chloe Martínez', 'Sam Okafor', 'Hannah Fischer', 'Jack Brennan', 'Zara Ahmed',
   ],
   'gold-markets-today': [
