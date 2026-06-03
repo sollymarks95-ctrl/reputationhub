@@ -179,9 +179,10 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
           <div style={{display:'flex',gap:12,fontSize:11,color:'#64748b',flexWrap:'wrap',marginBottom:8}}>
             {ep.guest_name&&<span>👤 {ep.guest_name}{ep.guest_role?` — ${ep.guest_role}`:''}</span>}
             <span>🌐 {domain}</span>
-            {cl&&<span>🏢 {cl.company_name}</span>}
+            {cl&&<span style={{color:'#6366f1',fontWeight:600}}>🏢 {cl.company_name}</span>}
             <span>⏱ {ep.duration_minutes||8} min</span>
-            <span>📅 {ep.created_at?.slice(0,10)}</span>
+            {ep.word_count&&<span>📝 {ep.word_count} words</span>}
+            <span style={{color:'#64748b'}}>📅 Published {ep.created_at ? new Date(ep.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'}</span>
           </div>
 
           {/* Audio player or generate button */}
