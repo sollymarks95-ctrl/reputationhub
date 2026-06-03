@@ -101,6 +101,7 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
 
         @media(max-width:768px){
           .mag-hero{grid-template-columns:1fr!important}
+        @media(max-width:480px){h1,h2{font-size:22px!important}section{padding:16px!important}}
           .mag-grid{grid-template-columns:1fr!important}
           .mag-sidebar{display:none!important}
           .mag-nav{overflow-x:auto;white-space:nowrap}

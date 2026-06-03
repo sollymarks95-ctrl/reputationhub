@@ -130,7 +130,20 @@ export default async function PodcastPage() {
         .ep-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px 24px; transition: border-color .18s, box-shadow .18s }
         .ep-card:hover { border-color: ${p.color}44; box-shadow: 0 2px 20px ${p.color}10 }
         audio { accent-color: ${p.color}; width: 100%; height: 34px }
-        @media(max-width:640px){ .ep-card{ padding: 14px 16px } .hero-inner{ flex-direction:column!important } }
+        @media(max-width:640px){
+          .ep-card{padding:14px 16px}
+          .hero-inner{flex-direction:column!important}
+          .pod-grid{grid-template-columns:1fr!important}
+          .pod-hero{padding:40px 16px 20px!important}
+          .pod-hero h1{font-size:22px!important}
+          .pod-nav{padding:10px 14px!important}
+          .ep-card audio{width:100%!important}
+          .ep-meta{flex-wrap:wrap;gap:6px!important;font-size:11px!important}
+        }
+        @media(max-width:400px){
+          .pod-hero h1{font-size:18px!important}
+          .ep-card{padding:12px!important}
+        }
       `}</style>
 
       {/* Top nav */}

@@ -327,6 +327,26 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         .body li{margin-bottom:0.5em;color:${bodyText}}
         .body a{color:${p};font-weight:600;text-decoration:underline}
         @media(max-width:900px){.layout{grid-template-columns:1fr!important}.sidebar{display:none!important}.art-body{padding:20px!important}}
+        @media(max-width:600px){
+          .art-body{padding:16px 14px!important;font-size:15px!important;line-height:1.75!important}
+          .art-body h1{font-size:22px!important;line-height:1.25!important}
+          .art-body h2{font-size:18px!important}
+          .art-body h3{font-size:16px!important}
+          .art-hero{padding:16px 14px!important}
+          .art-title{font-size:22px!important;line-height:1.25!important}
+          .art-meta{flex-wrap:wrap;gap:8px!important;font-size:12px!important}
+          .art-nav{padding:10px 14px!important}
+          .art-nav .nav-brand{font-size:16px!important}
+          .art-faq{padding:16px!important}
+          .art-faq h3{font-size:15px!important}
+          .art-takeaways{padding:14px!important}
+          .art-tags{flex-wrap:wrap;gap:6px!important}
+          .art-related{grid-template-columns:1fr!important}
+        }
+        @media(max-width:400px){
+          .art-body{padding:12px 10px!important;font-size:14px!important}
+          .art-title{font-size:19px!important}
+        }
       `}</style>
 
       {/* TOP BAR */}

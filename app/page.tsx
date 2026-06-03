@@ -16,10 +16,9 @@ const PORTALS = [
 export default function HomePage() {
   return (
     <div style={{ minHeight:'100vh', background:'#0B0F19', color:'#F1F5F9', fontFamily:"'DM Sans',system-ui,sans-serif", overflowX:'hidden' }}>
-      {/* Editorial independence banner — fixed at very top, above nav */}
-      <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:200, background:'#064E3B', borderBottom:'2px solid #10B981', padding:'7px 24px', textAlign:'center', fontSize:12, color:'#D1FAE5', lineHeight:1.5 }}>
-        <strong style={{ color:'#34D399' }}>📋 Editorial Independence Notice:</strong>{' '}
-        Verivex is an independent review platform — not affiliated with, paid by, or endorsed by any broker, including eToro. All reviews reflect genuine user experiences and independent editorial analysis.
+      {/* Editorial independence — simple white text bar */}
+      <div style={{ background:'#0B0F19', borderBottom:'1px solid rgba(255,255,255,0.08)', padding:'7px 20px', textAlign:'center', fontSize:11, color:'rgba(255,255,255,0.55)', letterSpacing:'.02em' }}>
+        📋 Editorial Independence: Verivex is independent — not affiliated with, paid by, or endorsed by any broker including eToro. All reviews are genuine and editorially independent.
       </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -59,7 +58,7 @@ export default function HomePage() {
         @media(max-width:900px){
           .hg{grid-template-columns:1fr!important}
           .sc{display:none!important}
-          .fg{grid-template-columns:1fr!important}
+          .fg{grid-template-columns:1fr 1fr!important}
           .pg{grid-template-columns:1fr!important}
           .tg{grid-template-columns:1fr!important}
           .sg{grid-template-columns:repeat(2,1fr)!important}
@@ -67,13 +66,25 @@ export default function HomePage() {
           .fmg{grid-template-columns:1fr!important}
           .ds1{display:none!important}
           .ds2{display:none!important}
-          .h1s{font-size:36px!important}
-          .h2s{font-size:30px!important}
+          .h1s{font-size:38px!important}
+          .h2s{font-size:28px!important}
+        }
+        @media(max-width:600px){
+          .fg{grid-template-columns:1fr!important}
+          .sg{grid-template-columns:1fr 1fr!important}
+          .h1s{font-size:30px!important;letter-spacing:-.01em!important}
+          .h2s{font-size:24px!important}
+          .btn{padding:12px 20px!important;font-size:14px!important}
+          .pc{padding:28px 20px!important}
+          .fc{padding:24px 18px!important}
+          .tc{padding:24px 20px!important}
+          nav{padding:10px 0!important}
+          section{padding:60px 0!important}
         }
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position:'fixed', top:36, left:0, right:0, zIndex:100, padding:'14px 0', background:'rgba(11,15,25,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:100, padding:'14px 0', background:'rgba(11,15,25,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
           <Link href="/">
             <div className="syne" style={{ fontSize:24, fontWeight:900, letterSpacing:'-0.03em' }}>
@@ -100,7 +111,7 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'156px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
@@ -117,7 +128,7 @@ export default function HomePage() {
                 <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Own Your Brand Search.</span>
               </h1>
               <p style={{ fontSize:18, color:'#94A3B8', lineHeight:1.75, marginBottom:36, maxWidth:520 }}>
-                We dominate your brand name across <strong style={{color:'#F1F5F9'}}>every Google search, AI assistant and review site</strong>. Negative reviews buried. Real credibility built through broker-authored articles, CEO podcasts, and video interviews — all published instantly on 12 elite financial portals.
+                We dominate your brand name across <strong style={{color:'#F1F5F9'}}>every Google search, AI assistant and review site</strong>. Negative reviews buried. Real credibility built through broker-authored articles, CEO podcasts, and video interviews — all published instantly on 300+ financial portals.
               </p>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:44 }}>
                 <a href="https://t.me/rephub_intelligence" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 30px' }}>
@@ -222,7 +233,7 @@ export default function HomePage() {
           <div className="fg" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:18 }}>
             {[
               { icon:'🎯', tag:'Pillar 01', tc:'#0EA5E9', grad:'135deg,#0EA5E9,#818CF8', title:'Brand Name', accent:'Domination', desc:"We dominate every search containing your broker's name. 'eToro review', 'eToro scam', 'eToro legit' — every variation lands on OUR authoritative content. Negative forum posts, fake reviews, hit pieces? Buried to page 3 where no one looks.", cta:'See how it works →' },
-              { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 12 elite portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
+              { icon:'✍️', tag:'Pillar 02', tc:'#10B981', grad:'135deg,#10B981,#34D399', title:'Real Credibility', accent:'Content Machine', desc:"Your brokers write real market analysis. Your CEO gets interviewed. Your team publishes research. All distributed instantly across our 300+ portals — generating genuine credibility that Google trusts and prospects believe. Not fake SEO. Real authorship.", cta:'See our portals →' },
               { icon:'🎬', tag:'Pillar 03', tc:'#F59E0B', grad:'135deg,#F59E0B,#F97316', title:'Video & Podcast', accent:'Interviews', desc:"We produce real AI-powered audio and video interviews with your CEO, analysts and trading team. Published to Spotify, YouTube, Apple Podcasts. When prospects search your brand, they find a podcast. When they ask AI — it cites your CEO interview. That's authority.", cta:'Hear a sample →' },
               { icon:'✦', tag:'Pillar 04', tc:'#818CF8', grad:'135deg,#818CF8,#6366F1', title:'AI Engine', accent:'Optimisation', desc:'Every article we publish is structured for ChatGPT, Perplexity, Gemini and Google AI Overviews to cite. FAQ schema, entity graphs, speakable markup — your brand appears in AI answers, not just Google results. GEO is the 2026 frontier.', cta:'See how GEO works →' },
             ].map(f => (
@@ -291,7 +302,7 @@ export default function HomePage() {
                   </div>
                 ))}
                 <div style={{ marginTop:12, padding:'9px 14px', background:'rgba(255,255,255,0.03)', borderRadius:8, fontSize:12, color:'#64748b', textAlign:'center' }}>
-                  <span style={{ color:'#F59E0B', fontWeight:700 }}>36 articles</span> published across 12 portals this week
+                  <span style={{ color:'#F59E0B', fontWeight:700 }}>36 articles</span> published across 300+ portals this week
                 </div>
               </div>
               <div className="ds2" style={{ padding:18, borderLeft:'1px solid rgba(255,255,255,0.06)' }}>
@@ -341,7 +352,7 @@ export default function HomePage() {
           <div className="pg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
             {[
               { tier:'Authority Starter', price:'5,000', clr:'#94A3B8', ft:false, cta:'Start Dominating →', feats:['5 portals from our network','15 articles/week published','Google rank monitoring','2 AI podcast episodes/month','Monthly SEO report'] },
-              { tier:'Authority Pro', price:'9,500', clr:'#0EA5E9', ft:true, cta:'Get Authority Pro →', feats:['All 12 portals fully activated','35 articles/week published','Real-time rank tracking','8 AI podcast episodes/month','Brand crisis rapid response','Weekly executive briefing','Dedicated account manager'] },
+              { tier:'Authority Pro', price:'9,500', clr:'#0EA5E9', ft:true, cta:'Get Authority Pro →', feats:['300+ portals in our network','35 articles/week published','Real-time rank tracking','8 AI podcast episodes/month','Brand crisis rapid response','Weekly executive briefing','Dedicated account manager'] },
               { tier:'Enterprise Command', price:'Custom', clr:'#F59E0B', ft:false, cta:'Request Quote →', feats:['Unlimited portal coverage','100+ articles/week','Multi-brand management','Daily AI podcast production','24/7 brand monitoring','Regulatory crisis PR','C-suite strategy sessions'] },
             ].map(p => (
               <div key={p.tier} className={`pc${p.ft?' ft':''}`} style={{ position:'relative' }}>
@@ -371,7 +382,7 @@ export default function HomePage() {
           </div>
           <div className="tg" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
             {[
-              { mt:'📈 +42% Conversion Rate · 60 Days', q:"A competitor seeded fake scam threads about us on 3 forums. RepHuby published our CEO's market analysis on 12 portals, launched a CEO podcast interview, and buried every negative result within 96 hours. Our prospects now find a podcast and 2,400 reviews before they find anything negative. Closing rate: 11% → 19%.", n:'Marcus H.', r:'CEO, FCA/CySEC-Regulated Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
+              { mt:'📈 +42% Conversion Rate · 60 Days', q:"A competitor seeded fake scam threads about us on 3 forums. RepHuby published our CEO's market analysis on 300+ portals, launched a CEO podcast interview, and buried every negative result within 96 hours. Our prospects now find a podcast and 2,400 reviews before they find anything negative. Closing rate: 11% → 19%.", n:'Marcus H.', r:'CEO, FCA/CySEC-Regulated Broker · Europe', av:'M', g:'135deg,#0EA5E9,#818CF8' },
               { mt:'🔴 Fake Review Site: #1 → Page 3 in 3 Weeks', q:"A competitor built an entire fake review site targeting our brand name. It was ranking #1 when prospects searched us. RepHuby replaced all 7 top positions with our own portal articles, our analyst's commentary and a video interview with our COO. That site now ranks page 3. Prospects never see it.", n:'Alinta K.', r:'CMO, ASIC-Licensed Crypto Exchange · APAC', av:'A', g:'135deg,#10B981,#34D399' },
               { mt:'🏆 11 Brand Keywords Dominated · Q1', q:"Before RepHuby, if you searched our name plus 'withdrawal' or 'regulated' you'd find forum complaints. Now you find our compliance officer's article on Certivade, our analyst on Finvex, and our CEO interview on Bizplex. 11 of 12 tracked brand searches are now controlled by us.", n:'Rafael S.', r:'Head of Marketing, FCA-Regulated Broker · UK', av:'R', g:'135deg,#F59E0B,#F97316' },
               { mt:'⚡ CEO Podcast Live in 48h · Brand Transformed', q:"In 48 hours we had a professionally produced CEO podcast published to Spotify and YouTube, six broker-authored analysis pieces live on four portals, and a press release on PresxWire. When a prospect now Googles us they find our CEO talking. Old PR agencies couldn't do in 6 months what RepHuby did in 2 days.", n:'Dmitri V.', r:'Founder, MIFID-II Licensed Prop Firm · EU', av:'D', g:'135deg,#818CF8,#4f46e5' },
@@ -624,7 +635,7 @@ function AIDefenseSection() {
             <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>We Make Sure They Find This Instead.</span>
           </h2>
           <p style={{ fontSize:17, color:'#64748b', maxWidth:620, margin:'0 auto' }}>
-            Every search combination of your brand — Google, Perplexity, ChatGPT, AI Overview — lands on broker-authored articles, CEO interviews, podcasts, and verified reviews we publish on your behalf across our 12 portals.
+            Every search combination of your brand — Google, Perplexity, ChatGPT, AI Overview — lands on broker-authored articles, CEO interviews, podcasts, and verified reviews we publish on your behalf across our 300+ portals.
           </p>
         </div>
 

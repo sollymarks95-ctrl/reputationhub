@@ -114,6 +114,7 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
         @media(max-width:768px){
           .whero{grid-template-columns:1fr!important}
+        @media(max-width:480px){.whero h1{font-size:22px!important}.wgrid{padding:12px!important}a.wnav{font-size:11px!important;padding:3px 6px!important}}
           .wgrid{grid-template-columns:1fr!important}
           .wtop{grid-template-columns:1fr!important}
           .wsidebar{display:none!important}

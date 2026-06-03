@@ -152,6 +152,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
         @media(max-width:768px){
           .term-grid{grid-template-columns:1fr!important}
+        @media(max-width:480px){h1{font-size:20px!important}h2{font-size:16px!important}.tabs a{font-size:11px!important;padding:4px 8px!important}}
           .term-sidebar{display:none!important}
           .term-nav{overflow-x:auto;white-space:nowrap}
           h1{font-size:20px!important}

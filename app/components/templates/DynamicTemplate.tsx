@@ -65,7 +65,7 @@ function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSe
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
       .ev2-tag{display:inline-block;background:${p};color:#fff;font-size:9px;fontWeight:800;padding:2px 7px;borderRadius:2px;textTransform:uppercase;letterSpacing:.1em;marginBottom:8px}
       .ev2-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
-      @media(max-width:768px){.ev2-grid{grid-template-columns:1fr!important}}`}</style>
+      @media(max-width:768px){.ev2-grid{grid-template-columns:1fr!important}}@media(max-width:480px){h1,h2{font-size:20px!important;line-height:1.2!important}nav{padding:8px 12px!important}nav a{font-size:11px!important;padding:3px 6px!important}article{padding:12px 14px!important}}`}</style>
       <div style={{ borderBottom:`6px solid ${p}`, padding:'18px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#fffef9' }}>
         <a href="/"><div style={{ fontSize:30, fontWeight:900, letterSpacing:'-1.5px', fontFamily:gf('display') }}>{site.name}</div></a>
         <div style={{ fontSize:11, color:'#888', fontStyle:'italic' }}>{site.tagline}</div>
@@ -99,7 +99,7 @@ function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSe
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
       .ev3-main{display:grid;grid-template-columns:2fr 1fr;gap:0}
       .ev3-col{padding:24px}
-      @media(max-width:768px){.ev3-main{grid-template-columns:1fr!important}}`}</style>
+      @media(max-width:768px){.ev3-main{grid-template-columns:1fr!important}}@media(max-width:480px){h1{font-size:20px!important}.ev3-cards{grid-template-columns:1fr!important}}`}</style>
       <header style={{ background:p, color:'#fff', padding:'16px 32px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontSize:26, fontWeight:900, letterSpacing:'-0.5px', color:'#f4f1eb' }}>{site.name}</div></a>
         <div style={{ background:p, color:'#fff', fontSize:10, fontWeight:700, padding:'4px 10px', borderRadius:2, textTransform:'uppercase', letterSpacing:'.1em' }}>{site.category}</div>
@@ -141,7 +141,7 @@ function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSe
     <div style={{ minHeight:'100vh', background:'#fff', fontFamily:font, color:'#111' }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
       .e1-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-      @media(max-width:768px){.e1-cols{grid-template-columns:1fr!important}.e1-side{display:none!important}}`}</style>
+      @media(max-width:768px){.e1-cols{grid-template-columns:1fr!important}.e1-side{display:none!important}}@media(max-width:480px){h1{font-size:20px!important}.e1-cards{grid-template-columns:1fr!important}}`}</style>
       <div style={{ borderBottom:'1px solid #ddd', padding:'6px 0', textAlign:'center', fontSize:11, color:'#888', letterSpacing:'.15em', textTransform:'uppercase' }}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
       <div style={{ textAlign:'center', padding:'18px 24px 12px', borderBottom:'4px double #111' }}>
         <a href="/"><div style={{ fontSize:52, fontWeight:900, letterSpacing:'-3px', lineHeight:1, fontFamily:gf('display') }}>{site.name}</div></a>
@@ -205,7 +205,7 @@ function Tech({ site, articles, p, font, slug, variant , selectedCat, setSelecte
       .tv2-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
       .tv2-c{background:#fff;border-radius:12px;border-top:4px solid ${p};padding:20px;transition:transform .2s}
       .tv2-c:hover{transform:translateY(-3px)}
-      @media(max-width:768px){.tv2-g{grid-template-columns:1fr}}`}</style>
+      @media(max-width:768px){.tv2-g{grid-template-columns:1fr}}@media(max-width:480px){h1{font-size:20px!important}nav a{font-size:11px!important}}`}</style>
       <div style={{ background:'#fff', borderBottom:'1px solid #e0e7ff', padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:22, color:p }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:12 }}>{siteCategories.filter((cat:string)=>cat!=='All').map((cat:string)=><button key={cat} onClick={()=>setSelectedCat(selectedCat===cat?'All':cat)} style={{ color:selectedCat===cat?p:'#64748b', fontSize:12, fontWeight:600, background:'none', border:'none', cursor:'pointer' }}>{cat}</button>)}</div>
@@ -236,7 +236,7 @@ function Tech({ site, articles, p, font, slug, variant , selectedCat, setSelecte
       <style>{`*{box-sizing:border-box;margin:0;padding:0}a{text-decoration:none;color:inherit}
       .tv3-row{border-bottom:1px solid #0f2a1a;padding:14px 0;display:grid;grid-template-columns:60px 1fr;gap:16px}
       .tv3-row:hover{background:#050f08}
-      @media(max-width:768px){.tv3-row{grid-template-columns:1fr}}`}</style>
+      @media(max-width:768px){.tv3-row{grid-template-columns:1fr}}@media(max-width:480px){h1{font-size:20px!important}article{padding:12px!important}}`}</style>
       <div style={{ borderBottom:'1px solid #0f2a1a', padding:'12px 24px', display:'flex', justifyContent:'space-between' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#00ff88', letterSpacing:'.1em' }}>{site.name.toUpperCase()}</div></a>
         <div style={{ fontSize:11, color:'#006633' }}>[{new Date().toISOString().slice(0,16)}]</div>
