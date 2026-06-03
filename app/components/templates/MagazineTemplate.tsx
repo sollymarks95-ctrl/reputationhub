@@ -84,9 +84,6 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
   return (
     <div style={{fontFamily:'Georgia,serif',background:'#FAFAF8',color:'#1A1A1A',minHeight:'100vh'}}>
 
-      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
-        '@type': 'NewsMediaOrganization',
-        'name': 'Bizplezx',
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}

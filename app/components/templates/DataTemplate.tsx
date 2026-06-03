@@ -70,7 +70,6 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
   return (
     <div style={{ fontFamily:"'Inter',system-ui,sans-serif", background:'#F8F6F0', color:'#2D2D2D', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
 
-      {/* GEO: NewsMediaOrganization + speakable schema for AI engine citation */}
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
         *{box-sizing:border-box;margin:0;padding:0} a{text-decoration:none;color:inherit} img{max-width:100%;display:block}
