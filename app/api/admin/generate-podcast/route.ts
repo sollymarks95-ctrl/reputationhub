@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getSiteConfig, pickPortalGuestVoice } from '@/app/lib/podcast-config'
+import { getSiteConfig, pickPortalGuestVoice, SITE_PODCAST_CONFIG as PODCAST_CFG } from '@/app/lib/podcast-config'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300
@@ -70,21 +70,33 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: Math.min(targetWords * 6, 8000),
-        system: 'Write podcast scripts immediately. No preamble.',
+        system: `You write ultra-realistic podcast scripts that sound like REAL recorded conversations — not scripted, not corporate. Think Joe Rogan, Lex Fridman, How I Built This. Natural human dialogue.`,
         messages: [{
           role: 'user',
-          content: `Write a ${duration}-minute financial podcast between ${HOST} (host) and ${GUEST} (${guestRole || 'CEO'}).${clientBrand ? `
+          content: `Write a ${duration}-minute podcast conversation. Make it sound like a REAL recording — messy, human, alive.
 
-CLIENT BRAND CONTEXT (weave naturally into the conversation):
-- Company: ${clientBrand.name}
-- Website: ${clientBrand.website}
-- Key message: ${clientBrand.regulation ? `Regulated by ${clientBrand.regulation}` : 'Leading platform'}
-- Naturally mention the brand 2-3 times — not as an ad, but as part of genuine expert discussion` : ''}
+HOST: ${HOST} (${PODCAST_CFG[siteSlug || 'trust-score']?.hostRole || 'podcast host'})
+GUEST: ${GUEST} (${guestRole || 'industry expert'})
+TOPIC: ${topic || `${clientBrand?.name || 'markets and strategy'} — deep dive`}
+${clientBrand ? `
+CLIENT CONTEXT: ${clientBrand.name} (${clientBrand.website}). Regulated by ${clientBrand.regulation || 'multiple authorities'}. Weave naturally 2-3 times as part of genuine discussion — never as an ad.` : ''}
 
-Topic: ${topic || `${clientBrand?.name || 'eToro'} — strategy and market positioning`}
-Length: ~${targetWords} words. Format each line as "${HOST}: ..." or "${GUEST}: ..."
-Natural dialogue — the guest is an expert at ${clientBrand?.name || 'their company'}, not a salesperson.
-Start immediately with "${HOST}:"`
+RULES FOR NATURALISM — this is what makes or breaks it:
+1. START with small talk or a relatable hook, not "Welcome to the show"
+2. USE filler words: "you know", "I mean", "honestly", "right?", "exactly", "look —"
+3. INTERRUPTIONS: host cuts in mid-sentence with "—wait, say that again", "hold on —"
+4. LAUGHTER: mark it as "[laughs]", "[both laugh]", "[chuckles]" — at least 4-5 times
+5. STUMBLING: guest occasionally self-corrects "I was going to say — actually no, let me rephrase that"
+6. TANGENTS: let conversation drift naturally, host pulls it back "okay okay but going back to—"
+7. DISAGREEMENT: host pushes back at least once "I'm not sure I buy that, because—"
+8. PERSONAL: guest shares a real-sounding personal story or moment of doubt
+9. HOST is curious, slightly skeptical, keeps asking "but why?" or "give me an example"
+10. AVOID: corporate buzzwords, "absolutely", "great question", "certainly", formal language
+
+Format: "${HOST}: ..." and "${GUEST}: ..." on separate lines.
+Target ~${targetWords} words. Start mid-conversation energy — no formal intro.
+
+Begin with the host saying something casual/unexpected:`
         }]
       }),
       signal: AbortSignal.timeout(120000),

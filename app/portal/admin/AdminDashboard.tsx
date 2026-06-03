@@ -105,6 +105,7 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
   const [deleted, setDeleted] = React.useState(false)
   const [generating, setGenerating] = React.useState(false)
   const [audioUrl, setAudioUrl] = React.useState(ep.audio_url || ep.mp3_url || '')
+  const [confirmDelete, setConfirmDelete] = React.useState(false)
 
   const SLUG_DOMAIN: Record<string,string> = {
     'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com',
@@ -214,10 +215,26 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
               <button style={{width:'100%',padding:'5px 12px',background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',borderRadius:6,color:'#818cf8',fontWeight:600,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>View ↗</button>
             </a>
           )}
-          <button onClick={()=>{if(confirm('Delete this episode?'))manage('delete')}} disabled={loading}
-            style={{padding:'5px 12px',background:'rgba(239,68,68,0.07)',border:'1px solid rgba(239,68,68,0.15)',borderRadius:6,color:'#ef4444',fontWeight:600,fontSize:11,cursor:'pointer'}}>
-            🗑 Delete
-          </button>
+          {confirmDelete ? (
+            <div style={{display:'flex',gap:4,flexDirection:'column'}}>
+              <div style={{fontSize:10,color:'#ef4444',textAlign:'center',fontWeight:600}}>Sure?</div>
+              <div style={{display:'flex',gap:4}}>
+                <button onClick={()=>manage('delete')} disabled={loading}
+                  style={{flex:1,padding:'4px 8px',background:'rgba(239,68,68,0.2)',border:'1px solid rgba(239,68,68,0.4)',borderRadius:5,color:'#ef4444',fontWeight:700,fontSize:11,cursor:'pointer'}}>
+                  {loading?'…':'Yes, delete'}
+                </button>
+                <button onClick={()=>setConfirmDelete(false)}
+                  style={{flex:1,padding:'4px 8px',background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:5,color:'#64748b',fontSize:11,cursor:'pointer'}}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={()=>setConfirmDelete(true)} disabled={loading}
+              style={{padding:'5px 12px',background:'rgba(239,68,68,0.07)',border:'1px solid rgba(239,68,68,0.15)',borderRadius:6,color:'#ef4444',fontWeight:600,fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>
+              🗑 Delete
+            </button>
+          )}
         </div>
       </div>
     </div>
