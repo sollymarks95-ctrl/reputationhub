@@ -204,7 +204,18 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
         .cat-btn:hover:not(.active){border-color:${GREEN};color:${GREEN}}
         @media(max-width:768px){
           .trust-hero-grid{grid-template-columns:1fr!important;gap:12px!important}
-        @media(max-width:480px){.trust-hero-grid h1{font-size:20px!important}.cat-btn{font-size:10px!important;padding:4px 10px!important}}
+          .trust-company-grid{grid-template-columns:1fr!important}
+          .grid4{grid-template-columns:1fr 1fr!important}
+          .trust-sections{grid-template-columns:1fr!important}
+          .trust-filters{flex-wrap:wrap!important;gap:6px!important}
+          .cat-btn{font-size:11px!important;padding:5px 12px!important}
+        }
+        @media(max-width:480px){
+          .trust-hero-grid h1{font-size:20px!important}
+          .cat-btn{font-size:10px!important;padding:4px 10px!important}
+          .company-card{padding:14px!important}
+          p{font-size:14px!important}
+        }.cat-btn{font-size:10px!important;padding:4px 10px!important}}
           .trust-company-grid{grid-template-columns:1fr!important} .grid4{grid-template-columns:1fr 1fr!important}
           .trust-sections{grid-template-columns:1fr!important}
           .trust-stats{flex-direction:column!important;gap:8px!important}

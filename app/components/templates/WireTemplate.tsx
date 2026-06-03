@@ -108,7 +108,19 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
 
         @media(max-width:768px){
           .whero{grid-template-columns:1fr!important}
-        @media(max-width:480px){.whero h1{font-size:22px!important}.wgrid{padding:12px!important}a.wnav{font-size:11px!important;padding:3px 6px!important}}
+          .wgrid{grid-template-columns:1fr!important}
+          .wtop{grid-template-columns:1fr!important}
+          .wlayout{grid-template-columns:1fr!important}
+          .wsidebar{display:none!important}
+          .wnav a{font-size:11px!important;padding:3px 6px!important}
+          .wheading{font-size:22px!important;line-height:1.2!important}
+        }
+        @media(max-width:480px){
+          .wheading{font-size:18px!important}
+          .wcard{padding:12px!important}
+          .whero{padding:16px!important}
+          p{font-size:14px!important}
+        }.wgrid{padding:12px!important}a.wnav{font-size:11px!important;padding:3px 6px!important}}
           .wgrid{grid-template-columns:1fr!important}
           .wtop{grid-template-columns:1fr!important}
           .wsidebar{display:none!important}

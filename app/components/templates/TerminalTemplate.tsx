@@ -146,7 +146,17 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
 
         @media(max-width:768px){
           .term-grid{grid-template-columns:1fr!important}
-        @media(max-width:480px){h1{font-size:20px!important}h2{font-size:16px!important}.tabs a{font-size:11px!important;padding:4px 8px!important}}
+          .term-sidebar{display:none!important}
+          .term-list{grid-template-columns:1fr!important}
+          .term-nav{flex-wrap:wrap!important;gap:4px!important}
+          .term-nav a{font-size:11px!important;padding:4px 8px!important}
+        }
+        @media(max-width:480px){
+          h1,h2{font-size:20px!important;line-height:1.2!important}
+          h3{font-size:16px!important}
+          .term-hero{padding:20px 14px!important}
+          p{font-size:14px!important;line-height:1.6!important}
+        }h2{font-size:16px!important}.tabs a{font-size:11px!important;padding:4px 8px!important}}
           .term-sidebar{display:none!important}
           .term-nav{overflow-x:auto;white-space:nowrap}
           h1{font-size:20px!important}

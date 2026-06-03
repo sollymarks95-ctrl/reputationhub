@@ -51,31 +51,60 @@ export default function HomePage() {
         .tc:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.2)}
         .inp{padding:14px 18px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#F1F5F9;font-size:14px;outline:none;font-family:inherit;width:100%;transition:border .2s}
         .inp:focus{border-color:#0EA5E9}
+        /* ── TABLET 900px ── */
         @media(max-width:900px){
-          .hg{grid-template-columns:1fr!important}
+          .hg{grid-template-columns:1fr!important;gap:32px!important}
           .sc{display:none!important}
-          .fg{grid-template-columns:1fr 1fr!important}
-          .pg{grid-template-columns:1fr!important}
-          .tg{grid-template-columns:1fr!important}
+          .fg{grid-template-columns:1fr 1fr!important;gap:14px!important}
+          .pg{grid-template-columns:1fr!important;gap:16px!important}
+          .tg{grid-template-columns:1fr!important;gap:16px!important}
           .sg{grid-template-columns:repeat(2,1fr)!important}
           .nl{display:none!important}
           .fmg{grid-template-columns:1fr!important}
           .ds1{display:none!important}
           .ds2{display:none!important}
-          .h1s{font-size:38px!important}
-          .h2s{font-size:28px!important}
+          .h1s{font-size:36px!important;line-height:1.15!important}
+          .h2s{font-size:26px!important}
+          .sec{padding:60px 0!important}
+          .ai-demo-grid{grid-template-columns:1fr!important}
+          .geo-grid{grid-template-columns:1fr!important}
+          .geo-engines{gap:8px!important}
         }
-        @media(max-width:600px){
+        /* ── MOBILE 640px ── */
+        @media(max-width:640px){
+          .hg{gap:24px!important}
+          .fg{grid-template-columns:1fr 1fr!important;gap:10px!important}
+          .pg{grid-template-columns:1fr!important}
+          .tg{grid-template-columns:1fr!important}
+          .sg{grid-template-columns:1fr 1fr!important}
+          .h1s{font-size:28px!important;line-height:1.2!important;letter-spacing:-.01em!important}
+          .h2s{font-size:22px!important;line-height:1.25!important}
+          .sec{padding:48px 0!important}
+          .btn{padding:11px 18px!important;font-size:13px!important}
+          .btn-ghost{display:none!important}
+          .pc{padding:24px 16px!important}
+          .fc{padding:20px 14px!important}
+          .tc{padding:20px 16px!important}
+          .hero-sec{padding:90px 0 48px!important;min-height:auto!important}
+          .hero-btns{flex-direction:column!important;align-items:stretch!important}
+          .hero-btns a{text-align:center!important;justify-content:center!important}
+          .hero-stats{gap:16px!important}
+          .stat-n{font-size:22px!important}
+          .tag{font-size:10px!important;padding:4px 10px!important}
+          .geo-stat-n{font-size:28px!important}
+          .price-n{font-size:36px!important}
+          .contact-box{padding:36px 20px!important}
+          .contact-h{font-size:28px!important}
+          nav .btn-ghost{display:none!important}
+        }
+        /* ── SMALL MOBILE 400px ── */
+        @media(max-width:400px){
+          .h1s{font-size:24px!important}
+          .h2s{font-size:19px!important}
           .fg{grid-template-columns:1fr!important}
           .sg{grid-template-columns:1fr 1fr!important}
-          .h1s{font-size:30px!important;letter-spacing:-.01em!important}
-          .h2s{font-size:24px!important}
-          .btn{padding:12px 20px!important;font-size:14px!important}
-          .pc{padding:28px 20px!important}
-          .fc{padding:24px 18px!important}
-          .tc{padding:24px 20px!important}
-          nav{padding:10px 0!important}
-          section{padding:60px 0!important}
+          .hero-sec{padding:80px 0 40px!important}
+          .sec{padding:40px 0!important}
         }
       `}</style>
 
@@ -109,7 +138,7 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
+      <section className="hero-sec" style={{ minHeight:'100vh', display:'flex', alignItems:'center', padding:'130px 0 80px', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 70% 50%,rgba(14,165,233,0.13),transparent),radial-gradient(ellipse 50% 80% at 10% 30%,rgba(16,185,129,0.09),transparent)' }} />
         <div className="grid-bg" />
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px', width:'100%' }}>
@@ -120,7 +149,7 @@ export default function HomePage() {
                 <span className="tag" style={{ background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)', color:'#10B981' }}>🤖 AI-Powered</span>
                 <span className="tag" style={{ background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.3)', color:'#F59E0B' }}>✦ From $5,000/mo</span>
               </div>
-              <h1 className="syne h1s" style={{ fontSize:56, fontWeight:900, lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:22 }}>
+              <h1 className="syne h1s" style={{ fontSize:56, fontWeight:900, lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:22 }} className="h1s">
                 We Bury Negative Reviews.{' '}
                 <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Build Real Authority.</span>{' '}
                 <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Own Your Brand Search.</span>
@@ -128,7 +157,7 @@ export default function HomePage() {
               <p style={{ fontSize:18, color:'#94A3B8', lineHeight:1.75, marginBottom:36, maxWidth:520 }}>
                 We dominate your brand name across <strong style={{color:'#F1F5F9'}}>every Google search, AI assistant and review site</strong>. Negative reviews buried. Real credibility built through broker-authored articles, CEO podcasts, and video interviews — all published instantly on 300+ financial portals.
               </p>
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:44 }}>
+              <div className="hero-btns" style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:44 }}>
                 <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-blue" style={{ fontSize:16, padding:'15px 30px' }}>
                   Get My Brand Domination Plan
                 </a>
@@ -136,7 +165,7 @@ export default function HomePage() {
                   ▶ Watch 2-Min Demo
                 </a>
               </div>
-              <div style={{ display:'flex', gap:24, flexWrap:'wrap' }}>
+              <div className="hero-stats" style={{ display:'flex', gap:24, flexWrap:'wrap' }}>
                 {[['47+','Brokers Ranked #1'],['300+','Portals'],['96h','To Google P1']].map(([n,l]) => (
                   <div key={l}>
                     <div className="syne" style={{ fontSize:28, fontWeight:900, lineHeight:1 }}>{n}</div>
@@ -221,7 +250,7 @@ export default function HomePage() {
       </div>
 
       {/* FEATURES */}
-      <section id="features" style={{ padding:'96px 0' }}>
+      <section id="features" className="sec" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:60 }}>
             <span className="tag" style={{ background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', color:'#0EA5E9', marginBottom:18, display:'inline-flex' }}>The Four Pillars</span>
@@ -262,7 +291,7 @@ export default function HomePage() {
       <GEOSection />
 
       {/* DASHBOARD */}
-      <section id="dashboard" style={{ padding:'80px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
+      <section id="dashboard" className="sec" style={{ padding:'80px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:48 }}>
             <span className="tag" style={{ background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', color:'#10B981', marginBottom:14, display:'inline-flex' }}>Real-Time Control</span>
@@ -337,7 +366,7 @@ export default function HomePage() {
 
 
       {/* PRICING */}
-      <section id="pricing" style={{ padding:'96px 0' }}>
+      <section id="pricing" className="sec" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:52 }}>
             <span className="tag" style={{ background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.25)', color:'#F59E0B', marginBottom:16, display:'inline-flex' }}>Transparent Pricing</span>
@@ -353,7 +382,7 @@ export default function HomePage() {
               <div key={p.tier} className={`pc${p.ft?' ft':''}`} style={{ position:'relative' }}>
                 {p.ft && <div style={{ position:'absolute', top:-14, left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#0EA5E9,#818CF8)', color:'#fff', fontSize:10, fontWeight:800, letterSpacing:'.1em', padding:'4px 14px', borderRadius:100, whiteSpace:'nowrap' }}>MOST POPULAR</div>}
                 <div style={{ fontSize:11, fontWeight:700, color:'#64748b', marginBottom:10, textTransform:'uppercase', letterSpacing:'.06em' }}>{p.tier}</div>
-                <div className="syne" style={{ fontSize:50, fontWeight:900, lineHeight:1, marginBottom:4, color:p.clr }}>
+                <div className="syne price-n" style={{ fontSize:50, fontWeight:900, lineHeight:1, marginBottom:4, color:p.clr }}>
                   {p.price!=='Custom'&&<span style={{fontSize:24,color:'#64748b',fontWeight:400}}>$</span>}{p.price}
                 </div>
                 <div style={{ fontSize:13, color:'#64748b', marginBottom:18 }}>per month · 3 month minimum</div>
@@ -369,7 +398,7 @@ export default function HomePage() {
       </section>
 
       {/* PROOF */}
-      <section id="proof" style={{ padding:'96px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
+      <section id="proof" className="sec" style={{ padding:'96px 0', background:'rgba(255,255,255,0.015)', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:52 }}>
             <span className="tag" style={{ background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.25)', color:'#10B981', marginBottom:16, display:'inline-flex' }}>Client Results</span>
@@ -400,13 +429,13 @@ export default function HomePage() {
       </section>
 
       {/* FINAL CTA */}
-      <section id="contact" style={{ padding:'110px 0', position:'relative', overflow:'hidden' }}>
+      <section id="contact" className="sec" style={{ padding:'110px 0', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 60% 80% at 50% 50%,rgba(14,165,233,0.12),transparent)' }} />
         <div style={{ maxWidth:780, margin:'0 auto', padding:'0 24px', position:'relative', zIndex:2 }}>
-          <div style={{ background:'linear-gradient(135deg,#141B2D,#1C2333)', borderRadius:20, padding:'64px 52px', textAlign:'center', border:'1px solid rgba(14,165,233,0.3)', boxShadow:'0 0 60px rgba(14,165,233,0.15)', position:'relative' }}>
+          <div className="contact-box" style={{ background:'linear-gradient(135deg,#141B2D,#1C2333)', borderRadius:20, padding:'64px 52px', textAlign:'center', border:'1px solid rgba(14,165,233,0.3)', boxShadow:'0 0 60px rgba(14,165,233,0.15)', position:'relative' }}>
             <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:'linear-gradient(90deg,transparent,#0EA5E9,#10B981,transparent)' }} />
             <span className="tag" style={{ background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', color:'#EF4444', marginBottom:18, display:'inline-flex' }}>🚨 Only 4 Slots Remaining — June 2025</span>
-            <h2 className="syne h2s" style={{ fontSize:48, fontWeight:900, marginBottom:16, lineHeight:1.05 }}>
+            <h2 className="syne h2s" className="syne h2s contact-h" style={{ fontSize:48, fontWeight:900, marginBottom:16, lineHeight:1.05 }}>
               Your Brand Is Being{' '}
               <span style={{ background:'linear-gradient(135deg,#38BDF8,#818CF8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Searched Right</span>{' '}
               <span style={{ background:'linear-gradient(135deg,#F59E0B,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Now.</span>
@@ -505,7 +534,7 @@ function GEOSection() {
         </div>
 
         {/* How it works */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:72 }}>
+        <div className="geo-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:72 }}>
           {/* Left: Steps */}
           <div>
             <div style={{ fontSize:11, fontWeight:700, color:'#6366F1', letterSpacing:'.1em', textTransform:'uppercase', marginBottom:28 }}>How We Engineer AI Citations</div>
@@ -564,7 +593,7 @@ function GEOSection() {
             { n:'2-3', l:'FAQ pairs per article for AI extraction' },
           ].map(s => (
             <div key={s.n} style={{ textAlign:'center' }}>
-              <div className="syne" style={{ fontSize:40, fontWeight:900, background:'linear-gradient(135deg,#818CF8,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{s.n}</div>
+              <div className="syne geo-stat-n" style={{ fontSize:40, fontWeight:900, background:'linear-gradient(135deg,#818CF8,#10B981)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{s.n}</div>
               <div style={{ fontSize:12, color:'#475569', marginTop:4, maxWidth:140 }}>{s.l}</div>
             </div>
           ))}
@@ -635,7 +664,7 @@ function AIDefenseSection() {
         </div>
 
         {/* DEMO GRID */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, alignItems:'start' }}>
+        <div className="ai-demo-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, alignItems:'start' }}>
 
           {/* LEFT: WITHOUT REPHUBY — the threat */}
           <div>

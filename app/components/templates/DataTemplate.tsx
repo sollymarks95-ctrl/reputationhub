@@ -86,8 +86,17 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
         @media(max-width:900px){.layout{grid-template-columns:1fr!important}.sidebar{display:none!important}.art-body{padding:20px!important}}
           @media(max-width:768px){
-          .data-hero{flex-direction:column!important}
-        @media(max-width:480px){h1{font-size:20px!important}td,th{font-size:12px!important;padding:6px!important}}
+          .data-grid{grid-template-columns:1fr!important}
+          .data-sidebar{display:none!important}
+          .data-stats{grid-template-columns:1fr 1fr!important}
+        }
+        @media(max-width:480px){
+          h1{font-size:20px!important}
+          h2{font-size:17px!important}
+          td,th{font-size:12px!important;padding:6px 8px!important}
+          .data-hero{padding:16px!important}
+          p{font-size:14px!important}
+        }td,th{font-size:12px!important;padding:6px!important}}
           .data-grid{grid-template-columns:1fr!important}
           .data-sidebar{display:none!important}
           .data-nav{overflow-x:auto;white-space:nowrap}

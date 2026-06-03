@@ -97,8 +97,19 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         .flink:hover{color:${p}}.m2{grid-template-columns:1fr!important}}
 
         @media(max-width:768px){
-          .mag-hero{grid-template-columns:1fr!important}
-        @media(max-width:480px){h1,h2{font-size:22px!important}section{padding:16px!important}}
+          .mag-grid{grid-template-columns:1fr!important}
+          .mag-featured{grid-template-columns:1fr!important}
+          .mag-sidebar{display:none!important}
+          .mag-nav{overflow-x:auto!important;flex-wrap:nowrap!important;gap:6px!important}
+        }
+        @media(max-width:480px){
+          h1{font-size:22px!important}
+          h2{font-size:18px!important}
+          h3{font-size:15px!important}
+          .mag-hero{padding:16px!important}
+          p{font-size:14px!important}
+          section{padding:16px!important}
+        }section{padding:16px!important}}
           .mag-grid{grid-template-columns:1fr!important}
           .mag-sidebar{display:none!important}
           .mag-nav{overflow-x:auto;white-space:nowrap}
