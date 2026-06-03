@@ -1,54 +1,49 @@
 import { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 
+// Domain → sitemap mapping for all 5 indexed portals
+const SITEMAP_MAP: Record<string, string> = {
+  'nex-wire.com':   'https://nex-wire.com/sitemap.xml',
+  'finvexx.com':    'https://finvexx.com/sitemap.xml',
+  'bizplezx.com':   'https://bizplezx.com/sitemap.xml',
+  'aurexhq.com':    'https://aurexhq.com/sitemap.xml',
+  'verivex.co':     'https://verivex.co/sitemap.xml',
+}
+
+// Noindex portals — block all crawlers
+const NOINDEX_DOMAINS = new Set([
+  'invexhuby.com', 'signalixx.com', 'execvex.com', 'cryptoxos.com',
+  'rephuby.com',
+])
+
+export const dynamic = 'force-dynamic'
+
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  const hdrs = await headers()
-  const host = (hdrs.get('host') || 'rephuby.com').replace(/:\d+$/, '').replace(/^www\./, '')
+  const headersList = await headers()
+  const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
 
-  const DOMAIN_SITEMAPS: Record<string, string> = {
-    'nex-wire.com':  'https://nex-wire.com/sitemap.xml',
-    'finvexx.com':   'https://finvexx.com/sitemap.xml',
-    'bizplezx.com':  'https://bizplezx.com/sitemap.xml',
-    'aurexhq.com':   'https://aurexhq.com/sitemap.xml',
-    'verivex.co':    'https://verivex.co/sitemap.xml',
-    'bizpedia.com':  'https://bizpedia.com/sitemap.xml',
-    'presxwire.com': 'https://presxwire.com/sitemap.xml',
-    'invexhub.com':  'https://invexhub.com/sitemap.xml',
-    'tradvex.com':   'https://tradvex.com/sitemap.xml',
-    'certivade.com': 'https://certivade.com/sitemap.xml',
-    'execvex.com':   'https://execvex.com/sitemap.xml',
-    'signalix.com':  'https://signalix.com/sitemap.xml',
-  }
-
-  const sitemap = DOMAIN_SITEMAPS[host]
-    ? [DOMAIN_SITEMAPS[host]]
-    : Object.values(DOMAIN_SITEMAPS)
-
-  const isRephuby = host === 'rephuby.com' || host === 'www.rephuby.com'
-
-  if (isRephuby) {
+  if (NOINDEX_DOMAINS.has(host)) {
     return {
-      rules: [{ userAgent: '*', disallow: '/' }],
-      // rephuby.com is internal infrastructure — not for indexing
+      rules: { userAgent: '*', disallow: '/' },
     }
   }
+
+  const sitemapUrl = SITEMAP_MAP[host] || `https://${host}/sitemap.xml`
 
   return {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/faq/', '/article/', '/search'],
-        disallow: ['/portal/', '/api/'],
+        allow: '/',
+        disallow: ['/api/', '/admin/', '/portal/'],
       },
-      // Explicitly allow all AI crawlers — critical for AI engine optimization
-      { userAgent: 'GPTBot',        allow: '/' },
-      { userAgent: 'Claude-Web',    allow: '/' },
-      { userAgent: 'PerplexityBot', allow: '/' },
-      { userAgent: 'Googlebot',     allow: '/' },
-      { userAgent: 'Bingbot',       allow: '/' },
-      { userAgent: 'anthropic-ai',  allow: '/' },
-      { userAgent: 'CCBot',         allow: '/' },
+      {
+        // Block AI scrapers that don't respect content
+        userAgent: ['GPTBot', 'Google-Extended', 'CCBot', 'anthropic-ai'],
+        disallow: '/',
+      },
     ],
-    sitemap,
+    sitemap: sitemapUrl,
+    host: `https://${host}`,
   }
 }

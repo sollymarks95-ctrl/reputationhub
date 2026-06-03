@@ -3,30 +3,29 @@ import { createClient } from '@supabase/supabase-js'
 
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
+// All 5 indexable portals
 const SITE_DOMAINS: Record<string, string> = {
   'global-trade-wire':  'https://nex-wire.com',
   'finance-terminal':   'https://finvexx.com',
   'business-pulse':     'https://bizplezx.com',
+  'gold-markets-today': 'https://aurexhq.com',
+  'trust-score':        'https://verivex.co',
 }
 
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // During build, env vars aren't available — return empty
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return []
-  }
-  const { data: articles } = await getDb()
-    .from('news_articles')
-    .select('slug, news_site_id, published_at, news_sites!inner(slug)')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
-    .limit(500)
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return []
 
-  const { data: sites } = await getDb()
-    .from('news_sites')
-    .select('slug, updated_at')
-    .eq('is_live', true)
+  const db = getDb()
+  const [{ data: articles }, { data: sites }] = await Promise.all([
+    db.from('news_articles')
+      .select('slug, news_site_id, published_at, news_sites!inner(slug)')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(2000),
+    db.from('news_sites').select('slug, updated_at').eq('is_live', true).eq('noindex', false),
+  ])
 
   const homepages: MetadataRoute.Sitemap = (sites || [])
     .filter(s => SITE_DOMAINS[s.slug])
