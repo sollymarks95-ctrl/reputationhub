@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const job_id = req.nextUrl.searchParams.get('job_id')
   if (!job_id) return NextResponse.json({ error: 'job_id required' }, { status: 400, headers: CORS })
 
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
   const { data: job } = await sb.from('podcast_videos').select('*').eq('id', job_id).single()
   if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: CORS })
   if (job.status === 'ready' || job.status === 'failed') return NextResponse.json({ ...job, done: true }, { headers: CORS })
