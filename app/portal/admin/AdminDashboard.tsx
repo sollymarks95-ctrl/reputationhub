@@ -1,5 +1,6 @@
 'use client'
 import VideoStudio from './VideoStudio'
+import CostTracker from './CostTracker'
 import React, { useState, useEffect, useCallback } from 'react'
 
 const PORTAL_COLORS: Record<string,string> = {
@@ -460,6 +461,7 @@ export default function AdminDashboard({
             {id:'reviews',icon:'⭐',label:'Reviews'},
             {id:'rankings',icon:'🎯',label:'Rankings'},
             {id:'settings',icon:'⚙️',label:'Settings'},
+            {id:'costs',icon:'💰',label:'Cost Tracker'},
           ].map(n=>(
             <button key={n.id} className={`nb${tab===n.id?' on':''}`} onClick={()=>setTab(n.id)}>
               <span style={{fontSize:15,flexShrink:0}}>{n.icon}</span>
@@ -1469,6 +1471,7 @@ export default function AdminDashboard({
         )}
 
         {/* SETTINGS */}
+        {tab==='costs'&&(<div style={{padding:'24px'}}><CostTracker /></div>)}
         {tab==='videos'&&(
           <VideoStudio allPodcasts={allPodcasts}/>
         )}
