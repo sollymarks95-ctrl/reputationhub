@@ -55,24 +55,22 @@ export async function GET() {
     const nk = km.CREATOMATE_KEY
     if (nk && nk.length > 10) {
       try {
-        const ncSecret = nk.split('-').slice(5).join('-')
-        const r = await fetch('https://api.nextcut.io/render-video', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${ncSecret}`, apikey: nk },
+        const r = await fetch(`https://api.shotstack.io/edit/stage/renders?limit=1`, {
+          headers: { 'x-api-key': nk },
           signal: AbortSignal.timeout(8000),
         })
         const body = await r.text()
-        results.nextcut = {
-          ok: r.status !== 404,
-          message: r.status === 401 ? '⚠️ Nextcut: key auth issue — check key format'
-                 : r.ok ? '✅ Nextcut connected'
-                 : `❌ HTTP ${r.status}: ${body.slice(0,80)}`,
+        results.shotstack = {
+          ok: r.ok || r.status === 404,  // 404 = valid key, no renders yet
+          message: r.ok ? '✅ Shotstack connected' 
+                 : r.status === 401 ? '❌ Shotstack: invalid API key'
+                 : `⚠️ Shotstack HTTP ${r.status}`,
         }
       } catch (e: any) {
-        results.nextcut = { ok: false, message: `❌ Nextcut: ${e.message}` }
+        results.shotstack = { ok: false, message: `❌ Nextcut: ${e.message}` }
       }
     } else {
-      results.nextcut = { ok: false, message: '⚠️ No CREATOMATE_KEY in system_api_keys' }
+      results.shotstack = { ok: false, message: '⚠️ No SHOTSTACK_KEY — add at shotstack.io/register' }
     }
 
     // 3. HeyGen (fallback)
@@ -116,7 +114,7 @@ export async function GET() {
       results.audio = { ok: false, message: `❌ Audio check: ${e.message}` }
     }
 
-    const ready = !!(results.elevenlabs?.ok && (results.nextcut?.ok || results.heygen?.ok))
+    const ready = !!(results.elevenlabs?.ok && (results.shotstack?.ok || results.heygen?.ok))
     return NextResponse.json({
       ready,
       note: ready ? '🟢 Video pipeline ready' : '🟡 Check services above',

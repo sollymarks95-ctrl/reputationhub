@@ -9,80 +9,105 @@ export async function GET(req: NextRequest) {
   if (!job_id) return NextResponse.json({ error: 'job_id required' }, { status: 400, headers: CORS })
 
   const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-  const { data: job } = await sb.from('podcast_videos').select('*').eq('id', job_id).single()
-  if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404, headers: CORS })
-  if (job.status === 'ready' || job.status === 'failed') return NextResponse.json({ ...job, done: true }, { headers: CORS })
 
-  const { data: keys } = await sb.from('system_api_keys').select('key_name, key_value').in('key_name', ['CREATOMATE_KEY', 'HEYGEN_KEY']).eq('is_active', true)
+  const { data: job } = await sb.from('podcast_videos').select('*').eq('id', job_id).single()
+  if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404, headers: CORS })
+
+  if (job.status === 'ready' || job.status === 'failed') {
+    return NextResponse.json({
+      ...job, done: true, progress_pct: job.status === 'ready' ? 100 : 0,
+    }, { headers: CORS })
+  }
+
+  const { data: keys } = await sb.from('system_api_keys').select('key_name,key_value').eq('is_active', true)
   const km: Record<string, string> = Object.fromEntries((keys || []).map((k: any) => [k.key_name, k.key_value]))
 
-  const updates: Record<string, any> = {}
+  // ── Poll Shotstack ────────────────────────────────────────────────────────
+  const shotstackKey = km.SHOTSTACK_KEY
+  const renderIds: { field: string, id: string, label: string }[] = [
+    { field: 'video_169_url', id: job.creatomate_169_id, label: '16:9' },
+    { field: 'video_916_url', id: job.creatomate_916_id, label: '9:16' },
+    { field: 'video_11_url',  id: job.creatomate_11_id,  label: '1:1'  },
+  ].filter(r => r.id)
 
-  // ── Poll HeyGen ──
-  if (job.heygen_host_job_id && !job.video_916_url && !job.video_169_url) {
-    const hk = km.HEYGEN_KEY
-    if (hk) {
-      const r = await fetch(`https://api.heygen.com/v1/video_status.get?video_id=${job.heygen_host_job_id}`, {
-        headers: { 'X-Api-Key': hk }
-      })
-      if (r.ok) {
-        const d = await r.json()
-        const status = d?.data?.status
-        const videoUrl = d?.data?.video_url
-
-        if (status === 'completed' && videoUrl) {
-          updates.video_916_url = videoUrl
-          updates.video_169_url = videoUrl
-          updates.status = 'ready'
-          updates.progress_pct = 100
-          updates.current_step = '✅ HeyGen video ready!'
-        } else if (status === 'failed') {
-          updates.status = 'failed'
-          updates.error_msg = d?.data?.error || 'HeyGen rendering failed'
-          updates.current_step = '❌ HeyGen failed'
-        } else {
-          // still processing
-          updates.progress_pct = Math.min((job.progress_pct || 40) + 5, 90)
-          updates.current_step = `HeyGen: ${status || 'processing'}...`
-        }
-      }
-    }
-  }
-
-  // ── Poll Creatomate ──
-  const creatomateKey = km.CREATOMATE_KEY
-  if (creatomateKey && creatomateKey !== 'REPLACE_WITH_KEY') {
-    const fmts = [
-      { id: job.creatomate_169_id, field: 'video_169_url', label: '16:9' },
-      { id: job.creatomate_916_id, field: 'video_916_url', label: '9:16' },
-      { id: job.creatomate_11_id,  field: 'video_11_url',  label: '1:1'  },
-    ].filter(f => f.id && !(job as any)[f.field])
-
+  if (shotstackKey && renderIds.length > 0) {
+    const env = km.SHOTSTACK_ENV || 'stage'
+    const updates: Record<string, any> = {}
     let allDone = true
-    for (const fmt of fmts) {
-      const r = await fetch(`https://api.nextcut.io/v1/renders/${fmt.id}`, {
-        headers: { 'Authorization': `Bearer ${creatomateKey}` }
+    let anyFailed = false
+
+    await Promise.allSettled(renderIds.map(async ({ field, id, label }) => {
+      try {
+        const r = await fetch(`https://api.shotstack.io/edit/${env}/renders/${id}`, {
+          headers: { 'x-api-key': shotstackKey },
+          signal: AbortSignal.timeout(8000),
+        })
+        if (!r.ok) { allDone = false; return }
+        const d = await r.json()
+        const status = d?.response?.status  // queued | fetching | rendering | saving | done | failed
+        const url    = d?.response?.url
+
+        if (status === 'done' && url) {
+          updates[field] = url
+        } else if (status === 'failed') {
+          anyFailed = true
+          updates.error_msg = `${label} render failed`
+        } else {
+          allDone = false
+        }
+      } catch { allDone = false }
+    }))
+
+    if (Object.keys(updates).length > 0 || allDone) {
+      const renderedCount = renderIds.filter(r => updates[r.field]).length
+      const finalStatus = anyFailed && renderedCount === 0 ? 'failed'
+                        : allDone ? 'ready' : 'rendering'
+      const pct = allDone ? 100 : Math.min(90, 30 + renderedCount * 20)
+
+      await sb.from('podcast_videos').update({
+        ...updates,
+        status: finalStatus,
+        progress_pct: pct,
+        current_step: allDone
+          ? `✅ Done — ${renderedCount} format(s) ready`
+          : `Rendering… ${renderedCount}/${renderIds.length} formats done`,
+      }).eq('id', job_id)
+
+      const { data: updated } = await sb.from('podcast_videos').select('*').eq('id', job_id).single()
+      return NextResponse.json({ ...updated, done: allDone }, { headers: CORS })
+    }
+
+    return NextResponse.json({ ...job, done: false, progress_pct: job.progress_pct || 30 }, { headers: CORS })
+  }
+
+  // ── Poll HeyGen fallback ──────────────────────────────────────────────────
+  if (km.HEYGEN_KEY && job.heygen_host_job_id) {
+    try {
+      const r = await fetch(`https://api.heygen.com/v1/video_status.get?video_id=${job.heygen_host_job_id}`, {
+        headers: { 'X-Api-Key': km.HEYGEN_KEY },
+        signal: AbortSignal.timeout(8000),
       })
-      if (!r.ok) { allDone = false; continue }
       const d = await r.json()
-      if (d.status === 'succeeded' && d.url) updates[fmt.field] = d.url
-      else if (d.status === 'failed') updates.error_msg = `${fmt.label} failed`
-      else allDone = false
-    }
+      const s = d?.data?.status  // processing | completed | failed
+      const url = d?.data?.video_url
 
-    const readyCount = fmts.filter(f => (job as any)[f.field] || updates[f.field]).length
-    if (allDone && fmts.length > 0) {
-      updates.status = 'ready'; updates.progress_pct = 100; updates.current_step = '✅ All formats ready!'
-    } else {
-      updates.progress_pct = Math.round(40 + (readyCount / Math.max(fmts.length, 1)) * 55)
-      updates.current_step = `Rendering ${readyCount}/${fmts.length} formats...`
-    }
+      if (s === 'completed' && url) {
+        await sb.from('podcast_videos').update({
+          video_169_url: url, status: 'ready', progress_pct: 100,
+          current_step: '✅ HeyGen video ready',
+        }).eq('id', job_id)
+        const { data: upd } = await sb.from('podcast_videos').select('*').eq('id', job_id).single()
+        return NextResponse.json({ ...upd, done: true }, { headers: CORS })
+      } else if (s === 'failed') {
+        await sb.from('podcast_videos').update({ status: 'failed', current_step: 'HeyGen failed' }).eq('id', job_id)
+        return NextResponse.json({ ...job, done: true, status: 'failed' }, { headers: CORS })
+      }
+    } catch {}
   }
 
-  if (Object.keys(updates).length > 0) {
-    await sb.from('podcast_videos').update(updates).eq('id', job_id)
-  }
+  return NextResponse.json({ ...job, done: false, progress_pct: job.progress_pct || 20 }, { headers: CORS })
+}
 
-  const updated = { ...job, ...updates }
-  return NextResponse.json({ ...updated, done: updated.status === 'ready' || updated.status === 'failed' }, { headers: CORS })
+export async function OPTIONS() {
+  return new NextResponse(null, { headers: CORS })
 }
