@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     // Avatar IDs: body → DB → safe defaults (Tyler is confirmed working)
     const hostAvatarId  = host_avatar_id  || km.HEYGEN_HOST_AVATAR_ID  || 'Tyler-insuit-20220721'
-    const guestAvatarId = guest_avatar_id || km.HEYGEN_GUEST_AVATAR_ID || 'Tyler-insuit-20220721'
+    const guestAvatarId = guest_avatar_id || km.HEYGEN_GUEST_AVATAR_ID || 'Anna_public_3_20240108'
 
     // Create job record
     const { data: job, error: jobErr } = await sb.from('podcast_videos').insert({
