@@ -7,7 +7,7 @@ export const maxDuration = 300
 
 const CORE_SITES: Record<string, any> = {
   'global-trade-wire':  { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire Intelligence', shortName:'Nex-Wire', author:'James Hart', domain:'nex-wire.com', topics:['global trade finance markets today','commodity trade flows analysis 2026','export credit agency deal activity','trade finance digitization trends 2026','supply chain finance innovation today','cross-border payment solutions emerging','letter of credit modernization 2026','shipping finance market outlook today','trade war tariff impact analysis 2026','commodity price volatility trade 2026','emerging market trade corridors 2026','global port congestion impact trade','green trade finance sustainability 2026','fintech trade finance disruption today','SWIFT gpi cross-border payments 2026','African Continental Free Trade Area update','Asia Pacific trade deal analysis 2026','US China trade relationship 2026','European trade policy changes 2026','Middle East trade finance hub growth','commodity supercycle analysis 2026','working capital optimization strategies','receivables finance market 2026 update','blockchain trade finance adoption 2026','trade credit insurance market 2026','factoring and invoice finance growth','structured trade commodity finance','forfaiting market analysis 2026','Islamic trade finance sukuk growth','trade finance ESG integration today'] },
-  'finance-terminal':   { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'Finvexx Markets', shortName:'Finvexx', author:'Marcus Webb', domain:'finvexx.com', topics:['forex market analysis today 2026','interest rate decision impact markets','central bank policy meeting outcomes','currency pair technical analysis 2026','bond market yield curve analysis','equity market morning briefing today','derivatives market activity analysis','options market implied volatility today','commodities market daily update 2026','eurodollar futures market analysis 2026','hedge fund positioning analysis 2026','institutional trading flows today','market microstructure analysis 2026','quantitative easing impact markets','inflation data market reaction today','employment data market reaction 2026','GDP growth market implications today','financial stability report analysis','banking sector stress test results','fintech IPO market analysis 2026','CEO board succession planning 2026','private credit market growth 2026','CLO market issuance analysis today','credit spread widening analysis','sovereign debt market analysis 2026','emerging market currency crisis 2026','dollar index DXY analysis today','gold silver ratio analysis 2026','oil price geopolitical impact today','financial sector earnings analysis'] },
+  'finance-terminal':   { id:'48bed332-6525-4d76-aaa5-6d10a5112d77', name:'Finvexx Markets', shortName:'Finvexx', author:'Marcus Webb', domain:'finvexx.com', topics:['forex market analysis today 2026','interest rate decision impact markets','central bank policy meeting outcomes','currency pair technical analysis 2026','bond market yield curve analysis','equity market morning briefing today','derivatives market activity analysis','options market implied volatility today','commodities market daily update 2026','eurodollar futures market analysis 2026','hedge fund positioning analysis 2026','institutional trading flows today','foreign exchange market microstructure 2026','quantitative easing impact markets','inflation data market reaction today','employment data market reaction 2026','GDP growth market implications today','financial stability report analysis','banking sector stress test results','fintech IPO market analysis 2026','CFO strategic succession framework 2026','private credit market growth 2026','CLO market issuance analysis today','credit spread widening analysis','sovereign debt market analysis 2026','emerging market currency crisis 2026','dollar index DXY analysis today','gold silver ratio analysis 2026','oil price geopolitical impact today','financial sector earnings analysis'] },
   'business-pulse':     { id:'c0f14745-8189-444d-af09-39d7248fa319', name:'Bizplezx Executive', shortName:'Bizplezx', author:'Daniel Sterling', domain:'bizplezx.com', topics:['executive leadership strategy 2026','corporate earnings season analysis 2026','consumer spending retail outlook 2026','healthcare pharma business strategy 2026','startup ecosystem funding analysis 2026','corporate governance ESG update 2026','supply chain resilience strategy 2026','digital transformation business 2026','workforce productivity AI automation','remote hybrid work policy 2026','corporate restructuring trends today','real estate commercial market 2026','retail sector disruption analysis 2026','hospitality travel recovery 2026','manufacturing reshoring trends 2026','energy transition business impact 2026','healthcare sector consolidation 2026','media entertainment streaming wars','technology sector layoffs hiring 2026','e-commerce marketplace competition 2026','B2B SaaS market analysis 2026','subscription economy business model','platform economy competition 2026','circular economy business opportunity','sustainability reporting requirements 2026','tax strategy multinational 2026','anti-trust regulation technology 2026','data privacy compliance business 2026','cybersecurity business investment 2026','AI enterprise adoption strategy'] },
   'gold-markets-today': { id:'3b440202-e1c3-4f54-8a4e-65cf7e7dbfe1', name:'AurexHQ', shortName:'AurexHQ', author:'Richard Stone', domain:'aurexhq.com', topics:['gold price analysis today 2026','silver market outlook today 2026','platinum palladium spread analysis','copper price supply demand 2026','oil crude WTI Brent analysis today','natural gas market winter outlook','agricultural commodity grain prices','lithium battery metals demand 2026','rare earth metals supply crisis 2026','iron ore steel market analysis 2026','aluminum market production outlook 2026','nickel market electric vehicle demand','uranium nuclear energy renaissance 2026','gold ETF flows investment demand','central bank gold reserves 2026','gold mining production costs 2026','precious metals inflation hedge 2026','commodity futures positioning CFTC','energy commodity geopolitical risk','food security commodity markets 2026','water scarcity commodity investment','carbon credit market price 2026','shipping rates Baltic Dry Index','freight container market analysis 2026','commodity supercycle thesis 2026','OPEC production cut impact oil','LNG market global trade flows','base metals China demand 2026','gold silver ratio tactical trade','commodity dollar correlation 2026'] },
   'trust-score':        { id:'6ae7e692-bce9-489d-b835-87dcba9ffc47', name:'Verivex Trust', shortName:'Verivex', author:'Nathan Chen', domain:'verivex.co', topics:['broker regulation compliance update 2026','FCA regulatory action broker 2026','SEC enforcement action broker 2026','ASIC regulated broker review 2026','CySEC offshore broker warning 2026','broker withdrawal problem complaint','trading platform security review 2026','CFD broker leverage regulation 2026','forex broker spread comparison 2026','binary options scam warning 2026','clone firm fraud alert 2026','broker insolvency client money 2026','negative balance protection review','trading platform downtime issues 2026','broker customer service review 2026','prop trading firm review 2026','social trading platform safety 2026','copy trading risk analysis 2026','ESMA product intervention update 2026','MiFID II compliance broker 2026','CFTC NFA regulated broker USA','FINRA broker dealer review 2026','offshore broker jurisdiction risks','broker financial statements review','segregated client funds safety 2026','trading app mobile security 2026','robo-advisor regulation review 2026','cryptocurrency exchange safety 2026','DeFi protocol risk assessment 2026','broker acquisition merger impact 2026'] },
@@ -72,6 +72,32 @@ function slugify(s: string) {
 // ─── Natural cross-portal linking (editorial, not PBN) ─────────────────────
 // Rules: max 1 link per article, topically related, ~35% of articles,
 // contextual anchor text, never all-to-one, never footer/sidebar injection
+
+// ─── Unique editorial voice per portal ─────────────────────────────────────
+const SITE_PERSONA: Record<string, string> = {
+  'global-trade-wire':  'Wire-style Reuters/AP brevity. Facts first. Short punchy sentences. Focus on data, volumes, deal flows, shipping tonnage, regulatory filings.',
+  'finance-terminal':   'Bloomberg Terminal style. Data-heavy with exact figures upfront. Rate differentials, yield spreads, basis points, DXY readings.',
+  'business-pulse':     'Forbes editorial voice. CEO-perspective. Strategy implications for corporate leaders. Focus on earnings impact and sector positioning.',
+  'gold-markets-today': 'Commodity desk style. Price drivers, supply/demand fundamentals, futures positioning. CFTC data references. Physical vs paper markets.',
+  'trust-score':        'Consumer-protection watchdog tone. Sceptical of industry claims. Regulatory action focus. Practical investor safety implications.',
+  'invest-data':        'Institutional buy-side perspective. Portfolio construction angle. Factor analysis, risk-adjusted returns, Sharpe ratios, allocation implications.',
+  'market-radar':       'Quantitative trader voice. Technical signals, indicator readings, specific price levels, pattern names, RSI/MACD readings.',
+  'executive-network':  'Headhunter/boardroom insider perspective. Leadership implications, succession dynamics, deal motivations from CEO viewpoint.',
+  'crypto-hub':         'On-chain analyst voice. Wallet data, protocol metrics, TVL figures, developer activity. Specific token economics and DeFi yields.',
+}
+
+// Journalistic angles — rotated per article to prevent structural repetition
+const ANGLES = [
+  'Lead with a specific data point or statistic that challenges conventional wisdom.',
+  'Frame through the lens of risk — what could go wrong and who is exposed.',
+  'Take a historical comparison angle — how does this compare to 5 or 10 years ago.',
+  'Focus on winners and losers — who benefits, who loses from this development.',
+  'Lead with the regulatory or policy implication of this trend.',
+  'Investor action angle — what does this mean for portfolio allocation decisions.',
+  'Geographic lens — how this plays out differently across regions.',
+  'Structural shift angle — is this a temporary blip or a long-term inflection point.',
+]
+
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
   'global-trade-wire': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['currency', 'forex', 'rate', 'bank', 'credit'] },
@@ -147,7 +173,15 @@ async function writeArticle(site: any, topic: string, brandNote: string) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
-  const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}.
+  const persona = SITE_PERSONA[site.slug] || 'Authoritative financial journalist. Factual, data-driven.'
+  const angle   = ANGLES[Math.floor(Math.random() * ANGLES.length)]
+  const uniqueId = Date.now().toString(36) // prevents cached/repeated outputs
+
+  const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}. ID:${uniqueId}
+
+EDITORIAL VOICE FOR ${site.name}: ${persona}
+ANGLE FOR THIS ARTICLE: ${angle}
+CRITICAL: This article MUST be written from the specific perspective and angle above. Do not use generic financial news language.
 
 TOPIC: ${topic}
 ${brandNote}
@@ -320,6 +354,8 @@ Never at article end. Never in FAQ section.`
 
     if (crossLink) brandNote += `\n\nEDITORIAL CROSS-REFERENCE (natural, mid-paragraph): ${crossLink}`
 
+    // Small random delay (3-15s) so articles from different portals don't publish at identical timestamps
+    await new Promise(r => setTimeout(r, 3000 + Math.random() * 12000))
     const article = await writeArticle(site, topic, brandNote)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
