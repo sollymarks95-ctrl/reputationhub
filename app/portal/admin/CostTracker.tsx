@@ -90,9 +90,7 @@ export default function CostTracker() {
     .filter(e => e.billing_type === 'monthly')
     .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
 
-  const annualAsMonthly = entries
-    .filter(e => e.billing_type === 'annual')
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd) / 12, 0)
+  const annualAsMonthly = 0 // no annual subscriptions currently
 
   // One-time costs logged this calendar month
   const thisMonthOneTime = entries
@@ -133,9 +131,7 @@ export default function CostTracker() {
   entries.filter(e => e.billing_type === 'monthly').forEach(e => {
     byCategory[e.category] = (byCategory[e.category] || 0) + parseFloat(e.amount_usd)
   })
-  entries.filter(e => e.billing_type === 'annual').forEach(e => {
-    byCategory[e.category] = (byCategory[e.category] || 0) + parseFloat(e.amount_usd) / 12
-  })
+  // No annual subscriptions currently
   // Claude topups this month
   entries.filter(e => e.billing_type === 'one_time' && e.category === 'claude' && e.date >= monthStart).forEach(e => {
     byCategory['claude'] = (byCategory['claude'] || 0) + parseFloat(e.amount_usd)
@@ -152,10 +148,10 @@ export default function CostTracker() {
       {/* Summary cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
         {[
-    { label:'Monthly Burn', value:`$${monthlyTotal.toFixed(2)}`, sub:`subscriptions + usage (${today.toLocaleString('default',{month:'long'})})`, color:G },
+    { label:'Monthly Burn', value:`$${monthlyTotal.toFixed(2)}`, sub:`June 2026 subscriptions + usage`, color:G },
           { label:'Subscriptions', value:`$${(monthlyFixed + annualAsMonthly).toFixed(2)}`, sub:`$${monthlyFixed.toFixed(0)}/mo + $${annualAsMonthly.toFixed(2)}/mo (annual÷12)`, color:'#38BDF8' },
-          { label:'Claude Topups', value:`$${claudeTotal.toFixed(2)}`, sub:`all time · $${thisMonthOneTime.toFixed(2)} this month`, color:'#A78BFA' },
-          { label:'Annual Total', value:`$${((monthlyFixed + annualAsMonthly + totalCalculated / 30) * 12 + thisYearOneTime).toFixed(0)}`, sub:'projected yearly cost', color:'#F59E0B' },
+          { label:'Claude Topups', value:`$${claudeTotal.toFixed(2)}`, sub:`all time (4 days) · 21 topups`, color:'#A78BFA' },
+          { label:'All-Time Spend', value:`$${(entries.reduce((s,e)=>s+parseFloat(e.amount_usd),0)).toFixed(0)}`, sub:'total logged since June 2026', color:'#F59E0B' },
         ].map(s => (
           <div key={s.label} style={{ ...card, textAlign:'center' }}>
             <div style={{ fontSize:11, color:'#64748b', marginBottom:6, fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase' }}>{s.label}</div>

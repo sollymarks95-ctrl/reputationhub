@@ -306,6 +306,83 @@ function EpisodeCard({ep, cfg}: {ep:any; cfg:{show:string;host:string;role:strin
   )
 }
 
+// Floating topup logger — always visible in admin so you never forget to log
+function FloatingTopupButton() {
+  const [open, setOpen] = React.useState(false)
+  const [amount, setAmount] = React.useState('5')
+  const [desc, setDesc] = React.useState('')
+  const [saved, setSaved] = React.useState(false)
+
+  async function logTopup(amt: number, label: string) {
+    await fetch('/api/admin/costs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: new Date().toISOString().split('T')[0],
+        category: 'claude',
+        description: label || `claude.ai topup $${amt}`,
+        amount_usd: amt,
+        billing_type: 'one_time',
+        notes: 'Logged via floating topup button',
+      }),
+    })
+    setSaved(true)
+    setTimeout(() => { setSaved(false); setOpen(false); setDesc('') }, 1500)
+  }
+
+  return (
+    <>
+      {/* Floating button */}
+      <button onClick={() => setOpen(o => !o)}
+        style={{ position:'fixed', bottom:24, right:24, zIndex:9999,
+          width:52, height:52, borderRadius:26, border:'none', cursor:'pointer',
+          background:'linear-gradient(135deg,#A78BFA,#7C3AED)',
+          boxShadow:'0 4px 20px rgba(167,139,250,0.5)',
+          fontSize:22, display:'flex', alignItems:'center', justifyContent:'center',
+          transition:'transform .2s', transform: open ? 'rotate(45deg)' : 'none' }}>
+        💳
+      </button>
+
+      {/* Topup modal */}
+      {open && (
+        <div style={{ position:'fixed', bottom:84, right:24, zIndex:9999,
+          background:'#0F172A', border:'1px solid rgba(167,139,250,0.4)',
+          borderRadius:16, padding:20, width:280, boxShadow:'0 8px 40px rgba(0,0,0,0.6)' }}>
+          <div style={{ fontSize:14, fontWeight:800, color:'#F1F5F9', marginBottom:4 }}>💳 Log Claude Topup</div>
+          <div style={{ fontSize:11, color:'#64748b', marginBottom:14 }}>Just topped up claude.ai? Log it now.</div>
+          
+          {saved ? (
+            <div style={{ textAlign:'center', padding:'16px 0', color:'#10B981', fontWeight:800, fontSize:16 }}>✅ Logged!</div>
+          ) : (
+            <>
+              {/* Quick amounts */}
+              <div style={{ display:'flex', gap:6, marginBottom:12 }}>
+                {['5','10','20','50'].map(a => (
+                  <button key={a} onClick={() => setAmount(a)}
+                    style={{ flex:1, padding:'7px 0', borderRadius:8, border:`1px solid ${amount===a?'#A78BFA':'rgba(255,255,255,0.08)'}`,
+                      background: amount===a?'#A78BFA22':'rgba(255,255,255,0.03)',
+                      color: amount===a?'#A78BFA':'#94A3B8', fontWeight:800, fontSize:13, cursor:'pointer' }}>
+                    ${a}
+                  </button>
+                ))}
+              </div>
+              <input value={desc} onChange={e => setDesc(e.target.value)}
+                placeholder="What were you building? (optional)"
+                style={{ width:'100%', padding:'8px 10px', borderRadius:8, border:'1px solid rgba(255,255,255,0.1)',
+                  background:'rgba(0,0,0,0.3)', color:'#F1F5F9', fontSize:12, marginBottom:10, boxSizing:'border-box' }} />
+              <button onClick={() => logTopup(parseFloat(amount), desc || `claude.ai topup $${amount}`)}
+                style={{ width:'100%', padding:'10px', borderRadius:8, border:'none', cursor:'pointer',
+                  background:'linear-gradient(135deg,#A78BFA,#7C3AED)', color:'#fff', fontWeight:800, fontSize:14 }}>
+                Log ${amount} Topup
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </>
+  )
+}
+
 export default function AdminDashboard({
   clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[], allVideos=[],
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
@@ -1472,6 +1549,9 @@ export default function AdminDashboard({
 
         {/* SETTINGS */}
         {tab==='costs'&&(<div style={{padding:'24px'}}><CostTracker /></div>)}
+
+        {/* Floating Claude Topup Logger — always visible */}
+        <FloatingTopupButton />
         {tab==='videos'&&(
           <VideoStudio allPodcasts={allPodcasts}/>
         )}
