@@ -19,290 +19,354 @@ const BILLING_TYPES = [
   { id:'annual',   label:'Annual'   },
 ]
 
-// Fixed estimated costs per API call
 const API_COSTS = {
-  heygen_video:     1.20,  // per talking head video (~90s)
-  elevenlabs_audio: 0.30,  // per podcast episode audio
-  shotstack_render: 0.25,  // per video render
-  claude_article:   0.015, // per article (Claude API ~$0.015)
+  heygen_video:     1.20,
+  elevenlabs_audio: 0.30,
+  shotstack_render: 0.25,
+  claude_article:   0.015,
 }
 
+const G = '#10B981'
+const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:20 }
+
+function fmt(n: number) { return '$' + n.toFixed(2) }
+
 export default function CostTracker() {
-  const [entries, setEntries]           = useState<any[]>([])
-  const [usage, setUsage]               = useState<any>({})
-  const [loading, setLoading]           = useState(true)
-  const [showForm, setShowForm]         = useState(false)
-  const [filter, setFilter]             = useState<'all'|'monthly'|'one_time'>('all')
+  const today = new Date().toISOString().split('T')[0]
+  const d14ago = new Date(Date.now() - 14 * 86400000).toISOString().split('T')[0]
+
+  const [entries, setEntries]     = useState<any[]>([])
+  const [usage, setUsage]         = useState<any>({})
+  const [loading, setLoading]     = useState(true)
+  const [showForm, setShowForm]   = useState(false)
+  const [catFilter, setCatFilter] = useState<string>('all')
+  const [dateFrom, setDateFrom]   = useState(d14ago)
+  const [dateTo, setDateTo]       = useState(today)
+  const [fetchingGmail, setFetchingGmail] = useState(false)
+  const [gmailMsg, setGmailMsg]   = useState('')
   const [form, setForm] = useState({
-    date: new Date().toISOString().split('T')[0],
-    category: 'claude',
-    description: '',
-    amount_usd: '',
-    billing_type: 'one_time',
-    notes: '',
+    date: today, category:'claude', description:'', amount_usd:'', billing_type:'one_time', notes:'',
   })
 
-  useEffect(() => {
-    loadData()
-  }, [])
+  useEffect(() => { loadData() }, [])
 
   async function loadData() {
     setLoading(true)
     try {
-      const [costRes, usageRes] = await Promise.all([
-        fetch('/api/admin/costs'),
-        fetch('/api/admin/costs/usage'),
-      ])
-      if (costRes.ok) setEntries(await costRes.json())
-      if (usageRes.ok) setUsage(await usageRes.json())
+      const [cr, ur] = await Promise.all([fetch('/api/admin/costs'), fetch('/api/admin/costs/usage')])
+      if (cr.ok) setEntries(await cr.json())
+      if (ur.ok) setUsage(await ur.json())
     } catch {}
     setLoading(false)
   }
 
   async function addEntry() {
     if (!form.description || !form.amount_usd) return
-    try {
-      const res = await fetch('/api/admin/costs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, amount_usd: parseFloat(form.amount_usd) }),
-      })
-      if (res.ok) {
-        setShowForm(false)
-        setForm({ date: new Date().toISOString().split('T')[0], category:'claude', description:'', amount_usd:'', billing_type:'one_time', notes:'' })
-        loadData()
-      }
-    } catch {}
+    await fetch('/api/admin/costs', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...form, amount_usd: parseFloat(form.amount_usd) }),
+    })
+    setShowForm(false)
+    setForm({ date:today, category:'claude', description:'', amount_usd:'', billing_type:'one_time', notes:'' })
+    loadData()
   }
 
   async function deleteEntry(id: string) {
     if (!confirm('Delete this entry?')) return
-    await fetch(`/api/admin/costs?id=${id}`, { method: 'DELETE' })
+    await fetch(`/api/admin/costs?id=${id}`, { method:'DELETE' })
     loadData()
   }
 
-  // Calculate monthly totals
-  const today = new Date()
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
-  const yearStart  = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0]
+  // Fetch invoices from Gmail via Anthropic API + Gmail MCP
+  async function fetchGmailInvoices() {
+    setFetchingGmail(true)
+    setGmailMsg('Searching Gmail for Anthropic invoices…')
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1500,
+          system:`Search Gmail for emails from Anthropic or billing@anthropic.com or receipts from claude.ai in the last 14 days. 
+Look for: invoice emails, receipt emails, credit topup confirmations, billing notifications.
+Return ONLY valid JSON — no other text:
+{"invoices":[{"date":"YYYY-MM-DD","amount_usd":5.00,"description":"claude.ai credit topup"}],"total":25.00,"error":null}
+If none found: {"invoices":[],"total":0,"error":null}
+If Gmail inaccessible: {"invoices":[],"total":0,"error":"Gmail not accessible"}`,
+          messages:[{role:'user',content:'Search my Gmail for all Anthropic/claude.ai billing emails and receipts from the last 14 days. Return JSON only.'}],
+          mcp_servers:[{type:'url',url:'https://gmailmcp.googleapis.com/mcp/v1',name:'gmail'}],
+        }),
+      })
+      const d = await res.json()
+      const text = d.content?.find((c:any)=>c.type==='text')?.text || ''
+      const match = text.match(/\{[\s\S]*\}/)
+      const result = match ? JSON.parse(match[0]) : null
 
-  const monthlyFixed = entries
-    .filter(e => e.billing_type === 'monthly')
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
+      if (!result || result.error) {
+        setGmailMsg(result?.error || 'Could not read Gmail. Forward your Anthropic receipts to yourself and try again.')
+        setFetchingGmail(false)
+        return
+      }
+      if (result.invoices.length === 0) {
+        setGmailMsg('No Anthropic invoices found in the last 14 days.')
+        setFetchingGmail(false)
+        return
+      }
 
-  const annualAsMonthly = 0 // no annual subscriptions currently
-
-  // One-time costs logged this calendar month
-  const thisMonthOneTime = entries
-    .filter(e => e.billing_type === 'one_time' && e.date >= monthStart)
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
-
-  // All one-time costs this year (for annual view)
-  const thisYearOneTime = entries
-    .filter(e => e.billing_type === 'one_time' && e.date >= yearStart)
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
-
-  // Claude topups total (all time)
-  const claudeTotal = entries
-    .filter(e => e.category === 'claude')
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
-
-  // Calculated API usage costs this month
-  const calculatedCosts = {
-    heygen:     (usage.videos_this_month || 0) * API_COSTS.heygen_video,
-    elevenlabs: (usage.audios_this_month || 0) * API_COSTS.elevenlabs_audio,
-    shotstack:  (usage.renders_this_month || 0) * API_COSTS.shotstack_render,
-    claude_api: (usage.articles_this_month || 0) * API_COSTS.claude_article,
+      // Log all found invoices
+      for (const inv of result.invoices) {
+        await fetch('/api/admin/costs', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            date: inv.date, category:'claude',
+            description: inv.description || 'claude.ai invoice',
+            amount_usd: inv.amount_usd, billing_type:'one_time',
+            notes:'Auto-imported from Gmail',
+          }),
+        })
+      }
+      setGmailMsg(`✅ Imported ${result.invoices.length} invoice(s) totalling ${fmt(result.total)}`)
+      loadData()
+    } catch(e:any) {
+      setGmailMsg('Error: ' + e.message)
+    }
+    setFetchingGmail(false)
   }
-  const totalCalculated = Object.values(calculatedCosts).reduce((a, b) => a + b, 0)
-  const monthlyTotal = monthlyFixed + annualAsMonthly + thisMonthOneTime + totalCalculated
 
-  const G = '#10B981'
-  const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:20 }
+  // ── Calculations ─────────────────────────────────────────────────────────
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
 
-  const catLookup = Object.fromEntries(CATEGORIES.map(c => [c.id, c]))
+  const monthlyFixed   = entries.filter(e=>e.billing_type==='monthly').reduce((s,e)=>s+parseFloat(e.amount_usd),0)
+  const claudeAllTime  = entries.filter(e=>e.category==='claude').reduce((s,e)=>s+parseFloat(e.amount_usd),0)
+  const allTimeTotal   = entries.reduce((s,e)=>s+parseFloat(e.amount_usd),0)
+  const calcCosts      = (usage.articles_this_month||0)*API_COSTS.claude_article
+  const monthlyTotal   = monthlyFixed + calcCosts
 
-  const filtered = filter === 'all' ? entries
-    : filter === 'monthly' ? entries.filter(e => e.billing_type === 'monthly')
-    : entries.filter(e => e.billing_type === 'one_time')
+  // Filtered entries for the list
+  const filtered = entries.filter(e => {
+    const inDate = e.date >= dateFrom && e.date <= dateTo
+    const inCat  = catFilter === 'all' || e.category === catFilter
+    return inDate && inCat
+  }).sort((a,b)=>b.date.localeCompare(a.date))
 
-  // Category breakdown for monthly total
-  const byCategory: Record<string, number> = {}
-  entries.filter(e => e.billing_type === 'monthly').forEach(e => {
-    byCategory[e.category] = (byCategory[e.category] || 0) + parseFloat(e.amount_usd)
+  const filteredTotal = filtered.filter(e=>e.billing_type==='one_time').reduce((s,e)=>s+parseFloat(e.amount_usd),0)
+
+  // Category breakdown for date range
+  const byCategory: Record<string,number> = {}
+  filtered.forEach(e => {
+    if (e.billing_type !== 'monthly')
+      byCategory[e.category] = (byCategory[e.category]||0) + parseFloat(e.amount_usd)
   })
-  // No annual subscriptions currently
-  // Claude topups this month
-  entries.filter(e => e.billing_type === 'one_time' && e.category === 'claude' && e.date >= monthStart).forEach(e => {
-    byCategory['claude'] = (byCategory['claude'] || 0) + parseFloat(e.amount_usd)
+  entries.filter(e=>e.billing_type==='monthly').forEach(e => {
+    byCategory[e.category] = (byCategory[e.category]||0) + parseFloat(e.amount_usd)
   })
-  // Add calculated
-  byCategory['heygen']     = (byCategory['heygen']    || 0) + calculatedCosts.heygen
-  byCategory['elevenlabs'] = (byCategory['elevenlabs']|| 0) + calculatedCosts.elevenlabs
-  byCategory['shotstack']  = (byCategory['shotstack'] || 0) + calculatedCosts.shotstack
-  byCategory['anthropic']  = (byCategory['anthropic'] || 0) + calculatedCosts.claude_api
+
+  const catLookup = Object.fromEntries(CATEGORIES.map(c=>[c.id,c]))
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+    <div style={{display:'flex',flexDirection:'column',gap:20}}>
 
       {/* Summary cards */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
         {[
-    { label:'Monthly Burn', value:`$${monthlyTotal.toFixed(2)}`, sub:`June 2026 subscriptions + usage`, color:G },
-          { label:'Subscriptions', value:`$${(monthlyFixed + annualAsMonthly).toFixed(2)}`, sub:`$${monthlyFixed.toFixed(0)}/mo + $${annualAsMonthly.toFixed(2)}/mo (annual÷12)`, color:'#38BDF8' },
-          { label:'Claude Topups', value:`$${claudeTotal.toFixed(2)}`, sub:`all time (4 days) · 21 topups`, color:'#A78BFA' },
-          { label:'All-Time Spend', value:`$${(entries.reduce((s,e)=>s+parseFloat(e.amount_usd),0)).toFixed(0)}`, sub:'total logged since June 2026', color:'#F59E0B' },
-        ].map(s => (
-          <div key={s.label} style={{ ...card, textAlign:'center' }}>
-            <div style={{ fontSize:11, color:'#64748b', marginBottom:6, fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase' }}>{s.label}</div>
-            <div style={{ fontSize:28, fontWeight:900, color:s.color }}>{s.value}</div>
-            <div style={{ fontSize:11, color:'#475569', marginTop:4 }}>{s.sub}</div>
+          {label:'Monthly Burn',   value:fmt(monthlyTotal),    sub:'subscriptions + API',    color:G},
+          {label:'Claude Topups',  value:fmt(claudeAllTime),   sub:`all time · ${entries.filter(e=>e.category==='claude').length} topups`,color:'#A78BFA'},
+          {label:'Fixed Monthly',  value:fmt(monthlyFixed),    sub:'subscriptions',           color:'#38BDF8'},
+          {label:'All-Time Spend', value:fmt(allTimeTotal),    sub:'total since June 2026',  color:'#F59E0B'},
+        ].map(s=>(
+          <div key={s.label} style={{...card,textAlign:'center'}}>
+            <div style={{fontSize:11,color:'#64748b',marginBottom:6,fontWeight:700,letterSpacing:'.06em',textTransform:'uppercase'}}>{s.label}</div>
+            <div style={{fontSize:26,fontWeight:900,color:s.color}}>{s.value}</div>
+            <div style={{fontSize:11,color:'#475569',marginTop:4}}>{s.sub}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
 
-        {/* LEFT: Category breakdown */}
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+        {/* LEFT */}
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+
+          {/* Gmail invoice importer */}
+          <div style={{...card, borderColor:'#A78BFA44'}}>
+            <div style={{fontSize:13,fontWeight:800,color:'#F1F5F9',marginBottom:4}}>📧 Import from Gmail</div>
+            <div style={{fontSize:11,color:'#475569',marginBottom:12}}>Auto-fetch your Anthropic invoice emails from the last 14 days</div>
+            <button onClick={fetchGmailInvoices} disabled={fetchingGmail}
+              style={{width:'100%',padding:'9px',borderRadius:8,border:'1px solid #A78BFA55',background:'#A78BFA15',color:'#A78BFA',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+              {fetchingGmail ? '⏳ Searching Gmail…' : '📧 Fetch Anthropic Invoices from Gmail'}
+            </button>
+            {gmailMsg && <div style={{fontSize:11,color: gmailMsg.startsWith('✅')?G:'#F59E0B',marginTop:8}}>{gmailMsg}</div>}
+          </div>
+
+          {/* Category breakdown */}
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:800, color:'#F1F5F9', marginBottom:16 }}>📊 Monthly Breakdown</div>
-            {Object.entries(byCategory).sort(([,a],[,b]) => b - a).map(([cat, amt]) => {
+            <div style={{fontSize:14,fontWeight:800,color:'#F1F5F9',marginBottom:16}}>📊 Breakdown ({dateFrom} → {dateTo})</div>
+            {Object.entries(byCategory).sort(([,a],[,b])=>b-a).map(([cat,amt])=>{
               const c = catLookup[cat]
-              const pct = monthlyTotal > 0 ? (amt / monthlyTotal) * 100 : 0
+              const max = Math.max(...Object.values(byCategory))
+              const pct = max > 0 ? (amt/max)*100 : 0
               return (
-                <div key={cat} style={{ marginBottom:12 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                    <span style={{ fontSize:13, color:'#F1F5F9' }}>{c?.icon || '📦'} {c?.label || cat}</span>
-                    <span style={{ fontSize:13, fontWeight:700, color: c?.color || '#94A3B8' }}>${amt.toFixed(2)}</span>
+                <div key={cat} style={{marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                    <span style={{fontSize:13,color:'#F1F5F9'}}>{c?.icon||'📦'} {c?.label||cat}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:c?.color||'#94A3B8'}}>{fmt(amt)}</span>
                   </div>
-                  <div style={{ height:5, background:'rgba(255,255,255,0.05)', borderRadius:3, overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${pct}%`, background: c?.color || '#94A3B8', borderRadius:3, opacity:0.8 }} />
+                  <div style={{height:5,background:'rgba(255,255,255,0.05)',borderRadius:3,overflow:'hidden'}}>
+                    <div style={{height:'100%',width:`${pct}%`,background:c?.color||'#94A3B8',borderRadius:3,opacity:.8}}/>
                   </div>
                 </div>
               )
             })}
           </div>
 
-          {/* API Usage (calculated) */}
+          {/* API usage */}
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:800, color:'#F1F5F9', marginBottom:4 }}>🔢 API Usage This Month</div>
-            <div style={{ fontSize:11, color:'#475569', marginBottom:14 }}>Auto-calculated from your actual usage</div>
+            <div style={{fontSize:13,fontWeight:800,color:'#F1F5F9',marginBottom:4}}>🔢 Auto-tracked API Usage</div>
+            <div style={{fontSize:11,color:'#475569',marginBottom:12}}>Calculated from DB activity this month</div>
             {[
-              { label:'Videos rendered (HeyGen)', count: usage.videos_this_month || 0, cost: calculatedCosts.heygen, unit:'@ $1.20 each', color:'#F59E0B' },
-              { label:'Audio episodes (ElevenLabs)', count: usage.audios_this_month || 0, cost: calculatedCosts.elevenlabs, unit:'@ $0.30 each', color:G },
-              { label:'Video composites (Shotstack)', count: usage.renders_this_month || 0, cost: calculatedCosts.shotstack, unit:'@ $0.25 each', color:'#EF4444' },
-              { label:'Articles generated (Claude API)', count: usage.articles_this_month || 0, cost: calculatedCosts.claude_api, unit:'@ $0.015 each', color:'#A78BFA' },
-            ].map(row => (
-              <div key={row.label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+              {label:'Articles (Claude API)',  count:usage.articles_this_month||0,  unit:'$0.015 each',  cost:(usage.articles_this_month||0)*API_COSTS.claude_article, color:'#A78BFA'},
+              {label:'Audio (ElevenLabs)',     count:usage.audios_this_month||0,    unit:'$0.30 each',   cost:(usage.audios_this_month||0)*API_COSTS.elevenlabs_audio, color:G},
+              {label:'Videos (HeyGen)',        count:usage.videos_this_month||0,    unit:'$1.20 each',   cost:(usage.videos_this_month||0)*API_COSTS.heygen_video,     color:'#F59E0B'},
+              {label:'Renders (Shotstack)',    count:usage.renders_this_month||0,   unit:'$0.25 each',   cost:(usage.renders_this_month||0)*API_COSTS.shotstack_render, color:'#EF4444'},
+            ].map(r=>(
+              <div key={r.label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
                 <div>
-                  <div style={{ fontSize:12, color:'#F1F5F9' }}>{row.label}</div>
-                  <div style={{ fontSize:10, color:'#475569' }}>{row.count} × {row.unit}</div>
+                  <div style={{fontSize:12,color:'#F1F5F9'}}>{r.label}</div>
+                  <div style={{fontSize:10,color:'#475569'}}>{r.count} × {r.unit}</div>
                 </div>
-                <div style={{ fontSize:13, fontWeight:700, color: row.color }}>${row.cost.toFixed(2)}</div>
+                <div style={{fontSize:13,fontWeight:700,color:r.color}}>{fmt(r.cost)}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* RIGHT: Entries list */}
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+        {/* RIGHT: entries with date filter */}
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <div style={card}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <div style={{ fontSize:14, fontWeight:800, color:'#F1F5F9' }}>💳 Cost Entries</div>
-              <div style={{ display:'flex', gap:8 }}>
-                {(['all','monthly','one_time'] as const).map(f => (
-                  <button key={f} onClick={() => setFilter(f)}
-                    style={{ fontSize:11, padding:'3px 10px', borderRadius:6, border:'none', cursor:'pointer',
-                      background: filter===f ? G : 'rgba(255,255,255,0.06)',
-                      color: filter===f ? '#fff' : '#64748b', fontWeight: filter===f ? 700 : 400 }}>
-                    {f === 'all' ? 'All' : f === 'monthly' ? 'Monthly' : 'One-time'}
-                  </button>
-                ))}
-                <button onClick={() => setShowForm(f => !f)}
-                  style={{ fontSize:12, padding:'4px 12px', borderRadius:6, border:'none', cursor:'pointer', fontWeight:700, background:G, color:'#fff' }}>
-                  + Add
-                </button>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <div style={{fontSize:14,fontWeight:800,color:'#F1F5F9'}}>💳 Cost Entries</div>
+              <button onClick={()=>setShowForm(f=>!f)}
+                style={{fontSize:12,padding:'4px 12px',borderRadius:6,border:'none',cursor:'pointer',fontWeight:700,background:G,color:'#fff'}}>
+                + Add
+              </button>
+            </div>
+
+            {/* Date range filter */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
+              <div>
+                <div style={{fontSize:10,color:'#64748b',marginBottom:4,fontWeight:700}}>FROM</div>
+                <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)}
+                  style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.3)',color:'#F1F5F9',fontSize:12,boxSizing:'border-box'}}/>
               </div>
+              <div>
+                <div style={{fontSize:10,color:'#64748b',marginBottom:4,fontWeight:700}}>TO</div>
+                <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)}
+                  style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.3)',color:'#F1F5F9',fontSize:12,boxSizing:'border-box'}}/>
+              </div>
+            </div>
+
+            {/* Quick date presets */}
+            <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
+              {[
+                {l:'Today',   f:today,  t:today},
+                {l:'7 days',  f:new Date(Date.now()-7*86400000).toISOString().split('T')[0], t:today},
+                {l:'14 days', f:d14ago, t:today},
+                {l:'30 days', f:new Date(Date.now()-30*86400000).toISOString().split('T')[0], t:today},
+                {l:'All',     f:'2026-01-01', t:today},
+              ].map(p=>(
+                <button key={p.l} onClick={()=>{setDateFrom(p.f);setDateTo(p.t)}}
+                  style={{fontSize:10,padding:'3px 8px',borderRadius:5,border:'1px solid rgba(255,255,255,0.1)',background:dateFrom===p.f&&dateTo===p.t?`${G}22`:'rgba(255,255,255,0.03)',color:dateFrom===p.f&&dateTo===p.t?G:'#64748b',cursor:'pointer',fontWeight:700}}>
+                  {p.l}
+                </button>
+              ))}
+            </div>
+
+            {/* Category filter */}
+            <div style={{display:'flex',gap:6,marginBottom:14,flexWrap:'wrap'}}>
+              <button onClick={()=>setCatFilter('all')}
+                style={{fontSize:10,padding:'3px 8px',borderRadius:5,border:'none',cursor:'pointer',background:catFilter==='all'?G:'rgba(255,255,255,0.05)',color:catFilter==='all'?'#fff':'#64748b',fontWeight:700}}>
+                All
+              </button>
+              {CATEGORIES.map(c=>(
+                <button key={c.id} onClick={()=>setCatFilter(c.id)}
+                  style={{fontSize:10,padding:'3px 8px',borderRadius:5,border:'none',cursor:'pointer',background:catFilter===c.id?c.color+'33':'rgba(255,255,255,0.05)',color:catFilter===c.id?c.color:'#64748b',fontWeight:700}}>
+                  {c.icon} {c.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Total for filtered range */}
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',background:'rgba(255,255,255,0.03)',borderRadius:8,marginBottom:12}}>
+              <span style={{fontSize:12,color:'#64748b'}}>{filtered.length} entries in range</span>
+              <span style={{fontSize:14,fontWeight:800,color:G}}>{fmt(filteredTotal + monthlyFixed)}</span>
             </div>
 
             {/* Add form */}
             {showForm && (
-              <div style={{ background:'rgba(16,185,129,0.06)', borderRadius:8, padding:14, marginBottom:16, border:`1px solid ${G}33` }}>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
-                  <select value={form.category} onChange={e => setForm(p => ({...p, category:e.target.value}))}
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }}>
-                    {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+              <div style={{background:'rgba(16,185,129,0.06)',borderRadius:8,padding:14,marginBottom:14,border:`1px solid ${G}33`}}>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+                  <select value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))}
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}>
+                    {CATEGORIES.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
                   </select>
-                  <select value={form.billing_type} onChange={e => setForm(p => ({...p, billing_type:e.target.value}))}
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }}>
-                    {BILLING_TYPES.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                  <select value={form.billing_type} onChange={e=>setForm(p=>({...p,billing_type:e.target.value}))}
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}>
+                    {BILLING_TYPES.map(b=><option key={b.id} value={b.id}>{b.label}</option>)}
                   </select>
-                  <input value={form.description} onChange={e => setForm(p => ({...p, description:e.target.value}))}
-                    placeholder="Description (e.g. Claude $5 topup)"
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }} />
-                  <input value={form.amount_usd} onChange={e => setForm(p => ({...p, amount_usd:e.target.value}))}
-                    type="number" step="0.01" placeholder="Amount USD"
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }} />
-                  <input value={form.date} onChange={e => setForm(p => ({...p, date:e.target.value}))}
-                    type="date"
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }} />
-                  <input value={form.notes} onChange={e => setForm(p => ({...p, notes:e.target.value}))}
-                    placeholder="Notes (optional)"
-                    style={{ padding:'6px 10px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'#F1F5F9', fontSize:12 }} />
+                  <input value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} placeholder="Description"
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}/>
+                  <input value={form.amount_usd} onChange={e=>setForm(p=>({...p,amount_usd:e.target.value}))} type="number" step="0.01" placeholder="Amount USD"
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}/>
+                  <input value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} type="date"
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}/>
+                  <input value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Notes (optional)"
+                    style={{padding:'6px 10px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',background:'rgba(0,0,0,0.4)',color:'#F1F5F9',fontSize:12}}/>
                 </div>
-                <div style={{ display:'flex', gap:8 }}>
-                  <button onClick={addEntry} style={{ flex:1, padding:'8px', borderRadius:6, border:'none', cursor:'pointer', background:G, color:'#fff', fontWeight:700, fontSize:13 }}>Save Entry</button>
-                  <button onClick={() => setShowForm(false)} style={{ padding:'8px 16px', borderRadius:6, border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer', background:'transparent', color:'#94A3B8', fontSize:13 }}>Cancel</button>
+                <div style={{display:'flex',gap:8}}>
+                  <button onClick={addEntry} style={{flex:1,padding:'8px',borderRadius:6,border:'none',cursor:'pointer',background:G,color:'#fff',fontWeight:700,fontSize:13}}>Save</button>
+                  <button onClick={()=>setShowForm(false)} style={{padding:'8px 16px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',cursor:'pointer',background:'transparent',color:'#94A3B8',fontSize:13}}>Cancel</button>
                 </div>
               </div>
             )}
 
-            {/* Entries table */}
-            {loading ? <div style={{ color:'#64748b', fontSize:13 }}>Loading…</div> : (
-              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                {filtered.sort((a, b) => b.date.localeCompare(a.date)).map((e: any) => {
+            {/* Entries */}
+            {loading ? <div style={{fontSize:13,color:'#64748b'}}>Loading…</div> : (
+              <div style={{display:'flex',flexDirection:'column',gap:6,maxHeight:420,overflowY:'auto'}}>
+                {filtered.map((e:any)=>{
                   const cat = catLookup[e.category]
                   return (
-                    <div key={e.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)' }}>
-                      <span style={{ fontSize:16 }}>{cat?.icon || '📦'}</span>
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:12, fontWeight:600, color:'#F1F5F9', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{e.description}</div>
-                        <div style={{ fontSize:10, color:'#475569' }}>{e.date} · {BILLING_TYPES.find(b => b.id === e.billing_type)?.label}</div>
+                    <div key={e.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',borderRadius:8,background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.05)'}}>
+                      <span style={{fontSize:15,flexShrink:0}}>{cat?.icon||'📦'}</span>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:12,fontWeight:600,color:'#F1F5F9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{e.description}</div>
+                        <div style={{fontSize:10,color:'#475569'}}>{e.date} · {BILLING_TYPES.find(b=>b.id===e.billing_type)?.label}</div>
                       </div>
-                      <div style={{ fontSize:13, fontWeight:700, color: cat?.color || '#94A3B8', flexShrink:0 }}>${parseFloat(e.amount_usd).toFixed(2)}</div>
-                      <button onClick={() => deleteEntry(e.id)}
-                        style={{ fontSize:10, color:'#475569', background:'none', border:'none', cursor:'pointer', padding:'2px 6px' }}>✕</button>
+                      <div style={{fontSize:13,fontWeight:700,color:cat?.color||'#94A3B8',flexShrink:0}}>{fmt(parseFloat(e.amount_usd))}</div>
+                      <button onClick={()=>deleteEntry(e.id)} style={{fontSize:10,color:'#475569',background:'none',border:'none',cursor:'pointer',padding:'2px 6px'}}>✕</button>
                     </div>
                   )
                 })}
-                {filtered.length === 0 && <div style={{ color:'#64748b', fontSize:13 }}>No entries yet.</div>}
+                {filtered.length===0 && <div style={{fontSize:13,color:'#64748b'}}>No entries for this range.</div>}
               </div>
             )}
           </div>
 
-          {/* Quick-add Claude topups */}
+          {/* Quick topup */}
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:800, color:'#F1F5F9', marginBottom:10 }}>⚡ Quick Add Claude Topup</div>
-            <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-              {[5, 10, 20, 50].map(amt => (
-                <button key={amt} onClick={async () => {
-                  await fetch('/api/admin/costs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      date: new Date().toISOString().split('T')[0],
-                      category: 'claude', description: `Claude claude.ai topup $${amt}`,
-                      amount_usd: amt, billing_type: 'one_time', notes: 'claude.ai credit topup',
-                    }),
-                  })
+            <div style={{fontSize:13,fontWeight:800,color:'#F1F5F9',marginBottom:10}}>⚡ Quick Claude Topup</div>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              {[5,10,20,50].map(amt=>(
+                <button key={amt} onClick={async()=>{
+                  await fetch('/api/admin/costs',{method:'POST',headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({date:today,category:'claude',description:`claude.ai topup $${amt}`,amount_usd:amt,billing_type:'one_time',notes:'claude.ai credit topup'})})
                   loadData()
-                }} style={{ padding:'8px 16px', borderRadius:8, border:'1px solid #A78BFA44', background:'#A78BFA15', color:'#A78BFA', fontWeight:700, fontSize:13, cursor:'pointer' }}>
-                  + ${amt}
+                }} style={{flex:1,padding:'10px',borderRadius:8,border:'1px solid #A78BFA44',background:'#A78BFA15',color:'#A78BFA',fontWeight:800,fontSize:14,cursor:'pointer'}}>
+                  +${amt}
                 </button>
               ))}
             </div>
-            <div style={{ fontSize:10, color:'#334155', marginTop:8 }}>Click to instantly log a Claude credit topup with today's date</div>
+            <div style={{fontSize:10,color:'#334155',marginTop:8}}>Also use the 💳 floating button (bottom-right) on any admin tab</div>
           </div>
         </div>
       </div>
