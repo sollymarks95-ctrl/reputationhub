@@ -336,9 +336,18 @@ export async function POST(req: NextRequest) {
           episode_title: episode.title, portal_name: portalName,
           accent, bg_url: bgUrl, duration,
         })
-        const r = await fetch('https://api.nextcut.io/v1/renders', {
+        // Nextcut: /render-video endpoint, apikey auth header (Supabase-style)
+        // Key format: {account_id_uuid}-{secret_uuid} — split at char 37
+        const ncAccountId = nextcutKey.split('-').slice(0,5).join('-')  // first UUID (36 chars)
+        const ncSecret    = nextcutKey.split('-').slice(5).join('-')    // second UUID (36 chars)
+        const r = await fetch('https://api.nextcut.io/render-video', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${nextcutKey}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ncSecret}`,
+            'apikey': nextcutKey,
+            'x-account-id': ncAccountId,
+          },
           body: JSON.stringify({ source }),
           signal: AbortSignal.timeout(20000),
         })
