@@ -288,6 +288,14 @@ export async function GET(req: NextRequest) {
 
   const BATCH_SIZE = 10
   const batchStart = batch * BATCH_SIZE
+
+  // TRUE 7% globalIndex — uses total historical count so brand spacing
+  // is maintained across all batches and all days, not just within one batch
+  const { count: historicalCount } = await getDb()
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', site.id)
+    .eq('status', 'published')
   const today = new Date().toISOString().split('T')[0]
   let inserted = 0
   const skipped: string[] = []
@@ -303,7 +311,7 @@ export async function GET(req: NextRequest) {
   for (let i = 0; i < BATCH_SIZE; i++) {
     const topic = site.topics[batchStart + i]
     if (!topic) break
-    const globalIndex = batchStart + i
+    const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
 
     // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
     // Ultra-natural editorial rate — indistinguishable from organic coverage
@@ -376,6 +384,7 @@ Never at article end. Never in FAQ section.`
       status: 'published',
       published_at: new Date().toISOString(),
       is_featured: i === 0 && batch === 0,
+      article_type: isClientFeature ? 'brand_feature' : isBrand ? 'brand_mention' : 'news',
       ai_generated: true,
       read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
     })

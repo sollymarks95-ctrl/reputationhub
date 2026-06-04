@@ -414,7 +414,7 @@ function PortalsTab() {
       </div>
 
       {/* Summary row */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
         {[
           {label:'Total Portals',  val:portals.length,        color:'#6366f1'},
           {label:'Publishing Today',val:portals.filter(p=>p.today>0).length, color:'#10b981'},
@@ -427,6 +427,40 @@ function PortalsTab() {
           </div>
         ))}
       </div>
+
+      {/* Network content mix */}
+      {(() => {
+        const livePorts = portals.filter(p => p.today > 0 && p.content_mix)
+        if (!livePorts.length) return null
+        const totNews = livePorts.reduce((s,p)=>s+(p.content_mix?.pure_news||0),0)
+        const totMent = livePorts.reduce((s,p)=>s+(p.content_mix?.brand_mentions||0),0)
+        const totFeat = livePorts.reduce((s,p)=>s+(p.content_mix?.brand_features||0),0)
+        const totAll  = totNews + totMent + totFeat || 1
+        const brandPct= Math.round((totMent+totFeat)*100/totAll)
+        return (
+          <div style={{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:11,fontWeight:800,color:'#94A3B8',textTransform:'uppercase',letterSpacing:'.08em'}}>
+                Network Content Mix Today
+              </span>
+              <span style={{fontSize:11,fontWeight:900,color:brandPct<=10?'#10b981':'#ef4444'}}>
+                {brandPct}% branded — target ≤7% {brandPct<=10?'✅':'⚠️'}
+              </span>
+            </div>
+            <div style={{height:8,borderRadius:4,overflow:'hidden',display:'flex',marginBottom:8}}>
+              <div style={{flex:totNews,background:'#1e293b'}}/>
+              <div style={{flex:totMent,background:'#38bdf8'}}/>
+              <div style={{flex:totFeat,background:'#f59e0b'}}/>
+            </div>
+            <div style={{display:'flex',gap:16,fontSize:10}}>
+              <span style={{color:'#64748b'}}>📰 <strong style={{color:'#94A3B8'}}>{totNews}</strong> pure news</span>
+              <span style={{color:'#38bdf8'}}>🏷 <strong>{totMent}</strong> brand mentions</span>
+              <span style={{color:'#f59e0b'}}>⭐ <strong>{totFeat}</strong> brand features</span>
+              <span style={{color:'#475569',marginLeft:'auto'}}>{totAll} articles total</span>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Filter */}
       <div style={{display:'flex',gap:8,marginBottom:16}}>
@@ -480,10 +514,47 @@ function PortalsTab() {
                   ))}
                 </div>
 
+                {/* Content mix */}
+                {p.content_mix && p.today > 0 && (() => {
+                  const cm = p.content_mix
+                  const total = p.today || 1
+                  const newsPct    = Math.round(cm.pure_news * 100 / total)
+                  const mentPct    = Math.round(cm.brand_mentions * 100 / total)
+                  const featPct    = Math.round(cm.brand_features * 100 / total)
+                  const brandTotal = cm.brand_mentions + cm.brand_features
+                  const isOk = cm.brand_pct <= 10
+                  return (
+                    <div style={{marginBottom:10}}>
+                      {/* Bar */}
+                      <div style={{height:6,borderRadius:3,overflow:'hidden',display:'flex',marginBottom:5}}>
+                        <div style={{flex:newsPct,background:'#334155',minWidth:newsPct>0?2:0}}/>
+                        <div style={{flex:mentPct,background:'#38bdf8',minWidth:mentPct>0?2:0}}/>
+                        <div style={{flex:featPct,background:'#f59e0b',minWidth:featPct>0?2:0}}/>
+                      </div>
+                      {/* Legend */}
+                      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                        <span style={{fontSize:9,color:'#475569'}}>
+                          <span style={{color:'#64748b'}}>■</span> {cm.pure_news} news
+                        </span>
+                        <span style={{fontSize:9,color:'#38bdf8'}}>
+                          ■ {cm.brand_mentions} mentions
+                        </span>
+                        <span style={{fontSize:9,color:'#f59e0b'}}>
+                          ■ {cm.brand_features} features
+                        </span>
+                        <span style={{fontSize:9,marginLeft:'auto',fontWeight:700,
+                          color: isOk ? '#10b981' : '#ef4444'}}>
+                          {cm.brand_pct}% branded {isOk ? '✓' : '⚠'}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })()}
+
                 {/* Latest article */}
-                {p.latest_title && (
+                {p.latest && (
                   <div style={{fontSize:10,color:'#475569',marginBottom:8,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',borderLeft:'2px solid rgba(255,255,255,0.06)',paddingLeft:6}}>
-                    {p.latest_title}
+                    {p.latest}
                   </div>
                 )}
 
