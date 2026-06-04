@@ -271,10 +271,10 @@ export async function GET(req: NextRequest) {
     if (!topic) break
     const globalIndex = batchStart + i
 
-    // Content mix: 60% general news · 30% brand mention · 10% full client feature
-    // Slot 0,1: general | Slot 2,4,5,7: general | Slot 3,6: brand mention | Slot 9: full feature
-    const isBrand        = globalIndex % 3 === 0 && clients.length > 0  // every 3rd: client mention
-    const isClientFeature = globalIndex % 9 === 0 && clients.length > 0  // every 9th: full dedicated article
+    // Content mix: ~85% general news · ~10% brand mention · ~5% full client feature
+    // Natural editorial rate — avoids detectable paid-placement pattern
+    const isBrand        = globalIndex % 7  === 0 && clients.length > 0  // every 7th: client mention (~14%)
+    const isClientFeature = globalIndex % 21 === 0 && clients.length > 0  // every 21st: full feature (~5%)
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
