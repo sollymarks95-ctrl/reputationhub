@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
     // Host: normal (full body) | Guest: closeUp (face-focused) — differentiate visually
     const [hostJobId, guestJobId] = await Promise.all([
       submitHeygenAvatar({ avatarId: hostAvatarId,  avatarStyle: 'normal',   audioUrl: ep.audio_url, heygenKey: hk, bgUrl }),
-      submitHeygenAvatar({ avatarId: guestAvatarId, avatarStyle: 'closeUp',  audioUrl: ep.audio_url, heygenKey: hk, bgUrl }),
+      submitHeygenAvatar({ avatarId: guestAvatarId, avatarStyle: 'normal',   audioUrl: ep.audio_url, heygenKey: hk, bgUrl }),
     ])
 
     if (!hostJobId || !guestJobId) {
