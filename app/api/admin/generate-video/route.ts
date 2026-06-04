@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   try {
     const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
     const body = await req.json()
-    const { episode_id, studio_bg = 'dark_studio', formats = ['16:9'] } = body
+    const { episode_id, studio_bg = 'dark_studio', host_avatar_id, guest_avatar_id } = body
 
     if (!episode_id) return NextResponse.json({ error: 'episode_id required' }, { status: 400, headers: CORS })
 
@@ -86,8 +86,9 @@ export async function POST(req: NextRequest) {
 
     // HeyGen avatar IDs (ultra-realistic built-in avatars)
     const hk            = km.HEYGEN_KEY
-    const hostAvatarId  = km.HEYGEN_HOST_AVATAR_ID  || 'Tyler-insuit-20220721'
-    const guestAvatarId = km.HEYGEN_GUEST_AVATAR_ID || 'Wayne-insuit-20220819'
+    // Use avatar IDs from request body first, then DB config, then defaults
+    const hostAvatarId  = host_avatar_id  || km.HEYGEN_HOST_AVATAR_ID  || 'Tyler-insuit-20220721'
+    const guestAvatarId = guest_avatar_id || km.HEYGEN_GUEST_AVATAR_ID || 'Wayne-insuit-20220819'
 
     if (!hk) return NextResponse.json({ error: 'HEYGEN_KEY not set' }, { status: 400, headers: CORS })
 
