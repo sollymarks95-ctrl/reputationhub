@@ -55,15 +55,17 @@ export async function GET() {
     const nk = km.CREATOMATE_KEY
     if (nk && nk.length > 10) {
       try {
-        const r = await fetch(`https://api.shotstack.io/edit/stage/renders?limit=1`, {
+        const ssEnv = km.SHOTSTACK_ENV || 'v1'
+        const r = await fetch(`https://api.shotstack.io/edit/${ssEnv}/renders?limit=1`, {
           headers: { 'x-api-key': nk },
           signal: AbortSignal.timeout(8000),
         })
         const body = await r.text()
         results.shotstack = {
           ok: r.ok || r.status === 404,  // 404 = valid key, no renders yet
-          message: r.ok ? '✅ Shotstack connected' 
+          message: r.ok ? `✅ Shotstack (${ssEnv}) — connected` 
                  : r.status === 401 ? '❌ Shotstack: invalid API key'
+                 : r.status === 404 ? `✅ Shotstack (${ssEnv}) — key valid, no renders yet`
                  : `⚠️ Shotstack HTTP ${r.status}`,
         }
       } catch (e: any) {
