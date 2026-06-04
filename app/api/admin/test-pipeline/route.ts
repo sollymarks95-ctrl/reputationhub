@@ -75,16 +75,25 @@ export async function GET() {
       results.shotstack = { ok: false, message: '⚠️ No SHOTSTACK_KEY — add at shotstack.io/register' }
     }
 
-    // 3. HeyGen (fallback)
+    // 3. HeyGen — check credits (fast endpoint, no timeout)
     try {
-      const r = await fetch('https://api.heygen.com/v2/avatars?limit=1', {
+      const r = await fetch('https://api.heygen.com/v2/user/remaining_quota', {
         headers: { 'X-Api-Key': km.HEYGEN_KEY || '' },
         signal: AbortSignal.timeout(8000),
       })
       const d = await r.json()
+      const quota  = d?.data?.remaining_quota ?? -1
+      const hasKey = !!km.HEYGEN_KEY
       results.heygen = {
-        ok: r.ok,
-        message: r.ok ? `✅ HeyGen — ${d?.data?.avatars?.length || 0} avatars` : `❌ HTTP ${r.status}`,
+        ok: r.ok && quota > 0,
+        quota,
+        message: !hasKey
+          ? '❌ HeyGen: HEYGEN_KEY not set'
+          : !r.ok
+            ? `❌ HeyGen: HTTP ${r.status}`
+            : quota === 0
+              ? `⚠️ HeyGen: remaining_quota=0 — add credits at app.heygen.com/billing`
+              : `✅ HeyGen: ${quota} API credits remaining — avatars: Tyler + Anna`,
       }
     } catch (e: any) {
       results.heygen = { ok: false, message: `❌ HeyGen: ${e.message}` }
