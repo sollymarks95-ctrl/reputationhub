@@ -188,6 +188,32 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
             {generating ? '⏳ Submitting to HeyGen…' : '🎬 Generate Podcast Video'}
           </button>
 
+          {/* HeyGen Video Podcast shortcut */}
+          <div style={{...card, borderColor:`${G}33`, marginTop:8}}>
+            <div style={{fontSize:12,fontWeight:800,color:'#94A3B8',marginBottom:8}}>
+              🎙 HEYGEN VIDEO PODCAST (1-CLICK)
+            </div>
+            <div style={{fontSize:11,color:'#64748b',marginBottom:10,lineHeight:1.5}}>
+              Skip the pipeline — upload your script PDF directly to HeyGen and get a polished 2-avatar video podcast in minutes.
+            </div>
+            {selectedEpisode ? (
+              <div style={{display:'flex',gap:8}}>
+                <button
+                  onClick={() => window.open(`/api/admin/podcast-pdf?id=${selectedEpisode.id}`, '_blank')}
+                  style={{flex:1,padding:'9px',borderRadius:7,border:`1px solid ${G}`,background:`${G}18`,color:G,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                  📄 Download Script PDF
+                </button>
+                <button
+                  onClick={() => window.open('https://labs.heygen.com/video-podcast', '_blank')}
+                  style={{flex:1,padding:'9px',borderRadius:7,border:'1px solid #64748b',background:'rgba(255,255,255,0.04)',color:'#94A3B8',fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                  🚀 Open HeyGen →
+                </button>
+              </div>
+            ) : (
+              <div style={{fontSize:11,color:'#475569'}}>← Select an episode above first</div>
+            )}
+          </div>
+
           {!selectedEpisode && (
             <div style={{ fontSize:11, color:'#475569', textAlign:'center', marginTop:8 }}>
               Select an episode with audio to enable
