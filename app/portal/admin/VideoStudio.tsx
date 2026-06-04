@@ -65,6 +65,8 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
   const [videos, setVideos]         = useState<any[]>([])
   const [loadingVideos, setLoadingVideos] = useState(true)
   const [lastResult, setLastResult] = useState<any>(null)
+  const [previewId, setPreviewId] = useState<string|null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string|null>(null)
   const pollRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => { loadVideos() }, [])
@@ -298,8 +300,10 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
             : videos.length === 0
               ? <div style={{ fontSize:13, color:'#64748b' }}>No videos yet. Generate your first above.</div>
               : <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                  {videos.map((v: any) => (
-                    <div key={v.id} style={{ padding:'14px', borderRadius:10, border:'1px solid rgba(255,255,255,0.07)', background:'rgba(255,255,255,0.02)' }}>
+                  {videos.map((v: any) => {
+                    const hasAny = v.video_916_url || v.video_169_url || v.video_11_url
+                    return (
+                    <div key={v.id} style={{ padding:'14px', borderRadius:10, border:`1px solid ${previewId===v.id?G:'rgba(255,255,255,0.07)'}`, background:'rgba(255,255,255,0.02)', transition:'border-color .2s' }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                         <div style={{ fontSize:13, fontWeight:700, color:'#F1F5F9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                           {v.episode_title || 'Untitled'}
@@ -313,26 +317,44 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
                       <div style={{ fontSize:11, color:'#64748b', marginBottom:8 }}>
                         {v.host_name} × {v.guest_name} · {v.site_slug}
                       </div>
-                      {/* Avatar previews */}
                       <div style={{ display:'flex', gap:8, marginBottom:8 }}>
                         {v.host_photo_url && <img src={v.host_photo_url} style={{ width:36,height:36,borderRadius:18,objectFit:'cover',border:`2px solid ${G}` }} />}
                         {v.guest_photo_url && <img src={v.guest_photo_url} style={{ width:36,height:36,borderRadius:18,objectFit:'cover',border:'2px solid #818CF8' }} />}
                         <div style={{ fontSize:10, color:'#475569', alignSelf:'center' }}>CAM 1 · CAM 2</div>
                       </div>
+                      {v.current_step && v.status !== 'ready' && (
+                        <div style={{ fontSize:11, color:'#64748b', marginBottom:6, fontStyle:'italic' }}>{v.current_step}</div>
+                      )}
                       {v.status !== 'ready' && (
-                        <div style={{ height:3, background:'rgba(255,255,255,0.05)', borderRadius:3, overflow:'hidden' }}>
-                          <div style={{ height:'100%', width:`${v.progress_pct||0}%`, background:`linear-gradient(90deg,${G},#0EA5E9)` }} />
+                        <div style={{ height:3, background:'rgba(255,255,255,0.05)', borderRadius:3, overflow:'hidden', marginBottom:8 }}>
+                          <div style={{ height:'100%', width:`${v.progress_pct||0}%`, background:`linear-gradient(90deg,${G},#0EA5E9)`, transition:'width .5s' }} />
                         </div>
                       )}
-                      {/* Download links */}
-                      <div style={{ display:'flex', gap:8, marginTop:8, flexWrap:'wrap' }}>
-                        {v.video_916_url && <a href={v.video_916_url} target="_blank" style={{ fontSize:11, color:G, background:`${G}15`, padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>📱 9:16</a>}
-                        {v.video_169_url && <a href={v.video_169_url} target="_blank" style={{ fontSize:11, color:'#0EA5E9', background:'#0EA5E915', padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>🖥 16:9</a>}
-                        {v.video_11_url  && <a href={v.video_11_url}  target="_blank" style={{ fontSize:11, color:'#A78BFA', background:'#A78BFA15', padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>⬛ 1:1</a>}
-                        {v.error_msg && <div style={{ fontSize:10, color:'#EF4444', width:'100%' }}>❌ {v.error_msg?.slice(0,80)}</div>}
+                      {/* Inline video preview */}
+                      {previewId === v.id && previewUrl && (
+                        <div style={{ marginBottom:10, borderRadius:8, overflow:'hidden', background:'#000' }}>
+                          <video src={previewUrl} controls autoPlay style={{ width:'100%', maxHeight:220, display:'block' }} />
+                        </div>
+                      )}
+                      {/* Actions */}
+                      <div style={{ display:'flex', gap:6, flexWrap:'wrap', alignItems:'center' }}>
+                        {hasAny && (
+                          <button onClick={() => {
+                            const url = v.video_169_url || v.video_916_url || v.video_11_url
+                            if (previewId === v.id) { setPreviewId(null); setPreviewUrl(null) }
+                            else { setPreviewId(v.id); setPreviewUrl(url) }
+                          }} style={{ fontSize:11, color: previewId===v.id ? '#F59E0B' : '#10B981', background: previewId===v.id ? '#F59E0B15' : '#10B98115', padding:'4px 10px', borderRadius:6, border:'none', cursor:'pointer', fontWeight:700 }}>
+                            {previewId===v.id ? '✕ Close' : '▶ Preview'}
+                          </button>
+                        )}
+                        {v.video_916_url && <a href={v.video_916_url} download target="_blank" style={{ fontSize:11, color:G, background:`${G}15`, padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>⬇ 9:16</a>}
+                        {v.video_169_url && <a href={v.video_169_url} download target="_blank" style={{ fontSize:11, color:'#0EA5E9', background:'#0EA5E915', padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>⬇ 16:9</a>}
+                        {v.video_11_url  && <a href={v.video_11_url}  download target="_blank" style={{ fontSize:11, color:'#A78BFA', background:'#A78BFA15', padding:'4px 10px', borderRadius:6, textDecoration:'none', fontWeight:700 }}>⬇ 1:1</a>}
+                        {v.error_msg && <div style={{ fontSize:10, color:'#EF4444', width:'100%', marginTop:4 }}>❌ {v.error_msg?.slice(0,120)}</div>}
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
           }
         </div>
