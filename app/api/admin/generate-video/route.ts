@@ -48,14 +48,15 @@ async function submitHeygenAvatar(opts: {
             url: bgUrl,
           },
         }],
-        dimension: { width: 1280, height: 720 },
+        dimension: { width: 720, height: 1280 },  // 9:16 portrait for podcast/social clips
         caption: false,
       }),
       signal: AbortSignal.timeout(20000),
     })
     const d = await r.json().catch(() => ({}))
-    console.log('[heygen:avatar:submit]', JSON.stringify(d).slice(0, 200))
-    if (!r.ok) throw new Error(`HeyGen ${r.status}: ${JSON.stringify(d).slice(0,150)}`)
+    const bodyText = JSON.stringify(d)
+    console.log('[heygen:avatar:submit]', r.status, bodyText.slice(0, 400))
+    if (!r.ok) throw new Error(`HeyGen ${r.status}: ${bodyText.slice(0,400)}`)
     return d?.data?.video_id || null
   } catch (e: any) {
     console.error('[heygen:avatar:submit]', e.message)

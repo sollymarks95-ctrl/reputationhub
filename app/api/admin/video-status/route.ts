@@ -16,10 +16,16 @@ async function buildShotstackComposite(job: any, km: Record<string,string>) {
   const ssKey = km.SHOTSTACK_KEY
   const ssEnv = km.SHOTSTACK_ENV || 'v1'
   const accent  = job.portal_accent || '#10B981'
+  const BKGS: Record<string, string> = {
+    dark_studio:    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80&fm=jpg',
+    podcast_room:   'https://images.unsplash.com/photo-1478737270197-3a37b4c58e32?w=1920&q=80&fm=jpg',
+    broadcast_desk: 'https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5?w=1920&q=80&fm=jpg',
+    blue_office:    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80&fm=jpg',
+    dark_bokeh:     'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80&fm=jpg',
+  }
   const bgUrl   = BKGS[job.studio_bg] || BKGS.dark_studio
-  const dur     = 90 // 90s social clip
+  const dur     = 90  // 90s podcast clip — perfect for Reels/TikTok/Shorts
   const CUT     = 18
-  const ar      = '16:9'
 
   type Cut = { t: number; len: number; hero: 'host' | 'guest' }
   const cuts: Cut[] = []
@@ -34,68 +40,74 @@ async function buildShotstackComposite(job: any, km: Record<string,string>) {
   const fade = (i: number) =>
     i > 0 ? { transition: { in: 'fade' } } : {}
 
-  const safeTitle  = (job.episode_title || '').slice(0, 72).replace(/[<>"'&]/g, ' ')
+  const safeTitle  = (job.episode_title || '').slice(0, 55).replace(/[<>"'&]/g, ' ')
   const safePortal = (job.site_slug || 'rephuby').toUpperCase().replace(/[<>"'&]/g, ' ')
   const safeHost   = (job.host_name || 'Host').replace(/[<>"'&]/g, ' ')
   const safeGuest  = (job.guest_name || 'Guest').replace(/[<>"'&]/g, ' ')
   const hv = job.heygen_host_video_url
   const gv = job.heygen_guest_video_url
 
+  // ── 9:16 PODCAST / REELS LAYOUT ──────────────────────────────────────────
+  // Full-screen hero talking head (switches host/guest)
+  // Small PIP corner (the other person)
+  // Lower third name card
+  // LIVE badge + portal name
+  // Episode title strip at bottom
   const tracks: any[] = [
-    // Hero talking head video
+    // HERO — full screen talking head, alternates
     { clips: cuts.map((c, i) => ({
         asset: { type: 'video', src: c.hero === 'host' ? hv : gv, trim: c.t },
         start: c.t, length: c.len,
-        position: 'center', offset: { x: -0.10, y: 0.02 }, scale: 0.68,
+        position: 'center', offset: { x: 0, y: 0.08 }, scale: 0.90,
         ...wipe(i, c.hero),
       }))
     },
-    // PIP talking head
+    // PIP — small corner, opposite person
     { clips: cuts.map((c, i) => ({
         asset: { type: 'video', src: c.hero === 'host' ? gv : hv, trim: c.t },
         start: c.t, length: c.len,
-        position: 'center', offset: { x: 0.36, y: 0.02 }, scale: 0.24,
+        position: 'bottomRight', offset: { x: -0.04, y: 0.18 }, scale: 0.25,
         ...fade(i),
       }))
     },
-    // Lower third
+    // Lower third — name + role, switches with camera
     { clips: cuts.map((c, i) => {
-        const isH = c.hero === 'host'
+        const isH  = c.hero === 'host'
         const name = isH ? safeHost : safeGuest
         const role = isH ? 'HOST' : 'GUEST'
         const col  = isH ? accent : '#818CF8'
         return {
           asset: {
             type: 'html',
-            html: `<div style="border-left:5px solid ${col};background:rgba(0,0,0,0.85);padding:10px 32px 10px 14px"><p style="color:#fff;font-family:Arial,sans-serif;font-size:22px;font-weight:900;margin:0">${name}</p><p style="color:${col};font-family:Arial,sans-serif;font-size:12px;font-weight:700;margin:0;letter-spacing:0.1em">${role} - ${safePortal}</p></div>`,
-            width: 460, height: 68, background: 'transparent',
+            html: `<div style="border-left:5px solid ${col};background:rgba(0,0,0,0.85);padding:10px 20px 10px 14px"><p style="color:#fff;font-family:Arial,sans-serif;font-size:28px;font-weight:900;margin:0">${name}</p><p style="color:${col};font-family:Arial,sans-serif;font-size:13px;font-weight:700;margin:0;letter-spacing:0.08em">${role} - ${safePortal}</p></div>`,
+            width: 700, height: 76, background: 'transparent',
           },
           start: c.t, length: c.len,
-          position: 'bottomLeft', offset: { x: 0.08, y: 0.15 },
+          position: 'center', offset: { x: 0, y: -0.25 },
           ...fade(i),
         }
       })
     },
-    // Episode title
+    // Episode title strip — bottom
     { clips: [{ asset: {
           type: 'html',
-          html: `<div style="background:rgba(0,0,0,0.85);border-top:3px solid ${accent};padding:8px 24px"><p style="color:#fff;font-family:Arial,sans-serif;font-size:17px;font-weight:700;margin:0;text-align:center">${safeTitle}</p></div>`,
-          width: 1560, height: 50, background: 'transparent',
-        }, start: 0, length: dur, position: 'bottom', offset: { y: 0.02 } }]
+          html: `<div style="background:rgba(0,0,0,0.88);border-top:3px solid ${accent};padding:14px 20px"><p style="color:#fff;font-family:Arial,sans-serif;font-size:26px;font-weight:900;margin:0;text-align:center;line-height:1.3">${safeTitle}</p></div>`,
+          width: 960, height: 110, background: 'transparent',
+        }, start: 0, length: dur, position: 'bottom', offset: { y: 0.16 } }]
     },
-    // LIVE badge
+    // LIVE + portal name — top left
     { clips: [{ asset: {
           type: 'html',
-          html: `<div style="display:flex;align-items:center;gap:12px"><div style="background:#DC2626;padding:5px 11px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#fff;border-radius:50%"></div><span style="color:#fff;font-family:Arial,sans-serif;font-size:13px;font-weight:900">LIVE</span></div><span style="color:${accent};font-family:Arial,sans-serif;font-size:14px;font-weight:800">${safePortal}</span></div>`,
-          width: 400, height: 36, background: 'transparent',
-        }, start: 0, length: dur, position: 'topLeft', offset: { x: 0.03, y: -0.04 } }]
+          html: `<div style="display:flex;align-items:center;gap:10px"><div style="background:#DC2626;padding:5px 12px;display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#fff;border-radius:50%"></div><span style="color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:900">LIVE</span></div><span style="color:${accent};font-family:Arial,sans-serif;font-size:15px;font-weight:800">${safePortal}</span></div>`,
+          width: 500, height: 40, background: 'transparent',
+        }, start: 0, length: dur, position: 'topLeft', offset: { x: 0.04, y: -0.04 } }]
     },
-    // Accent bar
-    { clips: [{ asset: { type: 'html', html: `<div style="background:${accent};width:100%;height:5px"></div>`, width: 1920, height: 6, background: 'transparent' },
+    // Accent bar — bottom edge
+    { clips: [{ asset: { type: 'html', html: `<div style="background:${accent};width:100%;height:7px"></div>`, width: 1080, height: 8, background: 'transparent' },
         start: 0, length: dur, position: 'bottom' }]
     },
-    // Background
-    { clips: [{ asset: { type: 'image', src: bgUrl }, start: 0, length: dur, opacity: 0.15 }] },
+    // Background (subtle, behind talking head video)
+    { clips: [{ asset: { type: 'image', src: bgUrl }, start: 0, length: dur, opacity: 0.12 }] },
   ]
 
   const edit = {
@@ -104,7 +116,7 @@ async function buildShotstackComposite(job: any, km: Record<string,string>) {
       background: '#111827',
       tracks,
     },
-    output: { format: 'mp4', resolution: 'hd', aspectRatio: ar, fps: 25 },
+    output: { format: 'mp4', resolution: 'hd', aspectRatio: '9:16', fps: 25 },
   }
 
   const r = await fetch(`https://api.shotstack.io/edit/${ssEnv}/render`, {
@@ -115,13 +127,14 @@ async function buildShotstackComposite(job: any, km: Record<string,string>) {
   })
   const text = await r.text()
   if (!r.ok) {
-    console.error('[shotstack:composite]', r.status, text.slice(0, 400))
+    console.error('[shotstack:composite]', r.status, text.slice(0, 500))
     return null
   }
   const id = JSON.parse(text)?.response?.id
   console.log('[shotstack:composite] submitted', id)
   return id
 }
+
 
 export async function GET(req: NextRequest) {
   const job_id = req.nextUrl.searchParams.get('job_id')
