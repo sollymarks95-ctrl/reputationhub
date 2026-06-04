@@ -271,16 +271,39 @@ export async function GET(req: NextRequest) {
     if (!topic) break
     const globalIndex = batchStart + i
 
-    // 70% general news (no client) + 30% brand articles (mention client)
-    // Brand slot = every 3rd article. Rotates through active clients.
-    const isBrand = globalIndex % 3 === 0 && clients.length > 0
+    // Content mix: 60% general news · 30% brand mention · 10% full client feature
+    // Slot 0,1: general | Slot 2,4,5,7: general | Slot 3,6: brand mention | Slot 9: full feature
+    const isBrand        = globalIndex % 3 === 0 && clients.length > 0  // every 3rd: client mention
+    const isClientFeature = globalIndex % 9 === 0 && clients.length > 0  // every 9th: full dedicated article
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
     let featuredClient: any = null
 
-    if (isBrand) {
-      // Rotate across all active clients
+    if (isClientFeature) {
+      // Full dedicated feature article about the client — 800-1000 words
+      featuredClient = clients[Math.floor(globalIndex / 9) % clients.length]
+      const clientName = featuredClient.company_name
+      const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
+      brandNote = `
+
+FULL CLIENT FEATURE (this is a dedicated sponsored feature article — mandatory):
+Write a full editorial profile/review of ${clientName} as the PRIMARY subject of the entire article.
+This is NOT a mention — ${clientName} is the MAIN topic from headline to conclusion.
+
+Required structure:
+- Title: Must include "${clientName}" prominently (e.g. "${clientName} Review 2026: ...", "Inside ${clientName}: ...", "How ${clientName} Is ...")
+- Lead paragraph: Introduce ${clientName}, what they do, who they serve
+- Section 1: Their core offering and value proposition
+- Section 2: Key features, tools, or services they provide to clients
+- Section 3: Market position, who they compete with, why traders/investors choose them
+- Section 4: Regulatory standing, security, trust factors
+- Conclusion: Forward-looking statement about their trajectory
+- Throughout: Use this EXACT HTML link wherever name appears: <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a>
+- Minimum 3 links to their site, all with rel="noopener noreferrer"
+- Tone: authoritative editorial, not promotional — write like a journalist profiling a company`
+    } else if (isBrand) {
+      // Standard brand mention — one natural link mid-article
       featuredClient = clients[Math.floor(globalIndex / 3) % clients.length]
       const clientName = featuredClient.company_name
       const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
