@@ -1,3 +1,4 @@
+import { logApiCost } from '../costs/log-api-cost'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -126,6 +127,11 @@ export async function POST(req: NextRequest) {
       current_step: 'Step 1/2: HeyGen rendering both avatars (5-15 min)…', progress_pct: 20,
     }).eq('id', job.id)
 
+    // Log HeyGen cost for both talking head videos
+    await Promise.all([
+      logApiCost('heygen_video', `HeyGen host avatar — ${ep.title?.slice(0,50)||'podcast'}`, { episode_id, site_slug: ep.site_slug }),
+      logApiCost('heygen_video', `HeyGen guest avatar — ${ep.title?.slice(0,50)||'podcast'}`, { episode_id, site_slug: ep.site_slug }),
+    ])
     return NextResponse.json({
       success: true,
       video_job_id: job.id,

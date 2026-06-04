@@ -1,3 +1,4 @@
+import { logApiCost } from '../costs/log-api-cost'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -229,6 +230,11 @@ export async function GET(req: NextRequest) {
       const url    = d?.response?.url
 
       if (status === 'done' && url) {
+        // Log Shotstack render cost
+        await logApiCost('shotstack_render',
+          `Shotstack HD render — ${job.episode_title?.slice(0,50)||'podcast video'}`,
+          { episode_id: job.episode_id, site_slug: job.site_slug }
+        )
         await sb.from('podcast_videos').update({
           video_169_url: url, status: 'ready', pipeline_phase: 'complete',
           current_step: '✅ Done — 3-camera talking head video ready!', progress_pct: 100,

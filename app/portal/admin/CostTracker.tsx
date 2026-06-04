@@ -222,13 +222,13 @@ If Gmail inaccessible: {"invoices":[],"total":0,"error":"Gmail not accessible"}`
 
           {/* API usage */}
           <div style={card}>
-            <div style={{fontSize:13,fontWeight:800,color:'#F1F5F9',marginBottom:4}}>🔢 Auto-tracked API Usage</div>
-            <div style={{fontSize:11,color:'#475569',marginBottom:12}}>Calculated from DB activity this month</div>
+            <div style={{fontSize:13,fontWeight:800,color:'#F1F5F9',marginBottom:4}}>🔢 API Usage (auto-logged)</div>
+            <div style={{fontSize:11,color:'#475569',marginBottom:12}}>Each API call auto-creates a cost entry • Prices: ElevenLabs $0.73/ep · HeyGen $0.30/vid · Shotstack $0.45/render · Claude API $0.015/article</div>
             {[
               {label:'Articles (Claude API)',  count:usage.articles_this_month||0,  unit:'$0.015 each',  cost:(usage.articles_this_month||0)*API_COSTS.claude_article, color:'#A78BFA'},
-              {label:'Audio (ElevenLabs)',     count:usage.audios_this_month||0,    unit:'$0.30 each',   cost:(usage.audios_this_month||0)*API_COSTS.elevenlabs_audio, color:G},
-              {label:'Videos (HeyGen)',        count:usage.videos_this_month||0,    unit:'$1.20 each',   cost:(usage.videos_this_month||0)*API_COSTS.heygen_video,     color:'#F59E0B'},
-              {label:'Renders (Shotstack)',    count:usage.renders_this_month||0,   unit:'$0.25 each',   cost:(usage.renders_this_month||0)*API_COSTS.shotstack_render, color:'#EF4444'},
+              {label:'Audio episodes (ElevenLabs)', count:usage.audios_this_month||0, unit:'$0.73 each', cost:(usage.audios_this_month||0)*API_COSTS.elevenlabs_audio, color:G},
+              {label:'HeyGen avatar videos',   count:usage.videos_this_month||0,    unit:'$0.30 each',   cost:(usage.videos_this_month||0)*API_COSTS.heygen_video,     color:'#F59E0B'},
+              {label:'Shotstack HD renders',   count:usage.renders_this_month||0,   unit:'$0.45 each',   cost:(usage.renders_this_month||0)*API_COSTS.shotstack_render, color:'#EF4444'},
             ].map(r=>(
               <div key={r.label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
                 <div>
