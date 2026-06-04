@@ -89,7 +89,7 @@ function buildEdit(opts: {
     tracks.push(
       // Hero camera (alternates host/guest with wipe transition)
       { clips: cuts.map((c, i) => ({
-          asset: { type: 'image', src: c.hero === 'host' ? hostPhoto : guestPhoto, fit: 'cover' },
+          asset: { type: 'image', src: c.hero === 'host' ? hostPhoto : guestPhoto },
           start: c.t, length: c.len,
           position: 'center', offset: { x: -0.10, y: 0.02 }, scale: 0.68,
           ...wipe(i, c.hero),
@@ -98,7 +98,7 @@ function buildEdit(opts: {
 
       // PIP camera (opposite person, fades)
       { clips: cuts.map((c, i) => ({
-          asset: { type: 'image', src: c.hero === 'host' ? guestPhoto : hostPhoto, fit: 'cover' },
+          asset: { type: 'image', src: c.hero === 'host' ? guestPhoto : hostPhoto },
           start: c.t, length: c.len,
           position: 'center', offset: { x: 0.36, y: 0.02 }, scale: 0.24,
           ...fade(i),
@@ -164,7 +164,7 @@ function buildEdit(opts: {
     tracks.push(
       // Hero (full screen, alternates)
       { clips: cuts.map((c, i) => ({
-          asset: { type: 'image', src: c.hero === 'host' ? hostPhoto : guestPhoto, fit: 'cover' },
+          asset: { type: 'image', src: c.hero === 'host' ? hostPhoto : guestPhoto },
           start: c.t, length: c.len,
           position: 'center', offset: { x: 0, y: 0.12 }, scale: 0.88,
           ...wipe(i, c.hero),
@@ -173,7 +173,7 @@ function buildEdit(opts: {
 
       // PIP (bottom-right)
       { clips: cuts.map((c, i) => ({
-          asset: { type: 'image', src: c.hero === 'host' ? guestPhoto : hostPhoto, fit: 'cover' },
+          asset: { type: 'image', src: c.hero === 'host' ? guestPhoto : hostPhoto },
           start: c.t, length: c.len,
           position: 'bottomRight', offset: { x: -0.04, y: 0.16 }, scale: 0.26,
           ...fade(i),
@@ -225,11 +225,11 @@ function buildEdit(opts: {
   // Background + dark overlay (last 2 tracks = bottom visual layers)
   tracks.push(
     // Dark overlay
-    { clips: [{ asset: { type: 'image', src: bg.url, fit: 'cover' },
+    { clips: [{ asset: { type: 'image', src: bg.url },
         start: 0, length: dur, opacity: bg.opacity }]
     },
     // Background image (full opacity, drawn first)
-    { clips: [{ asset: { type: 'image', src: bg.url, fit: 'cover' },
+    { clips: [{ asset: { type: 'image', src: bg.url },
         start: 0, length: dur, opacity: 1.0 }]
     },
   )
