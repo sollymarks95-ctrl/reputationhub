@@ -29,6 +29,9 @@ async function submitHeygenAvatar(opts: {
 }): Promise<string | null> {
   const { avatarId, audioUrl, heygenKey, bgUrl } = opts
   try {
+    // avatar_style options: normal | closeUp | circle
+    // Use closeUp for guest to differentiate even if same avatar ID
+    const avatarStyle = avatarId.includes('guest') ? 'closeUp' : 'normal'
     const r = await fetch('https://api.heygen.com/v2/video/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Api-Key': heygenKey },

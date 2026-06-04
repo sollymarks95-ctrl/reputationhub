@@ -11,8 +11,8 @@ const STUDIO_BKGS = [
 
 // HeyGen ultra-realistic built-in avatars for financial news context
 const HEYGEN_AVATARS = [
-  { id:'Tyler-insuit-20220721',       name:'Tyler',   gender:'M', desc:'Professional male, dark suit ✅' },
-  { id:'Eric_public_pro2_20230707',   name:'Eric',    gender:'M', desc:'Professional male' },
+  { id:'Tyler-insuit-20220721',       name:'Tyler',   gender:'M', desc:'✅ Confirmed working' },
+  { id:'Eric_public_pro2_20230707',   name:'Eric',    gender:'M', desc:'May need plan upgrade' },
   { id:'Daniel_public_pro2_20230706', name:'Daniel',  gender:'M', desc:'Male, business casual' },
   { id:'Joshua_public_expressive_20231025', name:'Joshua', gender:'M', desc:'Male, expressive' },
   { id:'Susan_expressive_2024112501', name:'Susan',   gender:'F', desc:'Female, professional' },
@@ -25,7 +25,7 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
   const [selectedEpisode, setSelectedEpisode]   = useState<any>(null)
   const [studioBg, setStudioBg]                 = useState('dark_studio')
   const [hostAvatarId, setHostAvatarId]         = useState('Tyler-insuit-20220721')
-  const [guestAvatarId, setGuestAvatarId]       = useState('Eric_public_pro2_20230707')
+  const [guestAvatarId, setGuestAvatarId]       = useState('Tyler-insuit-20220721')
   const [generating, setGenerating]             = useState(false)
   const [currentJob, setCurrentJob]             = useState<any>(null)
   const [videos, setVideos]                     = useState<any[]>([])
