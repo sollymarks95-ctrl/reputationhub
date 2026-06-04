@@ -27,10 +27,222 @@ const SITE_CATEGORIES: Record<string, string[]> = {
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// UNIVERSAL MOBILE LAYOUT — used by all archetypes on < 768px screens
 // ═══════════════════════════════════════════════════════════════════════════
+// 6 UNIQUE MOBILE LAYOUTS — driven by template_config.mobile_style
+// card_feed | compact_list | hero_stack | grid_2col | magazine_mobile | ticker_mobile
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Shared helpers
+const IMGS_MOB = [
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=70&fm=jpg',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=600&q=70&fm=jpg',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=600&q=70&fm=jpg',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=70&fm=jpg',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=70&fm=jpg',
+  'https://images.unsplash.com/photo-1526628953301-3cd9e37dc0d7?w=600&q=70&fm=jpg',
+]
+const mImg  = (a: any, i: number) => a?.cover_image_url?.startsWith('http') ? a.cover_image_url : IMGS_MOB[i % IMGS_MOB.length]
+const mTime = (d: string) => { const s = Math.floor((Date.now()-new Date(d).getTime())/1000); if(s<3600) return `${Math.floor(s/60)}m`; if(s<86400) return `${Math.floor(s/3600)}h`; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) }
+
+// ── MOBILE 1: card_feed ── Vertical cards, image left 40%, text right
+function MobCardFeed({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#0d1117':'#f9fafb', card = isDark?'#161b22':'#fff', txt = isDark?'#f0f6fc':'#111827', sub = isDark?'#8b949e':'#6b7280', bdr = isDark?'#21262d':'#e5e7eb'
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <div style={{padding:'12px 16px',borderBottom:`2px solid ${p}`,display:'flex',alignItems:'center',gap:8}}>
+        <div style={{width:8,height:8,borderRadius:'50%',background:p,animation:'pulse 2s infinite'}}/>
+        <span style={{fontSize:11,fontWeight:800,color:p,letterSpacing:'.1em',textTransform:'uppercase'}}>Live Feed</span>
+      </div>
+      <div style={{padding:'0 12px 80px'}}>
+        {articles.slice(0,20).map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'flex',gap:10,padding:'12px 0',borderBottom:`1px solid ${bdr}`,textDecoration:'none'}}>
+            <img src={mImg(a,i)} alt="" style={{width:90,height:68,objectFit:'cover',borderRadius:6,flexShrink:0}}/>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:9,fontWeight:800,color:p,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:4}}>{a.category||'Markets'}</div>
+              <div style={{fontSize:13,fontWeight:700,color:txt,lineHeight:1.35,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <div style={{fontSize:10,color:sub,marginTop:4}}>{mTime(a.published_at)}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── MOBILE 2: compact_list ── Dense text list, no images, headline-focused
+function MobCompactList({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#0a0a0a':'#ffffff', txt = isDark?'#e2e8f0':'#0f172a', sub = isDark?'#64748b':'#94a3b8', bdr = isDark?'#1e293b':'#f1f5f9'
+  const catColors: Record<string,string> = {Markets:'#3b82f6',Crypto:'#f97316',Analysis:'#10b981',Regulation:'#dc2626',Finance:'#7c3aed'}
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'IBM Plex Mono','Courier New',monospace"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <div style={{padding:'10px 16px',background:isDark?'#111':'#f8fafc',borderBottom:`3px solid ${p}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:10,fontWeight:900,color:p,letterSpacing:'.15em',textTransform:'uppercase'}}>{site.name}</span>
+        <span style={{fontSize:9,color:sub}}>{new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span>
+      </div>
+      <div style={{padding:'0 0 80px'}}>
+        {articles.slice(0,25).map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'block',padding:'10px 16px',borderBottom:`1px solid ${bdr}`,textDecoration:'none'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:700,color:txt,lineHeight:1.3,marginBottom:3}}>{a.title}</div>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <span style={{fontSize:9,fontWeight:900,color:catColors[a.category]||p,textTransform:'uppercase',letterSpacing:'.08em'}}>{a.category}</span>
+                  <span style={{fontSize:9,color:sub}}>{mTime(a.published_at)}</span>
+                </div>
+              </div>
+              <span style={{fontSize:11,color:sub,flexShrink:0}}>›</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── MOBILE 3: hero_stack ── Big full-width hero image, list below
+function MobHeroStack({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#0d1117':'#f8fafc', card = isDark?'#161b22':'#fff', txt = isDark?'#f0f6fc':'#0f172a', sub = isDark?'#8b949e':'#6b7280', bdr = isDark?'#21262d':'#e5e7eb'
+  const hero = articles[0], rest = articles.slice(1,20)
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      {hero && (
+        <a href={`/article/${site.slug}/${hero.slug}`} style={{display:'block',textDecoration:'none',position:'relative',marginBottom:16}}>
+          <img src={mImg(hero,0)} alt="" style={{width:'100%',height:220,objectFit:'cover',display:'block'}}/>
+          <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 50%)',padding:'16px'}}>
+            <div style={{position:'absolute',bottom:16,left:16,right:16}}>
+              <span style={{display:'inline-block',background:p,color:'#fff',fontSize:9,fontWeight:900,padding:'2px 8px',borderRadius:2,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>{hero.category}</span>
+              <div style={{fontSize:16,fontWeight:800,color:'#fff',lineHeight:1.3,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{hero.title}</div>
+              <div style={{fontSize:10,color:'rgba(255,255,255,.7)',marginTop:4}}>{mTime(hero.published_at)}</div>
+            </div>
+          </div>
+        </a>
+      )}
+      <div style={{padding:'0 16px 80px'}}>
+        <div style={{fontSize:10,fontWeight:800,color:p,textTransform:'uppercase',letterSpacing:'.12em',marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${p}`}}>More Stories</div>
+        {rest.map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'flex',gap:10,marginBottom:14,textDecoration:'none'}}>
+            <img src={mImg(a,i+1)} alt="" style={{width:72,height:54,objectFit:'cover',borderRadius:4,flexShrink:0}}/>
+            <div>
+              <div style={{fontSize:12,fontWeight:700,color:txt,lineHeight:1.35,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <div style={{fontSize:10,color:sub,marginTop:3}}>{a.category} · {mTime(a.published_at)}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── MOBILE 4: grid_2col ── 2-column card grid
+function MobGrid2Col({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#0d1117':'#f3f4f6', card = isDark?'#161b22':'#fff', txt = isDark?'#f0f6fc':'#111827', sub = isDark?'#8b949e':'#6b7280'
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <div style={{padding:'12px 10px 80px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        {articles.slice(0,20).map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'block',background:card,borderRadius:10,overflow:'hidden',textDecoration:'none',boxShadow:isDark?'none':'0 1px 4px rgba(0,0,0,.08)'}}>
+            <img src={mImg(a,i)} alt="" style={{width:'100%',height:90,objectFit:'cover',display:'block'}}/>
+            <div style={{padding:'8px 8px 10px'}}>
+              <div style={{fontSize:8,fontWeight:900,color:p,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:3}}>{a.category}</div>
+              <div style={{fontSize:11,fontWeight:700,color:txt,lineHeight:1.3,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{a.title}</div>
+              <div style={{fontSize:9,color:sub,marginTop:4}}>{mTime(a.published_at)}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── MOBILE 5: magazine_mobile ── Editorial, big serif headline, reading-focused
+function MobMagazine({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#0a0a0a':'#fffbf5', txt = isDark?'#e8e0d0':'#1a1000', sub = isDark?'#8b8070':'#8b7355', bdr = isDark?'#2a2520':'#e8dfc8'
+  const hero = articles[0], rest = articles.slice(1,15)
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"Georgia,'Times New Roman',serif"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <div style={{padding:'20px 20px 0',borderBottom:`1px solid ${bdr}`,marginBottom:20}}>
+        <div style={{textAlign:'center',paddingBottom:12,borderBottom:`3px double ${bdr}`,marginBottom:16}}>
+          <div style={{fontSize:22,fontWeight:900,letterSpacing:'-0.02em',color:txt}}>{siteName}</div>
+          <div style={{fontSize:9,letterSpacing:'.2em',textTransform:'uppercase',color:sub,marginTop:4}}>{new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+        </div>
+        {hero && (
+          <a href={`/article/${site.slug}/${hero.slug}`} style={{display:'block',textDecoration:'none',marginBottom:16}}>
+            <div style={{fontSize:10,fontWeight:700,color:p,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>Lead Story</div>
+            <div style={{fontSize:20,fontWeight:900,lineHeight:1.2,color:txt,marginBottom:8}}>{hero.title}</div>
+            <div style={{fontSize:12,lineHeight:1.6,color:sub}}>{hero.excerpt?.slice(0,120)}{hero.excerpt?.length>120?'…':''}</div>
+          </a>
+        )}
+      </div>
+      <div style={{padding:'0 20px 80px'}}>
+        <div style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'.15em',color:sub,marginBottom:12,textAlign:'center'}}>Also In This Edition</div>
+        {rest.map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'block',paddingBottom:12,marginBottom:12,borderBottom:`1px solid ${bdr}`,textDecoration:'none'}}>
+            <div style={{fontSize:14,fontWeight:700,lineHeight:1.35,color:txt,marginBottom:4}}>{a.title}</div>
+            <div style={{fontSize:10,color:sub}}>{a.category} · {mTime(a.published_at)}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── MOBILE 6: ticker_mobile ── Breaking news ticker style, timestamp + headline
+function MobTicker({ site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }: any) {
+  const bg = isDark?'#020408':'#0f172a', rowBg = isDark?'#0d1117':'#1e293b', txt = '#f8fafc', sub = '#94a3b8', bdr = isDark?'#1e293b':'#334155'
+  return (
+    <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'IBM Plex Mono','Courier New',monospace"}}>
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={true} />
+      {/* Live ticker bar */}
+      <div style={{background:p,padding:'6px 12px',display:'flex',alignItems:'center',gap:8,overflowX:'hidden'}}>
+        <span style={{fontSize:9,fontWeight:900,color:'#fff',background:'rgba(0,0,0,.3)',padding:'1px 6px',borderRadius:2,flexShrink:0,textTransform:'uppercase',letterSpacing:'.1em'}}>LIVE</span>
+        <div style={{fontSize:10,color:'#fff',fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{articles[0]?.title}</div>
+      </div>
+      {/* Article list */}
+      <div style={{padding:'0 0 80px'}}>
+        {articles.slice(0,25).map((a:any,i:number)=>(
+          <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'10px 14px',borderBottom:`1px solid ${bdr}`,textDecoration:'none'}}>
+            <div style={{flexShrink:0,textAlign:'right',minWidth:28}}>
+              <div style={{fontSize:9,color:p,fontWeight:900}}>{mTime(a.published_at)}</div>
+            </div>
+            <div style={{width:1,background:i===0?p:bdr,alignSelf:'stretch',flexShrink:0}}/>
+            <div style={{flex:1}}>
+              <span style={{fontSize:9,color:p,fontWeight:900,textTransform:'uppercase',letterSpacing:'.06em',marginRight:6}}>{a.category}</span>
+              <span style={{fontSize:12,fontWeight:600,color:txt,lineHeight:1.4}}>{a.title}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── DISPATCHER — routes to correct mobile layout based on mobile_style
 function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selectedCat, setSelectedCat }: any) {
+  const mobile_style = (site?.template_config?.mobile_style || 'card_feed') as string
+  const archetype = (site?.template_config?.archetype || 'editorial') as string
+  const isDark = ['dark_editorial','feed','brutalist','terminal'].includes(archetype) || mobile_style === 'ticker_mobile'
+  const siteName = site?.name || 'News'
+  const domain = site?.domain || ''
+  const base = { site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }
+  
+  if (mobile_style === 'compact_list') return <MobCompactList {...base} />
+  if (mobile_style === 'hero_stack')   return <MobHeroStack {...base} />
+  if (mobile_style === 'grid_2col')    return <MobGrid2Col {...base} />
+  if (mobile_style === 'magazine_mobile') return <MobMagazine {...base} />
+  if (mobile_style === 'ticker_mobile') return <MobTicker {...base} />
+  // default: card_feed
+  return <MobCardFeed {...base} />
+}
+
+// ── LEGACY FALLBACK (kept for backward compat — unreachable with new dispatch)
+function _DynMobileLayoutLegacy({ site, articles, p, sec, slug, siteCategories, selectedCat, setSelectedCat }: any) {
   const cfg = site?.template_config || {}
+  void cfg // suppress unused warning
   const archetype = cfg.archetype || 'editorial'
   const siteName = site?.name || 'News'
   const domain = site?.domain || ''
