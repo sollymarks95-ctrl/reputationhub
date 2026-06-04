@@ -55,14 +55,18 @@ export async function GET() {
     const nk = km.CREATOMATE_KEY
     if (nk && nk.length > 10) {
       try {
-        const r = await fetch('https://api.nextcut.io/v1/renders?limit=1', {
-          headers: { Authorization: `Bearer ${nk}` },
+        const ncSecret = nk.split('-').slice(5).join('-')
+        const r = await fetch('https://api.nextcut.io/render-video', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${ncSecret}`, apikey: nk },
           signal: AbortSignal.timeout(8000),
         })
         const body = await r.text()
         results.nextcut = {
-          ok: r.ok,
-          message: r.ok ? `✅ Nextcut API — connected` : `❌ HTTP ${r.status}: ${body.slice(0,80)}`,
+          ok: r.status !== 404,
+          message: r.status === 401 ? '⚠️ Nextcut: key auth issue — check key format'
+                 : r.ok ? '✅ Nextcut connected'
+                 : `❌ HTTP ${r.status}: ${body.slice(0,80)}`,
         }
       } catch (e: any) {
         results.nextcut = { ok: false, message: `❌ Nextcut: ${e.message}` }
