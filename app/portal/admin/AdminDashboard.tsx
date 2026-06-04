@@ -383,6 +383,130 @@ function FloatingTopupButton() {
   )
 }
 
+
+function PortalsTab() {
+  const [portals, setPortals] = React.useState<any[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [filter, setFilter] = React.useState<'all'|'live'|'building'>('all')
+
+  React.useEffect(() => {
+    fetch('/api/admin/portal-stats')
+      .then(r => r.json())
+      .then(d => { setPortals(d.portals || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const filtered = portals.filter(p =>
+    filter === 'all' ? true : filter === 'live' ? p.is_live : !p.is_live
+  )
+  const liveCount    = portals.filter(p => p.is_live).length
+  const indexedCount = portals.filter(p => !p.noindex).length
+  const buildingCount= portals.filter(p => p.noindex).length
+  const totalToday   = portals.reduce((s, p) => s + (p.today||0), 0)
+  const totalArticles= portals.reduce((s, p) => s + (p.total||0), 0)
+
+  return (
+    <div className="ti">
+      {/* Header */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div className="syne" style={{fontSize:20,fontWeight:900}}>🌐 Portal Network</div>
+        <div style={{fontSize:12,color:'#475569'}}>{indexedCount} indexed · {buildingCount} building · {totalToday} articles today</div>
+      </div>
+
+      {/* Summary row */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+        {[
+          {label:'Total Portals',  val:portals.length,        color:'#6366f1'},
+          {label:'Publishing Today',val:portals.filter(p=>p.today>0).length, color:'#10b981'},
+          {label:'Articles Today', val:totalToday,            color:'#38bdf8'},
+          {label:'Total Articles', val:totalArticles.toLocaleString(), color:'#f59e0b'},
+        ].map(s=>(
+          <div key={s.label} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:'12px 14px',textAlign:'center'}}>
+            <div style={{fontSize:10,color:'#64748b',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:4}}>{s.label}</div>
+            <div style={{fontSize:22,fontWeight:900,color:s.color}}>{s.val}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter */}
+      <div style={{display:'flex',gap:8,marginBottom:16}}>
+        {(['all','live','building'] as const).map(f=>(
+          <button key={f} onClick={()=>setFilter(f)}
+            style={{fontSize:11,padding:'4px 12px',borderRadius:6,border:'none',cursor:'pointer',fontWeight:700,
+              background:filter===f?'#10b981':'rgba(255,255,255,0.06)',
+              color:filter===f?'#fff':'#64748b',textTransform:'capitalize'}}>
+            {f==='all'?`All (${portals.length})`:f==='live'?`Publishing (${liveCount})`:`Building (${buildingCount})`}
+          </button>
+        ))}
+        <button onClick={()=>fetch('/api/admin/portal-stats').then(r=>r.json()).then(d=>setPortals(d.portals||[]))}
+          style={{fontSize:11,padding:'4px 12px',borderRadius:6,border:'1px solid rgba(255,255,255,0.1)',cursor:'pointer',background:'transparent',color:'#64748b',marginLeft:'auto'}}>
+          ↻ Refresh
+        </button>
+      </div>
+
+      {loading ? (
+        <div style={{color:'#64748b',fontSize:13,padding:20}}>Loading portal stats…</div>
+      ) : (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
+          {filtered.sort((a,b)=>b.total-a.total).map((p:any)=>{
+            const color = p.primary_color || '#6366f1'
+            const isIndexed = !p.noindex
+            return (
+              <div key={p.id} style={{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.07)',borderLeft:`3px solid ${color}`,borderRadius:10,padding:14}}>
+                {/* Header */}
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:800,fontSize:13,color:'#F1F5F9'}}>{p.name}</div>
+                    <div style={{fontSize:10,color:'#64748b',marginTop:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.domain}</div>
+                  </div>
+                  <span style={{fontSize:9,padding:'2px 7px',borderRadius:99,fontWeight:700,flexShrink:0,marginLeft:6,
+                    background:isIndexed?'rgba(16,185,129,0.15)':'rgba(245,158,11,0.15)',
+                    color:isIndexed?'#10b981':'#f59e0b'}}>
+                    {isIndexed?'Indexed':'Building'}
+                  </span>
+                </div>
+
+                {/* Article counts */}
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:4,marginBottom:10}}>
+                  {[
+                    {label:'Today',    val:p.today||0,       color:p.today>0?color:'#475569'},
+                    {label:'This week',val:p.week||0,        color:p.week>0?'#38bdf8':'#475569'},
+                    {label:'Total',    val:p.total||0,       color:p.total>0?'#F1F5F9':'#475569'},
+                  ].map(stat=>(
+                    <div key={stat.label} style={{textAlign:'center',background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'5px 4px'}}>
+                      <div style={{fontSize:14,fontWeight:900,color:stat.color}}>{stat.val}</div>
+                      <div style={{fontSize:9,color:'#475569'}}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Latest article */}
+                {p.latest_title && (
+                  <div style={{fontSize:10,color:'#475569',marginBottom:8,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',borderLeft:'2px solid rgba(255,255,255,0.06)',paddingLeft:6}}>
+                    {p.latest_title}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div style={{display:'flex',gap:5}}>
+                  <a href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" style={{flex:1}}>
+                    <button className="btn b-ghost" style={{fontSize:9,padding:'4px 0',width:'100%'}}>Visit ↗</button>
+                  </a>
+                  {p.noindex && (
+                    <a href={`/api/admin/flip-live?slug=${p.slug}&secret=REDACTED_CRON_SECRET`} style={{flex:1}}>
+                      <button className="btn b-green" style={{fontSize:9,padding:'4px 0',width:'100%'}}>Flip Live ✓</button>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AdminDashboard({
   clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[], allVideos=[],
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
@@ -1417,42 +1541,7 @@ export default function AdminDashboard({
         )}
 
         {/* PORTALS */}
-        {tab==='portals'&&(
-          <div className="ti">
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-              <div className="syne" style={{fontSize:20,fontWeight:900}}>🌐 Portal Network</div>
-              <div style={{fontSize:12,color:'#475569'}}>5 Google-indexed · 4 building authority</div>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
-              {sortedSites.map((s:any)=>{
-                const color=PORTAL_COLORS[s.slug]||s.primary_color||'#6366f1'
-                const domain=s.domain||PORTAL_DOMAIN[s.slug]
-                const cnt=(portalArticlesToday as any)[s.id]||0
-                return(
-                  <div key={s.id} className="card" style={{padding:18,borderLeft:`3px solid ${color}`}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
-                      <div>
-                        <div style={{fontWeight:800,fontSize:14}}>{s.name}</div>
-                        <div style={{fontSize:11,color:'#64748b',marginTop:2}}>{domain}</div>
-                      </div>
-                      <span style={{fontSize:9,padding:'2px 8px',borderRadius:99,fontWeight:600,background:s.noindex?'rgba(245,158,11,0.15)':'rgba(16,185,129,0.15)',color:s.noindex?'#f59e0b':'#10b981'}}>
-                        {s.noindex?'Building':'Indexed'}
-                      </span>
-                    </div>
-                    <div style={{display:'flex',gap:12,fontSize:11,color:'#64748b',marginBottom:12}}>
-                      <span style={{color:cnt>0?color:'#475569',fontWeight:cnt>0?700:400}}>+{cnt} today</span>
-                      <span>30/day target</span>
-                    </div>
-                    <div style={{display:'flex',gap:6}}>
-                      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{fontSize:10,padding:'5px 10px'}}>Visit ↗</button></a>
-                      {s.noindex&&<a href={`/api/admin/flip-live?slug=${s.slug}&secret=REDACTED_CRON_SECRET`}><button className="btn b-green" style={{fontSize:10,padding:'5px 10px'}}>Flip Live ✓</button></a>}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {tab==='portals'&&<PortalsTab />}
 
         {/* CONTENT */}
         {tab==='content'&&(
