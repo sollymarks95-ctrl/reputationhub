@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
   // Load all active companies
   const { data: companies } = await db
     .from('verivex_companies')
-    .select('slug, name, category, regulation, description, tagline, trust_score')
+    .select('slug, name, category, regulation, description, tagline, is_featured')
     .order('slug')
 
   if (!companies || companies.length === 0) return NextResponse.json({ ok: true, message: 'No companies yet' })
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
   const { data: reviewCounts } = await db
     .from('verivex_reviews')
     .select('company_slug')
-    .eq('status', 'published')
+    .eq('status', 'approved')
 
   const counts: Record<string, number> = {}
   for (const co of (companies as any[])) counts[co.slug] = 0
