@@ -260,7 +260,7 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
               ? <div style={{ fontSize:13, color:'#64748b' }}>No videos yet. Generate your first above.</div>
               : <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
                   {videos.map((v: any) => {
-                    const hasAny = v.video_169_url || v.video_916_url || v.video_11_url
+                    const hasAny = v.video_916_url || v.video_169_url || v.video_11_url
                     return (
                       <div key={v.id} style={{ padding:'14px', borderRadius:10, border:`1px solid ${previewId===v.id?G:'rgba(255,255,255,0.07)'}`, background:'rgba(255,255,255,0.02)' }}>
                         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
@@ -290,7 +290,7 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
                         <div style={{ display:'flex', gap:6, flexWrap:'wrap', alignItems:'center' }}>
                           {hasAny && (
                             <button onClick={() => {
-                              const url = v.video_169_url || v.video_916_url || v.video_11_url
+                              const url = v.video_916_url || v.video_169_url || v.video_11_url
                               if (previewId===v.id) { setPreviewId(null); setPreviewUrl(null) }
                               else { setPreviewId(v.id); setPreviewUrl(url) }
                             }} style={{ fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:6, border:'none', cursor:'pointer',
