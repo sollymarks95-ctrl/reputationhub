@@ -82,17 +82,32 @@ export default function CostTracker() {
   }
 
   // Calculate monthly totals
+  const today = new Date()
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
+  const yearStart  = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0]
+
   const monthlyFixed = entries
     .filter(e => e.billing_type === 'monthly')
-    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
-
-  const thisMonthOneTime = entries
-    .filter(e => e.billing_type === 'one_time' && e.date >= new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
     .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
 
   const annualAsMonthly = entries
     .filter(e => e.billing_type === 'annual')
     .reduce((sum, e) => sum + parseFloat(e.amount_usd) / 12, 0)
+
+  // One-time costs logged this calendar month
+  const thisMonthOneTime = entries
+    .filter(e => e.billing_type === 'one_time' && e.date >= monthStart)
+    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
+
+  // All one-time costs this year (for annual view)
+  const thisYearOneTime = entries
+    .filter(e => e.billing_type === 'one_time' && e.date >= yearStart)
+    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
+
+  // Claude topups total (all time)
+  const claudeTotal = entries
+    .filter(e => e.category === 'claude')
+    .reduce((sum, e) => sum + parseFloat(e.amount_usd), 0)
 
   // Calculated API usage costs this month
   const calculatedCosts = {
@@ -118,6 +133,13 @@ export default function CostTracker() {
   entries.filter(e => e.billing_type === 'monthly').forEach(e => {
     byCategory[e.category] = (byCategory[e.category] || 0) + parseFloat(e.amount_usd)
   })
+  entries.filter(e => e.billing_type === 'annual').forEach(e => {
+    byCategory[e.category] = (byCategory[e.category] || 0) + parseFloat(e.amount_usd) / 12
+  })
+  // Claude topups this month
+  entries.filter(e => e.billing_type === 'one_time' && e.category === 'claude' && e.date >= monthStart).forEach(e => {
+    byCategory['claude'] = (byCategory['claude'] || 0) + parseFloat(e.amount_usd)
+  })
   // Add calculated
   byCategory['heygen']     = (byCategory['heygen']    || 0) + calculatedCosts.heygen
   byCategory['elevenlabs'] = (byCategory['elevenlabs']|| 0) + calculatedCosts.elevenlabs
@@ -130,10 +152,10 @@ export default function CostTracker() {
       {/* Summary cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
         {[
-          { label:'Monthly Burn', value:`$${monthlyTotal.toFixed(2)}`, sub:'total this month', color:G },
-          { label:'Fixed Monthly', value:`$${(monthlyFixed + annualAsMonthly).toFixed(2)}`, sub:'subscriptions', color:'#38BDF8' },
-          { label:'Variable (API)', value:`$${(thisMonthOneTime + totalCalculated).toFixed(2)}`, sub:'usage-based this month', color:'#F59E0B' },
-          { label:'Daily Average', value:`$${(monthlyTotal / 30).toFixed(2)}`, sub:'per day', color:'#A78BFA' },
+    { label:'Monthly Burn', value:`$${monthlyTotal.toFixed(2)}`, sub:`subscriptions + usage (${today.toLocaleString('default',{month:'long'})})`, color:G },
+          { label:'Subscriptions', value:`$${(monthlyFixed + annualAsMonthly).toFixed(2)}`, sub:`$${monthlyFixed.toFixed(0)}/mo + $${annualAsMonthly.toFixed(2)}/mo (annual÷12)`, color:'#38BDF8' },
+          { label:'Claude Topups', value:`$${claudeTotal.toFixed(2)}`, sub:`all time · $${thisMonthOneTime.toFixed(2)} this month`, color:'#A78BFA' },
+          { label:'Annual Total', value:`$${((monthlyFixed + annualAsMonthly + totalCalculated / 30) * 12 + thisYearOneTime).toFixed(0)}`, sub:'projected yearly cost', color:'#F59E0B' },
         ].map(s => (
           <div key={s.label} style={{ ...card, textAlign:'center' }}>
             <div style={{ fontSize:11, color:'#64748b', marginBottom:6, fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase' }}>{s.label}</div>
