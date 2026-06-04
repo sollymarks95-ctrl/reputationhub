@@ -354,8 +354,8 @@ Never at article end. Never in FAQ section.`
 
     if (crossLink) brandNote += `\n\nEDITORIAL CROSS-REFERENCE (natural, mid-paragraph): ${crossLink}`
 
-    // Small random delay (3-15s) so articles from different portals don't publish at identical timestamps
-    await new Promise(r => setTimeout(r, 3000 + Math.random() * 12000))
+    // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
     const article = await writeArticle(site, topic, brandNote)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
