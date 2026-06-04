@@ -264,14 +264,27 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
         {/* Progress */}
         {currentJob && !currentJob.done && (
           <div style={{ ...card, borderColor:`${G}44` }}>
-            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
-              <span style={{ fontSize:13, fontWeight:700, color:G }}>🎬 Rendering...</span>
-              <span style={{ fontSize:13, color:'#64748b' }}>{currentJob.progress_pct || 20}%</span>
+            <div style={{ fontSize:13, fontWeight:800, color:G, marginBottom:12 }}>🎬 Generating Talking Head Video...</div>
+            {/* 3-phase progress */}
+            {[
+              { label:'1. HeyGen: Upload Avatars',     done: (currentJob.progress_pct||0) >= 25 },
+              { label:'2. HeyGen: Render Talking Heads (5-15 min)', done: (currentJob.progress_pct||0) >= 55 },
+              { label:'3. Shotstack: 3-Camera Composite', done: (currentJob.progress_pct||0) >= 100 },
+            ].map((phase, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+                <div style={{ width:20, height:20, borderRadius:10, flexShrink:0,
+                  background: phase.done ? G : (currentJob.progress_pct||0) > i*25 ? `${G}44` : 'rgba(255,255,255,0.05)',
+                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:11 }}>
+                  {phase.done ? '✓' : i+1}
+                </div>
+                <div style={{ fontSize:12, color: phase.done ? G : '#64748b', fontWeight: phase.done ? 700 : 400 }}>{phase.label}</div>
+              </div>
+            ))}
+            <div style={{ height:4, background:'rgba(255,255,255,0.05)', borderRadius:4, overflow:'hidden', marginTop:8 }}>
+              <div style={{ height:'100%', width:`${currentJob.progress_pct || 10}%`, background:`linear-gradient(90deg,${G},#0EA5E9)`, borderRadius:4, transition:'width 1s' }} />
             </div>
-            <div style={{ height:6, background:'rgba(255,255,255,0.05)', borderRadius:4, overflow:'hidden' }}>
-              <div style={{ height:'100%', width:`${currentJob.progress_pct || 20}%`, background:`linear-gradient(90deg,${G},#0EA5E9)`, borderRadius:4, transition:'width .5s' }} />
-            </div>
-            <div style={{ fontSize:11, color:'#475569', marginTop:8 }}>{currentJob.current_step || 'Rendering...'}</div>
+            <div style={{ fontSize:11, color:'#475569', marginTop:6, fontStyle:'italic' }}>{currentJob.current_step || 'Processing...'}</div>
+            <div style={{ fontSize:10, color:'#334155', marginTop:4 }}>⏱ Total time: ~10-20 minutes. Page will update automatically.</div>
           </div>
         )}
 
