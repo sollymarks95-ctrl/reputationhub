@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 55
 const CORS = { 'Access-Control-Allow-Origin': '*' }
 
 export async function GET() {
@@ -9,11 +10,20 @@ export async function GET() {
   const km: Record<string,string> = Object.fromEntries((keys||[]).map((k:any)=>[k.key_name,k.key_value]))
   const hk = km.HEYGEN_KEY
 
-  // Fetch first page of avatars with longer timeout
-  const r = await fetch('https://api.heygen.com/v2/avatars?limit=50', {
+  // Try v1 endpoint — lighter than v2
+  const r = await fetch('https://api.heygen.com/v1/avatar.list', {
     headers: { 'X-Api-Key': hk },
-    signal: AbortSignal.timeout(40000),
+    signal: AbortSignal.timeout(30000),
   })
-  const d = await r.json()
-  return NextResponse.json({ status: r.status, avatars: d?.data?.avatars || d?.data || d }, { headers: CORS })
+  const text = await r.text()
+  let data: any = {}
+  try { data = JSON.parse(text) } catch {}
+  
+  const avatars = data?.data?.avatars || data?.data?.talking_photo || data?.data || []
+  return NextResponse.json({ 
+    status: r.status, 
+    count: Array.isArray(avatars) ? avatars.length : 0,
+    sample: Array.isArray(avatars) ? avatars.slice(0, 20) : avatars,
+    raw_keys: data?.data ? Object.keys(data.data) : [],
+  }, { headers: CORS })
 }
