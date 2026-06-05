@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
-
+import { Analytics } from '@vercel/analytics/next'
 import CookieConsent from './components/CookieConsent'
 
 export const metadata: Metadata = {
@@ -28,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ margin: 0, padding: 0 }}>
         {children}
+        <Analytics />
         <CookieConsent />
       </body>
     </html>
