@@ -170,6 +170,10 @@
     {
       "path": "/api/cron-refresh?secret=REDACTED_CRON_SECRET&limit=100",
       "schedule": "0 23 * * 0"
+    },
+    {
+      "path": "/api/cron-backlinks?secret=REDACTED_CRON_SECRET",
+      "schedule": "0 6 * * *"
     }
   ]
 }
