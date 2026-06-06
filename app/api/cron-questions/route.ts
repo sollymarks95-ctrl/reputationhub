@@ -112,8 +112,6 @@ Respond ONLY with valid JSON, no markdown:
           author_name: `${site.name} Editorial`,
           published_at: new Date().toISOString(),
           read_time_minutes: 5,
-          seo_title: art.title,
-          seo_description: art.excerpt,
           faq_schema: { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: (art.faq||[]).map((f:any)=>({ '@type':'Question', name:f.q, acceptedAnswer:{'@type':'Answer',text:f.a} })) },
           source_question: question,
         })
