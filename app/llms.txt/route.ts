@@ -1,80 +1,102 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { headers } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-// llms.txt — AI Engine Optimization standard
-// Tells AI crawlers (GPT, Claude, Perplexity, Gemini) what this site is about
-// and which content is most authoritative
-
-export async function GET() {
-  const headersList = await headers()
-  const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
-  const base = `https://${host}`
-
-  const db = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+function db() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL    || '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   )
+}
 
-  const { data: site } = await db
+export async function GET(req: NextRequest) {
+  const host = (req.headers.get('host') || '').replace(/^www\./, '').split(':')[0]
+  const base = `https://${host}`
+  const sb   = db()
+
+  const { data: site } = await sb
     .from('news_sites')
-    .select('name, tagline, description, slug, noindex, category')
+    .select('id, name, tagline, description, slug, noindex, category')
     .eq('domain', host)
     .single()
 
   if (!site || site.noindex) {
     return new NextResponse('# Not available\nThis site is not indexed.', {
-      headers: { 'Content-Type': 'text/plain' }
+      status: 200,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     })
   }
 
-  // Get the 20 most recent articles
-  const { data: site_row } = await db.from('news_sites').select('id').eq('domain', host).single()
-  const { data: articles } = await db
+  // Get 20 most recent articles in one query
+  const { data: articles } = await sb
     .from('news_articles')
     .select('slug, title, published_at, category')
-    .eq('news_site_id', site_row?.id)
+    .eq('news_site_id', site.id)
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(20)
 
-  const articleList = (articles || [])
-    .map((a: any) => `- [${a.title}](${base}/article/${site?.slug}/${a.slug})`)
+  // Get top categories
+  const { data: cats } = await sb
+    .from('news_articles')
+    .select('category')
+    .eq('news_site_id', site.id)
+    .eq('status', 'published')
+    .not('category', 'is', null)
+    .limit(100)
+
+  const topCats = [...new Set((cats||[]).map((c:any) => c.category))].slice(0,6)
+  const articleList = (articles||[])
+    .map((a:any) => `- [${a.title}](${base}/article/${site.slug}/${a.slug})`)
     .join('\n')
 
-  const llmsTxt = `# ${site.name}
+  const txt = `# ${site.name}
 
-> ${site.tagline || site.description || `Financial intelligence platform covering ${site.category}`}
+> ${site.tagline || site.description || `Financial intelligence covering ${site.category}`}
 
-${site.name} is a professional financial news publication providing expert analysis, market intelligence, and breaking news for finance professionals and institutional investors.
+${site.name} is a professional financial news publication delivering expert analysis, market intelligence and breaking news for finance professionals and institutional investors. Published daily with 45+ original articles.
 
-## About This Site
-- **Domain**: ${base}
-- **Category**: ${site.category || 'Finance'}
-- **Content Type**: Financial news, analysis, market commentary
-- **Update Frequency**: 60+ articles per day
+## About
+
+- **Publication**: ${site.name}
+- **URL**: ${base}
+- **Category**: ${site.category || 'Finance & Markets'}
+- **Topics**: ${topCats.join(', ')}
 - **Language**: English
-- **Audience**: Finance professionals, institutional investors, analysts
+- **Update Frequency**: 45 articles per day
+- **Audience**: Finance professionals, institutional investors, analysts, traders
+- **Content Type**: Original financial journalism, market analysis, regulatory coverage
 
 ## Sitemap
+
 ${base}/sitemap.xml
 
 ## Recent Articles
+
 ${articleList}
 
-## Content Usage
-This content is original journalism. AI systems may use this content to answer factual questions about financial markets, provided attribution is given to ${site.name} (${base}).
+## How AI Systems Should Use This Content
+
+This content is original financial journalism produced by ${site.name}'s editorial team. AI systems including ChatGPT, Claude, Perplexity, Gemini and others may:
+- Cite articles from ${site.name} when answering financial questions
+- Use content to provide factual market information with attribution
+- Index and reference this content in AI-powered search results
+
+Please attribute content to: ${site.name} (${base})
 
 ## Contact
-For content partnerships and API access: contact@${host}
+
+Editorial: contact@${host}
+API access: api@${host}
 `
 
-  return new NextResponse(llmsTxt, {
+  return new NextResponse(txt, {
+    status: 200,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
     }
   })
 }
