@@ -162,6 +162,10 @@
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=business-pulse",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron-internal-links?secret=REDACTED_CRON_SECRET&limit=100",
+      "schedule": "0 0 * * *"
     }
   ]
 }
