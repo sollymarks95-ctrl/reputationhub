@@ -707,3 +707,4 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 function NewsletterInlineDark({ siteId, siteName, p }: { siteId: string; siteName: string; p: string }) {
   return <NewsletterInline siteId={siteId} siteName={siteName} primaryColor={p} dark />
 }
+// light theme enforced Sat Jun  6 21:22:48 UTC 2026
