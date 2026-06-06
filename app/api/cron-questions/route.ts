@@ -110,7 +110,6 @@ Respond ONLY with valid JSON, no markdown:
           status: 'published',
           article_type: 'news',
           author_name: `${site.name} Editorial`,
-          portal_name: site.name,
           published_at: new Date().toISOString(),
           read_time_minutes: 5,
           seo_title: art.title,
