@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic  = 'force-dynamic'
 export const maxDuration = 300
@@ -154,8 +153,7 @@ function slugify(s: string) {
 
 async function generateQuestionArticle(
   question: string,
-  site: any,
-  claude: Anthropic
+  site: any
 ): Promise<any> {
   const today = new Date().toISOString().split('T')[0]
 
@@ -189,13 +187,23 @@ RESPOND IN JSON:
   ]
 }`
 
-  const resp = await claude.messages.create({
-    model: 'claude-opus-4-6',
-    max_tokens: 2000,
-    messages: [{ role: 'user', content: prompt }],
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey || '',
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+    signal: AbortSignal.timeout(45000),
   })
-
-  const raw = (resp.content[0] as any).text
+  const rd = await resp.json()
+  const raw = rd?.content?.[0]?.text || ''
   const json = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
   return JSON.parse(json)
 }
@@ -208,7 +216,6 @@ export async function GET(req: NextRequest) {
 
   const targetSlug = searchParams.get('site') // optional — run one site at a time
   const db     = getDb()
-  const claude = new Anthropic()
   const today  = new Date().toISOString().split('T')[0]
   const results: any[] = []
 
@@ -238,7 +245,7 @@ export async function GET(req: NextRequest) {
       if (exists) { skipped++; continue }
 
       try {
-        const art = await generateQuestionArticle(question, site, claude)
+        const art = await generateQuestionArticle(question, site)
         const faqSchema = {
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
