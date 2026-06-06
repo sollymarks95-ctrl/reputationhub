@@ -196,7 +196,7 @@ RESPOND IN JSON:
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -204,8 +204,10 @@ RESPOND IN JSON:
   })
   const rd = await resp.json()
   const raw = rd?.content?.[0]?.text || ''
-  const json = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-  return JSON.parse(json)
+  const clean = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim()
+  const start = clean.indexOf('{'), end = clean.lastIndexOf('}')
+  if (start === -1 || end === -1) throw new Error('No JSON in response')
+  return JSON.parse(clean.slice(start, end + 1))
 }
 
 export async function GET(req: NextRequest) {
