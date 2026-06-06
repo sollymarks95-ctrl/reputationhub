@@ -133,7 +133,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
     <div style={{fontFamily:"'Inter',system-ui,sans-serif",background:'#f1f5f9',minHeight:'100vh',paddingTop:88}}>
       <MobileNav siteName={meta.name} domain={meta.domain} accentColor={accent}
         sections={['All','Markets','Forex','Rates','Macro','Analysis']} activeSection="All" onSectionChange={()=>{}}
-        logoStyle="mono"/>
+        logoStyle="serif"/>
       <div style={{padding:'12px 16px 28px'}}>
         {articles[0] && (
           <a href={`/article/${siteSlug}/${articles[0].slug}`} style={{display:'block',textDecoration:'none',background:'#fff',borderRadius:10,overflow:'hidden',marginBottom:16,marginTop:16,boxShadow:'0 2px 12px rgba(0,0,0,0.07)'}}>

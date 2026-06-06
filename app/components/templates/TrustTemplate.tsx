@@ -201,7 +201,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
         <MobileNav siteName="Verivex" domain="verivex.co" accentColor="#00B67A"
           sections={cats.map(([,l])=>l)} activeSection={cats.find(([v])=>v===activeCategory)?.[1]||'All'}
           onSectionChange={(s)=>setActiveCategory(cats.find(([,l])=>l===s)?.[0]||'all')}
-          logoStyle="sans"/>
+          logoStyle="serif"/>
 
         {/* Search + filter bar */}
         <div style={{position:'sticky',top:88,zIndex:90,background:'#fff',borderBottom:'1px solid #e2e8f0',padding:'10px 16px'}}>

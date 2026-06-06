@@ -417,7 +417,16 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         <div className="art-header-inner" style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px' }}>
           <div style={{ height:58, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <Link href={homeUrl}>
-              <div style={{ fontWeight:900, fontSize:26, color:p, letterSpacing:'-1px' }}>{site.name}</div>
+              <a href={homeUrl} style={{textDecoration:'none'}}>
+                <span style={{fontFamily:"'Georgia','Times New Roman',serif",fontSize:26,fontWeight:900,letterSpacing:'-0.03em',color:textPrimary}}>
+                  {site.name.includes('-')
+                    ? <>{site.name.split('-')[0]}<span style={{color:p}}>-</span>{site.name.split('-').slice(1).join('-')}</>
+                    : site.name.match(/[A-Z]/, site.name.slice(1))
+                      ? <>{site.name.slice(0,site.name.slice(1).search(/[A-Z]/)+1)}<span style={{color:p}}>{site.name.slice(site.name.slice(1).search(/[A-Z]/)+1)}</span></>
+                      : <>{site.name.slice(0,-2)}<span style={{color:p}}>{site.name.slice(-2)}</span></>
+                  }
+                </span>
+              </a>
             </Link>
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
               <a href={homeUrl} style={{ background:bg, borderRadius:5, padding:'6px 14px', fontSize:13, fontFamily:'sans-serif', cursor:'pointer', color:textPrimary, textDecoration:'none' }}>← Back</a>

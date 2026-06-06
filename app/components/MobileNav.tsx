@@ -26,11 +26,8 @@ export default function MobileNav({
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
 
-  const fontFam = logoStyle === 'mono'
-    ? "'IBM Plex Mono','Courier New',monospace"
-    : logoStyle === 'sans'
-    ? "'Inter',system-ui,sans-serif"
-    : "'Georgia','Times New Roman',serif"
+  // All portals use Georgia serif for brand consistency
+  const fontFam = "'Georgia','Times New Roman',serif"
 
   return (
     <>
@@ -47,7 +44,7 @@ export default function MobileNav({
 
           {/* Logo center */}
           <a href="/" style={{ textDecoration:'none', position:'absolute', left:'50%', transform:'translateX(-50%)' }}>
-            <div style={{ fontFamily:fontFam, fontSize:18, fontWeight:900, letterSpacing:logoStyle==='mono'?'.04em':'-0.02em', color:textColor, textAlign:'center' }}>
+            <div style={{ fontFamily:fontFam, fontSize:20, fontWeight:900, letterSpacing:'-0.03em', color:textColor, textAlign:'center' }}>
               {siteName.includes('-')
                 ? <>{siteName.split('-')[0]}<span style={{ color:accentColor }}>-</span>{siteName.split('-').slice(1).join('-')}</>
                 : <>{siteName.slice(0,-2)}<span style={{ color:accentColor }}>{siteName.slice(-2)}</span></>}
