@@ -3,7 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 
 const PORTALS = [
-  { name:'NEX-WIRE',   domain:'nex-wire.com',    type:'Global Trade Intelligence',  color:'#E03131' },
+  { name:'NEX-WIRE',   domain:'nex-wire.com',    type:'Global Trade Intelligence',  color:'#1971C2' },
   { name:'FINVEXX',    domain:'finvexx.com',      type:'Financial Markets & Data',   color:'#1971C2' },
   { name:'AUREXHQ',    domain:'aurexhq.com',      type:'Gold & Commodities',         color:'#B08700' },
   { name:'BIZPLEZX',   domain:'bizplezx.com',     type:'Business Strategy',          color:'#6741D9' },

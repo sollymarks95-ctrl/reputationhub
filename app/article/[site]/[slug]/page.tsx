@@ -179,7 +179,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     return { title: a.title, url: `${portalInfo.url}/article/${portalSlug}/${a.slug}`, portal: portalInfo.name }
   }).filter(Boolean)
 
-  const p = site.primary_color || '#c0392b'
+  const p = site.primary_color || '#1971C2'
   const route = ROUTE_MAP[siteSlug] || 'news'
   // On custom domains (nex-wire.com etc), use "/" for home — not the internal route path
   const hdrs = await (await import('next/headers')).headers()

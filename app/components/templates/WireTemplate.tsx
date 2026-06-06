@@ -32,7 +32,7 @@ const getImg = (a: any, i: number) => {
 }
 
 const SITE_META: Record<string, {name:string;domain:string;color:string;tagline:string}> = {
-  'global-trade-wire': {name:'Nex-Wire', domain:'nex-wire.com',   color:'#E03131', tagline:'Global Trade & Market Intelligence'},
+  'global-trade-wire': {name:'Nex-Wire', domain:'nex-wire.com',   color:'#1971C2', tagline:'Global Trade & Market Intelligence'},
   'press-central':     {name:'PresxWire',domain:'presxwire.com',  color:'#DC2626', tagline:'Press Releases & Corporate Announcements'},
 }
 
@@ -65,7 +65,7 @@ function Newsletter({siteName,p}:any) {
 }
 export default function WireTemplate({ articles=[], site, siteSlug, primaryColor , searchParams}:any) {
   const [section, setSection] = useState('All')
-  const meta = SITE_META[siteSlug] || {name:site?.name||'Nex-Wire',domain:'nex-wire.com',color:'#E03131',tagline:'Global Intelligence'}
+  const meta = SITE_META[siteSlug] || {name:site?.name||'Nex-Wire',domain:'nex-wire.com',color:'#1971C2',tagline:'Global Intelligence'}
   const p = primaryColor || meta.color
 
   const [searchQ, setSearchQ] = useState(((searchParams as any)?.q as string) || '')

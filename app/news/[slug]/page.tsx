@@ -47,12 +47,12 @@ export default async function SitePage({
   const sp = searchParams ? await searchParams : {}
   let site = await getNewsSite(slug)
   if (!site && slug === 'global-trade-wire') {
-    site = { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire', slug:'global-trade-wire', primary_color:'#E03131', site_type:'news', tagline:'Global Trade & Markets Intelligence', is_live:true, seo_title:'Nex-Wire — Global Trade Intelligence' } as any
+    site = { id:'4d048bde-1dcd-4891-8434-a7960ab9d3ae', name:'Nex-Wire', slug:'global-trade-wire', primary_color:'#1971C2', site_type:'news', tagline:'Global Trade & Markets Intelligence', is_live:true, seo_title:'Nex-Wire — Global Trade Intelligence' } as any
   }
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
   const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
-  const p = site.template_config?.primary || site.primary_color || '#c0392b'
+  const p = site.template_config?.primary || site.primary_color || '#1971C2'
 
   // JSON-LD structured data for AI agents and search engines
   const schemas = [
