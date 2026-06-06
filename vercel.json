@@ -4,20 +4,12 @@
   "outputDirectory": ".next",
   "crons": [
     {
-      "path": "/api/admin/regenerate-images?secret=REDACTED_CRON_SECRET&limit=150",
-      "schedule": "0 17 * * *"
-    },
-    {
       "path": "/api/cron-reviews?secret=REDACTED_CRON_SECRET",
       "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron-companies?secret=REDACTED_CRON_SECRET",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron-sites?secret=REDACTED_CRON_SECRET",
-      "schedule": "0 5 * * *"
     },
     {
       "path": "/api/cron-site?secret=REDACTED_CRON_SECRET&site=global-trade-wire&batch=0",
@@ -168,20 +160,8 @@
       "schedule": "0 0 * * *"
     },
     {
-      "path": "/api/cron-refresh?secret=REDACTED_CRON_SECRET&limit=100",
-      "schedule": "0 23 * * 0"
-    },
-    {
-      "path": "/api/cron-backlinks?secret=REDACTED_CRON_SECRET",
-      "schedule": "0 6 * * *"
-    },
-    {
       "path": "/api/cron-backlinks-daily?secret=REDACTED_CRON_SECRET",
       "schedule": "30 5 * * *"
-    },
-    {
-      "path": "/api/cron-academic?secret=REDACTED_CRON_SECRET",
-      "schedule": "30 6 * * *"
     }
   ]
 }

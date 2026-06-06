@@ -83,17 +83,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const cfg = site.template_config || {}
   const isDark = false // Always light — matches all 9 portal homepage templates
   const siteColor = cfg.primary || '#1a56db'
-  const bg = isDark ? '#0a0a0a' : '#f3f4f6'
-  const bgCard = isDark ? '#111111' : '#ffffff'
-  const bgHeader = isDark ? '#000000' : '#ffffff'
-  const textPrimary = isDark ? '#f0f0f0' : '#1a1a1a'
-  const textSecondary = isDark ? '#888888' : '#6b7280'
-  const textMuted = isDark ? '#9ca3af' : '#9ca3af'
-  const borderColor = isDark ? '#2a2a2a' : '#e5e7eb'
-  const bodyText = isDark ? '#d1d5db' : '#222222'
-  const headingText = isDark ? '#f9fafb' : '#111111'
-  const blockquoteBg = isDark ? '#1a1a1a' : '#fafafa'
-  const blockquoteText = isDark ? '#94a3b8' : '#555555'
+  const bg = '#f3f4f6'
+  const bgCard = '#ffffff'
+  const bgHeader = '#ffffff'
+  const textPrimary = '#1a1a1a'
+  const textSecondary = '#6b7280'
+  const textMuted = '#9ca3af'
+  const borderColor = '#e5e7eb'
+  const bodyText = '#222222'
+  const headingText = '#111111'
+  const blockquoteBg = '#fafafa'
+  const blockquoteText = '#555555'
 
   const PORTAL_URLS: Record<string,{name:string,url:string}> = {
     'global-trade-wire':  { name:'Nex-Wire',   url:'https://nex-wire.com' },
@@ -310,7 +310,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:bg, fontFamily: isDark ? "'Inter',sans-serif" : '"Georgia","Times New Roman",serif', color:textPrimary }}>
+    <div style={{ minHeight:'100vh', background:bg, fontFamily: false ? "'Inter',sans-serif" : '"Georgia","Times New Roman",serif', color:textPrimary }}>
       <ArticleViewTracker siteSlug={siteSlug} slug={slug} />
       <TrackView siteSlug={siteSlug} siteDomain={site?.domain || siteSlug} />
       {jsonLd.map((schema, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />)}
@@ -406,9 +406,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       <div className="art-topbar" style={{ background:'#f8fafc', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid #e2e8f0' }}>
         <span>{formatDate(article.published_at || new Date().toISOString())}</span>
         <div style={{ display:'flex', gap:14 }}>
-          <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#94a3b8', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
-          <Link href={homeUrl}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Home</span></Link>
-          <Link href={`${homeUrl}?category=Markets`}><span style={{ cursor:'pointer', color:'#94a3b8' }}>Markets</span></Link>
+          <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#64748b', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
+          <Link href={homeUrl}><span style={{ cursor:'pointer', color:'#64748b' }}>Home</span></Link>
+          <Link href={`${homeUrl}?category=Markets`}><span style={{ cursor:'pointer', color:'#64748b' }}>Markets</span></Link>
         </div>
       </div>
 
@@ -636,7 +636,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               {related.slice(0,5).map((rel: any, i: number) => (
                 <Link key={i} href={`/article/${siteSlug}/${rel.slug}`}>
                   <div style={{ display:'flex', gap:10, marginBottom:12, paddingBottom:12, borderBottom:i<4?'1px solid #f3f4f6':'none', cursor:'pointer', alignItems:'flex-start' }}>
-                    <span style={{ fontSize:24, fontWeight:900, color:'#e5e7eb', lineHeight:1, flexShrink:0, minWidth:28, fontFamily:'sans-serif' }}>{i+1}</span>
+                    <span style={{ fontSize:24, fontWeight:900, color:'#374151', lineHeight:1, flexShrink:0, minWidth:28, fontFamily:'sans-serif' }}>{i+1}</span>
                     <div style={{ fontFamily:'sans-serif', fontWeight:700, fontSize:13, lineHeight:1.35, color:headingText }}>{rel.title}</div>
                   </div>
                 </Link>
@@ -668,7 +668,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       </div>
 
       {/* FOOTER */}
-      <footer style={{ background:'#0f172a', color:'#64748b', padding:'40px 20px 20px', marginTop:40, fontFamily:'sans-serif' }}>
+      <footer style={{ background:'#f8fafc', color:'#64748b', padding:'40px 20px 20px', marginTop:40, fontFamily:'sans-serif' }}>
         <div style={{ maxWidth:1260, margin:'0 auto' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:28, marginBottom:28 }}>
             <div>
@@ -681,7 +681,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               { title:'Legal', links:[{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Risk Warning',href:'/legal/risk-warning'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}] }
             ].map(col => (
               <div key={col.title}>
-                <div style={{ fontWeight:700, fontSize:11, color:'#94a3b8', marginBottom:12, textTransform:'uppercase', letterSpacing:'0.08em' }}>{col.title}</div>
+                <div style={{ fontWeight:700, fontSize:11, color:'#64748b', marginBottom:12, textTransform:'uppercase', letterSpacing:'0.08em' }}>{col.title}</div>
                 {col.links.map((l: any) => <Link key={l.label} href={l.href}><div style={{ fontSize:13, color:'#475569', marginBottom:8 }}>{l.label}</div></Link>)}
               </div>
             ))}
