@@ -358,7 +358,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
       </div>
 
       {/* Footer */}
-      <footer style={{ background:'#1a1a1a', color:'#555', padding:'20px 24px', marginTop:0, fontSize:12, textAlign:'center' }}>
+      <footer style={{ background:'#f8fafc', color:'#64748b', padding:'20px 24px', marginTop:0, fontSize:12, textAlign:'center' }}>
         <div style={{ maxWidth:1300, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
           <span style={{ color:'#444' }}>{siteName} · {domain} · © {new Date().getFullYear()} · Not financial advice · All prices indicative</span>
           <div style={{ display:'flex', gap:20 }}>
@@ -369,7 +369,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
         </div>
       </footer>
       {/* Cross-portal network */}
-      <div style={{ background:'#0f172a', padding:'16px 20px', borderTop:'1px solid #1e293b' }}>
+      <div style={{ background:'#f1f5f9', padding:'16px 20px', borderTop:'1px solid #e2e8f0' }}>
         
       </div>
       <CookieBanner primaryColor={primaryColor || '#B08700'} />

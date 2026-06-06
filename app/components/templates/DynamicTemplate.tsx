@@ -49,7 +49,7 @@ function MobCardFeed({ site, articles, p, isDark, siteName, domain, siteCategori
   const bg = isDark?'#0d1117':'#f9fafb', card = isDark?'#161b22':'#fff', txt = isDark?'#f0f6fc':'#111827', sub = isDark?'#8b949e':'#6b7280', bdr = isDark?'#21262d':'#e5e7eb'
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       <div style={{padding:'12px 16px',borderBottom:`2px solid ${p}`,display:'flex',alignItems:'center',gap:8}}>
         <div style={{width:8,height:8,borderRadius:'50%',background:p,animation:'pulse 2s infinite'}}/>
         <span style={{fontSize:11,fontWeight:800,color:p,letterSpacing:'.1em',textTransform:'uppercase'}}>Live Feed</span>
@@ -76,7 +76,7 @@ function MobCompactList({ site, articles, p, isDark, siteName, domain, siteCateg
   const catColors: Record<string,string> = {Markets:'#3b82f6',Crypto:'#f97316',Analysis:'#10b981',Regulation:'#dc2626',Finance:'#7c3aed'}
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'IBM Plex Mono','Courier New',monospace"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       <div style={{padding:'10px 16px',background:isDark?'#111':'#f8fafc',borderBottom:`3px solid ${p}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <span style={{fontSize:10,fontWeight:900,color:p,letterSpacing:'.15em',textTransform:'uppercase'}}>{site.name}</span>
         <span style={{fontSize:9,color:sub}}>{new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</span>
@@ -107,7 +107,7 @@ function MobHeroStack({ site, articles, p, isDark, siteName, domain, siteCategor
   const hero = articles[0], rest = articles.slice(1,20)
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       {hero && (
         <a href={`/article/${site.slug}/${hero.slug}`} style={{display:'block',textDecoration:'none',position:'relative',marginBottom:16}}>
           <img src={mImg(hero,0)} alt="" style={{width:'100%',height:220,objectFit:'cover',display:'block'}}/>
@@ -141,7 +141,7 @@ function MobGrid2Col({ site, articles, p, isDark, siteName, domain, siteCategori
   const bg = isDark?'#0d1117':'#f3f4f6', card = isDark?'#161b22':'#fff', txt = isDark?'#f0f6fc':'#111827', sub = isDark?'#8b949e':'#6b7280'
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'Inter',system-ui,sans-serif"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       <div style={{padding:'12px 10px 80px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
         {articles.slice(0,20).map((a:any,i:number)=>(
           <a key={a.id} href={`/article/${site.slug}/${a.slug}`} style={{display:'block',background:card,borderRadius:10,overflow:'hidden',textDecoration:'none',boxShadow:isDark?'none':'0 1px 4px rgba(0,0,0,.08)'}}>
@@ -164,7 +164,7 @@ function MobMagazine({ site, articles, p, isDark, siteName, domain, siteCategori
   const hero = articles[0], rest = articles.slice(1,15)
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"Georgia,'Times New Roman',serif"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={isDark} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       <div style={{padding:'20px 20px 0',borderBottom:`1px solid ${bdr}`,marginBottom:20}}>
         <div style={{textAlign:'center',paddingBottom:12,borderBottom:`3px double ${bdr}`,marginBottom:16}}>
           <div style={{fontSize:22,fontWeight:900,letterSpacing:'-0.02em',color:txt}}>{siteName}</div>
@@ -196,7 +196,7 @@ function MobTicker({ site, articles, p, isDark, siteName, domain, siteCategories
   const bg = isDark?'#020408':'#0f172a', rowBg = isDark?'#0d1117':'#1e293b', txt = '#f8fafc', sub = '#94a3b8', bdr = isDark?'#1e293b':'#334155'
   return (
     <div style={{background:bg,minHeight:'100vh',paddingTop:76,fontFamily:"'IBM Plex Mono','Courier New',monospace"}}>
-      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={true} />
+      <MobileNav siteName={siteName} domain={domain} accentColor={p} sections={siteCategories} activeSection={selectedCat} onSectionChange={setSelectedCat} darkMode={false} />
       {/* Live ticker bar */}
       <div style={{background:p,padding:'6px 12px',display:'flex',alignItems:'center',gap:8,overflowX:'hidden'}}>
         <span style={{fontSize:9,fontWeight:900,color:'#fff',background:'rgba(0,0,0,.3)',padding:'1px 6px',borderRadius:2,flexShrink:0,textTransform:'uppercase',letterSpacing:'.1em'}}>LIVE</span>
@@ -225,7 +225,7 @@ function MobTicker({ site, articles, p, isDark, siteName, domain, siteCategories
 function DynMobileLayout({ site, articles, p, sec, slug, siteCategories, selectedCat, setSelectedCat }: any) {
   const mobile_style = (site?.template_config?.mobile_style || 'card_feed') as string
   const archetype = (site?.template_config?.archetype || 'editorial') as string
-  const isDark = ['dark_editorial','feed','brutalist','terminal'].includes(archetype) || mobile_style === 'ticker_mobile'
+  const isDark = false // Always light — consistent with homepage templates
   const siteName = site?.name || 'News'
   const domain = site?.domain || ''
   const base = { site, articles, p, isDark, siteName, domain, siteCategories, selectedCat, setSelectedCat }
@@ -249,7 +249,7 @@ function _DynMobileLayoutLegacy({ site, articles, p, sec, slug, siteCategories, 
   const accent = p || '#1a56db'
 
   // Dark theme for dark archetypes
-  const isDark = ['dark_editorial','feed','brutalist'].includes(archetype)
+  const isDark = false // Always light — consistent with homepage templates
   const bg       = isDark ? '#0d1117' : '#f8fafc'
   const cardBg   = isDark ? '#161b22' : '#ffffff'
   const textPri  = isDark ? '#f0f6fc' : '#111827'
@@ -297,7 +297,7 @@ function _DynMobileLayoutLegacy({ site, articles, p, sec, slug, siteCategories, 
         sections={siteCategories || ['All','Markets','Analysis']}
         activeSection={selectedCat || 'All'}
         onSectionChange={setSelectedCat || (() => {})}
-        logoStyle={logoStyle as any} darkMode={isDark}
+        logoStyle={logoStyle as any} darkMode={false}
       />
 
       {/* Sticky search */}

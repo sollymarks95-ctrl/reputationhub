@@ -165,7 +165,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
           </a>
         ))}
       </div>
-      <div style={{background:'#1a1a2e',color:'#475569',padding:'20px 16px'}}>
+      <div style={{background:'#f8fafc',color:'#64748b',padding:'20px 16px',borderTop:'1px solid #e2e8f0'}}>
         <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:14,fontWeight:700,color:'#fff',marginBottom:4}}>{meta.name}</div>
         <div style={{fontSize:11,marginBottom:12,lineHeight:1.6}}>{meta.desc} · For informational purposes only.</div>
         <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:8}}>
@@ -258,7 +258,7 @@ export default function TerminalTemplate({ articles = [], site, siteSlug, primar
           <div style={{marginLeft:'auto',display:'flex',alignItems:'center',padding:'0 8px',gap:6,flexShrink:0}}>
             <input value={searchQ} onChange={(e:any)=>setSearchQ(e.target.value)}
               placeholder="🔍 Search…"
-              style={{padding:'4px 10px',background:'#1a1a1a',border:'1px solid #333',color:'#e2e8f0',fontSize:11,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:140}}
+              style={{padding:'4px 10px',background:'#f1f5f9',border:'1px solid #cbd5e1',color:'#1e293b',fontSize:11,fontFamily:'Inter,sans-serif',outline:'none',borderRadius:2,width:140}}
             />
             {searchQ && <button onClick={()=>setSearchQ('')} style={{background:'none',border:'none',cursor:'pointer',color:'#666',fontSize:11,fontWeight:700}}>✕</button>}
           </div>

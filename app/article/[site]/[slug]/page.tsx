@@ -81,7 +81,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
   // Detect dark theme from site template_config
   const cfg = site.template_config || {}
-  const isDark = ['dark_editorial','tech','brutalist','wire','newspaper'].includes(cfg.archetype)
+  const isDark = false // Always light — matches all 9 portal homepage templates
   const siteColor = cfg.primary || '#1a56db'
   const bg = isDark ? '#0a0a0a' : '#f3f4f6'
   const bgCard = isDark ? '#111111' : '#ffffff'
@@ -403,7 +403,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       `}</style>
 
       {/* TOP BAR */}
-      <div className="art-topbar" style={{ background:'#0f172a', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <div className="art-topbar" style={{ background:'#f8fafc', color:'#64748b', padding:'5px 20px', fontSize:11, display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid #e2e8f0' }}>
         <span>{formatDate(article.published_at || new Date().toISOString())}</span>
         <div style={{ display:'flex', gap:14 }}>
           <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#94a3b8', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
