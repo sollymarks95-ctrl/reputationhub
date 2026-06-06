@@ -129,39 +129,39 @@
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=trust-score",
-      "schedule": "0 2 * * 0,3,6"
+      "schedule": "0 1 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=finance-terminal",
-      "schedule": "30 2 * * 0,3,6"
+      "schedule": "30 1 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=crypto-hub",
-      "schedule": "0 3 * * 0,3,6"
+      "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=market-radar",
-      "schedule": "0 2 * * 1,4"
+      "schedule": "30 2 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=invest-data",
-      "schedule": "30 2 * * 1,4"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=gold-markets-today",
-      "schedule": "0 3 * * 1,4"
+      "schedule": "30 3 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=global-trade-wire",
-      "schedule": "0 2 * * 2,5"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=executive-network",
-      "schedule": "30 2 * * 2,5"
+      "schedule": "30 4 * * *"
     },
     {
       "path": "/api/cron-questions?secret=REDACTED_CRON_SECRET&site=business-pulse",
-      "schedule": "0 3 * * 2,5"
+      "schedule": "0 5 * * *"
     }
   ]
 }

@@ -110,7 +110,7 @@ async function discoverTrendingQuestions(siteSlug: string): Promise<string[]> {
   const keywordStr = config.keywords.join(', ')
 
   // Use Claude with web search to find what's trending RIGHT NOW
-  const prompt = `Search the web and find the top 5 questions that people are searching for RIGHT NOW in ${config.niche}.
+  const prompt = `Search the web and find the top 15 questions that people are searching for RIGHT NOW in ${config.niche}.
 
 Focus on:
 - Questions with "what is", "how does", "why does", "is X safe/legit/worth it", "how to"
@@ -118,15 +118,15 @@ Focus on:
 - Questions beginners AND intermediate-level people ask about: ${keywordStr}
 - Questions that have a clear answer that can be explained in a blog post
 
-Return ONLY a JSON array of 5 question strings, nothing else:
-["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Question 5?"]`
+Return ONLY a JSON array of 15 question strings, nothing else:
+["Question 1?", "Question 2?", "Question 3?", ..., "Question 15?"]`
 
   try {
     const raw = await callClaude(prompt, true) // Use web search
     const s = raw.indexOf('['), e = raw.lastIndexOf(']')
     if (s === -1 || e === -1) throw new Error('No array found')
     const questions: string[] = JSON.parse(raw.slice(s, e + 1))
-    return questions.filter((q: any) => typeof q === 'string' && q.length > 10).slice(0, 5)
+    return questions.filter((q: any) => typeof q === 'string' && q.length > 10).slice(0, 15)
   } catch (err: any) {
     console.error(`[questions] trend discovery failed for ${siteSlug}:`, err.message)
     // Fallback: use keyword-based questions
@@ -136,15 +136,15 @@ Return ONLY a JSON array of 5 question strings, nothing else:
 
 function getFallbackQuestions(siteSlug: string): string[] {
   const fallbacks: Record<string, string[]> = {
-    'trust-score': ['Is eToro safe to use in 2026?','How to check if a forex broker is regulated?','What is the safest way to trade forex?'],
-    'finance-terminal': ['How does forex trading work?','What is leverage in forex?','What moves currency prices?'],
-    'crypto-hub': ['Is Bitcoin worth buying now?','How does DeFi actually work?','How to avoid crypto scams?'],
-    'market-radar': ['What is RSI in trading?','How to use MACD?','What is support and resistance?'],
-    'invest-data': ['What is an ETF?','How to start investing?','What is dollar cost averaging?'],
-    'gold-markets-today': ['Why is gold price rising?','How to invest in gold?','What affects oil prices?'],
-    'global-trade-wire': ['What is a letter of credit?','How does trade finance work?','What is supply chain finance?'],
-    'executive-network': ['How does M&A work?','What does a CEO do?','What is private equity?'],
-    'business-pulse': ['What is EBITDA?','How to read an earnings report?','What is market cap?'],
+    'trust-score': ['Is eToro safe to use in 2026?','How to check if a forex broker is regulated?','What is the safest way to trade forex?','How to spot a forex scam?','What is FCA regulated broker?','Is Pepperstone a legitimate broker?','What is negative balance protection?','How to verify a broker licence?','What is CySEC regulation?','What is ASIC regulation?','Is IC Markets regulated?','What is segregated client funds?','How to get money back from forex scam?','What is a prop trading firm?','Is XM broker safe?'],
+    'finance-terminal': ['How does forex trading work?','What is leverage in forex?','What moves currency prices?','What is a pip in forex?','How does the Fed affect forex?','What is a currency carry trade?','What is hedging in forex?','What is the spread in forex?','How to read an economic calendar?','What is a forex swap?','What currency pairs are best for beginners?','How does central bank policy affect forex?','What is the dollar index?','What is quantitative easing?','How do interest rates affect currencies?'],
+    'crypto-hub': ['Is Bitcoin worth buying now?','How does DeFi actually work?','How to avoid crypto scams?','What is Ethereum staking?','How does Bitcoin halving work?','What is a crypto wallet?','What is a Layer 2 solution?','What causes crypto prices to rise?','What is a stablecoin?','How to buy Bitcoin safely?','What is the difference between Bitcoin and Ethereum?','What is a rug pull?','Is crypto legal?','What is Web3?','What are NFTs worth in 2026?'],
+    'market-radar': ['What is RSI in trading?','How to use MACD?','What is support and resistance?','How to read candlestick charts?','What is Bollinger Bands?','What is volume in trading?','How to use Fibonacci retracement?','What is a head and shoulders pattern?','What is options flow?','What is the VIX index?','What is a moving average crossover?','What is a double top pattern?','How to identify trend reversal?','What is dark pool trading?','What is gamma exposure?'],
+    'invest-data': ['What is an ETF?','How to start investing?','What is dollar cost averaging?','What is a hedge fund?','How does compound interest work?','What is a dividend stock?','What is private equity?','What is factor investing?','How to invest in index funds?','What is the Sharpe ratio?','What is risk-adjusted return?','What is a REIT?','How to build a portfolio?','What is rebalancing?','What is an ISA?'],
+    'gold-markets-today': ['Why is gold price rising?','How to invest in gold?','What affects oil prices?','What is the relationship between gold and inflation?','How is silver price determined?','What is OPEC?','What is contango in futures?','Why is copper important for the economy?','What is lithium used for?','How to trade gold futures?','What affects platinum price?','What is the Baltic Dry Index?','How do commodity ETFs work?','What is a commodity supercycle?','How does the dollar affect gold?'],
+    'global-trade-wire': ['What is a letter of credit?','How does trade finance work?','What is supply chain finance?','What is a bill of lading?','How does SWIFT work?','What is forfaiting?','How do tariffs affect trade?','What is documentary collection?','What is export credit insurance?','What is the Belt and Road Initiative?','What is a trade deficit?','How does cross-border payment work?','What is incoterms?','What is a standby letter of credit?','How does factoring work?'],
+    'executive-network': ['How does M&A work?','What does a CEO do?','What is private equity?','What is a board of directors?','How is executive pay structured?','What is activist investing?','What is a corporate spin-off?','What is a leveraged buyout?','How does a company go public?','What is corporate governance?','What does a CFO do?','What is ESG for companies?','What is a management buyout?','How do PE firms make money?','What is due diligence?'],
+    'business-pulse': ['What is EBITDA?','How to read an earnings report?','What is market cap?','What is revenue vs profit?','How do interest rates affect stocks?','What is a stock buyback?','What is working capital?','How to value a company?','What is a profit margin?','What is a recession?','How does inflation affect business?','What is a dividend payout ratio?','What is free cash flow?','What is EV to EBITDA?','What is a P/E ratio?'],
   }
   return fallbacks[siteSlug] || []
 }
