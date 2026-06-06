@@ -12,6 +12,26 @@ function getDb() {
   )
 }
 
+// ─── LAYER 0: Google Sitemap Ping ──────────────────────────────────────────
+// Directly notifies Google of new sitemap content — fastest free Google signal
+async function pingGoogle(domain: string): Promise<any> {
+  const sitemapUrl = encodeURIComponent(`https://${domain}/sitemap.xml`)
+  const results: any[] = []
+  const endpoints = [
+    `https://www.google.com/ping?sitemap=https://${domain}/sitemap.xml`,
+    `https://www.bing.com/ping?sitemap=https://${domain}/sitemap.xml`,
+  ]
+  for (const url of endpoints) {
+    try {
+      const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(8000) })
+      results.push({ engine: new URL(url).hostname, status: r.status })
+    } catch (e: any) {
+      results.push({ engine: new URL(url).hostname, error: e.message })
+    }
+  }
+  return results
+}
+
 // ─── LAYER 1: IndexNow — instant notification to 5 search engines ───────────
 // Free, no account needed per domain, notifies Bing + Yandex + Naver + others
 async function submitIndexNow(domain: string, urls: string[]): Promise<any> {
@@ -225,6 +245,9 @@ export async function GET(req: NextRequest) {
       // Pick article not already syndicated today
       .not('tags','cs','{"syndicated"}')
       .order('published_at',{ascending:false}).limit(1).single()
+
+    // LAYER 0: Google + Bing Sitemap Ping
+    siteReport.layers.google_ping = await pingGoogle(domain)
 
     // LAYER 1: IndexNow
     if (todayArts?.length) {
