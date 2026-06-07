@@ -76,7 +76,7 @@ async function callClaude(prompt: string, useWebSearch = false): Promise<string>
   const apiKey = process.env.ANTHROPIC_API_KEY
   const body: any = {
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
+    max_tokens: 1200,
     messages: [{ role: 'user', content: prompt }],
   }
   if (useWebSearch) {
@@ -110,7 +110,7 @@ async function discoverTrendingQuestions(siteSlug: string): Promise<string[]> {
   const keywordStr = config.keywords.join(', ')
 
   // Use Claude with web search to find what's trending RIGHT NOW
-  const prompt = `Search the web and find the top 15 questions that people are searching for RIGHT NOW in ${config.niche}.
+  const prompt = `Search the web and find the top 5 questions that people are searching for RIGHT NOW in ${config.niche}.
 
 Focus on:
 - Questions with "what is", "how does", "why does", "is X safe/legit/worth it", "how to"
@@ -118,15 +118,15 @@ Focus on:
 - Questions beginners AND intermediate-level people ask about: ${keywordStr}
 - Questions that have a clear answer that can be explained in a blog post
 
-Return ONLY a JSON array of 15 question strings, nothing else:
-["Question 1?", "Question 2?", "Question 3?", ..., "Question 15?"]`
+Return ONLY a JSON array of 5 question strings, nothing else:
+["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Question 5?"]`
 
   try {
     const raw = await callClaude(prompt, true) // Use web search
     const s = raw.indexOf('['), e = raw.lastIndexOf(']')
     if (s === -1 || e === -1) throw new Error('No array found')
     const questions: string[] = JSON.parse(raw.slice(s, e + 1))
-    return questions.filter((q: any) => typeof q === 'string' && q.length > 10).slice(0, 15)
+    return questions.filter((q: any) => typeof q === 'string' && q.length > 10).slice(0, 5)
   } catch (err: any) {
     console.error(`[questions] trend discovery failed for ${siteSlug}:`, err.message)
     // Fallback: use keyword-based questions
