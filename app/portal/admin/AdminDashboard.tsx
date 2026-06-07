@@ -578,6 +578,75 @@ function PortalsTab() {
   )
 }
 
+function ClientEmailManager({ client }: { client: any }) {
+  const [emails, setEmails] = React.useState<string[]>(client.report_emails || [])
+  const [newEmail, setNewEmail] = React.useState('')
+  const [saving, setSaving] = React.useState(false)
+  const [msg, setMsg] = React.useState('')
+  const [enabled, setEnabled] = React.useState(client.report_enabled !== false)
+
+  async function save(updatedEmails: string[], updatedEnabled: boolean) {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/admin/update-report-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: client.id, emails: updatedEmails, enabled: updatedEnabled })
+      })
+      const d = await res.json()
+      setMsg(d.ok ? '✓ Saved' : '✗ Error')
+      setTimeout(() => setMsg(''), 2000)
+    } catch { setMsg('✗ Error') }
+    setSaving(false)
+  }
+
+  function addEmail() {
+    if (!newEmail || !newEmail.includes('@')) return
+    const updated = [...emails, newEmail.trim()]
+    setEmails(updated); setNewEmail(''); save(updated, enabled)
+  }
+
+  function removeEmail(e: string) {
+    const updated = emails.filter(x => x !== e)
+    setEmails(updated); save(updated, enabled)
+  }
+
+  return (
+    <div style={{padding:'14px 0',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+        <div>
+          <span style={{fontWeight:700,fontSize:13}}>{client.company_name}</span>
+          <span style={{fontSize:11,color:'#475569',marginLeft:8}}>{client.contact_email}</span>
+        </div>
+        <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:12}}>
+          <input type="checkbox" checked={enabled} onChange={e => { setEnabled(e.target.checked); save(emails, e.target.checked) }}/>
+          Daily report {enabled ? '✅ ON' : '⏸ OFF'}
+        </label>
+      </div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:8}}>
+        {emails.map((e:string) => (
+          <span key={e} style={{background:'rgba(25,113,194,0.12)',color:'#1971C2',borderRadius:20,padding:'3px 10px',fontSize:11,display:'flex',alignItems:'center',gap:4}}>
+            {e}
+            <button onClick={() => removeEmail(e)} style={{background:'none',border:'none',color:'#94a3b8',cursor:'pointer',fontSize:13,lineHeight:1}}>×</button>
+          </span>
+        ))}
+        {emails.length === 0 && <span style={{fontSize:11,color:'#475569'}}>No additional emails — only contact email receives reports</span>}
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <input
+          value={newEmail} onChange={e => setNewEmail(e.target.value)}
+          onKeyDown={e => e.key==='Enter' && addEmail()}
+          placeholder="Add email address..."
+          style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'inherit',fontSize:12}}
+        />
+        <button onClick={addEmail} className="btn b-green" style={{padding:'6px 14px',fontSize:12}}>+ Add</button>
+        {msg && <span style={{fontSize:11,alignSelf:'center',color:msg.includes('✓')?'#10b981':'#ef4444'}}>{msg}</span>}
+      </div>
+    </div>
+  )
+}
+
+
 export default function AdminDashboard({
   clients=[], allContent=[], allRankings=[], allPodcasts=[], allActivity=[], allVideos=[],
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
@@ -1729,6 +1798,13 @@ export default function AdminDashboard({
                   <a href="https://vercel.com/team_i0UdvDcC0rdntVBoxbP7i46X" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>▲ Vercel ↗</button></a>
                 </div>
                 {cronMsg&&<div style={{marginTop:12,padding:'8px 12px',background:'rgba(16,185,129,0.1)',borderRadius:7,fontSize:12,color:'#10b981'}}>{cronMsg}</div>}
+              </div>
+              <div className="card" style={{padding:20,gridColumn:'1/-1'}}>
+                <div style={{fontWeight:700,fontSize:14,marginBottom:4}}>📧 Daily Morning Report — Email Recipients</div>
+                <div style={{fontSize:12,color:'#475569',marginBottom:14}}>Every day at 08:00 Israel time, clients receive a report with yesterday's articles, top content to share, and review stats. Add emails per client below.</div>
+                {clients.map((cl:any)=>(
+                  <ClientEmailManager key={cl.id} client={cl} />
+                ))}
               </div>
               <div className="card" style={{padding:20}}>
                 <div style={{fontWeight:700,fontSize:14,marginBottom:6}}>Flip Portals to Indexed</div>

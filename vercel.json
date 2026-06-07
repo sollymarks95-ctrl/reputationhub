@@ -148,20 +148,20 @@
       "schedule": "0 4 * * *"
     },
     {
-      "path": "/api/cron-questions?site=executive-network",
-      "schedule": "30 4 * * *"
-    },
-    {
       "path": "/api/cron-questions?site=business-pulse",
-      "schedule": "0 5 * * *"
+      "schedule": "45 4 * * *"
     },
     {
       "path": "/api/cron-internal-links?limit=100",
-      "schedule": "0 0 * * *"
+      "schedule": "0 0 */2 * *"
     },
     {
       "path": "/api/cron-backlinks-daily",
       "schedule": "30 5 * * *"
+    },
+    {
+      "schedule": "0 5 * * *",
+      "path": "/api/cron-daily-report"
     }
   ]
 }
