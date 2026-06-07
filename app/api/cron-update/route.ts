@@ -259,6 +259,9 @@ Return ONLY valid JSON:
 }
 
 export async function GET(req: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET || ''
+  const authHeader = req.headers.get('authorization')
+  const urlSecret = req.nextUrl.searchParams.get('secret')
   const secret = req.nextUrl.searchParams.get('secret') || req.headers.get('x-cron-secret')
   if (!req.headers.get('authorization')?.includes(process.env.CRON_SECRET || '') && req.nextUrl.searchParams.get('secret') !== (process.env.CRON_SECRET || '') && !req.headers.get('authorization')?.includes(process.env.CRON_SECRET || '') && req.nextUrl.searchParams.get('secret') !== (process.env.CRON_SECRET || '')) {
     return NextResponse.json({ error:'Unauthorized' }, { status:401 })
