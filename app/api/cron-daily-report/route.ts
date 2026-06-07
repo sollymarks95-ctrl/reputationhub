@@ -133,7 +133,13 @@ export async function GET(req: NextRequest) {
   }
 
   const db = getDb()
-  const RESEND_KEY = process.env.RESEND_API_KEY
+  // Read Resend key from Supabase system_api_keys (secure — not in code or env)
+  const { data: resendKeyRow } = await db
+    .from('system_api_keys')
+    .select('key_value')
+    .eq('key_name', 'RESEND_API_KEY')
+    .single()
+  const RESEND_KEY = resendKeyRow?.key_value || process.env.RESEND_API_KEY
   if (!RESEND_KEY) return NextResponse.json({ error: 'No Resend key' })
 
   // Get all active clients with report emails

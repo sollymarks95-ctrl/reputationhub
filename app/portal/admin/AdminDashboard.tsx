@@ -1850,10 +1850,12 @@ function NotificationsTab({ clients }: { clients: any[] }) {
 
   const clientLogs = (clientId: string) => logs.filter(l => l.client_id === clientId)
 
-  async function sendNow(clientId: string) {
+  async function sendNow(clientId: string, toEmail: string = 'sollymarks95@gmail.com') {
     setSending(true); setMsg('')
-    const res = await fetch(`/api/cron-daily-report?client=${clientId}`, {
-      headers: { authorization: `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}` }
+    const res = await fetch('/api/admin/send-test-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId, toEmail })
     })
     const d = await res.json()
     setMsg(d.ok ? '✅ Report sent!' : '❌ Failed')
@@ -1915,12 +1917,22 @@ function NotificationsTab({ clients }: { clients: any[] }) {
 
                   {/* Send Now Button */}
                   <div style={{display:'flex',gap:8,marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      id={`test-email-${cl.id}`}
+                      defaultValue="sollymarks95@gmail.com"
+                      style={{flex:1,background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'inherit',fontSize:12}}
+                    />
                     <button
                       className="btn b-green"
-                      style={{fontSize:12}}
+                      style={{fontSize:12,whiteSpace:'nowrap'}}
                       disabled={sending}
-                      onClick={() => sendNow(cl.id)}>
-                      {sending ? '⏳ Sending...' : '📧 Send Report Now'}
+                      onClick={() => {
+                        const el = document.getElementById(`test-email-${cl.id}`) as HTMLInputElement
+                        sendNow(cl.id, el?.value || 'sollymarks95@gmail.com')
+                      }}>
+                      {sending ? '⏳ Sending...' : '📧 Send Test to Me'}
                     </button>
                     {msg && <span style={{fontSize:12,alignSelf:'center',color:msg.includes('✅')?'#10b981':'#ef4444'}}>{msg}</span>}
                   </div>
