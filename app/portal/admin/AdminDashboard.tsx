@@ -800,6 +800,7 @@ export default function AdminDashboard({
             {id:'portals',icon:'🌐',label:'Portals'},
             {id:'content',icon:'📰',label:'Content'},
             {id:'reviews',icon:'⭐',label:'Reviews'},
+            {id:'notifications',icon:'🔔',label:'Notifications'},
             {id:'rankings',icon:'🎯',label:'Rankings'},
             {id:'settings',icon:'⚙️',label:'Settings'},
             {id:'costs',icon:'💰',label:'Cost Tracker'},
@@ -1784,6 +1785,9 @@ export default function AdminDashboard({
         {tab==='videos'&&(
           <VideoStudio allPodcasts={allPodcasts}/>
         )}
+        {tab==='notifications'&&(
+          <NotificationsTab clients={clients} />
+        )}
         {tab==='settings'&&(
           <div className="ti">
             <div className="syne" style={{fontSize:20,fontWeight:900,marginBottom:20}}>⚙️ Settings</div>
@@ -1824,6 +1828,176 @@ export default function AdminDashboard({
         )}
 
       </main>
+    </div>
+  )
+}
+
+// ─── NOTIFICATIONS TAB ────────────────────────────────────────────────────────
+function NotificationsTab({ clients }: { clients: any[] }) {
+  const [logs, setLogs] = React.useState<any[]>([])
+  const [selected, setSelected] = React.useState<string | null>(null)
+  const [preview, setPreview] = React.useState<any | null>(null)
+  const [loading, setLoading] = React.useState(true)
+  const [sending, setSending] = React.useState(false)
+  const [msg, setMsg] = React.useState('')
+
+  React.useEffect(() => {
+    fetch('/api/admin/report-logs')
+      .then(r => r.json())
+      .then(d => { setLogs(d.logs || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const clientLogs = (clientId: string) => logs.filter(l => l.client_id === clientId)
+
+  async function sendNow(clientId: string) {
+    setSending(true); setMsg('')
+    const res = await fetch(`/api/cron-daily-report?client=${clientId}`, {
+      headers: { authorization: `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}` }
+    })
+    const d = await res.json()
+    setMsg(d.ok ? '✅ Report sent!' : '❌ Failed')
+    setTimeout(() => setMsg(''), 3000)
+    setSending(false)
+    // Refresh logs
+    fetch('/api/admin/report-logs').then(r => r.json()).then(d => setLogs(d.logs || []))
+  }
+
+  return (
+    <div className="ti">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div className="syne" style={{fontSize:20,fontWeight:900}}>🔔 Notifications</div>
+        <div style={{fontSize:12,color:'#475569'}}>Daily reports sent at 08:00 Israel time · {logs.length} total sent</div>
+      </div>
+
+      {/* Client Cards */}
+      <div style={{display:'grid',gap:16}}>
+        {clients.map(cl => {
+          const clLogs = clientLogs(cl.id)
+          const lastSent = clLogs[0]
+          const color = cl.primary_color || '#1971C2'
+          const isOpen = selected === cl.id
+
+          return (
+            <div key={cl.id} className="card" style={{overflow:'hidden',border:`1px solid ${color}25`}}>
+
+              {/* Client Header */}
+              <div style={{padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',cursor:'pointer',borderBottom:isOpen?'1px solid rgba(255,255,255,0.06)':'none'}}
+                   onClick={() => setSelected(isOpen ? null : cl.id)}>
+                <div style={{display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:36,height:36,borderRadius:8,background:color,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,color:'#fff',fontSize:14}}>
+                    {cl.company_name[0]}
+                  </div>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:14}}>{cl.company_name}</div>
+                    <div style={{fontSize:11,color:'#475569',marginTop:2}}>
+                      {cl.report_enabled !== false ? '✅ Daily report ON' : '⏸ Paused'} ·
+                      {(cl.report_emails?.length || 0) + (cl.contact_email ? 1 : 0)} recipients ·
+                      {lastSent ? ` Last sent ${new Date(lastSent.sent_at).toLocaleDateString('en-GB')}` : ' No reports yet'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  {lastSent && (
+                    <div style={{textAlign:'right',fontSize:11,color:'#475569'}}>
+                      <div style={{color:color,fontWeight:700}}>{lastSent.articles_count} articles</div>
+                      <div>{lastSent.portals_count} portals · {lastSent.avg_rating}⭐</div>
+                    </div>
+                  )}
+                  <span style={{fontSize:12,color:'#475569'}}>{isOpen ? '▲' : '▼'}</span>
+                </div>
+              </div>
+
+              {isOpen && (
+                <div style={{padding:'16px 20px'}}>
+                  {/* Email Recipients */}
+                  <ClientEmailManager client={cl} />
+
+                  {/* Send Now Button */}
+                  <div style={{display:'flex',gap:8,marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+                    <button
+                      className="btn b-green"
+                      style={{fontSize:12}}
+                      disabled={sending}
+                      onClick={() => sendNow(cl.id)}>
+                      {sending ? '⏳ Sending...' : '📧 Send Report Now'}
+                    </button>
+                    {msg && <span style={{fontSize:12,alignSelf:'center',color:msg.includes('✅')?'#10b981':'#ef4444'}}>{msg}</span>}
+                  </div>
+
+                  {/* Report History */}
+                  {clLogs.length > 0 && (
+                    <div style={{marginTop:16}}>
+                      <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>
+                        Send History ({clLogs.length} reports)
+                      </div>
+                      <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                        {clLogs.slice(0,5).map((log: any) => (
+                          <div key={log.id} style={{background:'rgba(255,255,255,0.03)',borderRadius:8,padding:'10px 14px',display:'grid',gridTemplateColumns:'1fr auto',gap:8}}>
+                            <div>
+                              <div style={{fontSize:12,fontWeight:600}}>{new Date(log.sent_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>
+                              <div style={{fontSize:11,color:'#475569',marginTop:2}}>
+                                {log.articles_count} articles · {log.portals_count} portals · {log.avg_rating}⭐ avg
+                              </div>
+                              <div style={{fontSize:11,color:'#475569',marginTop:2}}>
+                                → {(log.recipients||[]).join(', ')}
+                              </div>
+                              {/* Top articles */}
+                              {(log.top_articles||[]).slice(0,3).map((a: any, i: number) => (
+                                <div key={i} style={{marginTop:3}}>
+                                  <a href={a.url} target="_blank" rel="noopener noreferrer"
+                                     style={{fontSize:10,color:color,textDecoration:'none'}}>
+                                    {a.title?.slice(0,70)}...
+                                  </a>
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{fontSize:10,color:'#10b981',fontWeight:700,alignSelf:'start'}}>
+                              ✓ {log.status}
+                            </div>
+                          </div>
+                        ))}
+                        {clLogs.length > 5 && (
+                          <div style={{fontSize:11,color:'#475569',textAlign:'center',padding:'4px 0'}}>
+                            + {clLogs.length - 5} more reports
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {clLogs.length === 0 && (
+                    <div style={{marginTop:12,padding:'16px',background:'rgba(255,255,255,0.02)',borderRadius:8,textAlign:'center',color:'#475569',fontSize:12}}>
+                      No reports sent yet. Reports fire automatically at 08:00 every morning.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Summary Stats */}
+      {logs.length > 0 && (
+        <div className="card" style={{marginTop:20,padding:20}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>All-Time Stats</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,textAlign:'center'}}>
+            {[
+              {label:'Total Reports Sent', value:logs.length, icon:'📧'},
+              {label:'Total Articles Featured', value:logs.reduce((s,l)=>s+(l.articles_count||0),0).toLocaleString(), icon:'📰'},
+              {label:'Avg Articles Per Report', value:Math.round(logs.reduce((s,l)=>s+(l.articles_count||0),0)/Math.max(logs.length,1)), icon:'📊'},
+              {label:'Active Clients', value:clients.filter(c=>c.report_enabled!==false).length, icon:'👥'},
+            ].map(s => (
+              <div key={s.label} style={{background:'rgba(255,255,255,0.03)',borderRadius:8,padding:'14px 8px'}}>
+                <div style={{fontSize:22}}>{s.icon}</div>
+                <div style={{fontSize:22,fontWeight:800,color:'#f1f5f9',marginTop:4}}>{s.value}</div>
+                <div style={{fontSize:10,color:'#475569',marginTop:2}}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

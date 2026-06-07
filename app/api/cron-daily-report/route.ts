@@ -250,6 +250,20 @@ export async function GET(req: NextRequest) {
       })
     })
 
+    // Log the send to DB
+    await db.from('client_report_log').insert({
+      client_id: client.id,
+      client_name: client.company_name,
+      recipients: emailList,
+      articles_count: stats.articlesYesterday,
+      portals_count: stats.portalsActive,
+      reviews_count: stats.recentReviews.length,
+      avg_rating: parseFloat(stats.avgRating) || null,
+      top_articles: stats.topArticles,
+      email_subject: subject,
+      status: 'sent',
+    })
+
     sent.push(client.company_name)
   }
 
