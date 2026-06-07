@@ -109,16 +109,26 @@ async function discoverTrendingQuestions(siteSlug: string): Promise<string[]> {
 
   const keywordStr = config.keywords.join(', ')
 
-  // Use Claude with web search to find what's trending RIGHT NOW
-  const prompt = `Search the web and find the top 5 questions that people are searching for RIGHT NOW in ${config.niche}.
+  // Use Claude with web search — target LOW-COMPETITION rankable questions
+  const prompt = `Search the web right now and find 5 questions people are actively searching in ${config.niche} that:
+1. Have LOW competition (small/new sites can rank for them)
+2. Match "People Also Ask" format on Google
+3. Are trending on Reddit, Trustpilot, Quora, or finance forums RIGHT NOW
 
-Focus on:
-- Questions with "what is", "how does", "why does", "is X safe/legit/worth it", "how to"
-- Topics trending on Reddit, forums, and finance news today
-- Questions beginners AND intermediate-level people ask about: ${keywordStr}
-- Questions that have a clear answer that can be explained in a blog post
+Best performing formats for ${config.niche}:
+- "Is [specific broker/platform] safe/legitimate/regulated in 2026?"
+- "How does [specific feature] work?"
+- "What is [specific term] and should I use it?"
+- "[Broker name] vs [Broker name] — which is better?"
+- "What happens if [specific risk scenario]?"
+- "Is [specific broker] regulated by [FCA/ASIC/CySEC]?"
 
-Return ONLY a JSON array of 5 question strings, nothing else:
+Topic areas: ${keywordStr}
+
+IMPORTANT: Be SPECIFIC — not "Is forex safe?" but "Is IC Markets regulated by ASIC in 2026?"
+These specific questions have near-zero competition and rank in days not months.
+
+Return ONLY a JSON array of 5 specific question strings:
 ["Question 1?", "Question 2?", "Question 3?", "Question 4?", "Question 5?"]`
 
   try {
