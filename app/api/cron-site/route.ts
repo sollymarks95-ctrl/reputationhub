@@ -439,7 +439,7 @@ Required structure:
       ]
       const angle = brandAngles[globalIndex % brandAngles.length]
       brandNote = `\n\nANALYTICAL BRAND ARTICLE (mandatory — ${clientName} is the PRIMARY subject):\n${angle}\n\nLink: use <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> minimum 3x throughout. Length: 700-900 words. Title must name ${clientName} directly.`
-    }}
+    }
 
     if (crossLink) brandNote += `\n\nEDITORIAL CROSS-REFERENCE (natural, mid-paragraph): ${crossLink}`
 
@@ -474,17 +474,19 @@ Required structure:
 
     // portal_content only for brand articles (client-specific tracking)
     if (isBrand && featuredClient) {
-      await getDb().from('portal_content').insert({
-        client_id: featuredClient.id,
-        portal_name: site.shortName || site.name,
-        site_slug: siteSlug,
-        title: article.title,
-        article_url: `https://${site.domain}/article/${siteSlug}/${slug}`,
-        content_type: isClientFeature ? 'brand_feature' : 'brand_mention',
-        status: 'live',
-        backlink_value: 80,
-        published_at: new Date().toISOString(),
-      }).then(() => {}).catch(() => {})
+      try {
+        await getDb().from('portal_content').insert({
+          client_id: featuredClient.id,
+          portal_name: site.shortName || site.name,
+          site_slug: siteSlug,
+          title: article.title,
+          article_url: `https://${site.domain}/article/${siteSlug}/${slug}`,
+          content_type: isClientFeature ? 'brand_feature' : 'brand_mention',
+          status: 'live',
+          backlink_value: 80,
+          published_at: new Date().toISOString(),
+        })
+      } catch { /* non-critical */ }
     }
 
     await new Promise(r => setTimeout(r, 400))
