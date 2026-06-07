@@ -54,7 +54,7 @@ function processBody(body: string): string {
 
 export async function POST(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET') {
+  if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 

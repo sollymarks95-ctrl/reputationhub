@@ -35,7 +35,7 @@ async function pingGoogle(domain: string): Promise<any> {
 // ─── LAYER 1: IndexNow — instant notification to 5 search engines ───────────
 // Free, no account needed per domain, notifies Bing + Yandex + Naver + others
 async function submitIndexNow(domain: string, urls: string[]): Promise<any> {
-  const key = process.env.INDEX_NOW_KEY || 'REDACTED_INDEXNOW_KEY'
+  const key = process.env.INDEX_NOW_KEY || ''
   try {
     const r = await fetch('https://api.indexnow.org/indexnow', {
       method: 'POST',
@@ -207,7 +207,7 @@ function htmlToMarkdown(html: string): string {
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  if (searchParams.get('secret') !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET')
+  if (searchParams.get('secret') !== process.env.CRON_SECRET)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: CORS })
 
   const db  = getDb()

@@ -29,7 +29,7 @@ export async function OPTIONS() { return new Response(null,{status:204,headers:C
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET') return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
+  if (secret !== process.env.CRON_SECRET) return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
 
   const days = parseInt(req.nextUrl.searchParams.get('days')||'30')
   const filterClientId = req.nextUrl.searchParams.get('client') || null  // optional client filter

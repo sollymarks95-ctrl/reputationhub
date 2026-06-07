@@ -118,7 +118,7 @@ Return ONLY the press release text, no JSON.`
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  if (searchParams.get('secret') !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET')
+  if (searchParams.get('secret') !== process.env.CRON_SECRET)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: CORS })
 
   const db = getDb()

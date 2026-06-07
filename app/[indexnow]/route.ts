@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 // Required for Bing, Yandex, Naver to verify domain ownership
 export async function GET(req: NextRequest, { params }: { params: Promise<{ indexnow: string }> }) {
   const { indexnow } = await params
-  const KEY = process.env.INDEX_NOW_KEY || 'REDACTED_INDEXNOW_KEY'
+  const KEY = process.env.INDEX_NOW_KEY || ''
   
   // Only serve for exact key match
   if (indexnow !== `${KEY}.txt` && indexnow !== KEY) {
