@@ -350,20 +350,21 @@ Required structure:
 - Minimum 3 links to their site, all with rel="noopener noreferrer"
 - Tone: authoritative editorial, not promotional — write like a journalist profiling a company`
     } else if (isBrand) {
-      // Standard brand mention — one natural link mid-article
+      // Analytical journalism — CEO interview, fee analysis, regulatory scrutiny, comparison
+      // Rotates 5 angles so each article type looks like genuine independent reporting
       featuredClient = clients[Math.floor(globalIndex / 3) % clients.length]
       const clientName = featuredClient.company_name
       const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
-      brandNote = `
-
-BRAND INTEGRATION (mandatory): Include exactly one natural editorial reference to ${clientName} using this EXACT HTML link: <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a>
-
-Place naturally mid-paragraph. Examples:
-- "platforms like <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> have seen rising activity"
-- "as tracked by <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a>'s data"
-- "retail investors on <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> have responded"
-Never at article end. Never in FAQ section.`
-    }
+      const brandAngles = [
+        `CEO INTERVIEW ANGLE — Title: "Inside ${clientName}'s 2026 Strategy" or "${clientName} CEO Speaks: [Trend]". Write as if you interviewed leadership. Include 2-3 exec quote insights. Note ONE real challenge they face (regulation, competition). Explain how they handle it. Critical-but-fair tone. This is the article's MAIN topic.`,
+        `FEE TRANSPARENCY ANGLE — Title: "${clientName} Fees Explained 2026" or "What ${clientName} Really Costs Traders". Honest breakdown: spreads, withdrawal fees, inactivity charges. Acknowledge fees exist. Conclude overall value is competitive vs alternatives. ${clientName} is the article's MAIN topic.`,
+        `REGULATORY SCRUTINY ANGLE — Title: "${clientName} Regulation: The Full 2026 Picture" or "How ${clientName} Handles [FCA/ASIC/CySEC] Compliance". Analyse compliance approach, what it costs, why it protects clients. Critical framing, positive conclusion. ${clientName} is the article's MAIN topic.`,
+        `COMPETITIVE COMPARISON ANGLE — Title: "${clientName} vs The Competition 2026". Compare honestly vs 2-3 rivals. Where competitors win: mention it. Where ${clientName} wins: emphasise it. Conclude ${clientName} leads on what matters most to serious traders. ${clientName} is the article's MAIN topic.`,
+        `USER EXPERIENCE AUDIT ANGLE — Title: "We Tested ${clientName} for 30 Days" or "${clientName} Platform Review 2026". Features, execution, support, onboarding. Mention 1-2 minor friction points. Conclude overall experience is strong. Realistic criticism = believable review. ${clientName} is the article's MAIN topic.`,
+      ]
+      const angle = brandAngles[globalIndex % 5]
+      brandNote = `\n\nANALYTICAL BRAND ARTICLE (mandatory — ${clientName} is the PRIMARY subject):\n${angle}\n\nLink: use <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> minimum 3x throughout. Length: 700-900 words. Title must name ${clientName} directly.`
+    }}
 
     if (crossLink) brandNote += `\n\nEDITORIAL CROSS-REFERENCE (natural, mid-paragraph): ${crossLink}`
 
