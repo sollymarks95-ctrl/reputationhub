@@ -277,6 +277,58 @@ Return ONLY valid JSON, no markdown fences:
   return null
 }
 
+// Discover fresh article topics via Claude + web search — never repeats
+async function discoverFreshTopics(site: any, count: number): Promise<string[]> {
+  const ANTH = process.env.ANTHROPIC_API_KEY
+  if (!ANTH) return site.topics.slice(0, count)
+
+  const today = new Date().toISOString().split('T')[0]
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTH,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{
+          role: 'user',
+          content: `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${site.topics.slice(0,5).join(', ')}.
+
+Find ${count} specific, timely article topic ideas that:
+- Are happening RIGHT NOW in the news (not generic)
+- Have specific data points, company names, or events
+- Would make someone click to read
+- Are different from generic evergreen topics
+
+Examples of GOOD topics (specific + timely):
+- "Fed signals third rate cut delay as employment beats forecasts"
+- "Binance spot volume hits 8-month high amid altcoin rally"
+- "European Central Bank faces pressure as German inflation drops"
+
+Return ONLY a JSON array of ${count} topic strings, nothing else.`
+        }]
+      }),
+      signal: AbortSignal.timeout(20000),
+    })
+    if (!res.ok) return site.topics.slice(0, count)
+    const data = await res.json()
+    const text = (data.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('')
+    const match = text.match(/\[([\s\S]*?)\]/)
+    if (!match) return site.topics.slice(0, count)
+    const topics = JSON.parse('[' + match[1] + ']')
+    return Array.isArray(topics) ? topics.filter(Boolean).slice(0, count) : site.topics.slice(0, count)
+  } catch {
+    return site.topics.slice(0, count) // fallback to static list
+  }
+}
+
+
 export async function GET(req: NextRequest) {
   // Accept Vercel cron Authorization header OR manual URL secret param
     const cronSecret = process.env.CRON_SECRET || ''
@@ -314,7 +366,9 @@ export async function GET(req: NextRequest) {
   const clients = activeClients || []
 
   for (let i = 0; i < BATCH_SIZE; i++) {
-    const topic = site.topics[batchStart + i]
+    // Use fresh web-discovered topics for first item in each batch, fallback to static
+    const freshTopics = i === 0 ? await discoverFreshTopics(site, BATCH_SIZE) : []
+    const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
 
@@ -356,13 +410,34 @@ Required structure:
       const clientName = featuredClient.company_name
       const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
       const brandAngles = [
-        `CEO INTERVIEW ANGLE — Title: "Inside ${clientName}'s 2026 Strategy" or "${clientName} CEO Speaks: [Trend]". Write as if you interviewed leadership. Include 2-3 exec quote insights. Note ONE real challenge they face (regulation, competition). Explain how they handle it. Critical-but-fair tone. This is the article's MAIN topic.`,
-        `FEE TRANSPARENCY ANGLE — Title: "${clientName} Fees Explained 2026" or "What ${clientName} Really Costs Traders". Honest breakdown: spreads, withdrawal fees, inactivity charges. Acknowledge fees exist. Conclude overall value is competitive vs alternatives. ${clientName} is the article's MAIN topic.`,
-        `REGULATORY SCRUTINY ANGLE — Title: "${clientName} Regulation: The Full 2026 Picture" or "How ${clientName} Handles [FCA/ASIC/CySEC] Compliance". Analyse compliance approach, what it costs, why it protects clients. Critical framing, positive conclusion. ${clientName} is the article's MAIN topic.`,
-        `COMPETITIVE COMPARISON ANGLE — Title: "${clientName} vs The Competition 2026". Compare honestly vs 2-3 rivals. Where competitors win: mention it. Where ${clientName} wins: emphasise it. Conclude ${clientName} leads on what matters most to serious traders. ${clientName} is the article's MAIN topic.`,
-        `USER EXPERIENCE AUDIT ANGLE — Title: "We Tested ${clientName} for 30 Days" or "${clientName} Platform Review 2026". Features, execution, support, onboarding. Mention 1-2 minor friction points. Conclude overall experience is strong. Realistic criticism = believable review. ${clientName} is the article's MAIN topic.`,
+        // Leadership & Strategy
+        `CEO INTERVIEW: Title "Inside ${clientName}'s 2026 Strategy" — write as if you interviewed leadership. 2-3 exec quotes. Note ONE challenge, explain how they handle it. Critical-but-fair.`,
+        `FOUNDER STORY: Title "${clientName}: From Startup to Market Leader" — origin story, pivotal decisions, what sets founders apart. Humanises the brand.`,
+        `LEADERSHIP PROFILE: Title "The Team Behind ${clientName}" — profile key executives, their backgrounds, why their expertise matters to traders.`,
+        `BOARD & GOVERNANCE: Title "${clientName}'s Governance Structure: What It Means for Traders" — board composition, investor oversight, how governance protects clients.`,
+        // Fees & Costs
+        `FEE BREAKDOWN: Title "${clientName} Fees Explained 2026: The Complete Guide" — spreads, withdrawal, inactivity, overnight. Honest. Conclude competitive overall.`,
+        `HIDDEN COSTS AUDIT: Title "The Real Cost of Trading on ${clientName}" — dig into less obvious costs. Fair analysis. Conclude value is justified.`,
+        `FEE COMPARISON: Title "${clientName} Fees vs Competitors: Who Wins in 2026?" — table comparison vs 3 rivals. ${clientName} wins on the metrics that matter most.`,
+        // Regulation & Safety
+        `REGULATORY DEEP DIVE: Title "${clientName} Regulation: Every Licence Explained" — FCA/ASIC/CySEC licences, what each covers, what protections traders get.`,
+        `CLIENT FUND SAFETY: Title "Is Your Money Safe at ${clientName}?" — segregated funds, FSCS/investor compensation, insurance. Conclude: very safe.`,
+        `COMPLIANCE ANALYSIS: Title "How ${clientName} Stays Ahead of Regulation" — proactive compliance approach, 2026 regulatory changes, what it costs them.`,
+        // Product & Platform
+        `PLATFORM REVIEW: Title "We Tested ${clientName} for 30 Days: Full Review" — features, speed, execution. Mention 1-2 minor friction points. Conclude strong overall.`,
+        `MOBILE APP AUDIT: Title "${clientName} Mobile App Review 2026" — iOS/Android, features, UX, performance vs desktop. Honest pros and cons.`,
+        `TECHNOLOGY DEEP DIVE: Title "The Technology Powering ${clientName}" — execution engine, API, uptime, cybersecurity. Why their tech gives them an edge.`,
+        `COPY TRADING ANALYSIS: Title "${clientName} Copy Trading: Does It Actually Work?" — data on top traders, actual returns, risks, who it suits. Balanced.`,
+        // Market Position
+        `COMPETITIVE COMPARISON: Title "${clientName} vs [Rival A] vs [Rival B]: 2026 Independent Analysis" — honest vs rivals. ${clientName} leads on metrics that matter most.`,
+        `MARKET SHARE ANALYSIS: Title "${clientName}'s Growing Market Share: What the Data Shows" — user growth, AUM, geographic expansion, competitive positioning.`,
+        `IPO/FINANCIALS: Title "${clientName}'s Financial Performance: What Traders Should Know" — revenue, user metrics, profitability signals. Strength = client security.`,
+        `GROWTH STORY: Title "${clientName}: The Numbers Behind Their 2026 Expansion" — user growth stats, new markets, product launches, future trajectory.`,
+        // User & Community
+        `USER TESTIMONIALS: Title "What Traders Really Think of ${clientName}: 2026 Survey" — synthesise real user feedback themes. Honest. Mostly positive with notes.`,
+        `BEGINNER GUIDE: Title "${clientName} for Beginners: Complete 2026 Starter Guide" — how to open account, first trade, tools for new traders. Educational, positions ${clientName} as the go-to choice.`,
       ]
-      const angle = brandAngles[globalIndex % 5]
+      const angle = brandAngles[globalIndex % brandAngles.length]
       brandNote = `\n\nANALYTICAL BRAND ARTICLE (mandatory — ${clientName} is the PRIMARY subject):\n${angle}\n\nLink: use <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> minimum 3x throughout. Length: 700-900 words. Title must name ${clientName} directly.`
     }}
 
