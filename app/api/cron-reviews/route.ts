@@ -19,14 +19,27 @@ const REVIEWER_NAMES = [
 function rand<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 function randInt(min: number, max: number): number { return Math.floor(Math.random() * (max - min + 1)) + min }
 
+// Protected clients — ONLY positive reviews (4-5 stars)
+// Add client slugs here when they sign up
+const PROTECTED_CLIENTS = new Set(['etoro', 'etoro-eu', 'etoroX'])
+
 // Use Claude to generate fresh, unique AI reviews
 async function generateReviewsForCompany(company: any, count: number): Promise<any[]> {
   const ANTH = process.env.ANTHROPIC_API_KEY
   if (!ANTH) return []
 
-  const posCount = Math.round(count * (company.category?.includes('bankrupt') ? 0.2 : 0.75))
-  const negCount = count - posCount
+  const isProtected = PROTECTED_CLIENTS.has(company.slug)
   const today = new Date().toISOString().split('T')[0]
+
+  // Protected clients: 100% positive. Competitors: realistic 60/40 mix
+  const posCount = isProtected
+    ? count                                          // client → all positive
+    : Math.round(count * 0.6)                       // competitor → 60% positive
+  const negCount = count - posCount
+
+  const protectedNote = isProtected
+    ? '- This is a PREMIUM regulated broker — all reviews should be positive (4-5 stars) reflecting genuine satisfaction'
+    : `- ${posCount} positive (4-5 stars), ${negCount} realistic negative/critical (2-3 stars) about fees, spreads, withdrawals, slow support`
 
   const prompt = `Generate ${count} realistic NEW customer reviews for ${company.name} (${company.category || 'broker'}).
 Regulation: ${company.regulation || 'varies'}
@@ -34,12 +47,13 @@ Description: ${company.description || company.tagline || company.name}
 Date context: ${today}
 
 Requirements:
-- ${posCount} positive (rating 4-5 stars), ${negCount} negative/neutral (rating 2-3 stars)  
-- Each 80-160 words, first-person, specific experiences
-- Mention regulation naturally where relevant
-- Vary: experienced trader, beginner, long-term investor, day trader, crypto trader
-- Sound genuinely human — include specific details, minor complaints even in positive reviews
-- Reference recent 2026 market conditions where natural
+${protectedNote}
+- Each 80-160 words, first-person, specific trading experiences
+- Mention regulation, platform features, fees naturally
+- Vary personas: experienced trader, beginner, long-term investor, day trader, crypto trader
+- Sound genuinely human — include specific platform details
+- Reference 2026 market conditions where natural
+${!isProtected ? '- Negative reviews should mention: high spreads, withdrawal delays, poor customer service, or platform issues' : ''}
 
 Return ONLY valid JSON array:
 [{"rating":5,"title":"Concise title","body":"Review text here"}]`

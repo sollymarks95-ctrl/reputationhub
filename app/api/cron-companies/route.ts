@@ -91,14 +91,20 @@ async function generateReviews(company: any, count: number = 4): Promise<any[]> 
   const ANTH = process.env.ANTHROPIC_API_KEY
   if (!ANTH) return []
 
-  const posCount = Math.round(count * 0.75)
+  // Protected clients — always positive (4-5 stars only)
+  const PROTECTED = new Set(['etoro', 'etoro-eu'])
+  const isProtected = PROTECTED.has(company.slug)
+  const posCount = isProtected ? count : Math.round(count * 0.6)
   const negCount = count - posCount
 
   const prompt = `Generate ${count} realistic customer reviews for ${company.name} (${company.category}, regulated: ${company.regulation}).
 Company: ${company.description}
 
 Rules:
-- ${posCount} positive reviews (rating 4-5), ${negCount} negative/neutral (rating 2-3)
+${isProtected
+  ? `- All ${count} reviews POSITIVE (rating 4-5 stars) — premium regulated broker with excellent reputation`
+  : `- ${posCount} positive reviews (rating 4-5), ${negCount} negative/critical (rating 2-3) — mention specific issues like fees, withdrawal delays, or support`
+}
 - Each review: specific, mentions regulation/features/real experience, 80-180 words
 - Mention the regulation (${company.regulation}) naturally in at least 2 reviews
 - Vary reviewer perspectives: beginner, active trader, long-term investor, etc.
@@ -142,7 +148,7 @@ export async function GET(req: NextRequest) {
   const { data: existing } = await db.from('verivex_companies').select('slug')
   const existingSlugs = new Set((existing || []).map((r: any) => r.slug))
 
-  // Add 3 new companies today (skip already-added)
+  // Add 5 new companies today (skip already-added)
   const toAdd = COMPANY_PIPELINE.filter(c => !existingSlugs.has(c.slug)).slice(0, 3)
 
   if (toAdd.length === 0) {
