@@ -6,3 +6,11 @@ node_modules/
 .DS_Store
 .vercel
 .env.production
+.env.development
+.env.development.local  
+.env.test
+.env.test.local
+*.pem
+*.key
+*.cert
+secrets/
