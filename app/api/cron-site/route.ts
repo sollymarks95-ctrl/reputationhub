@@ -404,7 +404,7 @@ Never at article end. Never in FAQ section.`
         site_slug: siteSlug,
         title: article.title,
         article_url: `https://${site.domain}/article/${siteSlug}/${slug}`,
-        content_type: 'article',
+        content_type: isClientFeature ? 'brand_feature' : 'brand_mention',
         status: 'live',
         backlink_value: 80,
         published_at: new Date().toISOString(),
