@@ -2,9 +2,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-// Admin credentials — hardcoded, simple, reliable
+// Admin credentials — password fetched from Supabase at login (never in code)
 const ADMINS = ['sollymarks95@gmail.com']
-const ADMIN_PASS = 'REDACTED_ADMIN_PASS'
 
 export default function PortalLogin() {
   const [email, setEmail]       = useState('')
@@ -21,7 +20,17 @@ export default function PortalLogin() {
     const cleanEmail = email.toLowerCase().trim()
     const cleanPass  = password.trim()
     
-    const isAdmin = ADMINS.includes(cleanEmail) && cleanPass === ADMIN_PASS
+    // Fetch admin password from Supabase at runtime — never stored in code
+    let isAdmin = false
+    try {
+      const res = await fetch('/api/auth/admin-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password: cleanPass })
+      })
+      const data = await res.json()
+      isAdmin = data.isAdmin === true
+    } catch { isAdmin = false }
 
     // small delay for UX
     await new Promise(r => setTimeout(r, 600))
