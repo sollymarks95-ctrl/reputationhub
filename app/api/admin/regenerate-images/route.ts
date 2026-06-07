@@ -7,7 +7,7 @@ export const maxDuration = 300
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== 'REDACTED_CRON_SECRET') {
+  if (secret !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

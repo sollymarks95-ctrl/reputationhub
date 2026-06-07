@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET || 'REDACTED_CRON_SECRET'}`) {
+  if (auth !== `Bearer ${process.env.CRON_SECRET || process.env.CRON_SECRET || 'REDACTED_CRON_SECRET'}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const body = await req.json().catch(() => ({}))

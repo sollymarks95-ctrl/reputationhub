@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== 'REDACTED_CRON_SECRET') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (secret !== process.env.CRON_SECRET || 'REDACTED_CRON_SECRET') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const db = getDb()
   const since = new Date(Date.now() - days * 86400000).toISOString()
