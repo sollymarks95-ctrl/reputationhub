@@ -132,8 +132,9 @@ export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET || ''
   const authHeader = req.headers.get('authorization')
   const urlSecret = req.nextUrl.searchParams.get('secret')
-  if (authHeader !== \`Bearer \${cronSecret}\` && urlSecret !== cronSecret) {
+  if (authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }, { status: 401 })
   }
 
   const db = getDb()

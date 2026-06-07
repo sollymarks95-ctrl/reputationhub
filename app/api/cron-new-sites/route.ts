@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
   if (authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }, { status: 401 })
   }
 
   const BASE = 'https://rephuby.com'
