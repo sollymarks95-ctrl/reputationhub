@@ -4,9 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
 
+const SUPA_URL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 const getDb = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  process.env.NEXT_PUBLIC_SUPABASE_URL || SUPA_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
 function buildEmail(client: any, stats: any): { subject: string; html: string } {
@@ -249,7 +250,7 @@ export async function GET(req: NextRequest) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'RepHuby Intelligence <reports@rephuby.com>',
+        from: 'RepHuby Intelligence <onboarding@resend.dev>',
         to: emailList,
         subject,
         html
