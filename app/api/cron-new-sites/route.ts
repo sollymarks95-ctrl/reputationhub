@@ -7,7 +7,7 @@ export const maxDuration = 300
 // Piggybacked onto 1 cron slot since we're at Pro plan limit (40 jobs)
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET) {
+  if (authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

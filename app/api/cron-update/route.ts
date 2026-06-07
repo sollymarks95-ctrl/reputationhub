@@ -260,7 +260,7 @@ Return ONLY valid JSON:
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret') || req.headers.get('x-cron-secret')
-  if (secret !== process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+  if (!req.headers.get('authorization')?.includes(process.env.CRON_SECRET || '') && req.nextUrl.searchParams.get('secret') !== (process.env.CRON_SECRET || '') && !req.headers.get('authorization')?.includes(process.env.CRON_SECRET || '') && req.nextUrl.searchParams.get('secret') !== (process.env.CRON_SECRET || '')) {
     return NextResponse.json({ error:'Unauthorized' }, { status:401 })
   }
 
