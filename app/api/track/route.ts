@@ -33,8 +33,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get('secret')
-  authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const cronSecret = process.env.CRON_SECRET || ''
+  const authHeader = req.headers.get('authorization')
+  const urlSecret = req.nextUrl.searchParams.get('secret')
+  if (authHeader !== ('Bearer ' + cronSecret) && urlSecret !== cronSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const db = getDb()
   const since = new Date(Date.now() - days * 86400000).toISOString()

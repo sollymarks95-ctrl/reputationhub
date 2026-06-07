@@ -28,8 +28,12 @@ const PORTAL_NAME: Record<string,string> = {
 export async function OPTIONS() { return new Response(null,{status:204,headers:CORS}) }
 
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get('secret')
-  authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
+  const cronSecret = process.env.CRON_SECRET || ''
+  const authHeader = req.headers.get('authorization')
+  const urlSecret = req.nextUrl.searchParams.get('secret')
+  if (authHeader !== ('Bearer ' + cronSecret) && urlSecret !== cronSecret) {
+    return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
+  }
 
   const days = parseInt(req.nextUrl.searchParams.get('days')||'30')
   const filterClientId = req.nextUrl.searchParams.get('client') || null  // optional client filter

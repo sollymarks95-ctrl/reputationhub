@@ -54,6 +54,9 @@ function processBody(body: string): string {
 
 export async function POST(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
+  const cronSecret = process.env.CRON_SECRET || ''
+  const authHeader = req.headers.get('authorization')
+  const urlSecret = req.nextUrl.searchParams.get('secret')
   if (authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }

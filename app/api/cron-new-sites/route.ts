@@ -6,10 +6,11 @@ export const maxDuration = 300
 // Runs all 5 batches for ExecVex + CryptoXos daily at 08:00 UTC
 // Piggybacked onto 1 cron slot since we're at Pro plan limit (40 jobs)
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get('secret')
-  if (authHeader !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
+  const cronSecret = process.env.CRON_SECRET || ''
+  const authHeader = req.headers.get('authorization')
+  const urlSecret = req.nextUrl.searchParams.get('secret')
+  if (authHeader !== ('Bearer ' + cronSecret) && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }, { status: 401 })
   }
 
   const BASE = 'https://rephuby.com'
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
   for (const batch of batches) {
     for (const site of sites) {
       try {
-        const url = `${BASE}/api/cron-site?secret=${secret}&site=${site}&batch=${batch}`
+        const url = `${BASE}/api/cron-site?secret=${cronSecret}&site=${site}&batch=${batch}`
         const r = await fetch(url, { signal: AbortSignal.timeout(55000) })
         const d = await r.json()
         results.push({ site, batch, ...d })
