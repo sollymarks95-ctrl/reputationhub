@@ -82,7 +82,8 @@ function slugify(s: string) {
 }
 
 async function callClaude(prompt: string, useWebSearch = false): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const { data: akRow } = await getDb().from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
+  const apiKey = akRow?.key_value || process.env.ANTHROPIC_API_KEY
   const body: any = {
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1200,
@@ -90,7 +91,7 @@ async function callClaude(prompt: string, useWebSearch = false): Promise<string>
   }
   if (useWebSearch) {
     body.tools = [{ type: 'web_search_20250305', name: 'web_search' }]
-    body.model = 'claude-sonnet-4-6' // Web search needs Sonnet+
+    body.model = 'claude-sonnet-4-20250514' // Web search needs Sonnet+
     body.max_tokens = 3000
   }
 
@@ -100,6 +101,7 @@ async function callClaude(prompt: string, useWebSearch = false): Promise<string>
       'Content-Type': 'application/json',
       'x-api-key': apiKey || '',
       'anthropic-version': '2023-06-01',
+      ...(useWebSearch ? { 'anthropic-beta': 'web-search-2025-03-05' } : {}),
     },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(45000),
@@ -269,7 +271,7 @@ export async function GET(req: NextRequest) {
           category:        art.category || 'Education',
           tags:            art.tags || [],
           status:          'published',
-          article_type:    'news',
+          article_type:    'question_answer',
           author_name:     `${site.name} Editorial`,
           published_at:    new Date().toISOString(),
           read_time_minutes: 6,
