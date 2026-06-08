@@ -800,6 +800,7 @@ export default function AdminDashboard({
             {id:'analytics',icon:'📈',label:'Analytics'},
             {id:'podcasts',icon:'🎙',label:'Podcasts'},
             {id:'videos',icon:'🎬',label:'Video Studio'},
+            {id:'review-video',icon:'🎥',label:'Review Videos'},
             {id:'portals',icon:'🌐',label:'Portals'},
             {id:'content',icon:'📰',label:'Content'},
             {id:'reviews',icon:'⭐',label:'Reviews'},
