@@ -52,6 +52,8 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
             siteSlug === 'business-pulse'    ? '/icon-bizplezx.svg' :
             siteSlug === 'executive-network' ? '/icon-execvex.svg' :
             siteSlug === 'crypto-hub'        ? '/icon-cryptoxos.svg' :
+            siteSlug === 'fx-vexx'           ? '/icon-fxvexx.svg' :
+            siteSlug === 'trade-hub-iq'      ? '/icon-tradehubiq.svg' :
             '/icon-rephuby.svg',
     },
     openGraph: {

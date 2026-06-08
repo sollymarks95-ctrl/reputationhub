@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   // Rich SEO title with keywords
   const seoTitle = `${siteName} — ${tagline}`
   // AI-optimised description: direct, factual, answers "what is X"
-  const seoDesc  = `${siteName} provides ${tagline.toLowerCase()}. Expert financial journalism, daily market analysis and breaking news for finance professionals.`
+  const seoDesc  = site?.seo_description || `${siteName} provides ${tagline.toLowerCase()}. Expert financial journalism, daily market analysis and breaking news for finance professionals.`
 
   return {
     title: { default: seoTitle, template: `%s | ${siteName}` },
@@ -48,6 +48,16 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName,
       type: 'website',
       locale: 'en_US',
+    },
+    icons: {
+      icon: site?.slug === 'fx-vexx'      ? '/icon-fxvexx.svg' :
+            site?.slug === 'trade-hub-iq' ? '/icon-tradehubiq.svg' :
+            site?.slug === 'global-trade-wire' ? '/icon-nexwire.svg' :
+            site?.slug === 'finance-terminal'  ? '/icon-finvexx.svg' :
+            site?.slug === 'business-pulse'    ? '/icon-bizplezx.svg' :
+            site?.slug === 'executive-network' ? '/icon-execvex.svg' :
+            site?.slug === 'crypto-hub'        ? '/icon-cryptoxos.svg' :
+            '/icon-rephuby.svg',
     },
     twitter: {
       card: 'summary_large_image',
