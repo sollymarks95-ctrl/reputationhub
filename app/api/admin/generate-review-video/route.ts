@@ -59,7 +59,10 @@ Return ONLY the script.` }]
   // Submit to HeyGen — 16:9 YouTube
   const payload16 = {
     video_inputs: [{
-      character: { type: 'avatar', avatar_id: AVATAR, avatar_style: 'normal' },
+      // UUID format = talking_photo (personal avatar), named format = standard avatar
+      character: AVATAR.includes('-') && AVATAR.length < 40
+        ? { type: 'avatar', avatar_id: AVATAR, avatar_style: 'normal' }
+        : { type: 'talking_photo', talking_photo_id: AVATAR },
       voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0, pitch: 0 },
       background: { type: 'color', value: '#0f172a' },
     }],

@@ -127,7 +127,9 @@ Return format:
       headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         video_inputs: [{
-          character: { type: 'avatar', avatar_id: AVATAR_ID, avatar_style: ratio === '9:16' ? 'closeup' : 'normal' },
+          character: AVATAR_ID.includes('-') && AVATAR_ID.length < 40
+          ? { type: 'avatar', avatar_id: AVATAR_ID, avatar_style: ratio === '9:16' ? 'closeup' : 'normal' }
+          : { type: 'talking_photo', talking_photo_id: AVATAR_ID },
           voice: { type: 'elevenlabs', voice_id: VOICE_ID, speed: 1.0 },
           background: { type: 'color', value: '#0f172a' }
         }],
