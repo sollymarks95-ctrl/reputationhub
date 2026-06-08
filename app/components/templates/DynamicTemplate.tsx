@@ -389,7 +389,7 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
   // GEO: per-portal schema built from site data
   const archetype = cfg.archetype || 'editorial'
   const variant   = parseInt(cfg.variant  || '1')
-  const p         = cfg.primary    || '#1a56db'
+  const p         = cfg.primary    || site.primary_color || '#1a56db'
   const sec       = cfg.secondary  || '#f59e0b'
   const font      = gf(cfg.font    || 'sans')
   const slug      = site.slug
@@ -742,11 +742,22 @@ function Wire({ site, articles, p, font, slug, variant , selectedCat, setSelecte
       .wv1-i:hover{background:#f9fafb}
       @media(max-width:768px){.wv1-cols{flex-direction:column!important}}`}</style>
       <div style={{ background:p, padding:'8px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <a href="/"><span style={{ color:'#fff', fontWeight:900, fontSize:20, letterSpacing:'.05em' }}>{site.name} WIRE</span></a>
+        <a href="/" style={{ textDecoration:'none' }}>
+          <span style={{ color:'#fff', fontFamily:"'Georgia','Times New Roman',serif", fontWeight:900, fontSize:22, letterSpacing:'-0.02em' }}>
+            {site.name.includes('-')
+              ? <>{site.name.split('-')[0]}<span style={{ color:'rgba(255,255,255,0.6)' }}>-</span>{site.name.split('-').slice(1).join('-')}</>
+              : (() => {
+                  const splits: Record<string,number> = { 'TradeHubIQ':8,'FXVexx':4,'CryptoXos':7,'InvexHuby':5,'Signalixx':6,'ExecVex':4 }
+                  const idx = splits[site.name] ?? site.name.length - 2
+                  return <>{site.name.slice(0,idx)}<span style={{ color:'rgba(255,255,255,0.65)' }}>{site.name.slice(idx)}</span></>
+                })()
+            }
+          </span>
+        </a>
         <span style={{ color:'rgba(255,255,255,.7)', fontSize:11 }}>{new Date().toUTCString()}</span>
       </div>
       <div style={{ background:'#f5f5f5', borderBottom:'1px solid #ddd', padding:'5px 24px', display:'flex', gap:20 }}>
-        {['BREAKING','MARKETS','ECONOMY','FX','CRYPTO'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
+        {siteCategories.slice(0,5).map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px' }}>
         <div className="wv1-cols" style={{ display:'flex', gap:32 }}>

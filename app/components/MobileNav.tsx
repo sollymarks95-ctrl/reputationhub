@@ -47,7 +47,15 @@ export default function MobileNav({
             <div style={{ fontFamily:fontFam, fontSize:20, fontWeight:900, letterSpacing:'-0.03em', color:textColor, textAlign:'center' }}>
               {siteName.includes('-')
                 ? <>{siteName.split('-')[0]}<span style={{ color:accentColor }}>-</span>{siteName.split('-').slice(1).join('-')}</>
-                : <>{siteName.slice(0,-2)}<span style={{ color:accentColor }}>{siteName.slice(-2)}</span></>}
+                : (() => {
+                    // Custom splits for specific portal names
+                    const splits: Record<string,number> = {
+                      'TradeHubIQ': 8, 'FXVexx': 4, 'CryptoXos': 7,
+                      'IsraelPropertyIQ': 14, 'LuxPropHQ': 6,
+                    }
+                    const idx = splits[siteName] ?? siteName.length - 2
+                    return <>{siteName.slice(0, idx)}<span style={{ color:accentColor }}>{siteName.slice(idx)}</span></>
+                  })()}
             </div>
           </a>
 
