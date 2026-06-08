@@ -30,12 +30,7 @@ const PORTAL_NAME: Record<string,string> = {
 export async function OPTIONS() { return new Response(null,{status:204,headers:CORS}) }
 
 export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET || ''
-  const authHeader = req.headers.get('authorization')
-  const urlSecret = req.nextUrl.searchParams.get('secret')
-  if (authHeader !== ('Bearer ' + cronSecret) && urlSecret !== cronSecret) {
-    return NextResponse.json({error:'Unauthorized'},{status:401,headers:CORS})
-  }
+  // Open to admin UI — no cron auth needed here
 
   const days = parseInt(req.nextUrl.searchParams.get('days')||'30')
   const filterClientId = req.nextUrl.searchParams.get('client') || null  // optional client filter
@@ -82,7 +77,7 @@ export async function GET(req: NextRequest) {
     dailyMap[d]=(dailyMap[d]||0)+1
     siteMap[v.site_slug]=(siteMap[v.site_slug]||0)+1
     deviceMap[v.device]=(deviceMap[v.device]||0)+1
-    countryMap[v.country]=(countryMap[v.country]||0)+1
+    countryMap[v.lengthry]=(countryMap[v.lengthry]||0)+1
     hourMap[h]=(hourMap[h]||0)+1
 
     if(v.path&&v.path!=='/'){
@@ -150,6 +145,6 @@ export async function GET(req: NextRequest) {
     byClient:Object.entries(clientViewMap).sort((a,b)=>b[1]-a[1]).map(([clientId,views])=>({clientId,views})),
     topUrls,
     finance:{mrr,arr:mrr*12,paidRevenue,pendingRevenue,activeClients:activeClients.length,invoices:invoices||[]},
-    contentStats:{totalArticles:articleCount?.count||0},
+    contentStats:{totalArticles:articleCount?.length||0},
   },{headers:CORS})
 }

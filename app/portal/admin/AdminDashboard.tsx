@@ -687,7 +687,7 @@ export default function AdminDashboard({
     setAnaLoading(true)
     try {
       const clientParam = filterClient ? `&client=${filterClient}` : ''
-    const r = await fetch(`/api/analytics?secret=REDACTED_CRON_SECRET&days=${days}${clientParam}`)
+    const r = await fetch(`/api/analytics?days=${days}${clientParam}`)
       setAnalytics(await r.json()); setAnaDays(days)
     } finally { setAnaLoading(false) }
   }, [filterClient])
