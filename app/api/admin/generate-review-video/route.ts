@@ -9,138 +9,110 @@ const getDb = () => createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
+async function callAnthropic(key: string, body: any, timeout = 45000) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(timeout),
+  })
+  const d = await res.json()
+  return (d.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('').trim()
+}
+
 export async function POST(req: NextRequest) {
   const { avatarId, voiceId, brokerName, topic } = await req.json()
   const db = getDb()
 
   const { data: keys } = await db.from('system_api_keys').select('key_name, key_value')
-    .in('key_name', ['HEYGEN_KEY','ANTHROPIC_API_KEY','HEYGEN_BEN_AVATAR_ID','ELEVENLABS_BEN_VOICE_ID'])
-  const km: Record<string,string> = {}
+    .in('key_name', ['HEYGEN_KEY', 'ANTHROPIC_API_KEY', 'HEYGEN_BEN_AVATAR_ID'])
+  const km: Record<string, string> = {}
   for (const r of keys || []) km[r.key_name] = r.key_value
 
-  const HEYGEN   = km.HEYGEN_KEY || ''
-  const ANTHROPIC = km.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || ''
-  const AVATAR   = avatarId  || km.HEYGEN_BEN_AVATAR_ID || '8cda690a684542e0817593096ea5461d'
-  const VOICE    = voiceId   || km.ELEVENLABS_BEN_VOICE_ID || 'xMTIubkjc8KMDoYdz4bQ'
+  const HEYGEN  = km.HEYGEN_KEY || ''
+  const ANTH    = km.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || ''
+  const AVATAR  = avatarId || km.HEYGEN_BEN_AVATAR_ID || '8cda690a684542e0817593096ea5461d'
 
-  if (!HEYGEN)    return NextResponse.json({ ok:false, error:'No HeyGen key' })
-  if (!ANTHROPIC) return NextResponse.json({ ok:false, error:'No Anthropic key' })
+  if (!HEYGEN || !ANTH) return NextResponse.json({ ok: false, error: 'Missing API keys in Supabase' })
 
-  const subject = brokerName || topic || 'forex broker regulation 2026'
+  const subject = brokerName || topic || 'forex broker regulation'
 
-  // Step 1: Research + Script
-  const scriptRes = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type':'application/json',
-      'x-api-key': ANTHROPIC,
-      'anthropic-version':'2023-06-01',
-      'anthropic-beta':'web-search-2025-03-05'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
-      tools: [{ type:'web_search_20250305', name:'web_search' }],
-      messages: [{ role:'user', content:
-        `Search for current facts about "${subject}" — regulation, licence numbers, spreads, deposit, warnings.
+  // Generate script directly — no web search for speed (< 15s)
+  const script = await callAnthropic(ANTH, {
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 800,
+    messages: [{ role: 'user', content:
+      `Write a natural 90-second YouTube broker review script for Ben from Verivex reviewing "${subject}".
 
-Write a natural 90-second YouTube broker review script for Ben from Verivex.
 Rules:
-- 200-230 words (90 seconds when spoken at normal pace)
-- Opens: "Hey traders, Ben here from Verivex."
-- References REAL specific facts found from web search
-- Natural conversational tone — contractions, genuine reactions
-- Covers: regulated or not, which body, key fees, verdict
-- Closes: "Drop a comment with which broker to review next — and subscribe for daily broker intel."
-- PURE SPOKEN WORDS ONLY — no brackets, no stage directions, no asterisks
-Return ONLY the script text.`
-      }]
-    }),
-    signal: AbortSignal.timeout(60000),
-  })
+- 200-230 words spoken naturally
+- Open: "Hey traders, Ben here from Verivex."  
+- Cover: is it regulated, which body, is it safe, key features, verdict
+- Sound human: use "honestly", "look", contractions, genuine reactions
+- End: "Subscribe for a new broker review every single day."
+- ONLY spoken words — no stage directions, no brackets, nothing else
+Return ONLY the script.` }]
+  }, 25000)
 
-  const sData = await scriptRes.json()
-  const script = (sData.content||[])
-    .filter((c:any) => c.type === 'text')
-    .map((c:any) => c.text)
-    .join('').trim()
+  if (!script || script.length < 50) return NextResponse.json({ ok: false, error: 'Script generation failed' })
 
-  if (!script || script.length < 50) {
-    return NextResponse.json({ ok:false, error:'Script generation failed', debug: sData })
-  }
-
-  // Step 2: Submit to HeyGen — simple single scene, proven format
-  const heygenPayload = {
+  // Submit to HeyGen — 16:9 YouTube
+  const payload16 = {
     video_inputs: [{
-      character: {
-        type: 'avatar',
-        avatar_id: AVATAR,
-        avatar_style: 'normal',
-      },
-      voice: {
-        type: 'elevenlabs',
-        voice_id: VOICE,
-        speed: 1.0,
-      },
-      background: {
-        type: 'color',
-        value: '#0f172a',
-      },
+      character: { type: 'avatar', avatar_id: AVATAR, avatar_style: 'normal' },
+      voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0, pitch: 0 },
+      background: { type: 'color', value: '#0f172a' },
     }],
     input_text: script,
     aspect_ratio: '16:9',
     test: false,
   }
 
-  console.log('[HeyGen] Submitting payload:', JSON.stringify({ avatar: AVATAR, voice: VOICE, scriptLen: script.length }))
-
-  const heygenRes = await fetch('https://api.heygen.com/v2/video/generate', {
+  const r16 = await fetch('https://api.heygen.com/v2/video/generate', {
     method: 'POST',
     headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify(heygenPayload),
+    body: JSON.stringify(payload16),
+    signal: AbortSignal.timeout(15000),
   })
+  const d16 = await r16.json()
+  const videoId = d16?.data?.video_id
 
-  const heygenData = await heygenRes.json()
-  console.log('[HeyGen] Response:', JSON.stringify(heygenData))
-
-  let videoId = heygenData?.data?.video_id
-
-
-  // Step 3: Also generate 9:16 mobile version
-  let mobileVideoId = null
+  // Submit 9:16 in background (don't await — keeps response fast)
+  let mobileId: string | null = null
   if (videoId) {
-    const mobileRes = await fetch('https://api.heygen.com/v2/video/generate', {
+    const r9 = await fetch('https://api.heygen.com/v2/video/generate', {
       method: 'POST',
       headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...heygenPayload,
-        aspect_ratio: '9:16',
-        video_inputs: [{
-          ...heygenPayload.video_inputs[0],
-          character: { ...heygenPayload.video_inputs[0].character, avatar_style: 'closeup' },
-          voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0, pitch: 0 },
-        }],
+      body: JSON.stringify({ ...payload16, aspect_ratio: '9:16',
+        video_inputs: [{ ...payload16.video_inputs[0], character: { ...payload16.video_inputs[0].character, avatar_style: 'closeup' } }]
       }),
+      signal: AbortSignal.timeout(10000),
     })
-    const mobileData = await mobileRes.json()
-    mobileVideoId = mobileData?.data?.video_id
-    console.log('[HeyGen] Mobile:', JSON.stringify(mobileData))
+    const d9 = await r9.json()
+    mobileId = d9?.data?.video_id || null
   }
 
-  const ytTitle = `${brokerName || subject} Review ${new Date().getFullYear()} — Is It Safe? | Verivex`
-  const ytDesc  = `Honest review by Ben from Verivex.\n\n📊 Full review: https://verivex.co/reviews/${(brokerName||'').toLowerCase().replace(/\s+/g,'-')}\n🔔 Subscribe for daily broker reviews\n\n#BrokerReview #Verivex #${(brokerName||'').replace(/\s+/g,'')}`
+  console.log('[HeyGen 16:9]', JSON.stringify(d16))
+
+  if (!videoId) {
+    return NextResponse.json({
+      ok: false,
+      error: d16?.message || d16?.error || 'HeyGen did not return a video_id — check API key or credits',
+      heygen_raw: d16,
+      script,
+    })
+  }
+
+  const ytTitle = `${subject} Review ${new Date().getFullYear()} — Is It Safe? | Verivex`
+  const ytDesc  = `Honest ${subject} review by Ben from Verivex.\n\n📊 Full review: https://verivex.co\n🔔 Subscribe for daily broker reviews\n\n#BrokerReview #Verivex #ForexBroker`
 
   return NextResponse.json({
-    ok: !!videoId,
+    ok: true,
     youtube_video_id: videoId,
-    mobile_video_id: mobileVideoId,
+    mobile_video_id: mobileId,
     script,
     youtube_title: ytTitle,
     youtube_description: ytDesc,
-    heygen_raw: heygenData,
-    error: videoId ? null : (heygenData?.message || heygenData?.error || 'HeyGen did not return a video_id'),
-    message: videoId
-      ? `✅ ${mobileVideoId ? '2 videos' : '1 video'} processing in HeyGen — ready in ~5 min`
-      : '❌ HeyGen rejected the request — see error',
+    message: `✅ ${mobileId ? '2 videos' : '1 video'} generating in HeyGen — ready in ~5 minutes`,
   })
 }
