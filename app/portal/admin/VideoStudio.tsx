@@ -550,10 +550,14 @@ export function ReviewVideoGenerator() {
           {result && (
             <div className="card" style={{ padding:16, borderLeft:`3px solid ${result.error ? '#ef4444' : '#10b981'}` }}>
               {result.error ? (
-                <div style={{ color:'#ef4444', fontSize:13 }}>❌ {result.error}</div>
+                <div>
+                  <div style={{ color:'#ef4444', fontSize:13, marginBottom:8 }}>❌ {result.error}</div>
+                  {result.heygen_response && <pre style={{ fontSize:10, color:'#94a3b8', background:'rgba(0,0,0,0.3)', padding:8, borderRadius:4, overflow:'auto', maxHeight:120 }}>{JSON.stringify(result.heygen_response, null, 2)}</pre>}
+                </div>
               ) : (
                 <div>
-                  <div style={{ color:'#10b981', fontWeight:700, fontSize:14, marginBottom:12 }}>✅ 2 Videos Generating in HeyGen!</div>
+                  <div style={{ color:'#10b981', fontWeight:700, fontSize:14, marginBottom:12 }}>✅ Video Generating in HeyGen!</div>
+                  {result.word_count && <div style={{ fontSize:12, color:'#94a3b8', marginBottom:8 }}>📝 {result.word_count} words ≈ {Math.round(result.word_count/130)} minutes</div>}
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                     <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:8, padding:12 }}>
                       <div style={{ fontSize:11, fontWeight:700, color:'#6366f1', marginBottom:6 }}>🖥️ YOUTUBE DESKTOP (16:9)</div>
@@ -571,7 +575,7 @@ export function ReviewVideoGenerator() {
                     <div style={{ fontSize:11, color:'#f1f5f9', fontWeight:600 }}>{result.youtube_title}</div>
                     <pre style={{ fontSize:10, color:'#94a3b8', whiteSpace:'pre-wrap', marginTop:6, fontFamily:'inherit' }}>{result.youtube_description}</pre>
                   </div>
-                  <div style={{ fontSize:11, color:'#475569', marginTop:10 }}>⏱ Both videos ready in HeyGen dashboard in ~5 minutes</div>
+                  <div style={{ fontSize:11, color:'#475569', marginTop:10 }}>⏱ Video ready in HeyGen dashboard in ~5-10 minutes</div>
                 </div>
               )}
             </div>
