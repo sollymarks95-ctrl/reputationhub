@@ -168,7 +168,7 @@ Include FAQ with 2 practical trader questions about the broker/regulation discus
   'trade-hub-iq': `FORMAT: Platform comparison guide. 650-800 words.
 Structure: Platform/product lead → feature breakdown → fee analysis → who it suits → "TradeHubIQ Verdict" (star rating 1-5 + 2-sentence summary).
 Include FAQ with 2 beginner-friendly questions. Write like a consumer review, not financial journalism.`,
-}`
+}
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
   'global-trade-wire': [
