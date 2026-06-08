@@ -47,9 +47,9 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
           <div style={{ display:'flex', alignItems:'flex-start', gap:14, marginBottom:14 }}>
             {/* Logo — served via our proxy for reliability */}
             <div style={{ width:56, height:56, borderRadius:10, overflow:'hidden', border:'1px solid #E2E8F0', flexShrink:0, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
-              {company.logo_url && !imgErr ? (
+              {(company.logo_url || company.website) && !imgErr ? (
                 <img
-                  src={company.logo_url}
+                  src={company.logo_url || `https://logo.clearbit.com/${(company.website||"").replace(/https?:\/\//,"").split("/")[0]}`}
                   alt={company.name}
                   width={48} height={48}
                   style={{ width:48, height:48, objectFit:'contain', display:'block', maxWidth:'100%' }}
@@ -233,8 +233,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
               <a key={co.id} href={`/reviews/${co.slug}`}
                 style={{display:'block',background:'#fff',borderRadius:12,padding:'16px',marginBottom:12,textDecoration:'none',boxShadow:'0 1px 8px rgba(0,0,0,0.06)',border:'1px solid #f0f4f8'}}>
                 <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:8}}>
-                  {co.logo_url
-                    ? <img src={co.logo_url} alt={co.name} style={{width:44,height:44,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',flexShrink:0,background:'#fff'}} onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
+                  {(co.logo_url || co.website) ? <img src={co.logo_url || `https://logo.clearbit.com/${(co.website||'').replace(/https?:\/\//,'').split('/')[0]}`} alt={co.name} style={{width:44,height:44,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',flexShrink:0,background:'#fff'}} onError={(e:any)=>{e.currentTarget.style.display='none'}}/>
                     : <div style={{width:44,height:44,borderRadius:8,background:`#00B67A15`,border:`1px solid #00B67A30`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:900,color:'#00B67A',flexShrink:0}}>{co.name[0]}</div>
                   }
                   <div style={{flex:1,minWidth:0}}>

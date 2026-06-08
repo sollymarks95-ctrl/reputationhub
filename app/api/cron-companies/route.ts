@@ -165,6 +165,10 @@ export async function GET(req: NextRequest) {
 
   for (const company of newCompanies) {
     // Insert company
+    // Generate logo from website domain using Clearbit
+    const logoDomain = (company.website || '').replace(/https?:\/\//, '').split('/')[0]
+    const logoUrl = logoDomain ? `https://logo.clearbit.com/${logoDomain}` : null
+
     const { error: compErr } = await db.from('verivex_companies').insert({
       slug: company.slug,
       name: company.name,
@@ -173,6 +177,7 @@ export async function GET(req: NextRequest) {
       founded: company.founded || null,
       hq: company.hq || null,
       website: company.website || null,
+      logo_url: logoUrl,
       tagline: company.tagline || null,
       description: company.description || null,
       is_featured: false,
