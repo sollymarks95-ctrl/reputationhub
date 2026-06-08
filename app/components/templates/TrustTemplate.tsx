@@ -537,12 +537,7 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
               <a href="/reviews" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0F172A', color:'#fff', padding:'13px 28px', borderRadius:100, fontWeight:700, fontSize:14, textDecoration:'none' }}>
                 Write a review
               </a>
-              <div style={{ width:1, height:28, background:'#D1D5DB' }}/>
-              <div style={{ display:'flex', gap:10 }}>
-                <a href="/reviews/etoro#write-review" title="Sign in with Google" style={{ width:40, height:40, borderRadius:'50%', background:'#fff', border:'1.5px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:15, fontWeight:900, color:'#4285F4', textDecoration:'none' }}>G</a>
-                <a href="/reviews/etoro#write-review" title="Sign in with Facebook" style={{ width:40, height:40, borderRadius:'50%', background:'#1877F2', border:'1.5px solid #1877F2', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:15, fontWeight:900, color:'#fff', textDecoration:'none' }}>f</a>
-                <a href="/reviews/etoro#write-review" title="Sign in with Apple" style={{ width:40, height:40, borderRadius:'50%', background:'#fff', border:'1.5px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:18, textDecoration:'none' }}>🍎</a>
-              </div>
+
             </div>
           </div>
           <div style={{ display:'flex', gap:16, justifyContent:'flex-end' }}>
