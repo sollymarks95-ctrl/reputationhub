@@ -158,11 +158,11 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
   return (
     <>
       {/* MOBILE LAYOUT */}
-      <div style={{display:'none'}} className="wire-mobile">
+      <div className="wire-mobile">
         <MobileLayout/>
       </div>
       {/* DESKTOP LAYOUT */}
-      <div style={{display:'block'}} className="wire-desktop">
+      <div className="wire-desktop">
     <div style={{fontFamily:'Georgia,"Times New Roman",serif',background:'#fff',color:'#111',minHeight:'100vh'}}>
 
             <style>{`
@@ -185,11 +185,18 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
           
         }
 
+        .wire-mobile{display:none!important}
+        .wire-desktop{display:block!important}
         @media(max-width:768px){
+          .wire-mobile{display:block!important}
+          .wire-desktop{display:none!important}
           .whero{grid-template-columns:1fr!important}
           .wgrid{grid-template-columns:1fr!important}
           .wtop{grid-template-columns:1fr!important}
           .wlayout{grid-template-columns:1fr!important}
+        .wire-mobile{display:none!important}
+        .wire-desktop{display:block!important}
+        @media(max-width:768px){.wire-mobile{display:block!important}.wire-desktop{display:none!important}}
           .wsidebar{display:none!important}
           .wnav a{font-size:11px!important;padding:3px 6px!important}
           .wheading{font-size:22px!important;line-height:1.2!important}
