@@ -11,12 +11,22 @@ const DOMAIN_SITEMAPS: Record<string, string> = {
   'rephuby.com':    'https://rephuby.com/sitemap.xml',
 }
 
+// Portals with noindex=true — block all crawlers while building authority
+const NOINDEX_DOMAINS = new Set([
+  'invexhuby.com','signalixx.com','execvex.com','cryptoxos.com',
+  'fxvexx.com','tradehubiq.com'
+])
+
 export async function GET(req: NextRequest) {
   const host = (req.headers.get('x-forwarded-host') || req.headers.get('host') || '')
     .replace(/:\d+$/, '').replace(/^www\./, '')
   const sitemap = DOMAIN_SITEMAPS[host] || `https://${host}/sitemap.xml`
 
-  const content = `User-agent: *
+  const isNoindex = NOINDEX_DOMAINS.has(host)
+
+  const content = isNoindex
+    ? `User-agent: *\nDisallow: /\n\nSitemap: https://${host}/sitemap.xml`
+    : `User-agent: *
 Allow: /
 Disallow: /portal/
 Disallow: /api/
