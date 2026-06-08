@@ -413,6 +413,11 @@ export function ReviewVideoGenerator() {
     setGenerating(false)
   }
 
+  const [queue, setQueue] = React.useState<any[]>([])
+  React.useEffect(() => {
+    fetch('/api/admin/video-reviews').then(r => r.json()).then(d => setQueue(d.videos || []))
+  }, [result])
+
   return (
     <div style={{ display:'grid', gap:20 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -513,6 +518,39 @@ export function ReviewVideoGenerator() {
             </div>
           )}
         </>
+      )}
+
+      {/* Video Queue */}
+      {queue.length > 0 && (
+        <div className="card" style={{ padding:16 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>
+            📼 Video Queue ({queue.length} videos — daily auto-generation)
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {queue.slice(0,10).map((v: any) => (
+              <div key={v.id} style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'center', padding:'10px 12px', background:'rgba(255,255,255,0.03)', borderRadius:8 }}>
+                <div>
+                  <div style={{ fontWeight:600, fontSize:13 }}>{v.broker_name}</div>
+                  <div style={{ fontSize:10, color:'#475569', marginTop:2 }}>{v.youtube_title}</div>
+                  <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{new Date(v.created_at).toLocaleDateString('en-GB')}</div>
+                </div>
+                <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:4,
+                  background: v.status === 'processing' ? '#f59e0b20' : v.status === 'completed' ? '#10b98120' : '#6366f120',
+                  color: v.status === 'processing' ? '#f59e0b' : v.status === 'completed' ? '#10b981' : '#6366f1' }}>
+                  {v.status === 'processing' ? '⏳ Processing' : v.status === 'completed' ? '✅ Ready' : v.status}
+                </span>
+                {v.heygen_video_url && (
+                  <a href={v.heygen_video_url} target="_blank" rel="noopener noreferrer" className="btn b-green" style={{ fontSize:10, padding:'4px 10px' }}>
+                    ⬇ Download
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize:11, color:'#475569', marginTop:10 }}>
+            New video generated automatically every day at 13:00 Israel time (10:00 UTC)
+          </div>
+        </div>
       )}
     </div>
   )
