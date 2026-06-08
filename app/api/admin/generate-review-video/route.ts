@@ -16,12 +16,13 @@ export async function POST(req: NextRequest) {
   const db = getDb()
   const keys = await db.from('system_api_keys')
     .select('key_name, key_value')
-    .in('key_name', ['HEYGEN_KEY','ANTHROPIC_API_KEY','ELEVENLABS_KEY'])
+    .in('key_name', ['HEYGEN_KEY','ANTHROPIC_API_KEY','ELEVENLABS_KEY','HEYGEN_BEN_AVATAR_ID'])
 
   const km: Record<string,string> = {}
   for (const r of keys.data || []) km[r.key_name] = r.key_value
 
   const HEYGEN = km.HEYGEN_KEY || ''
+  const resolvedAvatarId = avatarId || km.HEYGEN_BEN_AVATAR_ID || '8cda690a684542e0817593096ea5461d'
   const ANTHROPIC = km.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || ''
   if (!HEYGEN || !ANTHROPIC) return NextResponse.json({ error: 'Missing API keys' })
 
@@ -76,7 +77,7 @@ Return ONLY the script text, nothing else.`
       video_inputs: [{
         character: {
           type: 'avatar',
-          avatar_id: avatarId,
+          avatar_id: resolvedAvatarId,
           avatar_style: 'normal',
         },
         voice: {

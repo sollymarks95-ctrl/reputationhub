@@ -380,9 +380,14 @@ export function ReviewVideoGenerator() {
       const vcs = voiceData?.voices || []
       setAvatars(avs)
       setVoices(vcs)
-      // Auto-select: prefer custom avatars (non-public ones)
-      const custom = avs.find((a: any) => !a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler'))
-      if (custom) setAvatarId(custom.avatar_id)
+      // Ben's custom avatar — always select first
+      const BEN_ID = '8cda690a684542e0817593096ea5461d'
+      const ben = avs.find((a: any) => a.avatar_id === BEN_ID)
+      if (ben) setAvatarId(BEN_ID)
+      else {
+        const custom = avs.find((a: any) => !a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler'))
+        if (custom) setAvatarId(custom.avatar_id)
+      }
       // Auto-select first custom voice
       const customVoice = vcs.find((v: any) => v.category === 'cloned' || v.category === 'professional')
       if (customVoice) setVoiceId(customVoice.voice_id)
@@ -432,7 +437,9 @@ export function ReviewVideoGenerator() {
                       background: avatarId === a.avatar_id ? '#10b98120' : 'transparent',
                       color: avatarId === a.avatar_id ? '#10b981' : '#94a3b8', fontSize:12, cursor:'pointer', fontWeight:600 }}>
                     {a.avatar_name || a.avatar_id?.slice(0,20)}
-                    {!a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler') &&
+                    {a.avatar_id === '8cda690a684542e0817593096ea5461d' &&
+                      <span style={{ marginLeft:6, fontSize:9, background:'#f59e0b', color:'#000', padding:'1px 5px', borderRadius:3 }}>👤 BEN</span>}
+                    {!a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler') && a.avatar_id !== '8cda690a684542e0817593096ea5461d' &&
                       <span style={{ marginLeft:6, fontSize:9, background:'#10b981', color:'#fff', padding:'1px 5px', borderRadius:3 }}>CUSTOM</span>}
                   </button>
                 ))}
