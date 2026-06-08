@@ -6,6 +6,7 @@ export const maxDuration = 60
 const OUR_PORTALS = [
   'nex-wire.com','finvexx.com','bizplezx.com','aurexhq.com','verivex.co',
   'invexhuby.com','signalixx.com','execvex.com','cryptoxos.com',
+  'fxvexx.com','tradehubiq.com',
 ]
 
 export async function POST(req: NextRequest) {

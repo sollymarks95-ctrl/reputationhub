@@ -13,6 +13,8 @@ const NICHE: Record<string, string> = {
   'market-radar':        'technical analysis, market signals, options trading, algorithmic trading',
   'executive-network':   'executive leadership, board governance, CEO succession, private equity deals',
   'crypto-hub':          'bitcoin price, ethereum, DeFi, crypto regulation, institutional crypto adoption',
+  'fx-vexx':            'forex broker regulation, FX trading, MetaTrader, CFD, leverage, spread comparison',
+  'trade-hub-iq':       'stock broker review, online trading platform, fractional shares, ETF investing, ISA account',
 }
 
 export async function OPTIONS() { return new Response(null, { status: 204, headers: CORS }) }

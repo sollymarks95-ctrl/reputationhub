@@ -13,6 +13,8 @@ const PORTAL_AUTHORS: Record<string, string[]> = {
   'market-radar':      ['Jordan Blake','Petra Fischer','Callum MacLeod','Diana Ivanova','Ravi Kumar','Scarlett Thompson','Felix Weber','Amira El-Sayed','Chris Vaughan','Lena Johansson'],
   'executive-network': ['Alexander Ross','Caroline Hughes','William Park','Nadia Osman','Henry Stafford','Isabelle Morel','David Kamau','Emma Lindqvist','Marcus Reid','Jasmine Patel'],
   'crypto-hub':        ['Alex Rivera','Sam Walsh','Mia Nakamura','Ethan Blake','Zoe Patel','Connor Murphy','Ava Chen','Leo Santos','Iris Bergström','Max Okonkwo'],
+  'fx-vexx':           ['Marcus Chen','Elena Volkov','James Thornton','Priya Kapoor','Ahmed Al-Rashid','Sofia Andersen','Ryan MacLeod','Yuki Tanaka'],
+  'trade-hub-iq':      ['Sophie Grant','Oliver Hughes','Rachel Kim','Daniel Foster','Amara Osei','Liam Novak','Chloe Beaumont','Tom Ellison'],
 }
 export const runtime = 'nodejs'
 export const maxDuration = 300

@@ -18,11 +18,13 @@ const PORTAL_DOMAIN: Record<string,string> = {
   'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','business-pulse':'bizplezx.com',
   'gold-markets-today':'aurexhq.com','trust-score':'verivex.co','invest-data':'invexhuby.com',
   'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
+  'fx-vexx':'fxvexx.com','trade-hub-iq':'tradehubiq.com',
 }
 const PORTAL_NAME: Record<string,string> = {
   'global-trade-wire':'Nex-Wire','finance-terminal':'Finvexx','business-pulse':'Bizplezx',
   'gold-markets-today':'AurexHQ','trust-score':'Verivex','invest-data':'InvexHuby',
   'market-radar':'Signalixx','executive-network':'ExecVex','crypto-hub':'CryptoXos',
+  'fx-vexx':'FXVexx','trade-hub-iq':'TradeHubIQ',
 }
 
 export async function OPTIONS() { return new Response(null,{status:204,headers:CORS}) }

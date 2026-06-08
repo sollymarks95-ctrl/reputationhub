@@ -18,6 +18,8 @@ const DOMAIN_MAP: Record<string, string> = {
   'market-radar': 'signalixx.com',
   'executive-network': 'execvex.com',
   'crypto-hub': 'cryptoxos.com',
+  'fx-vexx': 'fxvexx.com',
+  'trade-hub-iq': 'tradehubiq.com',
 }
 
 function extractAnchorText(body: string, target: string): string {
