@@ -413,25 +413,28 @@ export async function GET(req: NextRequest) {
   const siteSlug = req.nextUrl.searchParams.get('site')
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
 
-  // ALL-SITES MODE: if no site param, self-fetch for each site
+  // ALL-SITES MODE — PARALLEL: fire all 11 sites simultaneously
+  // Sequential = 330s timeout. Parallel = ~30s max
   if (!siteSlug) {
     const base = req.nextUrl.origin
     const authHeader = req.headers.get('authorization') || ''
-    const results: any[] = []
-    for (const slug of Object.keys(CORE_SITES)) {
-      try {
-        const url = `${base}/api/cron-site?site=${slug}&batch=${batch}`
-        const r = await fetch(url, {
-          headers: { 'authorization': authHeader },
-          signal: AbortSignal.timeout(90000),
-        })
-        const d = await r.json()
-        results.push({ slug, inserted: d.inserted, error: d.error })
-      } catch (e: any) {
-        results.push({ slug, error: e.message })
-      }
-    }
-    return NextResponse.json({ allSites: true, batch, results })
+    const results = await Promise.all(
+      Object.keys(CORE_SITES).map(async (slug) => {
+        try {
+          const url = `${base}/api/cron-site?site=${slug}&batch=${batch}`
+          const r = await fetch(url, {
+            headers: { 'authorization': authHeader },
+            signal: AbortSignal.timeout(120000),
+          })
+          const d = await r.json()
+          return { slug, inserted: d.inserted ?? 0, error: d.error }
+        } catch (e: any) {
+          return { slug, inserted: 0, error: e.message }
+        }
+      })
+    )
+    const total = results.reduce((s, r) => s + (r.inserted || 0), 0)
+    return NextResponse.json({ allSites: true, batch, total_inserted: total, results })
   }
 
   const site = CORE_SITES[siteSlug]
