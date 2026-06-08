@@ -85,7 +85,7 @@ function getAuthor(siteSlug: string): string {
 }
 
 function getDb() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  return createClient((process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co'), (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'))
 }
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80)
@@ -412,7 +412,29 @@ export async function GET(req: NextRequest) {
 
   const siteSlug = req.nextUrl.searchParams.get('site')
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
-  const site = CORE_SITES[siteSlug || '']
+
+  // ALL-SITES MODE: if no site param, self-fetch for each site
+  if (!siteSlug) {
+    const base = req.nextUrl.origin
+    const authHeader = req.headers.get('authorization') || ''
+    const results: any[] = []
+    for (const slug of Object.keys(CORE_SITES)) {
+      try {
+        const url = `${base}/api/cron-site?site=${slug}&batch=${batch}`
+        const r = await fetch(url, {
+          headers: { 'authorization': authHeader },
+          signal: AbortSignal.timeout(90000),
+        })
+        const d = await r.json()
+        results.push({ slug, inserted: d.inserted, error: d.error })
+      } catch (e: any) {
+        results.push({ slug, error: e.message })
+      }
+    }
+    return NextResponse.json({ allSites: true, batch, results })
+  }
+
+  const site = CORE_SITES[siteSlug]
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
   const BATCH_SIZE = 10
