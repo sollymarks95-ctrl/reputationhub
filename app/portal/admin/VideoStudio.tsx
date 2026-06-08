@@ -400,10 +400,20 @@ export function ReviewVideoGenerator() {
     }).catch(() => setLoadingAssets(false))
   }, [])
 
+  const resultRef = React.useRef<HTMLDivElement>(null)
+  const [genStatus, setGenStatus] = React.useState('')
+
   async function generate() {
-    if (!avatarId || !voiceId) return alert('Select avatar and voice first')
-    setGenerating(true); setResult(null); setScript('')
+    if (!avatarId) return alert('Select an avatar first')
+    if (!voiceId) return alert('Select a voice first')
+    if (!brokerName && !topic) return alert('Enter a broker name')
+    setGenerating(true); setResult(null); setScript(''); setGenStatus('🔍 Researching broker on the web...')
     try {
+      // Step 1 indicator
+      setTimeout(() => setGenStatus('✍️ Writing natural review script...'), 8000)
+      setTimeout(() => setGenStatus('🎬 Submitting to HeyGen (both formats)...'), 25000)
+      setTimeout(() => setGenStatus('⏳ Almost done — generating 2 videos...'), 45000)
+
       const res = await fetch('/api/admin/generate-review-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -412,8 +422,12 @@ export function ReviewVideoGenerator() {
       const data = await res.json()
       setResult(data)
       if (data.script) setScript(data.script)
+      setGenStatus('')
+      // Scroll to result
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch (e) {
       setResult({ error: String(e) })
+      setGenStatus('')
     }
     setGenerating(false)
   }
@@ -496,10 +510,18 @@ export function ReviewVideoGenerator() {
           </div>
 
           {/* Generate Button */}
-          <button onClick={generate} disabled={generating || !avatarId || !voiceId}
-            className="btn b-green" style={{ padding:'14px 32px', fontSize:14, fontWeight:700, justifySelf:'start' }}>
-            {generating ? '⏳ Researching + Generating Video...' : '🎬 Generate Review Video'}
-          </button>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            <button onClick={generate} disabled={generating}
+              className="btn b-green" style={{ padding:'14px 32px', fontSize:14, fontWeight:700 }}>
+              {generating ? '⏳ Working...' : '🎬 Generate Review Video (2 formats)'}
+            </button>
+            {generating && genStatus && (
+              <div style={{ fontSize:12, color:'#f59e0b', fontWeight:600, padding:'8px 14px', background:'rgba(245,158,11,0.08)', borderRadius:6 }}>
+                {genStatus}
+                <div style={{ fontSize:10, color:'#475569', marginTop:3 }}>This takes 60-90 seconds — please wait...</div>
+              </div>
+            )}
+          </div>
 
           {/* Script + Production Guide */}
           {script && (
@@ -524,6 +546,7 @@ export function ReviewVideoGenerator() {
           )}
 
           {/* Result */}
+          <div ref={resultRef} />
           {result && (
             <div className="card" style={{ padding:16, borderLeft:`3px solid ${result.error ? '#ef4444' : '#10b981'}` }}>
               {result.error ? (
