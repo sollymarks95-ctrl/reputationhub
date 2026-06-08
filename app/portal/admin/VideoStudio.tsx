@@ -356,3 +356,157 @@ export default function VideoStudio({ allPodcasts }: { allPodcasts: any[] }) {
     </div>
   )
 }
+
+// ─── REVIEW VIDEO GENERATOR ──────────────────────────────────────────────────
+export function ReviewVideoGenerator() {
+  const [avatars, setAvatars] = React.useState<any[]>([])
+  const [voices, setVoices] = React.useState<any[]>([])
+  const [avatarId, setAvatarId] = React.useState('')
+  const [voiceId, setVoiceId] = React.useState('')
+  const [topic, setTopic] = React.useState('forex broker regulation FCA ASIC CySEC 2026')
+  const [brokerName, setBrokerName] = React.useState('')
+  const [generating, setGenerating] = React.useState(false)
+  const [result, setResult] = React.useState<any>(null)
+  const [script, setScript] = React.useState('')
+  const [loadingAssets, setLoadingAssets] = React.useState(true)
+
+  React.useEffect(() => {
+    // Load avatars + voices in parallel
+    Promise.all([
+      fetch('/api/admin/heygen-avatars').then(r => r.json()),
+      fetch('/api/admin/elevenlabs-voices').then(r => r.json()),
+    ]).then(([avatarData, voiceData]) => {
+      const avs = avatarData?.data?.avatars || avatarData?.avatars || []
+      const vcs = voiceData?.voices || []
+      setAvatars(avs)
+      setVoices(vcs)
+      // Auto-select: prefer custom avatars (non-public ones)
+      const custom = avs.find((a: any) => !a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler'))
+      if (custom) setAvatarId(custom.avatar_id)
+      // Auto-select first custom voice
+      const customVoice = vcs.find((v: any) => v.category === 'cloned' || v.category === 'professional')
+      if (customVoice) setVoiceId(customVoice.voice_id)
+      setLoadingAssets(false)
+    }).catch(() => setLoadingAssets(false))
+  }, [])
+
+  async function generate() {
+    if (!avatarId || !voiceId) return alert('Select avatar and voice first')
+    setGenerating(true); setResult(null); setScript('')
+    try {
+      const res = await fetch('/api/admin/generate-review-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatarId, voiceId, topic, brokerName, hostName: 'Ben' })
+      })
+      const data = await res.json()
+      setResult(data)
+      if (data.script) setScript(data.script)
+    } catch (e) {
+      setResult({ error: String(e) })
+    }
+    setGenerating(false)
+  }
+
+  return (
+    <div style={{ display:'grid', gap:20 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div className="syne" style={{ fontSize:18, fontWeight:900 }}>🎥 Review Video Generator</div>
+        <div style={{ fontSize:11, color:'#475569' }}>Talking head · Ben avatar · ElevenLabs voice · Web-researched script</div>
+      </div>
+
+      {loadingAssets ? (
+        <div style={{ padding:32, textAlign:'center', color:'#475569' }}>Loading avatars and voices from HeyGen + ElevenLabs...</div>
+      ) : (
+        <>
+          {/* Avatar Selection */}
+          <div className="card" style={{ padding:16 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Host Avatar</div>
+            {avatars.length === 0 ? (
+              <div style={{ fontSize:12, color:'#ef4444' }}>No avatars found — check HeyGen API key</div>
+            ) : (
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                {avatars.map((a: any) => (
+                  <button key={a.avatar_id} onClick={() => setAvatarId(a.avatar_id)}
+                    style={{ padding:'8px 14px', borderRadius:8, border:`2px solid ${avatarId === a.avatar_id ? '#10b981' : 'rgba(255,255,255,0.1)'}`,
+                      background: avatarId === a.avatar_id ? '#10b98120' : 'transparent',
+                      color: avatarId === a.avatar_id ? '#10b981' : '#94a3b8', fontSize:12, cursor:'pointer', fontWeight:600 }}>
+                    {a.avatar_name || a.avatar_id?.slice(0,20)}
+                    {!a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler') &&
+                      <span style={{ marginLeft:6, fontSize:9, background:'#10b981', color:'#fff', padding:'1px 5px', borderRadius:3 }}>CUSTOM</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Voice Selection */}
+          <div className="card" style={{ padding:16 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>Ben's Voice (ElevenLabs)</div>
+            {voices.length === 0 ? (
+              <div style={{ fontSize:12, color:'#ef4444' }}>No voices found — check ElevenLabs API key</div>
+            ) : (
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                {voices.map((v: any) => (
+                  <button key={v.voice_id} onClick={() => setVoiceId(v.voice_id)}
+                    style={{ padding:'8px 14px', borderRadius:8, border:`2px solid ${voiceId === v.voice_id ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
+                      background: voiceId === v.voice_id ? '#6366f120' : 'transparent',
+                      color: voiceId === v.voice_id ? '#6366f1' : '#94a3b8', fontSize:12, cursor:'pointer', fontWeight:600 }}>
+                    {v.name}
+                    {(v.category === 'cloned' || v.category === 'professional') &&
+                      <span style={{ marginLeft:6, fontSize:9, background:'#6366f1', color:'#fff', padding:'1px 5px', borderRadius:3 }}>CUSTOM</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Topic / Broker */}
+          <div className="card" style={{ padding:16, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', marginBottom:6, textTransform:'uppercase', letterSpacing:1 }}>Broker Name (optional)</div>
+              <input value={brokerName} onChange={e => setBrokerName(e.target.value)}
+                placeholder="e.g. eToro, XM, Pepperstone..."
+                style={{ width:'100%', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:6, padding:'8px 10px', color:'inherit', fontSize:13 }} />
+            </div>
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', marginBottom:6, textTransform:'uppercase', letterSpacing:1 }}>Topic (if no broker)</div>
+              <input value={topic} onChange={e => setTopic(e.target.value)}
+                style={{ width:'100%', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:6, padding:'8px 10px', color:'inherit', fontSize:13 }} />
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <button onClick={generate} disabled={generating || !avatarId || !voiceId}
+            className="btn b-green" style={{ padding:'14px 32px', fontSize:14, fontWeight:700, justifySelf:'start' }}>
+            {generating ? '⏳ Researching + Generating Video...' : '🎬 Generate Review Video'}
+          </button>
+
+          {/* Script Preview */}
+          {script && (
+            <div className="card" style={{ padding:16 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>📝 Generated Script</div>
+              <pre style={{ fontSize:12, lineHeight:1.7, color:'#cbd5e1', whiteSpace:'pre-wrap', fontFamily:'inherit', margin:0 }}>{script}</pre>
+            </div>
+          )}
+
+          {/* Result */}
+          {result && (
+            <div className="card" style={{ padding:16, borderLeft:`3px solid ${result.error ? '#ef4444' : '#10b981'}` }}>
+              {result.error ? (
+                <div style={{ color:'#ef4444', fontSize:13 }}>❌ {result.error}</div>
+              ) : (
+                <div>
+                  <div style={{ color:'#10b981', fontWeight:700, marginBottom:8 }}>✅ Video submitted to HeyGen!</div>
+                  <div style={{ fontSize:12, color:'#94a3b8' }}>Video ID: <code style={{ color:'#f1f5f9' }}>{result.video_id}</code></div>
+                  <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Status: {result.message}</div>
+                  <div style={{ fontSize:11, color:'#475569', marginTop:8 }}>Check your HeyGen dashboard in 2-5 minutes to download the video.</div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}

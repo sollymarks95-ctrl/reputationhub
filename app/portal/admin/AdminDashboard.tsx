@@ -1,5 +1,5 @@
 'use client'
-import VideoStudio from './VideoStudio'
+import VideoStudio, { ReviewVideoGenerator } from './VideoStudio'
 import CostTracker from './CostTracker'
 import React, { useState, useEffect, useCallback } from 'react'
 
@@ -1785,6 +1785,9 @@ export default function AdminDashboard({
 
         {/* Floating Claude Topup Logger — always visible */}
         <FloatingTopupButton />
+        {tab==='review-video'&&(
+          <div className="ti"><ReviewVideoGenerator /></div>
+        )}
         {tab==='videos'&&(
           <VideoStudio allPodcasts={allPodcasts}/>
         )}
