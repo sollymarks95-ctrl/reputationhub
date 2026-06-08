@@ -103,7 +103,30 @@ Return ONLY the script text.`
   const heygenData = await heygenRes.json()
   console.log('[HeyGen] Response:', JSON.stringify(heygenData))
 
-  const videoId = heygenData?.data?.video_id
+  let videoId = heygenData?.data?.video_id
+
+  // If ElevenLabs voice failed, retry with HeyGen built-in voice
+  if (!videoId && heygenData?.message?.toLowerCase().includes('voice')) {
+    console.log('[HeyGen] ElevenLabs voice failed, retrying with built-in voice...')
+    const retryPayload = {
+      ...heygenPayload,
+      video_inputs: [{
+        ...heygenPayload.video_inputs[0],
+        voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0 },
+      }]
+    }
+    const retryRes = await fetch('https://api.heygen.com/v2/video/generate', {
+      method: 'POST',
+      headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(retryPayload),
+    })
+    const retryData = await retryRes.json()
+    console.log('[HeyGen] Retry response:', JSON.stringify(retryData))
+    videoId = retryData?.data?.video_id
+    if (videoId) {
+      Object.assign(heygenData, { data: { ...heygenData.data, video_id: videoId }, note: 'Used built-in voice — connect ElevenLabs in HeyGen settings to use your custom voice' })
+    }
+  }
 
   // Step 3: Also generate 9:16 mobile version
   let mobileVideoId = null
