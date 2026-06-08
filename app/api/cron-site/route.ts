@@ -106,6 +106,8 @@ const SITE_PERSONA: Record<string, string> = {
   'market-radar':       'Quantitative trader voice. Technical signals, indicator readings, specific price levels, pattern names, RSI/MACD readings.',
   'executive-network':  'Headhunter/boardroom insider perspective. Leadership implications, succession dynamics, deal motivations from CEO viewpoint.',
   'crypto-hub':         'On-chain analyst voice. Wallet data, protocol metrics, TVL figures, developer activity. Specific token economics and DeFi yields.',
+  'fx-vexx':            'Forex industry insider voice. Regulatory filings, broker spreads, execution quality, client money rules. Sceptical of marketing claims. References FCA/ASIC/CySEC enforcement actions.',
+  'trade-hub-iq':       'Retail investor advocate voice. Plain English explanations of complex products. Focuses on fees, protection, account features. Compares platforms like a consumer champion.',
 }
 
 // Journalistic angles — rotated per article to prevent structural repetition
@@ -119,6 +121,54 @@ const ANGLES = [
   'Geographic lens — how this plays out differently across regions.',
   'Structural shift angle — is this a temporary blip or a long-term inflection point.',
 ]
+
+// Portal-specific article FORMATS — prevents every article looking identical
+// Each portal has distinct structural DNA
+const SITE_FORMAT: Record<string, string> = {
+  'global-trade-wire': `FORMAT: Wire service style. SHORT. Under 500 words.
+Structure: Lead paragraph (3 sentences max, all key facts) → 3-4 short punchy paragraphs → single "What To Watch" bullet list (3 items).
+NO FAQ section. NO Key Takeaways section. Read like Reuters/AP breaking news.`,
+
+  'finance-terminal': `FORMAT: Data terminal brief. 600-700 words.
+Structure: Opening stat-line (like a Bloomberg terminal quote) → market context → rate/yield table (use HTML table if relevant) → analyst view → "Terminal Takeaway" section (2 bullet points). 
+NO FAQ. No soft language. Every claim backed by a number.`,
+
+  'business-pulse': `FORMAT: Magazine-style analysis. 750-900 words.
+Structure: Hook anecdote or executive quote → context section → "What Companies Are Doing" section → strategic implications → "Bottom Line" paragraph.
+NO FAQ. Write like Forbes or Harvard Business Review. Subheadings should sound like magazine section headers.`,
+
+  'gold-markets-today': `FORMAT: Commodity desk note. 600-750 words.
+Structure: Price/level lead → supply-demand fundamentals → positioning data (CFTC/futures) → technical level to watch → "Commodity Desk View" summary.
+NO FAQ. Use commodity-specific language: backwardation, contango, basis, spot vs futures.`,
+
+  'trust-score': `FORMAT: Consumer watchdog report. 700-800 words.
+Structure: Warning or issue identified → regulatory background → what it means for investors → how to protect yourself → "Verivex Verdict" (thumbs up/down + 2 sentences).
+Include FAQ with 2 practical consumer questions. Write like Which? or MoneySavingExpert.`,
+
+  'invest-data': `FORMAT: Institutional research note. 800-900 words.
+Structure: Investment thesis (1 sentence) → supporting data (3 metrics) → risk factors → portfolio implications → "Investment Intelligence Summary" table.
+NO FAQ. Use institutional language: alpha, beta, drawdown, Sharpe ratio, factor exposure.`,
+
+  'market-radar': `FORMAT: Trading desk note. 500-650 words.
+Structure: Signal identified (indicator name + reading) → price action context → key levels (support/resistance as specific numbers) → trade setup → "Radar Signal" summary (Buy/Sell/Watch).
+NO FAQ. Very specific: "RSI at 72 on the 4H chart", "resistance at 1.0847". Read like a trading desk morning note.`,
+
+  'executive-network': `FORMAT: Board-level briefing. 700-800 words.
+Structure: Executive summary (3 bullets) → deal/leadership context → strategic rationale → market reaction → "Boardroom Intelligence" section.
+NO FAQ. Write like a briefing memo a CEO would read on a plane. Subheadings: "The Deal", "The Strategy", "The Risk", "The Verdict".`,
+
+  'crypto-hub': `FORMAT: On-chain research note. 700-850 words.
+Structure: Protocol metric lead (specific TVL/volume/wallet number) → network activity analysis → developer/tokenomics update → price level context → "Chain Intelligence" summary.
+NO FAQ. Use DeFi-native language: TVL, DEX volume, gas fees, wallet cohorts, protocol revenue.`,
+
+  'fx-vexx': `FORMAT: Broker intelligence report. 650-800 words.
+Structure: Regulatory headline or broker news → licence/compliance context → what it means for retail traders → comparison to peers → "FXVexx Broker Verdict" (Regulated/Caution/Warning).
+Include FAQ with 2 practical trader questions about the broker/regulation discussed.`,
+
+  'trade-hub-iq': `FORMAT: Platform comparison guide. 650-800 words.
+Structure: Platform/product lead → feature breakdown → fee analysis → who it suits → "TradeHubIQ Verdict" (star rating 1-5 + 2-sentence summary).
+Include FAQ with 2 beginner-friendly questions. Write like a consumer review, not financial journalism.`,
+}`
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
   'global-trade-wire': [
@@ -161,6 +211,16 @@ const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: strin
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'institutional'] },
     { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'chart'] },
   ],
+  'fx-vexx': [
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'rate', 'currency', 'forex'] },
+    { domain: 'tradehubiq.com', name: 'TradeHubIQ', topics: ['broker', 'trading', 'platform', 'invest'] },
+    { domain: 'verivex.co', name: 'Verivex', topics: ['regulation', 'licence', 'compliance', 'safety'] },
+  ],
+  'trade-hub-iq': [
+    { domain: 'fxvexx.com', name: 'FXVexx', topics: ['forex', 'broker', 'trading', 'cfd'] },
+    { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'fund', 'etf'] },
+    { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'rate', 'index'] },
+  ],
 }
 
 // Contextual link templates — inserted naturally in article body
@@ -197,13 +257,15 @@ async function writeArticle(site: any, topic: string, brandNote: string) {
   const isBrandArticle = brandNote.trim().length > 0
   const persona = SITE_PERSONA[site.slug] || 'Authoritative financial journalist. Factual, data-driven.'
   const angle   = ANGLES[Math.floor(Math.random() * ANGLES.length)]
+  const format  = SITE_FORMAT[site.slug] || 'FORMAT: Standard financial news. 700-800 words. H2 sections, Key Takeaways, 2 FAQ questions.'
   const uniqueId = Date.now().toString(36) // prevents cached/repeated outputs
 
   const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}. ID:${uniqueId}
 
 EDITORIAL VOICE FOR ${site.name}: ${persona}
 ANGLE FOR THIS ARTICLE: ${angle}
-CRITICAL: This article MUST be written from the specific perspective and angle above. Do not use generic financial news language.
+${format}
+CRITICAL: Follow the FORMAT above EXACTLY — it defines this portal's structural DNA. Do not use generic financial news language.
 
 TOPIC: ${topic}
 ${brandNote}
@@ -217,26 +279,14 @@ SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
 - MOBILE-FIRST PARAGRAPHS: max 3-4 sentences per <p> tag — short paragraphs are essential for mobile readability
 - MOBILE HEADINGS: H2 every 150-200 words acts as a visual anchor on small screens — make them descriptive
 - Include at least 2 specific data points, percentages or figures (can be realistic estimates)
-- Include a "Key Takeaways" section with 3 bullet points (use <ul><li> tags)
-- Include a "Frequently Asked Questions" section at end with 2-3 Q&A pairs using <h3>Q: ...</h3><p>A: ...</p>
+- Structure and sections: follow the FORMAT template above for this specific portal
 - Write declarative, factual statements — avoid "may", "might", "could" where possible
 - Name specific entities: countries, organisations, institutions (not made-up, real ones)
 - First paragraph: answer WHO WHAT WHEN WHERE directly (inverted pyramid style) — max 3 sentences for mobile scanning
 
-Body HTML format:
-<p>Lead paragraph — inverted pyramid, key facts first.</p>
-<h2>Section Title</h2>
-<p>Body paragraph with specific data point.</p>
-<p>Body paragraph with expert context.</p>
-<h2>Section Title</h2>
-<p>Body paragraph.</p>
-<h2>Key Takeaways</h2>
-<ul><li>First key fact or implication</li><li>Second key fact</li><li>Third actionable insight</li></ul>
-<h2>Frequently Asked Questions</h2>
-<h3>Q: [Common question about this topic]</h3>
-<p>A: [Direct, factual answer in 2-3 sentences]</p>
-<h3>Q: [Second common question]</h3>
-<p>A: [Direct, factual answer]</p>
+Body HTML format: follow the FORMAT template for this portal — do NOT use a generic structure.
+Use semantic HTML: <p>, <h2>, <h3>, <ul><li>, <table> as appropriate for your format.
+Each portal has unique structural DNA — respect it.
 
 Return ONLY valid JSON, no markdown fences:
 {"title":"Headline here","excerpt":"One factual sentence under 155 chars","body":"<p>...</p>...","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}`
