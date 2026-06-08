@@ -52,9 +52,18 @@ const SITE_NICHES: Record<string, { niche: string; keywords: string[]; persona: 
     niche: 'business finance and corporate earnings',
     keywords: ['EBITDA earnings','company valuation','stock market business','revenue profit','recession economy'],
     persona: 'A corporate finance director who spent 20 years reading earnings reports and valuations at a large institutional investor'
+    },
+  'fx-vexx': {
+    niche: 'forex trading and broker regulation',
+    keywords: ['forex broker regulated','FX trading platform','MetaTrader forex','CFD broker review','forex leverage rules','forex scam warning','prop firm forex'],
+    persona: 'A retail forex trader with 8 years of experience who has used over 15 different brokers and learned hard lessons about regulation and withdrawals'
   },
+  'trade-hub-iq': {
+    niche: 'stock trading and investment broker reviews',
+    keywords: ['stock broker review','online trading platform','fractional shares','commission free trading','ISA account broker','options broker','ETF investing broker','SIPC protection'],
+    persona: 'A personal finance blogger who has tested 20+ brokers and helps beginners choose the right platform for their investment goals'
+  }
 }
-
 // Google Trends RSS for real-time trending searches
 const TRENDS_FEEDS: Record<string, string> = {
   finance: 'https://trends.google.com/trending/rss?geo=US&category=7',  // Finance category

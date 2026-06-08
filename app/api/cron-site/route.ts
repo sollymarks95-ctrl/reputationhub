@@ -15,6 +15,28 @@ const CORE_SITES: Record<string, any> = {
   'market-radar':       { id:'27fdf1e6-8c0c-4591-ae9b-5a2c5cacee22', name:'Signalixx', shortName:'Signalixx', author:'Jordan Blake', domain:'signalixx.com', topics:['technical analysis market signals today','RSI momentum indicators analysis 2026','moving average crossover signals today','options market implied volatility 2026','put call ratio sentiment analysis','chart pattern analysis 2026 today','algorithmic trading signals today','market breadth indicators analysis','fibonacci retracement levels 2026','volume profile trading analysis 2026','market microstructure analysis 2026','Bollinger bands signal analysis today','MACD divergence signals today 2026','support resistance levels forex 2026','trend following signals 2026 today','derivatives market signals analysis','dark pool trading activity 2026','institutional order flow analysis','price action trading patterns 2026','market correlation analysis 2026','seasonal market patterns analysis 2026','volatility surface analysis options','intermarket analysis signals 2026','commitment of traders analysis 2026','Elliott wave market analysis today','Wyckoff method market stages 2026','market regime detection signals','high frequency trading market impact','liquidity analysis market depth 2026','gamma exposure market signals 2026'] },
   'executive-network':  { id:'64a6087d-480f-4040-9df1-ad020faf5796', name:'ExecVex', shortName:'ExecVex', author:'Alexander Ross', domain:'execvex.com', topics:['CEO succession planning strategy 2026','private equity buyout market deals 2026','mergers acquisitions deal analysis today','venture capital funding series A B 2026','board governance best practices 2026','CFO chief financial officer strategy 2026','IPO market outlook timing 2026','corporate restructuring turnaround 2026','executive compensation benchmarks 2026','activist investor campaign analysis 2026','ESG board accountability 2026','digital transformation CEO agenda 2026','supply chain resilience C-suite 2026','talent retention executive leadership 2026','AI strategy boardroom agenda 2026','cross-border M&A regulatory scrutiny 2026','CEO board succession planning 2026','private credit direct lending 2026','family office investment strategy 2026','hedge fund manager profile 2026','real estate private equity 2026','sovereign wealth fund allocation 2026','infrastructure investment deal flow 2026','secondary market private equity 2026','growth equity investment thesis 2026','management buyout financing structure 2026','due diligence best practices M&A','post-merger integration success 2026','deal sourcing network strategy 2026','exit strategy PE portfolio 2026'] },
   'crypto-hub':         { id:'f54ac054-3574-482c-a3f3-97037b45c759', name:'CryptoXos', shortName:'CryptoXos', author:'Alex Rivera', domain:'cryptoxos.com', topics:['bitcoin price analysis today 2026','ethereum network upgrade analysis 2026','DeFi protocol total value locked 2026','cryptocurrency institutional adoption 2026','bitcoin ETF flows analysis today','altcoin season market analysis 2026','stablecoin market cap analysis 2026','crypto regulation SEC CFTC 2026','blockchain technology enterprise adoption','NFT market recovery 2026 analysis','crypto exchange volume analysis today','Layer 2 scaling solution comparison 2026','Web3 gaming metaverse tokens 2026','crypto venture capital funding 2026','bitcoin mining hashrate profitability','ethereum staking yield analysis 2026','cross-chain bridge security 2026','crypto derivatives options market 2026','CBDC central bank digital currency 2026','tokenization real world assets 2026','crypto market sentiment analysis today','Solana ecosystem development 2026','Avalanche Polygon network growth 2026','decentralized exchange DEX volume 2026','crypto tax regulation compliance 2026','AI crypto token market analysis 2026','meme coin speculation analysis 2026','crypto whale wallet movement 2026','bitcoin halving aftermath analysis 2026','crypto portfolio strategy 2026'] },
+  'fx-vexx': {
+    id: '0c8feb1b-7995-46c0-96e7-5e567cc5d9bd', name: 'FXVexx', shortName: 'FXVexx',
+    author: 'Marcus Chen', domain: 'fxvexx.com',
+    topics: [
+      'forex broker regulation 2026','EURUSD technical analysis 2026','forex spread comparison brokers',
+      'MetaTrader 5 review 2026','best forex brokers UK FCA regulated','cfd trading risks explained',
+      'forex leverage rules ESMA 2026','ecn vs market maker broker comparison','forex prop firm reviews 2026',
+      'currency pair volatility analysis','forex broker withdrawal review','forex scalping platform 2026',
+      'PAMM account performance analysis','forex broker license verification','NFA CFTC regulated brokers US'
+    ]
+  },
+  'trade-hub-iq': {
+    id: 'e9a1ef2c-59c0-46ff-9d2f-d3db8bb272eb', name: 'TradeHubIQ', shortName: 'TradeHubIQ',
+    author: 'Sophie Grant', domain: 'tradehubiq.com',
+    topics: [
+      'best stock brokers 2026','commission free trading platforms review','options trading broker comparison',
+      'fractional shares investing platforms','stock ISA account UK brokers','Roth IRA broker comparison US',
+      'stock trading app review 2026','portfolio management tools comparison','dividend investing platforms review',
+      'SIPC FSCS investor protection explained','day trading platform features 2026','ETF broker comparison 2026',
+      'broker account types explained beginners','penny stock risks broker warnings','stock screener tools review'
+    ]
+  },
 }
 
 // Author pools per portal — rotated randomly so each article has a different byline
