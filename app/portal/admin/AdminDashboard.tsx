@@ -1290,14 +1290,14 @@ export default function AdminDashboard({
                   {/* Traffic Sources */}
                   <div className="card" style={{padding:20}}>
                     <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TRAFFIC SOURCES</div>
-                    {(analytics.bySource||[]).map((s:any)=>{
-                      const icon=s.source==='Direct'?'🔵':s.source==='Organic Search'?'🟢':s.source==='Social'?'🟣':'🟡'
+                    {(analytics.sourceBreakdown||[]).map((s:any)=>{
+                      const icon=s.icon||'🔵'
                       const color=s.source==='Direct'?'#6366f1':s.source==='Organic Search'?'#10b981':s.source==='Social'?'#a855f7':'#f59e0b'
                       return(
                         <div key={s.source} style={{marginBottom:12}}>
                           <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:12,alignItems:'center'}}>
                             <span style={{color:'#cbd5e1',display:'flex',alignItems:'center',gap:6}}><span>{icon}</span>{s.source}</span>
-                            <span style={{fontWeight:700,color:'#f1f5f9'}}>{s.views} <span style={{color:'#334155',fontWeight:400}}>({s.pct}%)</span></span>
+                            <span style={{fontWeight:700,color:'#f1f5f9'}}>{s.count} <span style={{color:'#334155',fontWeight:400}}>({s.pct}%)</span></span>
                           </div>
                           <div style={{height:4,background:'#1e293b',borderRadius:2}}>
                             <div style={{height:4,width:`${s.pct}%`,background:color,borderRadius:2}}/>
@@ -1311,16 +1311,16 @@ export default function AdminDashboard({
                   {/* Top Referrers */}
                   <div className="card" style={{padding:20}}>
                     <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>TOP REFERRERS</div>
-                    {(analytics.byReferrer||[]).slice(0,10).length>0?(analytics.byReferrer||[]).slice(0,10).map((r:any,i:number)=>{
-                      const max=(analytics.byReferrer||[])[0]?.views||1
+                    {(analytics.topReferrers||[]).slice(0,10).length>0?(analytics.topReferrers||[]).slice(0,10).map((r:any,i:number)=>{
+                      const max=(analytics.topReferrers||[])[0]?.count||1
                       return(
-                        <div key={r.referrer} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,fontSize:12}}>
+                        <div key={r.domain} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,fontSize:12}}>
                           <span style={{color:'#334155',width:14,flexShrink:0,textAlign:'right',fontWeight:700}}>{i+1}</span>
-                          <span style={{flex:1,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.referrer}</span>
+                          <span style={{flex:1,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.domain}</span>
                           <div style={{width:50,height:3,background:'#1e293b',borderRadius:2,flexShrink:0}}>
-                            <div style={{height:3,width:`${(r.views/max)*100}%`,background:'#f59e0b',borderRadius:2}}/>
+                            <div style={{height:3,width:`${(r.count/max)*100}%`,background:'#f59e0b',borderRadius:2}}/>
                           </div>
-                          <span style={{fontSize:11,color:'#64748b',width:24,textAlign:'right',flexShrink:0,fontWeight:700}}>{r.views}</span>
+                          <span style={{fontSize:11,color:'#64748b',width:24,textAlign:'right',flexShrink:0,fontWeight:700}}>{r.count}</span>
                         </div>
                       )
                     }):(
@@ -1331,8 +1331,8 @@ export default function AdminDashboard({
                   {/* Geo */}
                   <div className="card" style={{padding:20}}>
                     <div className="syne" style={{fontSize:11,fontWeight:800,color:'#475569',marginBottom:14}}>🌍 GEO BREAKDOWN</div>
-                    {(analytics.byCountry||[]).slice(0,12).map((item:any)=>{
-                      const max=(analytics.byCountry||[])[0]?.views||1
+                    {(analytics.geoBreakdown||[]).slice(0,12).map((item:any)=>{
+                      const max=(analytics.geoBreakdown||[])[0]?.count||1
                       return(
                         <div key={item.country} style={{marginBottom:8}}>
                           <div style={{display:'flex',justifyContent:'space-between',marginBottom:2,alignItems:'center',fontSize:12}}>
@@ -1340,15 +1340,15 @@ export default function AdminDashboard({
                               <span style={{fontSize:14}}>{item.flag}</span>
                               <span style={{fontWeight:600}}>{item.country}</span>
                             </span>
-                            <span style={{fontSize:11,color:'#64748b'}}>{item.views} ({item.pct}%)</span>
+                            <span style={{fontSize:11,color:'#64748b'}}>{item.count} ({item.pct}%)</span>
                           </div>
                           <div style={{height:3,background:'#1e293b',borderRadius:2}}>
-                            <div style={{height:3,width:`${(item.views/max)*100}%`,background:'linear-gradient(90deg,#6366f1,#818cf8)',borderRadius:2}}/>
+                            <div style={{height:3,width:`${(item.count/max)*100}%`,background:'linear-gradient(90deg,#6366f1,#818cf8)',borderRadius:2}}/>
                           </div>
                         </div>
                       )
                     })}
-                    {(!analytics.byCountry||analytics.byCountry.length===0)&&<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No geo data</div>}
+                    {(!analytics.geoBreakdown||analytics.geoBreakdown.length===0)&&<div style={{color:'#334155',fontSize:12,textAlign:'center',padding:'16px 0'}}>No geo data</div>}
                   </div>
                 </div>
 
@@ -1361,14 +1361,14 @@ export default function AdminDashboard({
                       const max=(analytics.bySite||[])[0]?.views||1
                       const COLORS:Record<string,string>={'global-trade-wire':'#E03131','finance-terminal':'#1971C2','business-pulse':'#6741D9','gold-markets-today':'#B08700','trust-score':'#0CA678','invest-data':'#0EA5E9','market-radar':'#A21CAF','executive-network':'#DC2626','crypto-hub':'#F97316'}
                       const color=COLORS[s.slug]||'#6366f1'
-                      const pct=Math.round(s.views/Math.max(analytics.total,1)*100)
+                      const pct=Math.round(s.count/Math.max(analytics.total,1)*100)
                       return(
                         <div key={s.slug} style={{marginBottom:10}}>
                           <div style={{display:'flex',justifyContent:'space-between',marginBottom:3,fontSize:12}}>
                             <span style={{color:'#cbd5e1',fontWeight:600,display:'flex',alignItems:'center',gap:6}}><span style={{width:8,height:8,borderRadius:'50%',background:color,display:'inline-block',flexShrink:0}}/>{s.name}</span>
-                            <span style={{color:'#64748b'}}>{s.views} <span style={{color:'#334155'}}>({pct}%)</span></span>
+                            <span style={{color:'#64748b'}}>{s.count} <span style={{color:'#334155'}}>({pct}%)</span></span>
                           </div>
-                          <div style={{height:4,background:'#1e293b',borderRadius:2}}><div style={{height:4,width:`${(s.views/max)*100}%`,background:color,borderRadius:2}}/></div>
+                          <div style={{height:4,background:'#1e293b',borderRadius:2}}><div style={{height:4,width:`${(s.count/max)*100}%`,background:color,borderRadius:2}}/></div>
                         </div>
                       )
                     })}
@@ -1403,12 +1403,12 @@ export default function AdminDashboard({
                       const cl=clients.find((x:any)=>x.id===item.clientId)
                       if(!cl) return null
                       const tot=(analytics.byClient||[]).reduce((s:number,x:any)=>s+x.views,0)||1
-                      const pct=Math.round(item.views/tot*100)
+                      const pct=Math.round(item.count/tot*100)
                       return(
                         <div key={item.clientId} style={{marginBottom:14}}>
                           <div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:12}}>
                             <span style={{color:'#cbd5e1',fontWeight:600}}>{cl.company_name}</span>
-                            <span className="syne" style={{fontWeight:900,color:'#6366f1',fontSize:16}}>{item.views}</span>
+                            <span className="syne" style={{fontWeight:900,color:'#6366f1',fontSize:16}}>{item.count}</span>
                           </div>
                           <div style={{height:4,background:'#1e293b',borderRadius:2}}><div style={{height:4,width:`${pct}%`,background:'#6366f1',borderRadius:2}}/></div>
                           <div style={{fontSize:10,color:'#334155',marginTop:2}}>{pct}% of total traffic</div>
