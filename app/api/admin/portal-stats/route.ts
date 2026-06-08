@@ -11,10 +11,9 @@ export async function GET() {
 
   const { data: sites } = await sb
     .from('news_sites')
-    .select('id, slug, name, domain, noindex, is_live, template_config')
+    .select('id, slug, name, domain, noindex, is_live, template_config, primary_color')
     .eq('is_active', true)
     .eq('is_live', true)
-    .eq('noindex', false)
     .order('name')
 
   if (!sites) return NextResponse.json({ portals: [] }, { headers: CORS })
@@ -56,7 +55,9 @@ export async function GET() {
     return {
       slug:     site.slug,
       name:     site.name,
-      domain:   site.domain,
+      domain:       site.domain,
+      primary_color: site.primary_color || site.template_config?.primary || '#6366f1',
+      noindex:       site.noindex,
       today:    todayTotal,
       week:     weekRes.count  || 0,
       total:    totalRes.count || 0,

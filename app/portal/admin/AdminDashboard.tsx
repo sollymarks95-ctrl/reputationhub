@@ -12,11 +12,13 @@ const PORTAL_DOMAIN: Record<string,string> = {
   'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','business-pulse':'bizplezx.com',
   'gold-markets-today':'aurexhq.com','trust-score':'verivex.co','invest-data':'invexhuby.com',
   'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
+  'fx-vexx':'fxvexx.com','trade-hub-iq':'tradehubiq.com',
 }
 const PORTAL_NAMES: Record<string,string> = {
   'global-trade-wire':'Nex-Wire','finance-terminal':'Finvexx','business-pulse':'Bizplezx',
   'gold-markets-today':'AurexHQ','trust-score':'Verivex','invest-data':'InvexHuby',
   'market-radar':'Signalixx','executive-network':'ExecVex','crypto-hub':'CryptoXos',
+  'fx-vexx':'FXVexx','trade-hub-iq':'TradeHubIQ',
 }
 const PODCAST_CFG: Record<string,{show:string;host:string;role:string}> = {
   'global-trade-wire':{show:'Nex-Wire Intelligence',host:'James Hart',role:'Senior Markets Editor'},
@@ -114,6 +116,7 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
     'business-pulse':'bizplezx.com','gold-markets-today':'aurexhq.com',
     'trust-score':'verivex.co','invest-data':'invexhuby.com',
     'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
+    'fx-vexx':'fxvexx.com','trade-hub-iq':'tradehubiq.com',
   }
 
   const manage = async (action: 'publish'|'unpublish'|'delete') => {
