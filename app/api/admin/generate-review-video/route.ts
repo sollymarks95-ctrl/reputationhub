@@ -2,120 +2,116 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 300
+export const maxDuration = 120
 
 const getDb = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
-async function callAnthropic(key: string, body: any, timeout = 45000) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(timeout),
-  })
-  const d = await res.json()
-  return (d.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('').trim()
-}
-
 export async function POST(req: NextRequest) {
-  const { avatarId, voiceId, brokerName, topic } = await req.json()
-  const db = getDb()
+  try {
+    const body = await req.json()
+    const { brokerName, topic } = body
+    const db = getDb()
 
-  const { data: keys } = await db.from('system_api_keys').select('key_name, key_value')
-    .in('key_name', ['HEYGEN_KEY', 'ANTHROPIC_API_KEY', 'HEYGEN_BEN_AVATAR_ID'])
-  const km: Record<string, string> = {}
-  for (const r of keys || []) km[r.key_name] = r.key_value
+    // Get keys
+    const { data: keys } = await db.from('system_api_keys').select('key_name,key_value')
+      .in('key_name', ['HEYGEN_KEY','ANTHROPIC_API_KEY','HEYGEN_BEN_AVATAR_ID'])
+    const km: Record<string,string> = {}
+    for (const r of keys || []) km[r.key_name] = r.key_value
 
-  const HEYGEN  = km.HEYGEN_KEY || ''
-  const ANTH    = km.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || ''
-  const AVATAR  = avatarId || km.HEYGEN_BEN_AVATAR_ID || '8cda690a684542e0817593096ea5461d'
+    const HEYGEN = km.HEYGEN_KEY || ''
+    const ANTH   = km.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || ''
+    const AVATAR = km.HEYGEN_BEN_AVATAR_ID || '8cda690a684542e0817593096ea5461d'
 
-  if (!HEYGEN || !ANTH) return NextResponse.json({ ok: false, error: 'Missing API keys in Supabase' })
+    if (!HEYGEN) return NextResponse.json({ ok:false, error:'No HeyGen key found' })
+    if (!ANTH)   return NextResponse.json({ ok:false, error:'No Anthropic key found' })
 
-  const subject = brokerName || topic || 'forex broker regulation'
+    const subject = brokerName || topic || 'forex broker regulation'
 
-  // Generate script directly — no web search for speed (< 15s)
-  const script = await callAnthropic(ANTH, {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 800,
-    messages: [{ role: 'user', content:
-      `Write a natural 90-second YouTube broker review script for Ben from Verivex reviewing "${subject}".
-
-Rules:
-- 200-230 words spoken naturally
-- Open: "Hey traders, Ben here from Verivex."  
-- Cover: is it regulated, which body, is it safe, key features, verdict
-- Sound human: use "honestly", "look", contractions, genuine reactions
-- End: "Subscribe for a new broker review every single day."
-- ONLY spoken words — no stage directions, no brackets, nothing else
-Return ONLY the script.` }]
-  }, 25000)
-
-  if (!script || script.length < 50) return NextResponse.json({ ok: false, error: 'Script generation failed' })
-
-  // Submit to HeyGen — 16:9 YouTube
-  const payload16 = {
-    video_inputs: [{
-      // UUID format = talking_photo (personal avatar), named format = standard avatar
-      character: AVATAR.includes('-') && AVATAR.length < 40
-        ? { type: 'avatar', avatar_id: AVATAR, avatar_style: 'normal' }
-        : { type: 'talking_photo', talking_photo_id: AVATAR },
-      voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0, pitch: 0 },
-      background: { type: 'color', value: '#0f172a' },
-    }],
-    input_text: script,
-    aspect_ratio: '16:9',
-    test: false,
-  }
-
-  const r16 = await fetch('https://api.heygen.com/v2/video/generate', {
-    method: 'POST',
-    headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload16),
-    signal: AbortSignal.timeout(15000),
-  })
-  const d16 = await r16.json()
-  const videoId = d16?.data?.video_id
-
-  // Submit 9:16 in background (don't await — keeps response fast)
-  let mobileId: string | null = null
-  if (videoId) {
-    const r9 = await fetch('https://api.heygen.com/v2/video/generate', {
+    // Generate script — fast with Haiku
+    const sRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload16, aspect_ratio: '9:16',
-        video_inputs: [{ ...payload16.video_inputs[0], character: { ...payload16.video_inputs[0].character, avatar_style: 'closeup' } }]
+      headers: { 'Content-Type':'application/json','x-api-key':ANTH,'anthropic-version':'2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001', max_tokens: 600,
+        messages: [{ role:'user', content:
+          `Write a natural 60-second YouTube review script for Ben from Verivex about "${subject}".
+150-170 words. Starts: "Hey traders, Ben here from Verivex."
+Covers: is it regulated, safe to use, verdict. Ends: "Subscribe for daily broker reviews."
+Pure spoken words only — no brackets, no asterisks, nothing else.` }]
       }),
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(20000),
     })
-    const d9 = await r9.json()
-    mobileId = d9?.data?.video_id || null
-  }
+    const sData = await sRes.json()
+    const script = (sData.content||[]).filter((c:any)=>c.type==='text').map((c:any)=>c.text).join('').trim()
 
-  console.log('[HeyGen 16:9]', JSON.stringify(d16))
+    if (!script || script.length < 40) {
+      return NextResponse.json({ ok:false, error:`Script failed: ${JSON.stringify(sData).slice(0,200)}` })
+    }
 
-  if (!videoId) {
+    // Try HeyGen — first with talking_photo (custom avatar), fallback to standard avatar
+    async function tryHeyGen(characterPayload: any, ratio: string) {
+      const payload = {
+        video_inputs: [{
+          character: characterPayload,
+          voice: { type:'text', voice_id:'en-US-GuyNeural', speed:1.0 },
+          background: { type:'color', value:'#0f172a' },
+        }],
+        input_text: script,
+        aspect_ratio: ratio,
+        test: false,
+      }
+      const r = await fetch('https://api.heygen.com/v2/video/generate', {
+        method:'POST',
+        headers: { 'X-Api-Key':HEYGEN, 'Content-Type':'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(12000),
+      })
+      const d = await r.json()
+      return d
+    }
+
+    // Try talking_photo first (Ben's personal avatar)
+    let d16 = await tryHeyGen({ type:'talking_photo', talking_photo_id: AVATAR }, '16:9')
+    console.log('[HeyGen talking_photo]', JSON.stringify(d16))
+
+    // If talking_photo fails, try as regular avatar
+    if (!d16?.data?.video_id) {
+      d16 = await tryHeyGen({ type:'avatar', avatar_id: AVATAR, avatar_style:'normal' }, '16:9')
+      console.log('[HeyGen avatar fallback]', JSON.stringify(d16))
+    }
+
+    // If still failing, try with a known working avatar (Tyler) to test the key
+    if (!d16?.data?.video_id) {
+      d16 = await tryHeyGen({ type:'avatar', avatar_id:'Tyler-insuit-20220721', avatar_style:'normal' }, '16:9')
+      console.log('[HeyGen Tyler test]', JSON.stringify(d16))
+    }
+
+    const videoId = d16?.data?.video_id
+
+    // Mobile 9:16
+    let mobileId: string|null = null
+    if (videoId) {
+      const d9 = await tryHeyGen(
+        { type:'talking_photo', talking_photo_id: AVATAR },
+        '9:16'
+      )
+      mobileId = d9?.data?.video_id || null
+    }
+
     return NextResponse.json({
-      ok: false,
-      error: d16?.message || d16?.error || 'HeyGen did not return a video_id — check API key or credits',
-      heygen_raw: d16,
+      ok: !!videoId,
+      youtube_video_id: videoId || null,
+      mobile_video_id: mobileId,
       script,
+      heygen_error: videoId ? null : (d16?.message || d16?.error || JSON.stringify(d16)),
+      youtube_title: `${subject} Review 2026 — Is It Safe? | Verivex`,
+      youtube_description: `Honest review by Ben from Verivex.\n📊 https://verivex.co\n🔔 Subscribe for daily broker reviews`,
+      message: videoId ? `✅ Video generating in HeyGen — ready in ~5 min` : `❌ HeyGen error — see heygen_error`,
     })
+  } catch (err: any) {
+    return NextResponse.json({ ok:false, error: err?.message || String(err) })
   }
-
-  const ytTitle = `${subject} Review ${new Date().getFullYear()} — Is It Safe? | Verivex`
-  const ytDesc  = `Honest ${subject} review by Ben from Verivex.\n\n📊 Full review: https://verivex.co\n🔔 Subscribe for daily broker reviews\n\n#BrokerReview #Verivex #ForexBroker`
-
-  return NextResponse.json({
-    ok: true,
-    youtube_video_id: videoId,
-    mobile_video_id: mobileId,
-    script,
-    youtube_title: ytTitle,
-    youtube_description: ytDesc,
-    message: `✅ ${mobileId ? '2 videos' : '1 video'} generating in HeyGen — ready in ~5 minutes`,
-  })
 }
