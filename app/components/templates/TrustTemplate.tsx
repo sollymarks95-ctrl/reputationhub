@@ -293,9 +293,21 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
       {/* GEO schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRating) }} />
 
-      {/* Editorial independence — one line */}
-      <div style={{ background:'#F0FDF4', borderBottom:'1px solid #BBF7D0', padding:'8px 20px', textAlign:'center', fontSize:12, color:'#166534' }}>
-        Verivex is fully independent — we are not affiliated with, paid by, or endorsed by any broker listed on this site.
+      {/* Editorial independence + social links */}
+      <div style={{ background:'#F0FDF4', borderBottom:'1px solid #BBF7D0', padding:'7px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8 }}>
+        <span style={{ fontSize:12, color:'#166534' }}>Verivex is fully independent — not affiliated with, paid by, or endorsed by any broker listed.</span>
+        <div style={{ display:'flex', gap:10 }}>
+          <a href="https://www.facebook.com/profile.php?id=61590797455727" target="_blank" rel="noopener noreferrer"
+             style={{ display:'flex', alignItems:'center', gap:5, background:'#1877f2', color:'#fff', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, textDecoration:'none' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </a>
+          <a href="https://www.youtube.com/channel/UCj-r_F1RnAMk1-H9O65DIMw" target="_blank" rel="noopener noreferrer"
+             style={{ display:'flex', alignItems:'center', gap:5, background:'#ff0000', color:'#fff', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, textDecoration:'none' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            YouTube
+          </a>
+        </div>
       </div>
 
       <style>{`
@@ -573,10 +585,21 @@ export default function TrustTemplate({ articles = [], site, siteSlug, searchPar
         <div style={{ maxWidth:1200, margin:'24px auto 0', paddingTop:20, borderTop:'1px solid #1e293b', textAlign:'center', fontSize:12 }}>
           © 2025 Verivex Trust Intelligence · verivex.co · Reviews moderated for authenticity
         </div>
+        {/* Social Links */}
+        <div style={{ maxWidth:1200, margin:'20px auto 0', paddingTop:20, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', alignItems:'center', gap:20 }}>
+          <a href="https://www.facebook.com/profile.php?id=61590797455727" target="_blank" rel="noopener noreferrer"
+             style={{ display:'flex', alignItems:'center', gap:8, background:'#1877f2', color:'#fff', borderRadius:8, padding:'8px 16px', fontSize:12, fontWeight:700, textDecoration:'none' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Follow on Facebook
+          </a>
+          <a href="https://www.youtube.com/channel/UCj-r_F1RnAMk1-H9O65DIMw" target="_blank" rel="noopener noreferrer"
+             style={{ display:'flex', alignItems:'center', gap:8, background:'#ff0000', color:'#fff', borderRadius:8, padding:'8px 16px', fontSize:12, fontWeight:700, textDecoration:'none' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            Subscribe on YouTube
+          </a>
+        </div>
         <div style={{ maxWidth:1200, margin:'12px auto 0', paddingTop:12, borderTop:'1px solid #1e293b', display:'flex', justifyContent:'center', gap:24 }}>
-          {/* Cross-portal intelligence network */}
-          
-                    {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
+          {[['Privacy Policy','/legal/privacy'],['Terms of Service','/legal/terms'],['Cookie Policy','/legal/cookies'],['For Businesses','/for-businesses']].map(([l,h])=>(
             <a key={l} href={h} style={{ fontSize:11, color:'#475569' }}>{l}</a>
           ))}
         </div>
