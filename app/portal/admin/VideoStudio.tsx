@@ -509,19 +509,9 @@ export function ReviewVideoGenerator() {
                 <div style={{ fontSize:11, fontWeight:700, color:'#f59e0b', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>
                   🎬 Production Guide — Screenshots to Overlay
                 </div>
-                <div style={{ fontSize:12, lineHeight:1.9, color:'#cbd5e1' }}>
-                  {(script.split('===PRODUCTION GUIDE===')[1] || '').split('
-').filter(Boolean).map((line: string, i: number) => (
-                    <div key={i} style={{
-                      padding:'6px 10px', marginBottom:4, borderRadius:6,
-                      background: line.startsWith('[') ? 'rgba(245,158,11,0.08)' : 'transparent',
-                      borderLeft: line.includes('SCREENSHOT') ? '3px solid #f59e0b' :
-                                  line.includes('SCENE') ? '3px solid #10b981' : 'none',
-                      color: line.includes('YOUTUBE') ? '#6366f1' : '#cbd5e1',
-                      fontWeight: line.startsWith('[') ? 600 : 400,
-                    }}>{line}</div>
-                  ))}
-                </div>
+                <pre style={{ fontSize:12, lineHeight:1.9, color:'#cbd5e1', whiteSpace:'pre-wrap', fontFamily:'inherit', margin:0 }}>
+                  {(script.split('===PRODUCTION GUIDE===')[1] || '').trim()}
+                </pre>
               </div>
             </div>
           )}
