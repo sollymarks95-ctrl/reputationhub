@@ -388,9 +388,14 @@ export function ReviewVideoGenerator() {
         const custom = avs.find((a: any) => !a.avatar_id?.includes('public') && !a.avatar_id?.includes('Anna') && !a.avatar_id?.includes('Tyler'))
         if (custom) setAvatarId(custom.avatar_id)
       }
-      // Auto-select first custom voice
-      const customVoice = vcs.find((v: any) => v.category === 'cloned' || v.category === 'professional')
-      if (customVoice) setVoiceId(customVoice.voice_id)
+      // Ben's voice — always select first
+      const BEN_VOICE = 'xMTIubkjc8KMDoYdz4bQ'
+      const benVoice = vcs.find((v: any) => v.voice_id === BEN_VOICE)
+      if (benVoice) setVoiceId(BEN_VOICE)
+      else {
+        const custom = vcs.find((v: any) => v.category === 'cloned' || v.category === 'professional')
+        if (custom) setVoiceId(custom.voice_id)
+      }
       setLoadingAssets(false)
     }).catch(() => setLoadingAssets(false))
   }, [])
@@ -465,7 +470,9 @@ export function ReviewVideoGenerator() {
                       background: voiceId === v.voice_id ? '#6366f120' : 'transparent',
                       color: voiceId === v.voice_id ? '#6366f1' : '#94a3b8', fontSize:12, cursor:'pointer', fontWeight:600 }}>
                     {v.name}
-                    {(v.category === 'cloned' || v.category === 'professional') &&
+                    {v.voice_id === 'xMTIubkjc8KMDoYdz4bQ' &&
+                      <span style={{ marginLeft:6, fontSize:9, background:'#f59e0b', color:'#000', padding:'1px 5px', borderRadius:3 }}>🎙 BEN</span>}
+                    {(v.category === 'cloned' || v.category === 'professional') && v.voice_id !== 'xMTIubkjc8KMDoYdz4bQ' &&
                       <span style={{ marginLeft:6, fontSize:9, background:'#6366f1', color:'#fff', padding:'1px 5px', borderRadius:3 }}>CUSTOM</span>}
                   </button>
                 ))}
