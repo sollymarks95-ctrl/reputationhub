@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
   const db = getDb()
   const { data: site } = await db.from('news_sites')
-    .select('name,description,noindex,tagline,template_config,category,slug,domain')
+    .select('name,description,seo_description,noindex,tagline,template_config,category,slug,domain,primary_color')
     .eq('domain', host).single()
 
   const siteName  = site?.name || 'Financial Intelligence'

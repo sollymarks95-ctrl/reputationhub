@@ -120,32 +120,38 @@ Return format:
   const ytTitle = titleMatch?.[1]?.trim() || `${broker.name} Review ${new Date().getFullYear()} — Honest Look | Verivex`
   const ytDesc = descMatch?.[1]?.trim() || `Honest ${broker.name} review. Full analysis on Verivex.`
 
-  // Submit to HeyGen — multi-scene
-  const videoRes = await fetch('https://api.heygen.com/v2/video/generate', {
-    method: 'POST',
-    headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      video_inputs: [{
-        character: { type: 'avatar', avatar_id: AVATAR_ID, avatar_style: 'normal' },
-        voice: { type: 'elevenlabs', voice_id: VOICE_ID, speed: 1.0 },
-        background: { type: 'color', value: '#0f172a' }
-      }],
-      input_text: scriptPart,
-      aspect_ratio: '16:9',
-      test: false,
+  // Submit BOTH formats in parallel — 16:9 (YouTube) + 9:16 (Shorts/Reels/TikTok)
+  async function submitFormat(ratio: string) {
+    const r = await fetch('https://api.heygen.com/v2/video/generate', {
+      method: 'POST',
+      headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        video_inputs: [{
+          character: { type: 'avatar', avatar_id: AVATAR_ID, avatar_style: ratio === '9:16' ? 'closeup' : 'normal' },
+          voice: { type: 'elevenlabs', voice_id: VOICE_ID, speed: 1.0 },
+          background: { type: 'color', value: '#0f172a' }
+        }],
+        input_text: scriptPart,
+        aspect_ratio: ratio,
+        test: false,
+      })
     })
-  })
-  const videoData = await videoRes.json()
+    const d = await r.json()
+    return d.data?.video_id
+  }
+  const [ytVideoId, mobileVideoId] = await Promise.all([submitFormat('16:9'), submitFormat('9:16')])
+  const videoData = { data: { video_id: ytVideoId } }
 
   await db.from('video_reviews').insert({
     broker_slug: broker.slug,
     broker_name: broker.name,
-    heygen_video_id: videoData.data?.video_id,
+    heygen_video_id: ytVideoId,
+    heygen_mobile_video_id: mobileVideoId,
     script: fullOutput,
     status: 'processing',
     youtube_title: ytTitle,
     youtube_description: ytDesc,
   })
 
-  return NextResponse.json({ ok: true, broker: broker.name, video_id: videoData.data?.video_id, message: 'Processing in HeyGen' })
+  return NextResponse.json({ ok: true, broker: broker.name, youtube_video_id: ytVideoId, mobile_video_id: mobileVideoId, message: '2 videos processing in HeyGen' })
 }

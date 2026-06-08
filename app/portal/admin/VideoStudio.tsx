@@ -523,10 +523,25 @@ export function ReviewVideoGenerator() {
                 <div style={{ color:'#ef4444', fontSize:13 }}>❌ {result.error}</div>
               ) : (
                 <div>
-                  <div style={{ color:'#10b981', fontWeight:700, marginBottom:8 }}>✅ Video submitted to HeyGen!</div>
-                  <div style={{ fontSize:12, color:'#94a3b8' }}>Video ID: <code style={{ color:'#f1f5f9' }}>{result.video_id}</code></div>
-                  <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Status: {result.message}</div>
-                  <div style={{ fontSize:11, color:'#475569', marginTop:8 }}>Check your HeyGen dashboard in 2-5 minutes to download the video.</div>
+                  <div style={{ color:'#10b981', fontWeight:700, fontSize:14, marginBottom:12 }}>✅ 2 Videos Generating in HeyGen!</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                    <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:8, padding:12 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'#6366f1', marginBottom:6 }}>🖥️ YOUTUBE DESKTOP (16:9)</div>
+                      <div style={{ fontSize:11, color:'#94a3b8' }}>ID: <code style={{ color:'#f1f5f9', fontSize:10 }}>{result.youtube_video_id}</code></div>
+                      <div style={{ fontSize:10, color:'#475569', marginTop:4 }}>Full-length review · YouTube upload</div>
+                    </div>
+                    <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:8, padding:12 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'#ec4899', marginBottom:6 }}>📱 MOBILE VERTICAL (9:16)</div>
+                      <div style={{ fontSize:11, color:'#94a3b8' }}>ID: <code style={{ color:'#f1f5f9', fontSize:10 }}>{result.mobile_video_id}</code></div>
+                      <div style={{ fontSize:10, color:'#475569', marginTop:4 }}>YouTube Shorts · Instagram Reels · TikTok</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop:12, padding:10, background:'rgba(99,102,241,0.08)', borderRadius:6 }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#6366f1', marginBottom:4 }}>📋 YouTube Title & Description — Ready to Copy</div>
+                    <div style={{ fontSize:11, color:'#f1f5f9', fontWeight:600 }}>{result.youtube_title}</div>
+                    <pre style={{ fontSize:10, color:'#94a3b8', whiteSpace:'pre-wrap', marginTop:6, fontFamily:'inherit' }}>{result.youtube_description}</pre>
+                  </div>
+                  <div style={{ fontSize:11, color:'#475569', marginTop:10 }}>⏱ Both videos ready in HeyGen dashboard in ~5 minutes</div>
                 </div>
               )}
             </div>

@@ -717,7 +717,7 @@ function Wire({ site, articles, p, font, slug, variant , selectedCat, setSelecte
           <div style={{ fontSize:11, color:'#888', textTransform:'uppercase', letterSpacing:'.1em' }}>News Wire Service</div>
         </div>
         <div style={{ background:p, padding:'5px 24px', display:'flex', gap:20 }}>
-          {['FLASH','MARKETS','ECONOMY','FX','COMMODITIES'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#fff', fontSize:11, fontWeight:800, letterSpacing:'.05em' }}>{c}</a>)}
+          {['FLASH','MARKETS','ECONOMY','FX','COMMODITIES'].map((c:string)=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#fff', fontSize:11, fontWeight:800, letterSpacing:'.05em' }}>{c}</a>)}
         </div>
       </div>
       <div style={{ maxWidth:960, margin:'0 auto', padding:'16px 24px' }}>
@@ -757,7 +757,7 @@ function Wire({ site, articles, p, font, slug, variant , selectedCat, setSelecte
         <span style={{ color:'rgba(255,255,255,.7)', fontSize:11 }}>{new Date().toUTCString()}</span>
       </div>
       <div style={{ background:'#f5f5f5', borderBottom:'1px solid #ddd', padding:'5px 24px', display:'flex', gap:20 }}>
-        {siteCategories.slice(0,5).map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
+        {siteCategories.slice(0,5).map((c:string)=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ fontSize:11, fontWeight:800, color:'#333', textTransform:'uppercase' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'16px 24px' }}>
         <div className="wv1-cols" style={{ display:'flex', gap:32 }}>
@@ -880,7 +880,7 @@ function Dashboard({ site, articles, p, font, slug, variant , selectedCat, setSe
             <a href="/"><span style={{ fontWeight:800, fontSize:17 }}>{site.name}</span></a>
           </div>
           <div style={{ display:'flex', gap:8, overflowX:'auto' }}>
-            {['All','Markets','Economy','AI','Policy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', background:'#f1f5f9', color:'#64748b', borderRadius:6, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}>{c}</a>)}
+            {['All','Markets','Economy','AI','Policy'].map((c:string)=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', background:'#f1f5f9', color:'#64748b', borderRadius:6, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}>{c}</a>)}
           </div>
         </div>
       </div>
@@ -926,7 +926,7 @@ function Magazine({ site, articles, p, sec, font, slug, variant, selectedCat, se
         <div style={{ fontSize:12, color:'#666', fontStyle:'italic', maxWidth:300, textAlign:'right' }}>{site.tagline}</div>
       </header>
       <div style={{ background:p, color:'#fff', padding:'6px 24px', display:'flex', gap:20 }}>
-        {['COVER STORY','MARKETS','OPINION','LIFE','TRAVEL'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.85)', fontSize:11, fontWeight:700, letterSpacing:'.05em' }}>{c}</a>)}
+        {['COVER STORY','MARKETS','OPINION','LIFE','TRAVEL'].map((c:string)=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.85)', fontSize:11, fontWeight:700, letterSpacing:'.05em' }}>{c}</a>)}
       </div>
       <div style={{ maxWidth:1200, margin:'32px auto', padding:'0 24px' }}>
         <div className="mv2-g">
@@ -1002,7 +1002,7 @@ function Magazine({ site, articles, p, sec, font, slug, variant, selectedCat, se
       @media(max-width:768px){.mv1-f,.mv1-r{grid-template-columns:1fr!important}}`}</style>
       <header style={{ padding:'14px 24px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:`3px solid ${p}` }}>
         <a href="/"><div style={{ fontSize:30, fontWeight:900, letterSpacing:'-1px', fontFamily:gf('display') }}>{site.name}</div></a>
-        <div style={{ display:'flex', gap:16 }}>{['Features','Finance','Markets','Life'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#555', fontSize:13, fontWeight:600 }}>{c}</a>)}</div>
+        <div style={{ display:'flex', gap:16 }}>{['Features','Finance','Markets','Life'].map((c:string)=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'#555', fontSize:13, fontWeight:600 }}>{c}</a>)}</div>
       </header>
       {hero && (
         <div style={{ background:`linear-gradient(to right, #0f172a 55%, ${p}cc)`, color:'#fff', padding:'72px 24px' }}>
@@ -1053,7 +1053,7 @@ function Minimal({ site, articles, p, font, slug, variant , selectedCat, setSele
       </div>
       <div style={{ maxWidth:760, margin:'0 auto', padding:'0 24px' }}>
         <div style={{ padding:'20px 0', borderBottom:'2px solid #111', display:'flex', gap:12, flexWrap:'wrap' }}>
-          {['All','Markets','Economy','AI','Opinion'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ fontSize:12, fontWeight:700, color:'#111', padding:'4px 12px', border:'1px solid #111', borderRadius:20 }}>{c}</a>)}
+          {['All','Markets','Economy','AI','Opinion'].map((c:string)=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ fontSize:12, fontWeight:700, color:'#111', padding:'4px 12px', border:'1px solid #111', borderRadius:20 }}>{c}</a>)}
         </div>
         {articles.slice(0,14).map((a:any,i:number) => (
           <div key={a.id} className="mv2-item">
@@ -1236,7 +1236,7 @@ function Grid({ site, articles, p, font, slug, variant, selectedCat, setSelected
       <div style={{ background:'#000', padding:'12px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p, letterSpacing:'-.5px' }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:8 }}>
-          {['All','Markets','Tech','Economy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ color:'#666', fontSize:12, fontWeight:600 }}>{c}</a>)}
+          {['All','Markets','Tech','Economy'].map((c:string)=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ color:'#666', fontSize:12, fontWeight:600 }}>{c}</a>)}
         </div>
       </div>
       <div className="gv2-g" style={{ maxWidth:1400, margin:'3px auto' }}>
@@ -1261,7 +1261,7 @@ function Grid({ site, articles, p, font, slug, variant, selectedCat, setSelected
       <header style={{ background:'#fff', padding:'16px 24px', borderBottom:'1px solid #e2e8f0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:6 }}>
-          {['All','Markets','Tech','Economy','Opinion'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 14px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
+          {['All','Markets','Tech','Economy','Opinion'].map((c:string)=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 14px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
         </div>
       </header>
       <div style={{ maxWidth:1200, margin:'24px auto', padding:'0 24px' }}>
@@ -1294,7 +1294,7 @@ function Grid({ site, articles, p, font, slug, variant, selectedCat, setSelected
       <header style={{ background:'#fff', padding:'14px 24px', boxShadow:'0 1px 3px rgba(0,0,0,.1)', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:100 }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:20, color:p }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:6 }}>
-          {['All','Markets','Tech','Economy'].map(c=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
+          {['All','Markets','Tech','Economy'].map((c:string)=><a key={c} href={c==='All'?'/':`/?category=${c}`} style={{ padding:'5px 12px', borderRadius:20, background:c==='All'?p:'#f1f5f9', color:c==='All'?'#fff':'#64748b', fontSize:12, fontWeight:600 }}>{c}</a>)}
         </div>
       </header>
       <div style={{ maxWidth:1400, margin:'20px auto', padding:'0 20px' }}>
@@ -1526,7 +1526,7 @@ function Split({ site, articles, p, font, slug, variant, selectedCat, setSelecte
       <div style={{ background:p, padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'sticky', top:0, zIndex:100 }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:16, color:'#fff', letterSpacing:'.02em' }}>{site.name}</div></a>
         <div style={{ display:'flex', gap:2 }}>
-          {['Markets','Tech','FX','Macro'].map(c=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.7)', fontSize:11, fontWeight:600, padding:'3px 8px' }}>{c}</a>)}
+          {['Markets','Tech','FX','Macro'].map((c:string)=><a key={c} onClick={()=>setSelectedCat(c==='All'?'All':c)} href='#' style={{ color:'rgba(255,255,255,.7)', fontSize:11, fontWeight:600, padding:'3px 8px' }}>{c}</a>)}
         </div>
       </div>
       <div className="sp-main">
@@ -1584,7 +1584,7 @@ function Feed({ site, articles, p, font, slug, variant, selectedCat, setSelected
       @media(max-width:768px){.fd-side{display:none!important}}`}</style>
       <div style={{ background:p, padding:'10px 24px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <a href="/"><div style={{ fontWeight:900, fontSize:18, color:'#fff' }}>{site.name}</div></a>
-        <div style={{ display:'flex', gap:12 }}>{['Hot','New','Top','Rising'].map(c=><a key={c} href={`/?sort=${c}`} style={{ color:'rgba(255,255,255,.8)', fontSize:12, fontWeight:700 }}>{c}</a>)}</div>
+        <div style={{ display:'flex', gap:12 }}>{['Hot','New','Top','Rising'].map((c:string)=><a key={c} href={`/?sort=${c}`} style={{ color:'rgba(255,255,255,.8)', fontSize:12, fontWeight:700 }}>{c}</a>)}</div>
       </div>
       <div style={{ maxWidth:1100, margin:'16px auto', padding:'0 24px', display:'flex', gap:24 }}>
         <div style={{ flex:1 }}>
