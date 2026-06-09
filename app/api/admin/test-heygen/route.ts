@@ -11,43 +11,36 @@ export async function GET() {
   const { data } = await db.from('system_api_keys').select('key_value').eq('key_name','HEYGEN_KEY').single()
   const key = data?.key_value || ''
 
-  // Test 1: talking_photo type with Ben
-  const r1 = await fetch('https://api.heygen.com/v2/video/generate', {
-    method: 'POST',
-    headers: { 'X-Api-Key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      video_inputs: [{
-        character: { type: 'talking_photo', talking_photo_id: BEN },
-        voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0 },
-        background: { type: 'color', value: '#0f172a' },
-      }],
+  // HeyGen new API format: input_text goes INSIDE voice object
+  async function testVideo(characterPayload: any, label: string) {
+    const r = await fetch('https://api.heygen.com/v2/video/generate', {
+      method: 'POST',
+      headers: { 'X-Api-Key': key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        video_inputs: [{
+          character: characterPayload,
+          voice: {
+            type: 'text',
+            voice_id: 'en-US-GuyNeural',
+            input_text: 'Hey traders, Ben here from Verivex. This is a test.',
+            speed: 1.0,
+          },
+          background: { type: 'color', value: '#0f172a' },
+        }],
+        aspect_ratio: '16:9',
+        test: false,
+      }),
+      signal: AbortSignal.timeout(12000)
+    })
+    const d = await r.json()
+    return { label, status: r.status, video_id: d?.data?.video_id, error: d?.error, message: d?.message }
+  }
 
-      aspect_ratio: '16:9', test: false,
-    }),
-    signal: AbortSignal.timeout(12000)
-  })
-  const d1 = await r1.json()
+  const [benTP, benAvatar, tyler] = await Promise.all([
+    testVideo({ type: 'talking_photo', talking_photo_id: BEN }, 'Ben (talking_photo)'),
+    testVideo({ type: 'avatar', avatar_id: BEN, avatar_style: 'normal' }, 'Ben (avatar)'),
+    testVideo({ type: 'avatar', avatar_id: 'Tyler-insuit-20220721', avatar_style: 'normal' }, 'Tyler (reference)'),
+  ])
 
-  // Test 2: standard avatar Tyler (always works if key valid)
-  const r2 = await fetch('https://api.heygen.com/v2/video/generate', {
-    method: 'POST',
-    headers: { 'X-Api-Key': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      video_inputs: [{
-        character: { type: 'avatar', avatar_id: 'Tyler-insuit-20220721', avatar_style: 'normal' },
-        voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0 },
-        background: { type: 'color', value: '#0f172a' },
-      }],
-
-      aspect_ratio: '16:9', test: false,
-    }),
-    signal: AbortSignal.timeout(12000)
-  })
-  const d2 = await r2.json()
-
-  return NextResponse.json({
-    credits: 300,
-    ben_talking_photo: { status: r1.status, video_id: d1?.data?.video_id, error: d1?.message || d1?.error, raw: d1 },
-    tyler_avatar:      { status: r2.status, video_id: d2?.data?.video_id, error: d2?.message || d2?.error, raw: d2 },
-  })
+  return NextResponse.json({ credits: 300, results: [benTP, benAvatar, tyler] })
 }
