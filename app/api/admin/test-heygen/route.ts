@@ -11,18 +11,28 @@ export async function GET() {
   const { data } = await db.from('system_api_keys').select('key_value').eq('key_name','HEYGEN_KEY').single()
   const key = data?.key_value || ''
 
-  // HeyGen new API format: input_text goes INSIDE voice object
-  async function testVideo(characterPayload: any, label: string) {
+  // Step 1: Get valid voices from HeyGen
+  const voicesRes = await fetch('https://api.heygen.com/v2/voices', {
+    headers: { 'X-Api-Key': key },
+    signal: AbortSignal.timeout(8000)
+  })
+  const voicesData = await voicesRes.json()
+  const voices = voicesData?.data?.voices || []
+  const firstVoice = voices[0]
+  
+  // Step 2: Test video with first available voice
+  let testResult: any = { skipped: 'no voices found' }
+  if (firstVoice) {
     const r = await fetch('https://api.heygen.com/v2/video/generate', {
       method: 'POST',
       headers: { 'X-Api-Key': key, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         video_inputs: [{
-          character: characterPayload,
+          character: { type: 'avatar', avatar_id: 'Tyler-insuit-20220721', avatar_style: 'normal' },
           voice: {
             type: 'text',
-            voice_id: 'en-US-GuyNeural',
-            input_text: 'Hey traders, Ben here from Verivex. This is a test.',
+            voice_id: firstVoice.voice_id,
+            input_text: 'Hey traders, Ben here from Verivex. This is a quick test.',
             speed: 1.0,
           },
           background: { type: 'color', value: '#0f172a' },
@@ -33,14 +43,12 @@ export async function GET() {
       signal: AbortSignal.timeout(12000)
     })
     const d = await r.json()
-    return { label, status: r.status, video_id: d?.data?.video_id, error: d?.error, message: d?.message }
+    testResult = { voice_used: firstVoice.voice_id, status: r.status, video_id: d?.data?.video_id, error: d?.error }
   }
 
-  const [benTP, benAvatar, tyler] = await Promise.all([
-    testVideo({ type: 'talking_photo', talking_photo_id: BEN }, 'Ben (talking_photo)'),
-    testVideo({ type: 'avatar', avatar_id: BEN, avatar_style: 'normal' }, 'Ben (avatar)'),
-    testVideo({ type: 'avatar', avatar_id: 'Tyler-insuit-20220721', avatar_style: 'normal' }, 'Tyler (reference)'),
-  ])
-
-  return NextResponse.json({ credits: 300, results: [benTP, benAvatar, tyler] })
+  return NextResponse.json({
+    voices_available: voices.length,
+    sample_voices: voices.slice(0,5).map((v:any) => ({ id: v.voice_id, name: v.name, language: v.language })),
+    test_video: testResult,
+  })
 }
