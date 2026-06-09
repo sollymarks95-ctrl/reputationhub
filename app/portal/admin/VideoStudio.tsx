@@ -583,38 +583,98 @@ export function ReviewVideoGenerator() {
         </>
       )}
 
-      {/* Video Queue */}
-      {queue.length > 0 && (
-        <div className="card" style={{ padding:16 }}>
-          <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>
-            📼 Video Queue ({queue.length} videos — daily auto-generation)
+      {/* Video Queue — Full Workflow */}
+      <div className="card" style={{ padding:16 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+          <div style={{ fontSize:13, fontWeight:700 }}>📼 Video Queue ({queue.length})</div>
+          <button onClick={() => fetch('/api/admin/video-reviews').then(r=>r.json()).then(d=>setQueue(d.videos||[]))}
+            className="btn b-ghost" style={{ fontSize:10, padding:'4px 10px' }}>↻ Refresh Status</button>
+        </div>
+        {queue.length === 0 ? (
+          <div style={{ fontSize:12, color:'#475569', textAlign:'center', padding:'20px 0' }}>
+            No videos yet — click Generate above or wait for daily cron at 13:00 Israel time
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {queue.slice(0,10).map((v: any) => (
-              <div key={v.id} style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'center', padding:'10px 12px', background:'rgba(255,255,255,0.03)', borderRadius:8 }}>
-                <div>
-                  <div style={{ fontWeight:600, fontSize:13 }}>{v.broker_name}</div>
-                  <div style={{ fontSize:10, color:'#475569', marginTop:2 }}>{v.youtube_title}</div>
-                  <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{new Date(v.created_at).toLocaleDateString('en-GB')}</div>
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {queue.map((v: any) => (
+              <div key={v.id} style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, padding:14 }}>
+                {/* Header row */}
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:14 }}>{v.broker_name || 'Unknown broker'}</div>
+                    <div style={{ fontSize:11, color:'#64748b', marginTop:2 }}>{new Date(v.created_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+                  </div>
+                  <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                    {v.published_to_portal && <span style={{ fontSize:9, fontWeight:700, background:'#10b981', color:'#fff', padding:'2px 6px', borderRadius:3 }}>✓ PUBLISHED</span>}
+                    <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:4,
+                      background: v.status==='ready' ? '#10b98115' : v.status==='processing' ? '#f59e0b15' : v.status==='failed' ? '#ef444415' : '#6366f115',
+                      color:      v.status==='ready' ? '#10b981'   : v.status==='processing' ? '#f59e0b'   : v.status==='failed' ? '#ef4444'   : '#6366f1' }}>
+                      {v.status==='ready' ? '✅ Ready' : v.status==='processing' ? '⏳ Rendering…' : v.status==='failed' ? '❌ Failed' : v.status}
+                    </span>
+                  </div>
                 </div>
-                <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:4,
-                  background: v.status === 'processing' ? '#f59e0b20' : v.status === 'completed' ? '#10b98120' : '#6366f120',
-                  color: v.status === 'processing' ? '#f59e0b' : v.status === 'completed' ? '#10b981' : '#6366f1' }}>
-                  {v.status === 'processing' ? '⏳ Processing' : v.status === 'completed' ? '✅ Ready' : v.status}
-                </span>
-                {v.heygen_video_url && (
-                  <a href={v.heygen_video_url} target="_blank" rel="noopener noreferrer" className="btn b-green" style={{ fontSize:10, padding:'4px 10px' }}>
-                    ⬇ Download
-                  </a>
-                )}
+                {/* YouTube title */}
+                {v.youtube_title && <div style={{ fontSize:11, color:'#94a3b8', marginBottom:8 }}>{v.youtube_title}</div>}
+                {/* Actions row */}
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                  {/* Preview — shows when video URL available */}
+                  {v.heygen_video_url && (
+                    <a href={v.heygen_video_url} target="_blank" rel="noopener noreferrer"
+                      style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(99,102,241,0.15)', color:'#818cf8', padding:'6px 12px', borderRadius:6, fontSize:11, fontWeight:700, textDecoration:'none' }}>
+                      ▶ Preview 16:9
+                    </a>
+                  )}
+                  {v.mobile_video_url && (
+                    <a href={v.mobile_video_url} target="_blank" rel="noopener noreferrer"
+                      style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(236,72,153,0.15)', color:'#f472b6', padding:'6px 12px', borderRadius:6, fontSize:11, fontWeight:700, textDecoration:'none' }}>
+                      ▶ Preview 9:16
+                    </a>
+                  )}
+                  {/* Download */}
+                  {v.heygen_video_url && (
+                    <a href={v.heygen_video_url} download
+                      style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(16,185,129,0.12)', color:'#10b981', padding:'6px 12px', borderRadius:6, fontSize:11, fontWeight:700, textDecoration:'none' }}>
+                      ⬇ Download
+                    </a>
+                  )}
+                  {/* Publish to Verivex portal */}
+                  {v.status==='ready' && !v.published_to_portal && (
+                    <button
+                      onClick={async () => {
+                        const ytUrl = prompt('Paste YouTube URL (or leave empty to use HeyGen URL):') ?? undefined
+                        const res = await fetch('/api/admin/video-reviews', {
+                          method: 'POST',
+                          headers: {'Content-Type':'application/json'},
+                          body: JSON.stringify({ video_id: v.id, youtube_url: ytUrl || undefined })
+                        })
+                        const d = await res.json()
+                        if (d.ok) {
+                          alert(`✅ ${d.message}`)
+                          fetch('/api/admin/video-reviews').then(r=>r.json()).then(d=>setQueue(d.videos||[]))
+                        } else {
+                          alert('Error: '+(d.error||'Unknown'))
+                        }
+                      }}
+                      style={{ background:'linear-gradient(90deg,#10b981,#0ea5e9)', color:'#fff', border:'none', padding:'6px 14px', borderRadius:6, fontSize:11, fontWeight:800, cursor:'pointer' }}>
+                      🚀 Publish to Verivex
+                    </button>
+                  )}
+                  {/* Script preview */}
+                  {v.script && (
+                    <button onClick={() => alert(v.script?.slice(0,500)+'...')}
+                      style={{ background:'rgba(255,255,255,0.05)', color:'#94a3b8', border:'1px solid rgba(255,255,255,0.1)', padding:'6px 12px', borderRadius:6, fontSize:11, cursor:'pointer' }}>
+                      📝 Script
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-          <div style={{ fontSize:11, color:'#475569', marginTop:10 }}>
-            New video generated automatically every day at 13:00 Israel time (10:00 UTC)
-          </div>
+        )}
+        <div style={{ fontSize:10, color:'#334155', marginTop:12 }}>
+          New video auto-generated every day 13:00 Israel time · Refresh to check HeyGen status
         </div>
-      )}
+      </div>
     </div>
   )
 }

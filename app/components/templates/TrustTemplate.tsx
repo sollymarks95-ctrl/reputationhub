@@ -106,6 +106,12 @@ function CompanyCard({ company, reviewCount, avgRating }: any) {
           <p style={{ fontSize:13, color:'#475569', lineHeight:1.6, marginBottom:16, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
             {company.description}
           </p>
+          {/* Video badge if published */}
+          {company.video_url && (
+            <div style={{ display:'inline-flex', alignItems:'center', gap:5, background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, color:'#166534', marginBottom:8 }}>
+              🎬 Video Review Available
+            </div>
+          )}
         </div>
 
         {/* Card footer */}
