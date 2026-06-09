@@ -448,7 +448,7 @@ function Editorial({ site, articles, p, font, slug, variant , selectedCat, setSe
           </div>
         )}
         <div className="ev2-grid">
-          {cols.map((a:any) => (
+          {cols.filter((a:any) => a.id !== hero?.id).map((a:any) => (
             <div key={a.id} style={{ paddingBottom:24, borderBottom:'1px solid #f0f0f0' }}>
               <div className="ev2-tag">{a.category}</div>
               <a href={`/article/${slug}/${a.slug}`}><h3 style={{ fontSize:19, fontWeight:800, lineHeight:1.3, fontFamily:gf('display'), marginBottom:8 }}>{a.title}</h3></a>
