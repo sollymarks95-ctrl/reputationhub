@@ -89,7 +89,7 @@ Return ONLY the script.` }]
         },
         voice: {
           type: 'text',
-          voice_id: 'en-US-GuyNeural',
+          voice_id: 'a4e55d1b200c4f56b72992f03c620422',  // solly m English
           input_text: script,
           speed: 1.0,
         },
