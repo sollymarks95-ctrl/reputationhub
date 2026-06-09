@@ -84,6 +84,12 @@ function getAuthor(siteSlug: string): string {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
+async function getAnthropicKey(): Promise<string> {
+  const db = getDb()
+  const { data } = await db.from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
+  return data?.key_value || process.env.ANTHROPIC_API_KEY || ''
+}
+
 function getDb() {
   return createClient((process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co'), (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'))
 }
@@ -401,6 +407,164 @@ Return ONLY a JSON array of ${count} topic strings, nothing else.`
 }
 
 
+// Extract per-site generation into reusable function (avoids self-fetch)
+async function generateForSite(siteSlug: string, batch: number): Promise<any> {
+  const db = getDb()
+  const ANTHROPIC = await getAnthropicKey()
+  const site = CORE_SITES[siteSlug]
+  if (!site) return { error: 'Unknown site', inserted: 0 }
+    const BATCH_SIZE = 10
+  const batchStart = batch * BATCH_SIZE
+
+  // TRUE 7% globalIndex — uses total historical count so brand spacing
+  // is maintained across all batches and all days, not just within one batch
+  const { count: historicalCount } = await getDb()
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', site.id)
+    .eq('status', 'published')
+  const today = new Date().toISOString().split('T')[0]
+  let inserted = 0
+  const skipped: string[] = []
+
+  // Load all active clients from DB — multi-client support
+  // Adding a new client to portal_clients = auto-included on next cron run
+  const { data: activeClients } = await getDb()
+    .from('portal_clients')
+    .select('id, company_name, website_url, brand_slug')
+    .eq('is_active', true)
+  const clients = activeClients || []
+
+  for (let i = 0; i < BATCH_SIZE; i++) {
+    // Use fresh web-discovered topics for first item in each batch, fallback to static
+    const freshTopics = i === 0 ? await discoverFreshTopics(site, BATCH_SIZE) : []
+    const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
+    if (!topic) break
+    const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
+
+    // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
+    // Ultra-natural editorial rate — indistinguishable from organic coverage
+    const isBrand        = globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
+    const isClientFeature = globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
+    const crossLink = getCrossLink(site.slug, topic, i)
+
+    let brandNote = ''
+    let featuredClient: any = null
+
+    if (isClientFeature) {
+      // Full dedicated feature article about the client — 800-1000 words
+      featuredClient = clients[Math.floor(globalIndex / 9) % clients.length]
+      const clientName = featuredClient.company_name
+      const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
+      brandNote = `
+
+FULL CLIENT FEATURE (this is a dedicated sponsored feature article — mandatory):
+Write a full editorial profile/review of ${clientName} as the PRIMARY subject of the entire article.
+This is NOT a mention — ${clientName} is the MAIN topic from headline to conclusion.
+
+Required structure:
+- Title: Must include "${clientName}" prominently (e.g. "${clientName} Review 2026: ...", "Inside ${clientName}: ...", "How ${clientName} Is ...")
+- Lead paragraph: Introduce ${clientName}, what they do, who they serve
+- Section 1: Their core offering and value proposition
+- Section 2: Key features, tools, or services they provide to clients
+- Section 3: Market position, who they compete with, why traders/investors choose them
+- Section 4: Regulatory standing, security, trust factors
+- Conclusion: Forward-looking statement about their trajectory
+- Throughout: Use this EXACT HTML link wherever name appears: <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a>
+- Minimum 3 links to their site, all with rel="noopener noreferrer"
+- Tone: authoritative editorial, not promotional — write like a journalist profiling a company`
+    } else if (isBrand) {
+      // Analytical journalism — CEO interview, fee analysis, regulatory scrutiny, comparison
+      // Rotates 5 angles so each article type looks like genuine independent reporting
+      featuredClient = clients[Math.floor(globalIndex / 3) % clients.length]
+      const clientName = featuredClient.company_name
+      const clientUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
+      const brandAngles = [
+        // Leadership & Strategy
+        `CEO INTERVIEW: Title "Inside ${clientName}'s 2026 Strategy" — write as if you interviewed leadership. 2-3 exec quotes. Note ONE challenge, explain how they handle it. Critical-but-fair.`,
+        `FOUNDER STORY: Title "${clientName}: From Startup to Market Leader" — origin story, pivotal decisions, what sets founders apart. Humanises the brand.`,
+        `LEADERSHIP PROFILE: Title "The Team Behind ${clientName}" — profile key executives, their backgrounds, why their expertise matters to traders.`,
+        `BOARD & GOVERNANCE: Title "${clientName}'s Governance Structure: What It Means for Traders" — board composition, investor oversight, how governance protects clients.`,
+        // Fees & Costs
+        `FEE BREAKDOWN: Title "${clientName} Fees Explained 2026: The Complete Guide" — spreads, withdrawal, inactivity, overnight. Honest. Conclude competitive overall.`,
+        `HIDDEN COSTS AUDIT: Title "The Real Cost of Trading on ${clientName}" — dig into less obvious costs. Fair analysis. Conclude value is justified.`,
+        `FEE COMPARISON: Title "${clientName} Fees vs Competitors: Who Wins in 2026?" — table comparison vs 3 rivals. ${clientName} wins on the metrics that matter most.`,
+        // Regulation & Safety
+        `REGULATORY DEEP DIVE: Title "${clientName} Regulation: Every Licence Explained" — FCA/ASIC/CySEC licences, what each covers, what protections traders get.`,
+        `CLIENT FUND SAFETY: Title "Is Your Money Safe at ${clientName}?" — segregated funds, FSCS/investor compensation, insurance. Conclude: very safe.`,
+        `COMPLIANCE ANALYSIS: Title "How ${clientName} Stays Ahead of Regulation" — proactive compliance approach, 2026 regulatory changes, what it costs them.`,
+        // Product & Platform
+        `PLATFORM REVIEW: Title "We Tested ${clientName} for 30 Days: Full Review" — features, speed, execution. Mention 1-2 minor friction points. Conclude strong overall.`,
+        `MOBILE APP AUDIT: Title "${clientName} Mobile App Review 2026" — iOS/Android, features, UX, performance vs desktop. Honest pros and cons.`,
+        `TECHNOLOGY DEEP DIVE: Title "The Technology Powering ${clientName}" — execution engine, API, uptime, cybersecurity. Why their tech gives them an edge.`,
+        `COPY TRADING ANALYSIS: Title "${clientName} Copy Trading: Does It Actually Work?" — data on top traders, actual returns, risks, who it suits. Balanced.`,
+        // Market Position
+        `COMPETITIVE COMPARISON: Title "${clientName} vs [Rival A] vs [Rival B]: 2026 Independent Analysis" — honest vs rivals. ${clientName} leads on metrics that matter most.`,
+        `MARKET SHARE ANALYSIS: Title "${clientName}'s Growing Market Share: What the Data Shows" — user growth, AUM, geographic expansion, competitive positioning.`,
+        `IPO/FINANCIALS: Title "${clientName}'s Financial Performance: What Traders Should Know" — revenue, user metrics, profitability signals. Strength = client security.`,
+        `GROWTH STORY: Title "${clientName}: The Numbers Behind Their 2026 Expansion" — user growth stats, new markets, product launches, future trajectory.`,
+        // User & Community
+        `USER TESTIMONIALS: Title "What Traders Really Think of ${clientName}: 2026 Survey" — synthesise real user feedback themes. Honest. Mostly positive with notes.`,
+        `BEGINNER GUIDE: Title "${clientName} for Beginners: Complete 2026 Starter Guide" — how to open account, first trade, tools for new traders. Educational, positions ${clientName} as the go-to choice.`,
+      ]
+      const angle = brandAngles[globalIndex % brandAngles.length]
+      brandNote = `\n\nANALYTICAL BRAND ARTICLE (mandatory — ${clientName} is the PRIMARY subject):\n${angle}\n\nLink: use <a href="${clientUrl}" rel="noopener noreferrer">${clientName}</a> minimum 3x throughout. Length: 700-900 words. Title must name ${clientName} directly.`
+    }
+
+    if (crossLink) brandNote += `\n\nEDITORIAL CROSS-REFERENCE (natural, mid-paragraph): ${crossLink}`
+
+    // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
+    const article = await writeArticle(site, topic, brandNote)
+    if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
+
+    const slug = `${today}-${slugify(article.title)}`
+    const { data: existing } = await getDb().from('news_articles').select('id').eq('slug', slug).single()
+    if (existing) { skipped.push(`dup:${slug}`); continue }
+
+    const { error } = await getDb().from('news_articles').insert({
+      news_site_id: site.id,
+      title: article.title,
+      slug,
+      excerpt: article.excerpt || '',
+      body: article.body || '',
+      category: article.category || 'Markets',
+      tags: Array.isArray(article.tags) ? article.tags : [],
+      author_name: getAuthor(siteSlug || ''),
+      cover_image_url: getArticleImage(article.category || 'Markets', slug),
+      status: 'published',
+      published_at: new Date().toISOString(),
+      is_featured: i === 0 && batch === 0,
+      article_type: isClientFeature ? 'brand_feature' : isBrand ? 'brand_mention' : 'news',
+      ai_generated: true,
+      read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
+    })
+    if (error) { console.error('Insert error:', error.message); continue }
+    inserted++
+
+    // portal_content only for brand articles (client-specific tracking)
+    if (isBrand && featuredClient) {
+      try {
+        await getDb().from('portal_content').insert({
+          client_id: featuredClient.id,
+          portal_name: site.shortName || site.name,
+          site_slug: siteSlug,
+          title: article.title,
+          article_url: `https://${site.domain}/article/${siteSlug}/${slug}`,
+          content_type: isClientFeature ? 'brand_feature' : 'brand_mention',
+          status: 'live',
+          backlink_value: 80,
+          published_at: new Date().toISOString(),
+        })
+      } catch { /* non-critical */ }
+    }
+
+    await new Promise(r => setTimeout(r, 400))
+  }
+
+  return NextResponse.json({ site: siteSlug, batch, inserted, skipped: skipped.length })
+}
+
 export async function GET(req: NextRequest) {
   // Accept Vercel cron Authorization header OR manual URL secret param
     const cronSecret = process.env.CRON_SECRET || ''
@@ -413,27 +577,19 @@ export async function GET(req: NextRequest) {
   const siteSlug = req.nextUrl.searchParams.get('site')
   const batch = parseInt(req.nextUrl.searchParams.get('batch') || '0')
 
-  // ALL-SITES MODE — PARALLEL: fire all 11 sites simultaneously
-  // Sequential = 330s timeout. Parallel = ~30s max
+  // ALL-SITES MODE — runs per-site logic directly (no self-fetch)
   if (!siteSlug) {
-    const base = req.nextUrl.origin
-    const authHeader = req.headers.get('authorization') || ''
-    const results = await Promise.all(
-      Object.keys(CORE_SITES).map(async (slug) => {
-        try {
-          const url = `${base}/api/cron-site?site=${slug}&batch=${batch}`
-          const r = await fetch(url, {
-            headers: { 'authorization': authHeader },
-            signal: AbortSignal.timeout(120000),
-          })
-          const d = await r.json()
-          return { slug, inserted: d.inserted ?? 0, error: d.error }
-        } catch (e: any) {
-          return { slug, inserted: 0, error: e.message }
-        }
-      })
-    )
-    const total = results.reduce((s, r) => s + (r.inserted || 0), 0)
+    const results: any[] = []
+    let total = 0
+    for (const slug of Object.keys(CORE_SITES)) {
+      try {
+        const result = await generateForSite(slug, batch)
+        results.push({ slug, inserted: result.inserted ?? 0 })
+        total += result.inserted ?? 0
+      } catch (e: any) {
+        results.push({ slug, inserted: 0, error: e.message })
+      }
+    }
     return NextResponse.json({ allSites: true, batch, total_inserted: total, results })
   }
 
