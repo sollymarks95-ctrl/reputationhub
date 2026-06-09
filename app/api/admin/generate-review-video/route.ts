@@ -90,12 +90,11 @@ Return ONLY the script.` }]
         voice: {
           type: 'text',
           voice_id: 'en-US-GuyNeural',
+          input_text: script,
           speed: 1.0,
-          pitch: 0,
         },
         background: { type: 'color', value: '#0f172a' },
       }],
-      input_text: script,
       aspect_ratio: '16:9',
       test: false,
     }
@@ -120,7 +119,7 @@ Return ONLY the script.` }]
       const mRes = await fetch('https://api.heygen.com/v2/video/generate', {
         method: 'POST',
         headers: { 'X-Api-Key': HEYGEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...heygenPayload, aspect_ratio: '9:16' }),
+        body: JSON.stringify({ ...heygenPayload, aspect_ratio: '9:16', video_inputs: [{ ...heygenPayload.video_inputs[0] }] }),
       })
       const mData = await mRes.json()
       mobileId = mData?.data?.video_id || null

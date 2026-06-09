@@ -130,10 +130,9 @@ Return format:
           character: AVATAR_ID.includes('-') && AVATAR_ID.length < 40
           ? { type: 'avatar', avatar_id: AVATAR_ID, avatar_style: ratio === '9:16' ? 'closeup' : 'normal' }
           : { type: 'talking_photo', talking_photo_id: AVATAR_ID },
-          voice: { type: 'elevenlabs', voice_id: VOICE_ID, speed: 1.0 },
+          voice: { type: 'elevenlabs', voice_id: VOICE_ID, input_text: scriptPart, speed: 1.0 },
           background: { type: 'color', value: '#0f172a' }
         }],
-        input_text: scriptPart,
         aspect_ratio: ratio,
         test: false,
       })

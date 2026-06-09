@@ -21,7 +21,7 @@ export async function GET() {
         voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0 },
         background: { type: 'color', value: '#0f172a' },
       }],
-      input_text: 'Hey traders, Ben here. This is a test.',
+
       aspect_ratio: '16:9', test: false,
     }),
     signal: AbortSignal.timeout(12000)
@@ -38,7 +38,7 @@ export async function GET() {
         voice: { type: 'text', voice_id: 'en-US-GuyNeural', speed: 1.0 },
         background: { type: 'color', value: '#0f172a' },
       }],
-      input_text: 'Hey traders, this is a test video.',
+
       aspect_ratio: '16:9', test: false,
     }),
     signal: AbortSignal.timeout(12000)
