@@ -30,7 +30,8 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     'market-radar':       'https://signalixx.com',
     'executive-network':  'https://execvex.com',
     'crypto-hub':         'https://cryptoxos.com',
-    'global-trade-assoc': 'https://certivade.com',
+    'fx-vexx':            'https://fxvexx.com',
+    'trade-hub-iq':       'https://tradehubiq.com',
   }
   const BASE = domainMap[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`

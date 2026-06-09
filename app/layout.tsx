@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'RepHuby Intelligence — Global Markets & Trade News',
   description: 'Professional market intelligence, trade news, and financial analysis across global commodity, currency, and equity markets.',
   keywords: 'commodity trading, trade finance, financial markets, gold price, forex, market analysis',
-  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
+  // robots handled per-page — portals set index:true, noindex portals set noindex
   openGraph: {
     siteName: 'RepHuby Intelligence',
     type: 'website',
