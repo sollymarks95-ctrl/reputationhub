@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import DynamicTemplate from '@/app/components/templates/DynamicTemplate'
+import JewishTemplate from '@/app/components/templates/JewishTemplate'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -146,7 +147,9 @@ export default async function DynamicSitePage() {
       {schemas.map((s, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
       ))}
-      <DynamicTemplate site={site} articles={articles || []} />
+      {['jewish-news-now','jewish-property-report','aliya-today'].includes(site.slug)
+        ? <JewishTemplate site={site} articles={articles || []} />
+        : <DynamicTemplate site={site} articles={articles || []} />}
     </>
   )
 }

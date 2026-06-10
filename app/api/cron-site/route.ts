@@ -435,6 +435,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   const site = CORE_SITES[siteSlug]
   if (!site) return { error: 'Unknown site', inserted: 0 }
     const BATCH_SIZE = 10
+  const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -556,7 +557,7 @@ Required structure:
       status: 'published',
       published_at: new Date().toISOString(),
       is_featured: i === 0 && batch === 0,
-      article_type: isClientFeature ? 'brand_feature' : isBrand ? 'brand_mention' : 'news',
+      article_type: (!isJewishPortal && isClientFeature) ? 'brand_feature' : (!isJewishPortal && isBrand) ? 'brand_mention' : 'news',
       ai_generated: true,
       read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
     })
@@ -618,6 +619,7 @@ export async function GET(req: NextRequest) {
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
   const BATCH_SIZE = 10
+  const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -739,7 +741,7 @@ Required structure:
       status: 'published',
       published_at: new Date().toISOString(),
       is_featured: i === 0 && batch === 0,
-      article_type: isClientFeature ? 'brand_feature' : isBrand ? 'brand_mention' : 'news',
+      article_type: (!isJewishPortal && isClientFeature) ? 'brand_feature' : (!isJewishPortal && isBrand) ? 'brand_mention' : 'news',
       ai_generated: true,
       read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
     })
