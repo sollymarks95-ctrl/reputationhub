@@ -1,14 +1,36 @@
 {
   "crons": [
-    { "path": "/api/run?job=articles&batch=0", "schedule": "0 7 * * *"   },
-    { "path": "/api/run?job=articles&batch=1", "schedule": "0 13 * * *"  },
-    { "path": "/api/run?job=articles&batch=2", "schedule": "0 18 * * *"  },
-    { "path": "/api/run?job=questions",        "schedule": "0 2 * * *"   },
-    { "path": "/api/run?job=reviews",          "schedule": "0 9 * * *"   },
-    { "path": "/api/run?job=companies",        "schedule": "0 6 * * *"   },
-    { "path": "/api/run?job=backlinks",        "schedule": "45 5 * * *"  },
-    { "path": "/api/run?job=report",           "schedule": "0 5 * * *"   },
-    { "path": "/api/run?job=video",            "schedule": "0 10 * * *"  },
-    { "path": "/api/run?job=links",            "schedule": "0 0 */2 * *" }
+    {
+      "path": "/api/run?job=articles&batch=0",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/run?job=articles&batch=1",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/run?job=articles&batch=2",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/run?job=questions",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/run?job=reviews",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/run?job=companies",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/run?job=backlinks",
+      "schedule": "45 5 * * *"
+    },
+    {
+      "path": "/api/run?job=links",
+      "schedule": "0 0 */2 * *"
+    }
   ]
 }
