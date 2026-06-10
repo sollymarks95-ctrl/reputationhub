@@ -9,7 +9,7 @@ const PORTAL_COLORS: Record<string,string> = {
   'market-radar':'#A21CAF','executive-network':'#DC2626','crypto-hub':'#F97316',
 }
 const PORTAL_DOMAIN: Record<string,string> = {
-  'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','business-pulse':'bizplezx.com',
+  'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com','business-pulse':'bizplezx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com',
   'gold-markets-today':'aurexhq.com','trust-score':'verivex.co','invest-data':'invexhuby.com',
   'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
   'fx-vexx':'fxvexx.com','trade-hub-iq':'tradehubiq.com',
@@ -112,7 +112,7 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
   const [confirmDelete, setConfirmDelete] = React.useState(false)
 
   const SLUG_DOMAIN: Record<string,string> = {
-    'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com',
+    'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com',
     'business-pulse':'bizplezx.com','gold-markets-today':'aurexhq.com',
     'trust-score':'verivex.co','invest-data':'invexhuby.com',
     'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
@@ -404,7 +404,7 @@ function PortalsTab() {
   )
   const liveCount    = portals.filter(p => p.is_live).length
   const indexedCount = portals.filter(p => !p.noindex).length
-  const buildingCount= portals.filter(p => p.noindex).length
+  const buildingCount= portals.filter(p => p.noindex).length  // noindex = backlink/community sites
   const totalToday   = portals.reduce((s, p) => s + (p.today||0), 0)
   const totalArticles= portals.reduce((s, p) => s + (p.total||0), 0)
 
