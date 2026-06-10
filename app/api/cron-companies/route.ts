@@ -23,7 +23,9 @@ const randInt = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)
 
 // Discover NEW companies via Claude + web search
 async function discoverNewCompanies(existingSlugs: Set<string>): Promise<any[]> {
-  const ANTH = process.env.ANTHROPIC_API_KEY
+  const _db1 = getDb()
+  const { data: _ak1 } = await _db1.from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
+  const ANTH = _ak1?.key_value || process.env.ANTHROPIC_API_KEY
   if (!ANTH) return []
 
   const today = new Date().toISOString().split('T')[0]
@@ -97,7 +99,9 @@ Return ONLY valid JSON array, no markdown fences.`
 
 // Generate reviews for a company
 async function generateReviews(company: any, count: number = 4): Promise<any[]> {
-  const ANTH = process.env.ANTHROPIC_API_KEY
+  const _db2 = getDb()
+  const { data: _ak2 } = await _db2.from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
+  const ANTH = _ak2?.key_value || process.env.ANTHROPIC_API_KEY
   if (!ANTH) return []
 
   const isProtected = PROTECTED_CLIENTS.has(company.slug)
