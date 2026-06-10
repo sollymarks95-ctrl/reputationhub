@@ -51,6 +51,7 @@ export default function MobileNav({
                     // Custom splits for specific portal names
                     const splits: Record<string,number> = {
                       'TradeHubIQ': 8, 'FXVexx': 4, 'CryptoXos': 7,
+                      'AliyaToday': 5, 'JewishPropertyReport': 6, 'JewishNewsNow': 6,
                       'IsraelPropertyIQ': 14, 'LuxPropHQ': 6,
                     }
                     const idx = splits[siteName] ?? siteName.length - 2

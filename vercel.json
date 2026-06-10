@@ -94,6 +94,30 @@
     {
       "schedule": "45 8 * * *",
       "path": "/api/cron-site?site=trade-hub-iq&batch=0"
+    },
+    {
+      "schedule": "5 9 * * *",
+      "path": "/api/cron-site?site=jewish-news-now&batch=0"
+    },
+    {
+      "schedule": "15 9 * * *",
+      "path": "/api/cron-site?site=jewish-property-report&batch=0"
+    },
+    {
+      "schedule": "30 9 * * *",
+      "path": "/api/cron-site?site=aliya-today&batch=0"
+    },
+    {
+      "schedule": "45 0 * * *",
+      "path": "/api/cron-questions?site=jewish-news-now"
+    },
+    {
+      "schedule": "35 3 * * *",
+      "path": "/api/cron-questions?site=jewish-property-report"
+    },
+    {
+      "schedule": "45 4 * * *",
+      "path": "/api/cron-questions?site=aliya-today"
     }
   ]
 }

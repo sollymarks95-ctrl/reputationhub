@@ -1,4 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+i
+  'jewish-news-now': ['What is happening in Israel today?','Is it safe to visit Israel in 2026?','What is the latest on the Israel Gaza situation?','How is Israel economy doing in 2026?','What is antisemitism and why is it rising?','How many Jews live in the world 2026?','What is the Jewish Agency?','What is Birthright Israel program?'],
+  'jewish-property-report': ['How to buy property in Israel as a foreigner?','What is the average apartment price in Tel Aviv 2026?','Is it a good time to invest in Israeli real estate?','How much does an apartment cost in Jerusalem 2026?','What taxes do foreigners pay on Israeli property?','Can Americans buy property in Israel?','What is the best neighbourhood to buy in Tel Aviv?','How to get an Israeli mortgage as a foreigner?'],
+  'aliya-today': ['How to make aliya from USA to Israel?','What are the benefits of making aliya?','How long does the aliya process take?','What is Nefesh BNefesh?','What is Sal Klita aliya benefit?','How much Hebrew do you need to make aliya?','What is the best city to make aliya to?','What is ulpan in Israel?'],mport { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic    = 'force-dynamic'

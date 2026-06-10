@@ -38,6 +38,44 @@ const CORE_SITES: Record<string, any> = {
     ]
   },
 }
+  'jewish-news-now': {
+    id: '8dc3f4f2-309c-4f3b-98c6-a6d42d037778', name: 'Jewish News Now', shortName: 'JNN',
+    author: 'David Cohen', domain: 'jewishnewsnow.com',
+    topics: [
+      'Israel news today 2026','Jewish community news worldwide','antisemitism news 2026',
+      'Israel Gaza ceasefire update','Israel tech startups 2026','Israeli elections politics',
+      'Jewish holidays calendar 2026','Israel economy news','Tel Aviv lifestyle news',
+      'Jewish diaspora news','Israel defense news','Jerusalem news today',
+      'Israel tourism travel','Jewish education news','Israel innovation news',
+    ]
+  },
+  'jewish-property-report': {
+    id: '15762338-2746-45ea-95b5-6685ed3c480e', name: 'Jewish Property Report', shortName: 'JPR',
+    author: 'Rachel Goldstein', domain: 'jewishpropertyreport.com',
+    topics: [
+      'Israeli real estate market 2026','Jerusalem property prices 2026','Tel Aviv apartment prices',
+      'Israel property investment guide diaspora','Netanya real estate foreigners',
+      'Israel mortgage foreigners guide','Buy apartment Israel non-resident',
+      'Israel rental yield investment 2026','Herzliya real estate market',
+      'Israeli new developments 2026','Israel property tax foreigners',
+      'Best neighbourhoods Tel Aviv investment','Israel real estate law foreigners',
+      'Haifa property market 2026','Israel property management companies',
+    ]
+  },
+  'aliya-today': {
+    id: '9cfd54a9-5e1c-414c-8fe1-12b779013fca', name: 'Aliya Today', shortName: 'AliyaToday',
+    author: 'Miriam Shapiro', domain: 'aliyatoday.com',
+    topics: [
+      'how to make aliya step by step guide 2026','aliya benefits Israel 2026',
+      'nefesh bnefesh aliya process','israel absorption center ulpan',
+      'aliya from USA to Israel 2026','aliya from UK to Israel guide',
+      'cost of living Israel 2026 new immigrant','israel health insurance olim',
+      'learn Hebrew before aliya tips','israel job market english speakers',
+      'best cities aliya families 2026','israel school system english speakers',
+      'aliya tax benefits new immigrant','shiputzim renovation israel olim',
+      'driving licence conversion israel',
+    ]
+  },
 
 // Author pools per portal — rotated randomly so each article has a different byline
 const PORTAL_AUTHORS: Record<string, string[]> = {
@@ -115,6 +153,9 @@ const SITE_PERSONA: Record<string, string> = {
   'fx-vexx':            'Forex industry insider voice. Regulatory filings, broker spreads, execution quality, client money rules. Sceptical of marketing claims. References FCA/ASIC/CySEC enforcement actions.',
   'trade-hub-iq':       'Retail investor advocate voice. Plain English explanations of complex products. Focuses on fees, protection, account features. Compares platforms like a consumer champion.',
 }
+  'jewish-news-now':        'Authoritative Jewish news voice. Covers Israel, global Jewish community, antisemitism, politics. Factual, balanced, pro-Israel perspective. References JTA, Times of Israel, Haaretz.',
+  'jewish-property-report': 'Israeli real estate analyst voice. Specific property prices, rental yields, legal requirements for foreign buyers. Practical guidance for diaspora investors.',
+  'aliya-today':            'Warm, experienced oleh voice. Practical, step-by-step Aliya guidance. References Nefesh BNefesh, Jewish Agency, Misrad HaKlita. Uses Hebrew terms with explanations.',
 
 // Journalistic angles — rotated per article to prevent structural repetition
 const ANGLES = [
@@ -175,6 +216,17 @@ Include FAQ with 2 practical trader questions about the broker/regulation discus
 Structure: Platform/product lead → feature breakdown → fee analysis → who it suits → "TradeHubIQ Verdict" (star rating 1-5 + 2-sentence summary).
 Include FAQ with 2 beginner-friendly questions. Write like a consumer review, not financial journalism.`,
 }
+  'jewish-news-now': `FORMAT: Jewish news brief. 500-650 words.
+Structure: News lead (who/what/where/when) → Israel/community context → global Jewish significance → reaction from community leaders → "What This Means" section.
+Reference real organisations: JTA, AJC, WJC, AIPAC, Nefesh BNefesh. Balanced but pro-Israel perspective.`,
+
+  'jewish-property-report': `FORMAT: Property market report. 650-750 words.
+Structure: Market headline (specific price/yield data) → neighbourhood analysis → legal requirements for foreign buyers → practical steps → "JPR Investment Verdict" (buy/hold/watch).
+Use specific NIS/USD prices, % yields, sq meter prices. Reference Madlan, Yad2, Tabu.`,
+
+  'aliya-today': `FORMAT: Practical Aliya guide. 700-850 words.
+Structure: Why this matters for Olim → step-by-step practical breakdown → common mistakes → real cost/timeline → "Aliya Action Steps" checklist (3-5 items).
+Use Hebrew terms: Misrad HaKlita, Sal Klita, Teudat Oleh, Arnona, Kupat Holim. Warm, experienced tone.`,
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
   'global-trade-wire': [
