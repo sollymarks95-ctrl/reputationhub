@@ -25,6 +25,7 @@ const PROTECTED_CLIENTS = new Set(['etoro', 'etoro-eu', 'etoroX'])
 
 // Use Claude to generate fresh, unique AI reviews
 async function generateReviewsForCompany(company: any, count: number): Promise<any[]> {
+  const db = getDb()
   const { data: _ak } = await db.from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
   const ANTH = _ak?.key_value || process.env.ANTHROPIC_API_KEY
   if (!ANTH) return []

@@ -1807,70 +1807,93 @@ export default function AdminDashboard({
           <NotificationsTab clients={clients} />
         )}
         {tab==='subscribers'&&(
-          <div>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-              <div className="syne" style={{fontSize:20,fontWeight:900}}>📧 Newsletter Subscribers</div>
-              <button onClick={()=>{ setSubsLoading(true); fetch('/api/subscribe').then(r=>r.json()).then(d=>{ setSubscribers(d); setSubsLoading(false) }) }}
-                className="btn b-ghost" style={{fontSize:11}}>↻ Refresh</button>
+          <div style={{maxWidth:900}}>
+            {/* Header */}
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
+              <div>
+                <h2 className="syne" style={{fontSize:22,fontWeight:900,marginBottom:4}}>📧 Newsletter Subscribers</h2>
+                <p style={{color:'#64748b',fontSize:13}}>All subscribers across the portal network</p>
+              </div>
+              <button onClick={()=>{setSubsLoading(true);fetch('/api/subscribe').then(r=>r.json()).then(d=>{setSubscribers(d);setSubsLoading(false)})}} className="btn b-ghost" style={{fontSize:12,gap:6,display:'flex',alignItems:'center'}}>
+                ↻ Refresh
+              </button>
             </div>
 
-            {/* Stats */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:24}}>
+            {/* 4 stat cards */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:32}}>
               {[
-                ['Total',subscribers.total,'📧'],
-                ['Finvexx',(subscribers.by_site?.['finance-terminal']||[]).length,'💹'],
-                ['Nex-Wire',(subscribers.by_site?.['global-trade-wire']||[]).length,'📡'],
-                ['Jewish Sites',((subscribers.by_site?.['jewish-news-now']||[]).length+(subscribers.by_site?.['jewish-property-report']||[]).length+(subscribers.by_site?.['aliya-today']||[]).length),'✡'],
-              ].map(([label,val,icon])=>(
-                <div key={String(label)} className="card" style={{padding:'16px',textAlign:'center'}}>
-                  <div style={{fontSize:20,marginBottom:4}}>{icon}</div>
-                  <div style={{fontSize:28,fontWeight:900,color:'#6366f1'}}>{val}</div>
-                  <div style={{fontSize:11,color:'#64748b',marginTop:2}}>{label}</div>
+                {label:'Total',value:subscribers.total,icon:'📧',color:'#6366f1'},
+                {label:'Finance Portals',value:Object.entries(subscribers.by_site||{}).filter(([k])=>!['jewish-news-now','jewish-property-report','aliya-today'].includes(k)).reduce((s:number,[,v]:any)=>s+v.length,0),icon:'💹',color:'#10b981'},
+                {label:'Jewish Sites',value:((subscribers.by_site?.['jewish-news-now']||[]).length+(subscribers.by_site?.['jewish-property-report']||[]).length+(subscribers.by_site?.['aliya-today']||[]).length),icon:'✡',color:'#1a56b0'},
+                {label:'Countries',value:new Set((subscribers.subscribers||[]).map((s:any)=>s.ip_country).filter(Boolean)).size,icon:'🌍',color:'#f59e0b'},
+              ].map(({label,value,icon,color})=>(
+                <div key={label} className="card" style={{padding:'20px 16px',textAlign:'center',border:`1px solid ${color}20`}}>
+                  <div style={{fontSize:22,marginBottom:6}}>{icon}</div>
+                  <div style={{fontSize:32,fontWeight:900,color,lineHeight:1}}>{value}</div>
+                  <div style={{fontSize:11,color:'#64748b',marginTop:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.04em'}}>{label}</div>
                 </div>
               ))}
             </div>
 
-            {subsLoading && <div style={{textAlign:'center',padding:40,color:'#64748b'}}>Loading…</div>}
+            {subsLoading && <div style={{textAlign:'center',padding:48,color:'#64748b'}}>⏳ Loading subscribers…</div>}
 
-            {/* Per-portal tables */}
-            {[...new Set((subscribers.subscribers||[]).map((s:any)=>s.site_slug||'unknown'))].sort().map((slug:string)=>{
-              const subs=(subscribers.subscribers||[]).filter((s:any)=>(s.site_slug||'unknown')===slug)
-              const labels:Record<string,string>={'finance-terminal':'💹 Finvexx','global-trade-wire':'📡 Nex-Wire','trust-score':'🔍 Verivex','gold-markets-today':'🥇 AurexHQ','invest-data':'📊 InvexHuby','business-pulse':'📈 Bizplezx','market-radar':'📉 Signalixx','executive-network':'👔 ExecVex','crypto-hub':'🪙 CryptoXos','fx-vexx':'💱 FXVexx','trade-hub-iq':'🔷 TradeHubIQ','jewish-news-now':'✡ Jewish News Now','jewish-property-report':'🏠 Jewish Property','aliya-today':'✈️ Aliya Today'}
+            {/* Per-portal accordion */}
+            {!subsLoading && [
+              ...Object.keys(subscribers.by_site||{}).filter(k=>!['jewish-news-now','jewish-property-report','aliya-today'].includes(k)).sort(),
+              'jewish-news-now','jewish-property-report','aliya-today'
+            ].filter(slug=>(subscribers.by_site?.[slug]||[]).length>0).map((slug:string)=>{
+              const subs=(subscribers.by_site?.[slug]||[])
+              const labels:Record<string,string>={'finance-terminal':'💹 Finvexx','global-trade-wire':'📡 Nex-Wire','trust-score':'🔍 Verivex','gold-markets-today':'🥇 AurexHQ','invest-data':'📊 InvexHuby','business-pulse':'📈 Bizplezx','market-radar':'📉 Signalixx','executive-network':'👔 ExecVex','crypto-hub':'🪙 CryptoXos','fx-vexx':'💱 FXVexx','trade-hub-iq':'🔷 TradeHubIQ','jewish-news-now':'✡ Jewish News Now','jewish-property-report':'🏠 Jewish Property Report','aliya-today':'✈️ Aliya Today','unknown':'❓ Unknown'}
+              const isJewish=['jewish-news-now','jewish-property-report','aliya-today'].includes(slug)
               return (
-                <div key={slug} className="card" style={{padding:16,marginBottom:16}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-                    <div style={{fontWeight:700,fontSize:14}}>{labels[slug]||slug}</div>
-                    <span style={{background:'#6366f120',color:'#6366f1',padding:'3px 10px',borderRadius:12,fontSize:12,fontWeight:700}}>{subs.length} subscribers</span>
-                  </div>
-                  {subs.length===0 ? <div style={{color:'#64748b',fontSize:13,textAlign:'center',padding:'16px 0'}}>No subscribers yet</div> : (
-                    <div style={{overflowX:'auto'}}>
-                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
-                        <thead><tr style={{borderBottom:'2px solid #f1f5f9'}}>
-                          {['Email','Source','Country','Subscribed'].map(h=><th key={h} style={{textAlign:'left',padding:'8px 12px',color:'#64748b',fontWeight:700,fontSize:10,textTransform:'uppercase'}}>{h}</th>)}
-                        </tr></thead>
-                        <tbody>
-                          {subs.map((s:any)=>(
-                            <tr key={s.id} style={{borderBottom:'1px solid #f8fafc'}}>
-                              <td style={{padding:'10px 12px',fontWeight:600,color:'#1e293b'}}>{s.email}</td>
-                              <td style={{padding:'10px 12px',color:'#64748b'}}>{s.source||'footer'}</td>
-                              <td style={{padding:'10px 12px',color:'#64748b'}}>{s.ip_country||'—'}</td>
-                              <td style={{padding:'10px 12px',color:'#94a3b8',fontSize:11}}>{new Date(s.subscribed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      <button onClick={()=>{
-                        const csv='Email,Source,Country,Subscribed\n'+subs.map((s:any)=>`${s.email},${s.source||''},${s.ip_country||''},${s.subscribed_at}`).join('\n')
-                        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${slug}-subscribers.csv`;a.click()
-                      }} className="btn b-ghost" style={{fontSize:11,marginTop:10}}>⬇ Export CSV</button>
+                <div key={slug} className="card" style={{marginBottom:12,overflow:'hidden',border:isJewish?'1px solid #1a56b020':'1px solid #e2e8f0'}}>
+                  {/* Portal header */}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 20px',background:isJewish?'#f8faff':'#fafafa',borderBottom:'1px solid #f1f5f9'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontWeight:800,fontSize:14}}>{labels[slug]||slug}</span>
+                      {isJewish&&<span style={{fontSize:9,background:'#1a56b020',color:'#1a56b0',padding:'2px 8px',borderRadius:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em'}}>Backlink Site</span>}
                     </div>
-                  )}
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <span style={{background:'#6366f115',color:'#6366f1',padding:'4px 12px',borderRadius:20,fontSize:12,fontWeight:700}}>{subs.length} subscriber{subs.length!==1?'s':''}</span>
+                      <button onClick={()=>{
+                        const csv='Email,Source,Country,Subscribed\n'+subs.map((s:any)=>`${s.email},${s.source||''},${s.ip_country||''},${new Date(s.subscribed_at).toLocaleDateString('en-GB')}`).join('\n')
+                        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${slug}-subscribers.csv`;a.click()
+                      }} style={{background:'transparent',border:'1px solid #e2e8f0',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',color:'#64748b'}}>⬇ CSV</button>
+                    </div>
+                  </div>
+                  {/* Subscriber rows */}
+                  <div style={{overflowX:'auto'}}>
+                    <table style={{width:'100%',borderCollapse:'collapse'}}>
+                      <thead><tr style={{background:'#f8fafc'}}>
+                        {['Email','Source','Country','Date'].map(h=><th key={h} style={{textAlign:'left',padding:'8px 20px',fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'.08em',borderBottom:'1px solid #f1f5f9'}}>{h}</th>)}
+                      </tr></thead>
+                      <tbody>
+                        {subs.map((s:any,i:number)=>(
+                          <tr key={s.id} style={{borderBottom:i<subs.length-1?'1px solid #f8fafc':'none',transition:'background .1s'}} onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='#f8fafc'} onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background=''}>
+                            <td style={{padding:'12px 20px',fontWeight:600,fontSize:13,color:'#1e293b'}}>{s.email}</td>
+                            <td style={{padding:'12px 20px',fontSize:12}}><span style={{background:'#f1f5f9',color:'#475569',padding:'2px 8px',borderRadius:4,fontSize:11}}>{s.source||'footer'}</span></td>
+                            <td style={{padding:'12px 20px',fontSize:12,color:'#64748b'}}>{s.ip_country||'—'}</td>
+                            <td style={{padding:'12px 20px',fontSize:11,color:'#94a3b8'}}>{new Date(s.subscribed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )
             })}
-            {(subscribers.subscribers||[]).length===0&&!subsLoading&&<div style={{textAlign:'center',padding:60,color:'#64748b'}}>No subscribers yet — forms are live on all portals</div>}
+
+            {/* Empty state */}
+            {!subsLoading&&(subscribers.total===0)&&(
+              <div style={{textAlign:'center',padding:'60px 20px',color:'#94a3b8'}}>
+                <div style={{fontSize:40,marginBottom:16}}>📭</div>
+                <div style={{fontWeight:700,fontSize:16,marginBottom:8,color:'#475569'}}>No subscribers yet</div>
+                <div style={{fontSize:13}}>Subscribe forms are live on all 11 portals</div>
+              </div>
+            )}
           </div>
         )}
+
 
         {tab==='settings'&&(
           <div className="ti">
