@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import CookieConsent from './components/CookieConsent'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'RepHuby Intelligence — Global Markets & Trade News',
@@ -29,6 +30,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ margin: 0, padding: 0 }}>
         {children}
         <Analytics />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7010447785244398"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <CookieConsent />
       </body>
     </html>
