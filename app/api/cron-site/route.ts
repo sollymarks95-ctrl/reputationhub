@@ -228,52 +228,96 @@ const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: strin
   'global-trade-wire': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['currency', 'forex', 'rate', 'bank', 'credit'] },
     { domain: 'aurexhq.com', name: 'AurexHQ', topics: ['commodity', 'gold', 'oil', 'copper', 'freight'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'finance-terminal': [
     { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['trade', 'supply chain', 'export', 'import'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'equity', 'etf'] },
     { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'chart', 'indicator'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'business-pulse': [
     { domain: 'execvex.com', name: 'ExecVex', topics: ['executive', 'ceo', 'board', 'M&A', 'deal'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'private equity', 'venture'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'gold-markets-today': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['rate', 'inflation', 'dollar', 'fed'] },
     { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['shipping', 'freight', 'trade'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'trust-score': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['broker', 'trading', 'platform', 'forex'] },
     { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'analysis'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'invest-data': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'bond', 'rate'] },
     { domain: 'bizplezx.com', name: 'Bizplezx Executive', topics: ['business', 'corporate', 'strategy'] },
     { domain: 'cryptoxos.com', name: 'CryptoXos', topics: ['crypto', 'bitcoin', 'digital asset', 'blockchain'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'market-radar': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'index', 'forex'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['portfolio', 'invest', 'fund'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'executive-network': [
     { domain: 'bizplezx.com', name: 'Bizplezx Executive', topics: ['business', 'corporate', 'strategy'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['private equity', 'venture', 'fund'] },
     { domain: 'nex-wire.com', name: 'Nex-Wire', topics: ['trade', 'supply chain', 'cross-border'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'crypto-hub': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'rate', 'regulation', 'etf'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'institutional'] },
     { domain: 'signalixx.com', name: 'Signalixx', topics: ['signal', 'technical', 'chart'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'fx-vexx': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'rate', 'currency', 'forex'] },
     { domain: 'tradehubiq.com', name: 'TradeHubIQ', topics: ['broker', 'trading', 'platform', 'invest'] },
     { domain: 'verivex.co', name: 'Verivex', topics: ['regulation', 'licence', 'compliance', 'safety'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
   'trade-hub-iq': [
     { domain: 'fxvexx.com', name: 'FXVexx', topics: ['forex', 'broker', 'trading', 'cfd'] },
     { domain: 'invexhuby.com', name: 'InvexHuby', topics: ['invest', 'portfolio', 'fund', 'etf'] },
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['market', 'equity', 'rate', 'index'] },
+  
+    { domain: 'jewishnewsnow.com',        name: 'Jewish News Now',          topics: ['israel','jewish','diaspora','middle east','tel aviv','jerusalem','antisemit','hebrew','aliya'] },
+    { domain: 'jewishpropertyreport.com', name: 'Jewish Property Report',   topics: ['israel','property','real estate','diaspora','foreign buyer','tel aviv','jerusalem','invest'] },
+    { domain: 'aliyatoday.com',           name: 'Aliya Today',              topics: ['aliya','israel','immigration','expat','diaspora','relocat','move abroad','foreign resident'] },
   ],
 }
 
