@@ -614,6 +614,33 @@ Return ONLY valid JSON, no markdown fences:
 }
 
 // Discover fresh article topics via Claude + web search — never repeats
+async function getTrendingFromDB(siteSlug: string, count: number): Promise<string[]> {
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    const db = getDb()
+    const { data } = await db
+      .from('trending_topics')
+      .select('topic')
+      .eq('site_slug', siteSlug)
+      .eq('date', today)
+      .is('used_at', null)
+      .order('score', { ascending: false })
+      .limit(count)
+    if (data && data.length >= 3) {
+      // Mark as used
+      await db.from('trending_topics')
+        .update({ used_at: new Date().toISOString() })
+        .eq('site_slug', siteSlug)
+        .eq('date', today)
+        .in('topic', data.map((d: any) => d.topic))
+      return data.map((d: any) => d.topic)
+    }
+  } catch(e: any) {
+    console.error('[getTrendingFromDB] error:', e.message)
+  }
+  return []
+}
+
 async function discoverFreshTopics(site: any, count: number, isJewishPortal = false): Promise<string[]> {
   const ANTH = process.env.ANTHROPIC_API_KEY
   if (!ANTH) return site.topics.slice(0, count)
@@ -724,7 +751,18 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
 
   for (let i = 0; i < BATCH_SIZE; i++) {
     // Use fresh web-discovered topics for first item in each batch, fallback to static
-    const freshTopics = i === 0 ? await discoverFreshTopics(site, BATCH_SIZE) : []
+    let freshTopics: string[] = []
+    if (i === 0) {
+      if (isJewishPortal) {
+        freshTopics = await getTrendingFromDB(siteSlug, BATCH_SIZE)
+        if (freshTopics.length < 3) {
+          const more = await discoverFreshTopics(site, BATCH_SIZE, true)
+          freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
+        }
+      } else {
+        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false)
+      }
+    }
     const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
@@ -910,7 +948,18 @@ export async function GET(req: NextRequest) {
 
   for (let i = 0; i < BATCH_SIZE; i++) {
     // Use fresh web-discovered topics for first item in each batch, fallback to static
-    const freshTopics = i === 0 ? await discoverFreshTopics(site, BATCH_SIZE) : []
+    let freshTopics: string[] = []
+    if (i === 0) {
+      if (isJewishPortal) {
+        freshTopics = await getTrendingFromDB(siteSlug, BATCH_SIZE)
+        if (freshTopics.length < 3) {
+          const more = await discoverFreshTopics(site, BATCH_SIZE, true)
+          freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
+        }
+      } else {
+        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false)
+      }
+    }
     const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history

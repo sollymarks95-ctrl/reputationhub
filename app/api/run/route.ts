@@ -60,7 +60,8 @@ export async function GET(req: NextRequest) {
   const t0    = Date.now()
   let result: any = { error:'Unknown job' }
 
-  if      (job==='articles')  result = await runArticles(batch, secret)
+  if      (job==='trends')    result = await callCron('/api/cron-trends', secret)
+  else if (job==='articles')  result = await runArticles(batch, secret)
   else if (job==='questions') result = await runQuestions(secret)
   else if (job==='reviews')   result = await callCron('/api/cron-reviews', secret)
   else if (job==='companies') result = await callCron('/api/cron-companies', secret)
