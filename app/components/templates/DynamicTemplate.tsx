@@ -1,3 +1,4 @@
+'use client'
 
 // ─── Newsletter Subscribe Form (used by all portal templates) ───
 function PortalSubscribeForm({ siteSlug, siteName, accent = '#1971C2' }: { siteSlug: string; siteName: string; accent?: string }) {
@@ -45,7 +46,6 @@ function PortalSubscribeForm({ siteSlug, siteName, accent = '#1971C2' }: { siteS
   )
 }
 
-'use client'
 import MobileNav from '@/app/components/MobileNav'
 import React, { useState } from 'react'
 
