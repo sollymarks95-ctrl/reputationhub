@@ -714,17 +714,19 @@ export async function GET(req: NextRequest) {
 
   // ALL-SITES MODE — runs per-site logic directly (no self-fetch)
   if (!siteSlug) {
-    const results: any[] = []
-    let total = 0
-    for (const slug of Object.keys(CORE_SITES)) {
-      try {
-        const result = await generateForSite(slug, batch)
-        results.push({ slug, inserted: result.inserted ?? 0 })
-        total += result.inserted ?? 0
-      } catch (e: any) {
-        results.push({ slug, inserted: 0, error: e.message })
-      }
-    }
+    // Parallel execution — all sites simultaneously, no timeout from sequential loop
+    const slugs = Object.keys(CORE_SITES)
+    const results = await Promise.all(
+      slugs.map(async slug => {
+        try {
+          const result = await generateForSite(slug, batch)
+          return { slug, inserted: result.inserted ?? 0 }
+        } catch (e: any) {
+          return { slug, inserted: 0, error: e.message }
+        }
+      })
+    )
+    const total = results.reduce((s, r) => s + (r.inserted || 0), 0)
     return NextResponse.json({ allSites: true, batch, total_inserted: total, results })
   }
 
