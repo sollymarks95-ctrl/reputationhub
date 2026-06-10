@@ -1,119 +1,14 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npx next build",
-  "outputDirectory": ".next",
   "crons": [
-    {
-      "path": "/api/cron-site?batch=0",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron-site?batch=1",
-      "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/cron-site?batch=2",
-      "schedule": "0 17 * * *"
-    },
-    {
-      "path": "/api/cron-site?site=fx-vexx&batch=0",
-      "schedule": "30 7 * * *"
-    },
-    {
-      "path": "/api/cron-site?site=trade-hub-iq&batch=0",
-      "schedule": "45 7 * * *"
-    },
-    {
-      "path": "/api/cron-site?site=jewish-news-now&batch=0",
-      "schedule": "5 9 * * *"
-    },
-    {
-      "path": "/api/cron-site?site=jewish-property-report&batch=0",
-      "schedule": "15 9 * * *"
-    },
-    {
-      "path": "/api/cron-site?site=aliya-today&batch=0",
-      "schedule": "30 9 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=global-trade-wire",
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=finance-terminal",
-      "schedule": "30 1 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=trust-score",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=gold-markets-today",
-      "schedule": "30 2 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=invest-data",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=business-pulse",
-      "schedule": "30 3 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=market-radar",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=executive-network",
-      "schedule": "30 4 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=crypto-hub",
-      "schedule": "20 5 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=fx-vexx",
-      "schedule": "30 5 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=trade-hub-iq",
-      "schedule": "20 6 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=jewish-news-now",
-      "schedule": "45 0 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=jewish-property-report",
-      "schedule": "35 3 * * *"
-    },
-    {
-      "path": "/api/cron-questions?site=aliya-today",
-      "schedule": "45 4 * * *"
-    },
-    {
-      "path": "/api/cron-reviews",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron-companies",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron-backlinks-daily",
-      "schedule": "45 5 * * *"
-    },
-    {
-      "path": "/api/cron-daily-report",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron-video-review",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron-internal-links?limit=100",
-      "schedule": "0 0 */2 * *"
-    }
+    { "path": "/api/run?job=articles&batch=0", "schedule": "0 7 * * *"   },
+    { "path": "/api/run?job=articles&batch=1", "schedule": "0 13 * * *"  },
+    { "path": "/api/run?job=articles&batch=2", "schedule": "0 18 * * *"  },
+    { "path": "/api/run?job=questions",        "schedule": "0 2 * * *"   },
+    { "path": "/api/run?job=reviews",          "schedule": "0 9 * * *"   },
+    { "path": "/api/run?job=companies",        "schedule": "0 6 * * *"   },
+    { "path": "/api/run?job=backlinks",        "schedule": "45 5 * * *"  },
+    { "path": "/api/run?job=report",           "schedule": "0 5 * * *"   },
+    { "path": "/api/run?job=video",            "schedule": "0 10 * * *"  },
+    { "path": "/api/run?job=links",            "schedule": "0 0 */2 * *" }
   ]
 }
