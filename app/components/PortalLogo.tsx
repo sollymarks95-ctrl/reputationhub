@@ -1,4 +1,5 @@
 'use client'
+import type { JSX } from 'react'
 
 // Domain-mapped logo configs — each portal has a unique visual identity
 export const PORTAL_LOGOS: Record<string, {
