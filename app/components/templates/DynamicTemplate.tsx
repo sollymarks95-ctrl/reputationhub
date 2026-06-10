@@ -472,7 +472,7 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
           <div style={{ fontSize:10, fontWeight:900, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8 }}>✉ Daily Newsletter</div>
           <h3 style={{ fontSize:20, fontWeight:900, color:'#fff', marginBottom:6, fontFamily:'inherit' }}>Stay ahead of the markets</h3>
           <p style={{ fontSize:12, color:'#94a3b8', marginBottom:18, lineHeight:1.6 }}>Daily market intelligence, analysis and breaking financial news — free to your inbox.</p>
-          <PortalSubscribeForm siteSlug={slug} siteName={site?.name || slug} accent={p} />
+          <PortalSubscribeForm siteSlug={site.slug} siteName={site.name} accent={p} />
         </div>
       </div>
       <div className="dyn-mobile" style={{ background:'#1e293b', padding:'28px 16px' }}>
@@ -480,7 +480,7 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
           <div style={{ fontSize:11, fontWeight:900, color:'#fff', marginBottom:4 }}>✉ Daily Newsletter</div>
           <p style={{ fontSize:11, color:'#94a3b8', marginBottom:14 }}>Daily market intelligence, free to your inbox.</p>
         </div>
-        <PortalSubscribeForm siteSlug={slug} siteName={site?.name || slug} accent={p} />
+        <PortalSubscribeForm siteSlug={site.slug} siteName={site.name} accent={p} />
       </div></div>
     </>
   )
