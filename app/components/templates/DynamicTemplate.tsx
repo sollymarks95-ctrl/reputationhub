@@ -1,3 +1,50 @@
+
+// ─── Newsletter Subscribe Form (used by all portal templates) ───
+function PortalSubscribeForm({ siteSlug, siteName, accent = '#1971C2' }: { siteSlug: string; siteName: string; accent?: string }) {
+  const [email, setEmail] = React.useState('')
+  const [state, setState] = React.useState<'idle'|'loading'|'done'|'error'>('idle')
+  const [msg, setMsg] = React.useState('')
+
+  const submit = async () => {
+    if (!email.includes('@')) { setMsg('Enter a valid email'); setState('error'); return }
+    setState('loading')
+    try {
+      const r = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, site_slug: siteSlug, site_name: siteName, source: 'footer-banner' })
+      })
+      const d = await r.json()
+      if (d.ok) { setState('done'); setMsg(d.message || 'Subscribed!') }
+      else { setState('error'); setMsg(d.error || 'Something went wrong') }
+    } catch { setState('error'); setMsg('Connection error — try again') }
+  }
+
+  if (state === 'done') return (
+    <div style={{ textAlign:'center', padding:'12px 16px', background:'rgba(255,255,255,.15)', borderRadius:8 }}>
+      <span style={{ fontWeight:800, fontSize:14 }}>✉ {msg}</span>
+    </div>
+  )
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:8, maxWidth:520, margin:'0 auto' }}>
+      <div style={{ display:'flex', gap:8 }}>
+        <input type="email" placeholder="your@email.com" value={email}
+          onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key==='Enter' && submit()}
+          style={{ flex:1, padding:'11px 16px', borderRadius:8, border:'none', fontSize:14, outline:'none', fontFamily:'inherit' }}
+        />
+        <button onClick={submit} disabled={state==='loading'}
+          style={{ background: accent, color:'#fff', border:'none', padding:'11px 20px', borderRadius:8, fontSize:13, fontWeight:800, cursor:'pointer', whiteSpace:'nowrap', opacity:state==='loading'?.7:1 }}>
+          {state==='loading' ? '...' : 'Subscribe →'}
+        </button>
+      </div>
+      {state==='error' && <div style={{ fontSize:12, color:'#fca5a5' }}>{msg}</div>}
+      <div style={{ fontSize:11, opacity:.6, textAlign:'center' }}>Free · No spam · Unsubscribe anytime</div>
+    </div>
+  )
+}
+
 'use client'
 import MobileNav from '@/app/components/MobileNav'
 import React, { useState } from 'react'
@@ -418,7 +465,23 @@ export default function DynamicTemplate({ site, articles }: { site: any; article
       </div>
       <div className="dyn-desktop">
         <Comp {...props} />
+      
+      {/* Newsletter subscribe banner */}
+      <div className="dyn-desktop" style={{ background:'#1e293b', padding:'40px 24px', marginTop:8 }}>
+        <div style={{ maxWidth:600, margin:'0 auto', textAlign:'center' }}>
+          <div style={{ fontSize:10, fontWeight:900, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8 }}>✉ Daily Newsletter</div>
+          <h3 style={{ fontSize:20, fontWeight:900, color:'#fff', marginBottom:6, fontFamily:'inherit' }}>Stay ahead of the markets</h3>
+          <p style={{ fontSize:12, color:'#94a3b8', marginBottom:18, lineHeight:1.6 }}>Daily market intelligence, analysis and breaking financial news — free to your inbox.</p>
+          <PortalSubscribeForm siteSlug={slug} siteName={site?.name || slug} accent={p} />
+        </div>
       </div>
+      <div className="dyn-mobile" style={{ background:'#1e293b', padding:'28px 16px' }}>
+        <div style={{ textAlign:'center', marginBottom:14 }}>
+          <div style={{ fontSize:11, fontWeight:900, color:'#fff', marginBottom:4 }}>✉ Daily Newsletter</div>
+          <p style={{ fontSize:11, color:'#94a3b8', marginBottom:14 }}>Daily market intelligence, free to your inbox.</p>
+        </div>
+        <PortalSubscribeForm siteSlug={slug} siteName={site?.name || slug} accent={p} />
+      </div></div>
     </>
   )
 }
