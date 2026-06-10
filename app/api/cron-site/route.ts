@@ -39,18 +39,18 @@ const CORE_SITES: Record<string, any> = {
   },
   'jewish-news-now': {
     id: '8dc3f4f2-309c-4f3b-98c6-a6d42d037778', name: 'Jewish News Now', shortName: 'JNN',
-    author: 'David Cohen', domain: 'jewishnewsnow.com',
-    topics: ['what is happening in Israel today 2026','Israel news breaking today','why is Israel in the news','Jewish community news USA 2026','Israel Iran tensions 2026','Tel Aviv tech startup news','antisemitism rising 2026','Israel economy 2026 update','Israel Gaza latest news','Jewish diaspora world news','Israel elections 2026','Jerusalem news today','Israel US relations 2026','Jewish community events USA','Israel innovation AI 2026'],
+    author: 'Solly Marks', domain: 'jewishnewsnow.com',
+    topics: ['what is happening in Israel today 2026','Israel news breaking today','why is Israel in the news','Jewish community news USA 2026','Israel Iran tensions 2026','Tel Aviv tech startup news','antisemitism rising 2026','Israel economy 2026 update','Israel Gaza ceasefire news','Jewish diaspora world news','Israel elections 2026','Jerusalem news today','Israel US relations 2026','Jewish community events USA','Israel innovation AI 2026','Israel Hezbollah news 2026','Israel Abraham Accords 2026','Jewish population growth 2026','Israel healthcare system 2026','Israel housing crisis 2026','kosher food industry news 2026','Israeli music culture 2026','Israel water technology news','Knesset legislation 2026','Israel high tech exits 2026','Jewish philanthropy news 2026','aliya statistics 2026','Israel public transport news','ultra-orthodox Israel news 2026','Israel climate environment news 2026'],
   },
   'jewish-property-report': {
     id: '15762338-2746-45ea-95b5-6685ed3c480e', name: 'Jewish Property Report', shortName: 'JPR',
-    author: 'Rachel Goldstein', domain: 'jewishpropertyreport.com',
-    topics: ['how to buy property in Israel as a foreigner 2026','Tel Aviv apartment prices per sqm 2026','Jerusalem property investment guide 2026','buy apartment Israel foreigner step by step','Israel property tax foreigners purchase tax','Israel real estate rental yield 2026','best neighbourhood buy Tel Aviv 2026','Netanya real estate foreigners guide','how to get Israeli mortgage non-resident','Tama 38 explained Israel property','Israel property law foreign buyers 2026','Herzliya Pituach real estate prices','Israel new build developments 2026','can Americans buy property in Israel','Israel real estate market forecast 2026'],
+    author: 'Solly Marks', domain: 'jewishpropertyreport.com',
+    topics: ['how to buy property in Israel as a foreigner 2026','Tel Aviv apartment prices per sqm 2026','Jerusalem property investment guide 2026','buy apartment Israel foreigner step by step','Israel property tax foreigners purchase tax','Israel real estate rental yield 2026','best neighbourhood buy Tel Aviv 2026','Netanya real estate foreigners guide','how to get Israeli mortgage non-resident','Tama 38 explained Israel property','Israel property law foreign buyers 2026','Herzliya Pituach real estate prices','Israel new build developments 2026','can Americans buy property in Israel','Israel real estate market forecast 2026','Tel Aviv vs Jerusalem property investment','Israel property management company foreigners','Eilat real estate investment 2026','Be er Sheva property prices 2026','Modi in real estate prices 2026','Israel land registry Tabu guide','overseas buyer Israel property checklist','Israel construction costs 2026','Raanana property prices foreigners','Haifa tech hub real estate 2026','Israel flip properties guide','renting vs buying Israel 2026','short term rental Israel regulations','Israel property auction guide','Kfar Saba property prices 2026'],
   },
   'aliya-today': {
     id: '9cfd54a9-5e1c-414c-8fe1-12b779013fca', name: 'Aliya Today', shortName: 'AliyaToday',
-    author: 'Miriam Shapiro', domain: 'aliyatoday.com',
-    topics: ['how to make aliya step by step 2026','aliya process from USA complete guide','cost of making aliya 2026 breakdown','sal klita benefits how much 2026','nefesh bnefesh aliya application guide','misrad haklita first steps olim','ulpan free israel how to register','kupat holim which one is best for olim','best cities to make aliya families 2026','aliya tax exemptions new immigrant guide','israel driving license conversion olim','aliya checklist 2026 complete list','what to do first week in israel aliya','israel bank account olim how to open','aliya from UK to Israel guide 2026'],
+    author: 'Solly Marks', domain: 'aliyatoday.com',
+    topics: ['how to make aliya step by step 2026','aliya process from USA complete guide','cost of making aliya 2026 breakdown','sal klita benefits how much 2026','nefesh bnefesh aliya application guide','misrad haklita first steps olim','ulpan free israel how to register','kupat holim which one is best for olim','best cities to make aliya families 2026','aliya tax exemptions new immigrant guide','israel driving license conversion olim','aliya checklist 2026 complete list','what to do first week in israel aliya','israel bank account olim how to open','aliya from UK to Israel guide 2026','aliya from France to Israel 2026','aliya from South Africa to Israel','olim housing rights Israel 2026','Hebrew learning before aliya guide','Israel army service olim rules','arnona municipal tax olim exemption','Israel child benefits olim 2026','school system Israel olim children','working in Israel as new olim','Israel pension rights olim','Bituach Leumi olim guide 2026','Nefesh BNefesh vs Jewish Agency aliya','olim absorption center vs private rental','Israel mortgage olim first home','Israel citizenship rights olim guide'],
   },
 }
 
@@ -129,9 +129,9 @@ const SITE_PERSONA: Record<string, string> = {
   'crypto-hub':         'On-chain analyst voice. Wallet data, protocol metrics, TVL figures, developer activity. Specific token economics and DeFi yields.',
   'fx-vexx':            'Forex industry insider voice. Regulatory filings, broker spreads, execution quality, client money rules. Sceptical of marketing claims. References FCA/ASIC/CySEC enforcement actions.',
   'trade-hub-iq':       'Retail investor advocate voice. Plain English explanations of complex products. Focuses on fees, protection, account features. Compares platforms like a consumer champion.',
-  'jewish-news-now':        'Authoritative Jewish news voice. Covers Israel, global Jewish community, politics. Factual, pro-Israel. References JTA, Times of Israel.',
-  'jewish-property-report': 'Israeli real estate analyst. Property prices, rental yields, legal requirements for foreign buyers. Practical diaspora investor guidance.',
-  'aliya-today':            'Warm experienced oleh voice. Practical Aliya guidance. References Nefesh BNefesh, Misrad HaKlita. Uses Hebrew terms with explanations.',
+  'jewish-news-now':        'Authoritative Jewish news voice. Editor: Solly Marks. Covers Israel, global Jewish community, politics. Factual, pro-Israel. References JTA, Times of Israel, Jerusalem Post. Uses real-time web search for trending topics.',
+  'jewish-property-report': 'Israeli real estate analyst. Editor: Solly Marks. Property prices, rental yields, legal requirements for foreign buyers. Practical diaspora investor guidance. Data from Madlan, Yad2, Bank of Israel.',
+  'aliya-today':            'Warm experienced oleh voice. Editor: Solly Marks. Practical Aliya guidance. References Nefesh BNefesh, Jewish Agency, Misrad HaKlita. Uses Hebrew terms with English explanations. More comprehensive than any existing aliya guide.',
 }
 
 // Journalistic angles — rotated per article to prevent structural repetition
@@ -635,7 +635,7 @@ async function discoverFreshTopics(site: any, count: number, isJewishPortal = fa
         messages: [{
           role: 'user',
           content: isJewishPortal
-  ? `Search the web for what is trending TODAY (${today}) about ${site.name} topics.
+  ? `Search the web for what is trending TODAY (${today}) about ${site.name}.
 Search specifically: "${site.topics.slice(0,4).join('", "')}"
 
 Find ${count} HIGH-QUALITY article topics that are:
