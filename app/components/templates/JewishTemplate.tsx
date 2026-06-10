@@ -1,6 +1,56 @@
 'use client'
 import React from 'react'
 
+
+// ─── Shared Newsletter Subscribe Form ───
+function SubscribeForm({ siteSlug, siteName, accent }: { siteSlug: string; siteName: string; accent: string }) {
+  const [email, setEmail] = React.useState('')
+  const [state, setState] = React.useState<'idle'|'loading'|'done'|'error'>('idle')
+  const [msg, setMsg] = React.useState('')
+
+  const submit = async () => {
+    if (!email.includes('@')) { setMsg('Enter a valid email'); setState('error'); return }
+    setState('loading')
+    try {
+      const r = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, site_slug: siteSlug, site_name: siteName, source: 'inline-form' })
+      })
+      const d = await r.json()
+      if (d.ok) { setState('done'); setMsg(d.message || 'Subscribed!') }
+      else { setState('error'); setMsg(d.error || 'Something went wrong') }
+    } catch { setState('error'); setMsg('Connection error — try again') }
+  }
+
+  if (state === 'done') return (
+    <div style={{ textAlign:'center', padding:'20px', background:`${accent}15`, borderRadius:10, border:`1px solid ${accent}40` }}>
+      <div style={{ fontSize:28, marginBottom:8 }}>✉️</div>
+      <div style={{ fontWeight:800, color:accent, fontSize:16 }}>{msg}</div>
+      <div style={{ fontSize:12, color:'#666', marginTop:4 }}>Check your inbox for your first newsletter</div>
+    </div>
+  )
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+      <div style={{ display:'flex', gap:8 }}>
+        <input
+          type="email" placeholder="your@email.com" value={email}
+          onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && submit()}
+          style={{ flex:1, padding:'12px 16px', borderRadius:8, border:`1px solid ${state==='error' ? '#ef4444' : '#e0e0e0'}`, fontSize:14, outline:'none', fontFamily:'inherit' }}
+        />
+        <button onClick={submit} disabled={state==='loading'}
+          style={{ background:accent, color:'#fff', border:'none', padding:'12px 20px', borderRadius:8, fontSize:14, fontWeight:800, cursor:'pointer', whiteSpace:'nowrap', opacity:state==='loading'?.7:1 }}>
+          {state==='loading' ? '...' : 'Subscribe →'}
+        </button>
+      </div>
+      {state==='error' && <div style={{ fontSize:12, color:'#ef4444' }}>{msg}</div>}
+      <div style={{ fontSize:11, color:'#999' }}>Free · No spam · Unsubscribe anytime</div>
+    </div>
+  )
+}
+
 // ─── Jewish News Now ─── Bold breaking-news daily paper
 function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
   const [cat, setCat] = React.useState('All')
@@ -101,6 +151,15 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </div>
 
+    {/* Newsletter Banner */}
+    <div style={{ background: '#f5f5f5', borderTop: '3px solid #000', padding: '40px 0' }}>
+      <div className="jnn-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 900, color: '#1a56b0', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 8 }}>✉ Daily Newsletter</div>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: '#000', marginBottom: 8, fontFamily: 'Georgia, serif' }}>Jewish World Briefing — Every Morning</h2>
+        <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>The day's most important Jewish and Israel news, curated and delivered before 8am.</p>
+        <SubscribeForm siteSlug="jewish-news-now" siteName="Jewish News Now" accent="#1a56b0" />
+      </div>
+    </div>
     <footer style={{ background: '#000', color: '#999', padding: '28px 0', textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontFamily: 'Georgia', marginBottom: 6 }}>JEWISH NEWS NOW</div>
       <div style={{ fontSize: 11, marginBottom: 12 }}>The Jewish World, Today</div>
@@ -227,6 +286,15 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
       </div>
     </div>
 
+    {/* Newsletter Banner */}
+    <div style={{ background: '#f0faf5', borderTop: '3px solid #0a7c4e', padding: '40px 0' }}>
+      <div className="jpr-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 900, color: '#0a7c4e', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 8 }}>🏠 Property Intelligence</div>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: '#111', marginBottom: 8 }}>Israeli Property Market — Weekly Report</h2>
+        <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>Prices, yields, legal updates and investment opportunities — every Sunday for diaspora buyers.</p>
+        <SubscribeForm siteSlug="jewish-property-report" siteName="Jewish Property Report" accent="#0a7c4e" />
+      </div>
+    </div>
     <footer style={{ background: '#0a2e1e', color: '#888', padding: '32px 0 20px', marginTop: 8 }}>
       <div className="jpr-wrap">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
@@ -398,6 +466,15 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       )}
     </div>
 
+    {/* Newsletter Banner */}
+    <div style={{ background: '#fff8f0', borderTop: '3px solid #c47d1a', padding: '40px 0' }}>
+      <div className="at-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 900, color: '#c47d1a', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 8 }}>✈️ Aliya Insider</div>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: '#1a0f00', marginBottom: 8, fontFamily: 'Georgia, serif' }}>The Aliya Newsletter — For Serious Olim</h2>
+        <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>Step-by-step guides, new benefits, housing tips and community updates — weekly for those planning their move.</p>
+        <SubscribeForm siteSlug="aliya-today" siteName="Aliya Today" accent="#c47d1a" />
+      </div>
+    </div>
     <footer style={{ background: '#2d1a00', color: '#888', padding: '32px 0 20px' }}>
       <div className="at-wrap">
         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20, marginBottom: 20 }}>

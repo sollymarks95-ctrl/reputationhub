@@ -9,7 +9,7 @@ const PORTAL_COLORS: Record<string,string> = {
   'market-radar':'#A21CAF','executive-network':'#DC2626','crypto-hub':'#F97316',
 }
 const PORTAL_DOMAIN: Record<string,string> = {
-  'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com','business-pulse':'bizplezx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com',
+  'global-trade-wire':'nex-wire.com','finance-terminal':'finvexx.com','jewish-news-now':'jewishnewsnow.com','jewish-property-report':'jewishpropertyreport.com','aliya-today':'aliyatoday.com','business-pulse':'bizplezx.com',
   'gold-markets-today':'aurexhq.com','trust-score':'verivex.co','invest-data':'invexhuby.com',
   'market-radar':'signalixx.com','executive-network':'execvex.com','crypto-hub':'cryptoxos.com',
   'fx-vexx':'fxvexx.com','trade-hub-iq':'tradehubiq.com',
@@ -655,7 +655,17 @@ export default function AdminDashboard({
   sites=[], totalArticles=0, totalSubscribers=0, allReviews=[], pendingReviews:initialPending=[],
   businessInquiries=[], portalArticlesToday={}, companies=[], invoices=[],
 }: any) {
+  const [subscribers, setSubscribers] = React.useState<any>({ total:0, by_site:{}, subscribers:[] })
+  const [subsLoading, setSubsLoading] = React.useState(false)
   const [tab, setTab] = useState('overview')
+
+  // Load subscribers when Subscribers tab opens
+  React.useEffect(() => {
+    if (tab === 'subscribers' && subscribers.total === 0 && !subsLoading) {
+      setSubsLoading(true)
+      fetch('/api/subscribe').then(r=>r.json()).then(d=>{ setSubscribers(d); setSubsLoading(false) })
+    }
+  }, [tab])
   const [analytics, setAnalytics] = useState<any>(null)
   const [anaLoading, setAnaLoading] = useState(false)
   const [anaDays, setAnaDays] = useState(30)
@@ -802,6 +812,7 @@ export default function AdminDashboard({
             {id:'videos',icon:'🎬',label:'Video Studio'},
             {id:'review-video',icon:'🎥',label:'Review Videos'},
             {id:'portals',icon:'🌐',label:'Portals'},
+            {id:'subscribers',icon:'📧',label:'Subscribers'},
             {id:'content',icon:'📰',label:'Content'},
             {id:'reviews',icon:'⭐',label:'Reviews'},
             {id:'notifications',icon:'🔔',label:'Notifications'},
