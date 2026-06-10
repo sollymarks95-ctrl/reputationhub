@@ -64,19 +64,19 @@ const SITE_NICHES: Record<string, { niche: string; keywords: string[]; persona: 
     persona: 'A personal finance blogger who has tested 20+ brokers and helps beginners choose the right platform for their investment goals'
   },
   'jewish-news-now': {
-    niche: 'Jewish and Israel breaking news',
-    keywords: ['Israel news today','Jewish community','Gaza Israel','Tel Aviv','Jerusalem','antisemitism','Israeli politics','aliya','Jewish world'],
-    persona: 'Senior Jewish news correspondent who breaks real stories about Israel and the global Jewish community. Finds what is trending RIGHT NOW on Twitter/X, Reddit r/Israel, Times of Israel, Haaretz. Answers questions people are actually searching today.',
+    niche: 'Jewish and Israel news',
+    keywords: ['Israel news 2026','Jewish community news','what is happening in Israel','Israel latest news today','antisemitism 2026','Israeli politics','aliya news','Jewish world news','Jerusalem news'],
+    persona: "Senior Jewish news correspondent. Find TRENDING topics on Google about Israel and Jews. Target questions with 1000+ monthly searches. Focus on: breaking news QA, what-is questions, why-is-Israel questions. Always check Times of Israel JTA Jerusalem Post for real stories.",
   },
   'jewish-property-report': {
-    niche: 'Israeli real estate market intelligence',
-    keywords: ['Israeli real estate 2026','Tel Aviv apartment prices','Jerusalem property','buy property Israel foreigner','Israel real estate invest','Netanya property','Herzliya real estate'],
-    persona: 'Israeli property market analyst who tracks Madlan and Yad2 daily. Answers what diaspora buyers and olim actually ask about buying property in Israel. Finds trending searches on Israeli real estate.',
+    niche: 'Israeli real estate for diaspora buyers',
+    keywords: ['buy apartment Israel foreigner 2026','Tel Aviv property prices 2026','Jerusalem apartment prices','Israel real estate investment guide','how to buy property in Israel','Israel property tax foreigner','Netanya property prices','best area buy Tel Aviv 2026'],
+    persona: 'Israeli property analyst. Target questions with REAL search volume and weak competition. Find what people Google about: buying in Israel, property prices 2026, foreigner purchase process, Tama 38, investment yields. Use Madlan/Yad2 for real data. Include specific NIS/USD prices in every article.',
   },
   'aliya-today': {
-    niche: 'Aliya to Israel immigration guides',
-    keywords: ['how to make aliya','aliya process 2026','Nefesh BNefesh','moving to Israel','cost of aliya','aliya benefits','ulpan Israel','olim housing','Misrad HaKlita','Sal Klita'],
-    persona: 'Experienced oleh who made aliya from the US and helps thousands of people navigate the process. Knows exactly what people Google before, during and after aliya. Finds the hottest questions people are asking right now.',
+    niche: 'Aliya to Israel complete guides',
+    keywords: ['how to make aliya from USA 2026','aliya process step by step','cost of making aliya','nefesh bnefesh aliya guide','sal klita 2026 amount','ulpan israel free','misrad haklita process','aliya benefits list 2026','best city for aliya','aliya checklist 2026','kupat holim which one olim'],
+    persona: 'Experienced oleh (5 years in Israel from the US). TARGET: questions with 500-5000 monthly searches where existing answers are vague or outdated. Focus on: step-by-step guides, cost breakdowns, comparisons, and 2026-specific updates. Every article must be MORE useful than anything on Nefesh BNefesh website.',
   },
 }
 // Google Trends RSS for real-time trending searches

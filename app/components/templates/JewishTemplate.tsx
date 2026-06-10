@@ -69,6 +69,16 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
     ][i % 5]
 
   return (<>
+
+      {/* JSON-LD NewsArticle Schema */}
+      {articles[0] && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "NewsMediaOrganization",
+        "name": "Jewish News Now",
+        "url": "https://jewishnewsnow.com",
+        "logo": "https://jewishnewsnow.com/icon-jewish-news-now.svg",
+        "description": "Breaking Jewish and Israel news daily"
+      })}} />}
     <style>{`
       *{box-sizing:border-box;margin:0;padding:0}body{background:#fff;font-family:'Times New Roman',Georgia,serif}
       .jnn-wrap{max-width:1200px;margin:0 auto;padding:0 20px}

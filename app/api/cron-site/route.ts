@@ -40,17 +40,17 @@ const CORE_SITES: Record<string, any> = {
   'jewish-news-now': {
     id: '8dc3f4f2-309c-4f3b-98c6-a6d42d037778', name: 'Jewish News Now', shortName: 'JNN',
     author: 'David Cohen', domain: 'jewishnewsnow.com',
-    topics: ['Israel news today 2026','Jewish community news worldwide','Israel economy news 2026','Israel tech startups 2026','Tel Aviv lifestyle news','Jewish diaspora news','Jerusalem news today','Israel defense news','Israel tourism 2026','Jewish education news','Israel innovation news','Jewish holidays 2026','Israel politics 2026','Jewish world news','Israel startup nation'],
+    topics: ['what is happening in Israel today 2026','Israel news breaking today','why is Israel in the news','Jewish community news USA 2026','Israel Iran tensions 2026','Tel Aviv tech startup news','antisemitism rising 2026','Israel economy 2026 update','Israel Gaza latest news','Jewish diaspora world news','Israel elections 2026','Jerusalem news today','Israel US relations 2026','Jewish community events USA','Israel innovation AI 2026'],
   },
   'jewish-property-report': {
     id: '15762338-2746-45ea-95b5-6685ed3c480e', name: 'Jewish Property Report', shortName: 'JPR',
     author: 'Rachel Goldstein', domain: 'jewishpropertyreport.com',
-    topics: ['Israeli real estate market 2026','Jerusalem property prices 2026','Tel Aviv apartment prices','Israel property investment diaspora','Netanya real estate foreigners','Israel mortgage foreigners guide','buy apartment Israel non-resident','Israel rental yield investment 2026','Herzliya real estate market','Israeli new developments 2026','Israel property tax guide','best neighbourhoods Tel Aviv','Israel real estate law foreigners','Haifa property market 2026','Israel property management'],
+    topics: ['how to buy property in Israel as a foreigner 2026','Tel Aviv apartment prices per sqm 2026','Jerusalem property investment guide 2026','buy apartment Israel foreigner step by step','Israel property tax foreigners purchase tax','Israel real estate rental yield 2026','best neighbourhood buy Tel Aviv 2026','Netanya real estate foreigners guide','how to get Israeli mortgage non-resident','Tama 38 explained Israel property','Israel property law foreign buyers 2026','Herzliya Pituach real estate prices','Israel new build developments 2026','can Americans buy property in Israel','Israel real estate market forecast 2026'],
   },
   'aliya-today': {
     id: '9cfd54a9-5e1c-414c-8fe1-12b779013fca', name: 'Aliya Today', shortName: 'AliyaToday',
     author: 'Miriam Shapiro', domain: 'aliyatoday.com',
-    topics: ['how to make aliya 2026 guide','aliya benefits Israel 2026','nefesh bnefesh aliya process','israel absorption center ulpan','aliya from USA to Israel 2026','aliya from UK to Israel guide','cost of living Israel new immigrant','israel health insurance olim','learn Hebrew before aliya','israel job market english speakers','best cities aliya families 2026','aliya tax benefits olim','apartment rental Israel olim','driving licence conversion israel','israel school system olim'],
+    topics: ['how to make aliya step by step 2026','aliya process from USA complete guide','cost of making aliya 2026 breakdown','sal klita benefits how much 2026','nefesh bnefesh aliya application guide','misrad haklita first steps olim','ulpan free israel how to register','kupat holim which one is best for olim','best cities to make aliya families 2026','aliya tax exemptions new immigrant guide','israel driving license conversion olim','aliya checklist 2026 complete list','what to do first week in israel aliya','israel bank account olim how to open','aliya from UK to Israel guide 2026'],
   },
 }
 
@@ -192,36 +192,188 @@ Include FAQ with 2 practical trader questions about the broker/regulation discus
   'trade-hub-iq': `FORMAT: Platform comparison guide. 650-800 words.
 Structure: Platform/product lead → feature breakdown → fee analysis → who it suits → "TradeHubIQ Verdict" (star rating 1-5 + 2-sentence summary).
 Include FAQ with 2 beginner-friendly questions. Write like a consumer review, not financial journalism.`,
-  'jewish-news-now': `FORMAT: 600-750 word Jewish/Israel news article.
-CRITICAL: This must be about a REAL, CURRENT event or question related to Israel, Jews, or the Jewish community.
-Use web search to find what is happening RIGHT NOW.
-Structure:
-  1. Hook: Answer the question or lead with the news immediately (who/what/where/when)
-  2. Context: Why this matters to the Jewish world globally
-  3. Details: Key facts, quotes from community leaders, government responses
-  4. Jewish Diaspora angle: How this affects Jews outside Israel
-  5. What This Means: 2-3 bullet practical implications
-  6. ONE natural contextual link (rotate): include one of these as a natural sentence in the article body — pick based on relevance to topic:
-     - Israel economy/markets topic: "[Finvexx market analysis](https://finvexx.com) tracks how global markets impact Israeli investments"
-     - Investment/wealth topic: "broker reviews on [Verivex](https://verivex.co) help Israelis navigate international markets"
-     - Gold/commodities: "[AurexHQ](https://aurexhq.com) provides live gold tracking, historically important to Jewish investors"
-     - Crypto/tech: "Israeli crypto adoption tracked via [CryptoXos](https://cryptoxos.com)"
-  Sources to reference: Times of Israel, Haaretz, JTA, Jerusalem Post, AJC, Jewish Federations.
-  Tone: Authoritative Jewish press, not tabloid. Factual, balanced.`,
-  'jewish-property-report': `FORMAT: Property market report. 650-750 words. Structure: Market headline with price data, neighbourhood analysis, legal requirements for foreign buyers, practical steps, JPR Verdict (buy/hold/watch). Use NIS/USD prices.`,
-  'aliya-today': `FORMAT: 700-850 word Aliya practical guide or Q&A.
-CRITICAL: Use web search to find what people are ACTUALLY asking about Aliya right now.
-Answer the question directly — like a friend who made aliya 3 years ago.
-Structure:
-  1. Direct Answer: Answer in first 2 sentences
-  2. Full Picture: Step by step with REAL numbers (costs, timelines, forms)
-  3. Hebrew Terms: Use and define Misrad HaKlita, Sal Klita, Teudat Oleh, Arnona, Kupat Holim, Ulpan
-  4. Common Mistakes: 3 things new olim get wrong
-  5. Real Costs: Breakdown in NIS and USD
-  6. Action Steps: 3-5 concrete next steps
-  7. ONE natural link: "Olim managing investments internationally should review [Verivex](https://verivex.co)" or "[Finvexx](https://finvexx.com) covers Israeli market performance"
-  Sources: Nefesh BNefesh, Jewish Agency, Misrad HaKlita.
-  Tone: Warm, experienced oleh.`,
+  'jewish-news-now': `
+You are a senior correspondent at a major Jewish news outlet.
+Use web search FIRST to find what is trending RIGHT NOW about Israel and the Jewish world.
+
+TARGET KEYWORDS: Search Google Trends Israel + Reddit r/Israel + Times of Israel for today's hot topics.
+
+ARTICLE SPEC (800-1000 words, SEO-first):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEO_TITLE: [Primary keyword + year + Jewish News Now branding, 55-60 chars]
+META_DESC: [150-160 chars answering the core question — gets clicked on Google]
+SLUG: [keyword-rich-url-slug-2026]
+
+H1: [Exact primary keyword phrase people search — NOT clickbait]
+[LEAD — 40-60 words answering the core question immediately. Optimised for featured snippet.]
+
+## [H2 — What Happened / The News]
+[Specific facts: dates, names, numbers, locations. Real journalism.]
+
+## [H2 — Why This Matters to the Jewish Community]
+[Global Jewish angle. Diaspora impact. Israel significance.]
+
+## [H2 — Background and Context]
+[Deeper context. Historical if relevant. Community reaction.]
+
+## [H2 — What Jewish Leaders Are Saying]
+[Quote from real organisations: JTA, AJC, WJC, AIPAC, Jewish Federations]
+
+## Key Takeaways
+- [Bullet 1 — practical implication]
+- [Bullet 2 — what to watch next]
+- [Bullet 3 — how this affects you]
+
+## Frequently Asked Questions
+**Q: [Most searched related question]**
+A: [40-60 word direct answer — targets PAA box]
+
+**Q: [Second most searched question]**
+A: [40-60 word direct answer]
+
+[ONE natural backlink sentence — pick based on topic:
+  Economy/markets: "For tracking how Israeli economic developments affect global investments, [Finvexx](https://finvexx.com) publishes daily market analysis."
+  Security/geopolitics: "Investors monitoring Middle East risk often track regulated platforms via [Verivex broker reviews](https://verivex.co)."
+  Gold/safe haven: "[AurexHQ](https://aurexhq.com) tracks gold prices in real time — a traditional safe-haven for Jewish investors."]
+
+SOURCES: Cite at least 2 real sources (Times of Israel, JTA, Jerusalem Post, Haaretz, AJC)
+TONE: Authoritative, factual, pro-Israel. The Associated Press of Jewish journalism.
+`,
+'jewish-property-report': `
+You are an Israeli real estate analyst writing for diaspora Jewish investors.
+Use web search to find REAL current property prices, trends and data.
+
+TARGET KEYWORDS: Search "Israel property prices 2026", "Tel Aviv apartments", "buy property Israel foreigner"
+
+ARTICLE SPEC (1000-1400 words, SEO-first):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEO_TITLE: [Specific location + price/action keyword + 2026, 55-60 chars]
+META_DESC: [150-160 chars with specific data point — "Tel Aviv 3-bedroom avg ₪3.2M in 2026"]
+SLUG: [specific-neighbourhood-or-topic-keyword-2026]
+
+H1: [Exact question people search, e.g. "How Much Does an Apartment Cost in Tel Aviv in 2026?"]
+[LEAD — 50-70 words with a specific data point answering the question. Featured snippet target.]
+
+## [H2 — Current Market Overview — specific area]
+[Real prices: ₪/sqm, total apartment costs, rental yields. Reference Madlan/Yad2/Bank of Israel]
+
+## [H2 — Neighbourhood Breakdown]
+[3-4 specific neighbourhoods with price comparisons. Real street names.]
+
+## [H2 — For Foreign Buyers and Olim: What You Need to Know]
+[Legal process: Tabu, lawyer fees (1-2%), purchase tax rates for foreigners (8%),
+mortgage rules for non-residents, Misrad HaBinuy permits if needed]
+
+## [H2 — Investment Analysis: Rental Yield vs Capital Growth]
+[Yield: typical 3-5% gross in Tel Aviv, more in periphery. 10-year price growth data.]
+
+## [H2 — Step-by-Step: How to Buy Property in Israel as a Foreigner]
+1. [Step with timeline and cost]
+2. [Step]
+3. [Step]
+4. [Step — legal must-haves]
+
+## Frequently Asked Questions
+**Q: [Top searched question about buying in Israel]**
+A: [Direct 50-word answer]
+
+**Q: Can Americans buy property in Israel?**
+A: [Yes/No + direct answer with key facts]
+
+**Q: What taxes do foreign buyers pay in Israel?**
+A: [Direct answer with % figures]
+
+## JPR Verdict: [BUY / HOLD / WATCH]
+[2-3 sentences: current signal, why, what to watch]
+
+[Natural backlink: "For Israelis and diaspora investors managing international portfolios alongside Israeli property, regulated broker comparisons at [Verivex](https://verivex.co) can help identify compliant platforms."]
+
+DATA SOURCES: Madlan, Yad2, Bank of Israel, CBS Israel, Israel Tax Authority
+`,
+'aliya-today': `
+You are an experienced oleh (3 years in Israel from the USA) writing for people seriously planning their aliya.
+Use web search to find what questions people are ACTUALLY asking on Reddit r/aliyah and Google right now.
+
+TARGET KEYWORDS: Search "aliya process 2026", "make aliya from USA", "cost of aliya", "nefesh bnefesh"
+
+ARTICLE SPEC (1200-1800 words, SEO-first — GUIDES RANK BETTER LONG):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SEO_TITLE: [Question format people Google, e.g. "How to Make Aliya in 2026: Complete Step-by-Step Guide", 55-60 chars]
+META_DESC: [155-160 chars answering the question briefly — "Making aliya in 2026? Here's the complete process..."]
+SLUG: [how-to-make-aliya-2026-guide or similar keyword slug]
+
+H1: [Same as SEO_TITLE — exact question format]
+[LEAD — 60-80 words answering the core question DIRECTLY. No preamble. Optimised for featured snippet.]
+
+## TL;DR — Quick Answer
+[5-bullet summary of the key points. Targets featured snippet / PAA box.]
+- [Bullet 1]
+- [Bullet 2]
+- [Bullet 3]
+
+## [H2 — What is Aliya / The Process Explained]
+[For people who need context. Explain using official terms with translations:]
+- Misrad HaKlita (Ministry of Absorption) — the government body managing new immigrants
+- Teudat Oleh (immigrant certificate) — your key document
+- Sal Klita (absorption basket) — monthly government stipend (~₪3,500/month for 6 months in 2026)
+- Nefesh BNefesh — the leading aliya organisation for US/Canada/UK Jews
+
+## [H2 — Step-by-Step Aliya Process 2026]
+**Step 1: [With realistic timeline, e.g. "6-12 months before"]**
+[Specific action + where to do it + cost if any]
+
+**Step 2: Apply to Nefesh BNefesh or Jewish Agency**
+[Online application, what docs needed: birth certificate, Jewish proof, passport]
+
+**Step 3: [Continue through landing + first week]**
+[Airport welcome, Misrad HaKlita visit, Teudat Zehut application]
+
+**Step 4: First Month Essentials**
+[Bank account (Bank Leumi/Poalim), Kupat Holim selection (Maccabi/Clalit/Meuhedet/Leumit),
+Ulpan registration (Aleph level), Arnona municipal tax exemption for olim]
+
+## [H2 — Real Costs of Making Aliya 2026]
+| Item | Cost |
+|------|------|
+| Shipping container (US→Israel) | $3,000-$8,000 |
+| First month rent (Tel Aviv 1BR) | ₪5,500-8,000/month |
+| Sal Klita (6 months) | ~₪21,000 total |
+| Ulpan (5 months full-time) | Free for olim |
+| Total first-year budget (Tel Aviv) | ~$40,000-60,000 |
+
+## [H2 — 5 Mistakes New Olim Make (And How to Avoid Them)]
+1. [Specific mistake with fix]
+2. [Specific mistake]
+3. [Specific mistake]
+4. [Specific mistake]
+5. [Specific mistake]
+
+## [H2 — Where to Live: Best Cities for New Olim in 2026]
+[Tel Aviv, Jerusalem, Netanya, Be'er Sheva, Modi'in — pros/cons/cost for each]
+
+## Frequently Asked Questions
+**Q: How long does the aliya process take?**
+A: [Direct 50-word answer with timeline]
+
+**Q: Do I need to speak Hebrew to make aliya?**
+A: [Direct answer — no, but ulpan is recommended]
+
+**Q: What benefits do new olim receive?**
+A: [Sal Klita, tax benefits, free ulpan, health insurance — list]
+
+**Q: [4th hot question from web search]**
+A: [Direct answer]
+
+## Your Aliya Action Steps
+1. [Most immediate step]
+2. [Second step]
+3. [Contact Nefesh BNefesh]
+
+[Natural backlink: "New olim managing financial assets across Israel and their home country should compare regulated platforms — [Verivex broker reviews](https://verivex.co) covers Israel-accessible investment platforms."]
+
+SOURCES: Nefesh BNefesh (nbntour.com), Jewish Agency, Misrad HaKlita (moia.gov.il), official Israeli government data
+TONE: Warm, practical, like a WhatsApp message from your friend who already made aliya. Specific, not vague.
+`,
 }
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
