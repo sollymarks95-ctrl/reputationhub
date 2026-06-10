@@ -1806,6 +1806,72 @@ export default function AdminDashboard({
         {tab==='notifications'&&(
           <NotificationsTab clients={clients} />
         )}
+        {tab==='subscribers'&&(
+          <div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+              <div className="syne" style={{fontSize:20,fontWeight:900}}>📧 Newsletter Subscribers</div>
+              <button onClick={()=>{ setSubsLoading(true); fetch('/api/subscribe').then(r=>r.json()).then(d=>{ setSubscribers(d); setSubsLoading(false) }) }}
+                className="btn b-ghost" style={{fontSize:11}}>↻ Refresh</button>
+            </div>
+
+            {/* Stats */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:24}}>
+              {[
+                ['Total',subscribers.total,'📧'],
+                ['Finvexx',(subscribers.by_site?.['finance-terminal']||[]).length,'💹'],
+                ['Nex-Wire',(subscribers.by_site?.['global-trade-wire']||[]).length,'📡'],
+                ['Jewish Sites',((subscribers.by_site?.['jewish-news-now']||[]).length+(subscribers.by_site?.['jewish-property-report']||[]).length+(subscribers.by_site?.['aliya-today']||[]).length),'✡'],
+              ].map(([label,val,icon])=>(
+                <div key={String(label)} className="card" style={{padding:'16px',textAlign:'center'}}>
+                  <div style={{fontSize:20,marginBottom:4}}>{icon}</div>
+                  <div style={{fontSize:28,fontWeight:900,color:'#6366f1'}}>{val}</div>
+                  <div style={{fontSize:11,color:'#64748b',marginTop:2}}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {subsLoading && <div style={{textAlign:'center',padding:40,color:'#64748b'}}>Loading…</div>}
+
+            {/* Per-portal tables */}
+            {[...new Set((subscribers.subscribers||[]).map((s:any)=>s.site_slug||'unknown'))].sort().map((slug:string)=>{
+              const subs=(subscribers.subscribers||[]).filter((s:any)=>(s.site_slug||'unknown')===slug)
+              const labels:Record<string,string>={'finance-terminal':'💹 Finvexx','global-trade-wire':'📡 Nex-Wire','trust-score':'🔍 Verivex','gold-markets-today':'🥇 AurexHQ','invest-data':'📊 InvexHuby','business-pulse':'📈 Bizplezx','market-radar':'📉 Signalixx','executive-network':'👔 ExecVex','crypto-hub':'🪙 CryptoXos','fx-vexx':'💱 FXVexx','trade-hub-iq':'🔷 TradeHubIQ','jewish-news-now':'✡ Jewish News Now','jewish-property-report':'🏠 Jewish Property','aliya-today':'✈️ Aliya Today'}
+              return (
+                <div key={slug} className="card" style={{padding:16,marginBottom:16}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+                    <div style={{fontWeight:700,fontSize:14}}>{labels[slug]||slug}</div>
+                    <span style={{background:'#6366f120',color:'#6366f1',padding:'3px 10px',borderRadius:12,fontSize:12,fontWeight:700}}>{subs.length} subscribers</span>
+                  </div>
+                  {subs.length===0 ? <div style={{color:'#64748b',fontSize:13,textAlign:'center',padding:'16px 0'}}>No subscribers yet</div> : (
+                    <div style={{overflowX:'auto'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                        <thead><tr style={{borderBottom:'2px solid #f1f5f9'}}>
+                          {['Email','Source','Country','Subscribed'].map(h=><th key={h} style={{textAlign:'left',padding:'8px 12px',color:'#64748b',fontWeight:700,fontSize:10,textTransform:'uppercase'}}>{h}</th>)}
+                        </tr></thead>
+                        <tbody>
+                          {subs.map((s:any)=>(
+                            <tr key={s.id} style={{borderBottom:'1px solid #f8fafc'}}>
+                              <td style={{padding:'10px 12px',fontWeight:600,color:'#1e293b'}}>{s.email}</td>
+                              <td style={{padding:'10px 12px',color:'#64748b'}}>{s.source||'footer'}</td>
+                              <td style={{padding:'10px 12px',color:'#64748b'}}>{s.ip_country||'—'}</td>
+                              <td style={{padding:'10px 12px',color:'#94a3b8',fontSize:11}}>{new Date(s.subscribed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <button onClick={()=>{
+                        const csv='Email,Source,Country,Subscribed\n'+subs.map((s:any)=>`${s.email},${s.source||''},${s.ip_country||''},${s.subscribed_at}`).join('\n')
+                        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${slug}-subscribers.csv`;a.click()
+                      }} className="btn b-ghost" style={{fontSize:11,marginTop:10}}>⬇ Export CSV</button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            {(subscribers.subscribers||[]).length===0&&!subsLoading&&<div style={{textAlign:'center',padding:60,color:'#64748b'}}>No subscribers yet — forms are live on all portals</div>}
+          </div>
+        )}
+
         {tab==='settings'&&(
           <div className="ti">
             <div className="syne" style={{fontSize:20,fontWeight:900,marginBottom:20}}>⚙️ Settings</div>
