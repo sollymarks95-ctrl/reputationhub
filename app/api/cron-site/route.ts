@@ -192,9 +192,36 @@ Include FAQ with 2 practical trader questions about the broker/regulation discus
   'trade-hub-iq': `FORMAT: Platform comparison guide. 650-800 words.
 Structure: Platform/product lead → feature breakdown → fee analysis → who it suits → "TradeHubIQ Verdict" (star rating 1-5 + 2-sentence summary).
 Include FAQ with 2 beginner-friendly questions. Write like a consumer review, not financial journalism.`,
-  'jewish-news-now': `FORMAT: Jewish news brief. 500-600 words. Structure: News lead, Israel context, global significance, What This Means. Reference JTA, AJC, WJC.`,
+  'jewish-news-now': `FORMAT: 600-750 word Jewish/Israel news article.
+CRITICAL: This must be about a REAL, CURRENT event or question related to Israel, Jews, or the Jewish community.
+Use web search to find what is happening RIGHT NOW.
+Structure:
+  1. Hook: Answer the question or lead with the news immediately (who/what/where/when)
+  2. Context: Why this matters to the Jewish world globally
+  3. Details: Key facts, quotes from community leaders, government responses
+  4. Jewish Diaspora angle: How this affects Jews outside Israel
+  5. What This Means: 2-3 bullet practical implications
+  6. ONE natural contextual link (rotate): include one of these as a natural sentence in the article body — pick based on relevance to topic:
+     - Israel economy/markets topic: "[Finvexx market analysis](https://finvexx.com) tracks how global markets impact Israeli investments"
+     - Investment/wealth topic: "broker reviews on [Verivex](https://verivex.co) help Israelis navigate international markets"
+     - Gold/commodities: "[AurexHQ](https://aurexhq.com) provides live gold tracking, historically important to Jewish investors"
+     - Crypto/tech: "Israeli crypto adoption tracked via [CryptoXos](https://cryptoxos.com)"
+  Sources to reference: Times of Israel, Haaretz, JTA, Jerusalem Post, AJC, Jewish Federations.
+  Tone: Authoritative Jewish press, not tabloid. Factual, balanced.`,
   'jewish-property-report': `FORMAT: Property market report. 650-750 words. Structure: Market headline with price data, neighbourhood analysis, legal requirements for foreign buyers, practical steps, JPR Verdict (buy/hold/watch). Use NIS/USD prices.`,
-  'aliya-today': `FORMAT: Practical Aliya guide. 700-800 words. Structure: Why this matters for Olim, step-by-step breakdown, common mistakes, real costs, Action Steps checklist. Use Hebrew terms: Misrad HaKlita, Sal Klita, Teudat Oleh.`,
+  'aliya-today': `FORMAT: 700-850 word Aliya practical guide or Q&A.
+CRITICAL: Use web search to find what people are ACTUALLY asking about Aliya right now.
+Answer the question directly — like a friend who made aliya 3 years ago.
+Structure:
+  1. Direct Answer: Answer in first 2 sentences
+  2. Full Picture: Step by step with REAL numbers (costs, timelines, forms)
+  3. Hebrew Terms: Use and define Misrad HaKlita, Sal Klita, Teudat Oleh, Arnona, Kupat Holim, Ulpan
+  4. Common Mistakes: 3 things new olim get wrong
+  5. Real Costs: Breakdown in NIS and USD
+  6. Action Steps: 3-5 concrete next steps
+  7. ONE natural link: "Olim managing investments internationally should review [Verivex](https://verivex.co)" or "[Finvexx](https://finvexx.com) covers Israeli market performance"
+  Sources: Nefesh BNefesh, Jewish Agency, Misrad HaKlita.
+  Tone: Warm, experienced oleh.`,
 }
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
@@ -278,7 +305,7 @@ function getCrossLink(siteSlug: string, topic: string, articleIndex: number): st
 }
 
 
-async function writeArticle(site: any, topic: string, brandNote: string) {
+async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
@@ -321,17 +348,31 @@ Return ONLY valid JSON, no markdown fences:
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt))
+      // Jewish portals use web search + Sonnet for richer, real-time content
+      const useWebSearch = isJewishPortal
+      const genHeaders: Record<string,string> = {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC,
+        'anthropic-version': '2023-06-01',
+        ...(useWebSearch ? { 'anthropic-beta': 'web-search-2025-03-05' } : {})
+      }
+      const genBody: any = useWebSearch ? {
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }],
+      } : {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        messages: [
+          { role: 'user', content: prompt },
+          { role: 'assistant', content: '{"title":"' }
+        ]
+      }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 4000,
-          messages: [
-            { role: 'user', content: prompt },
-            { role: 'assistant', content: '{"title":"' }
-          ]
-        }),
+        headers: genHeaders,
+        body: JSON.stringify(genBody),
         signal: AbortSignal.timeout(60000),
       })
       if (!res.ok) { console.error(`Attempt ${attempt+1}: ${res.status}`); if (res.status===429||res.status>=500) continue; return null }
@@ -377,7 +418,7 @@ Return ONLY valid JSON, no markdown fences:
 }
 
 // Discover fresh article topics via Claude + web search — never repeats
-async function discoverFreshTopics(site: any, count: number): Promise<string[]> {
+async function discoverFreshTopics(site: any, count: number, isJewishPortal = false): Promise<string[]> {
   const ANTH = process.env.ANTHROPIC_API_KEY
   if (!ANTH) return site.topics.slice(0, count)
 
@@ -397,7 +438,24 @@ async function discoverFreshTopics(site: any, count: number): Promise<string[]> 
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{
           role: 'user',
-          content: `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${site.topics.slice(0,5).join(', ')}.
+          content: isJewishPortal
+  ? `Search the web for what is trending TODAY (${today}) about ${site.name} topics.
+Search specifically: "${site.topics.slice(0,4).join('", "')}"
+
+Find ${count} HIGH-QUALITY article topics that are:
+1. REAL and happening RIGHT NOW (check Times of Israel, Haaretz, Jerusalem Post, JTA)
+2. Questions people are actively searching (check Google Trends Israel, Reddit r/Israel, r/aliyah)
+3. Mix of: breaking news, evergreen guides, hot debates, practical Q&A
+4. 100% relevant to ${site.name}'s audience
+
+Examples of GOOD topics:
+- "What is the aliya process in 2026 and how long does it take?"
+- "Tel Aviv property prices June 2026 — what are buyers paying?"
+- "Israel ceasefire update — what Jewish communities need to know"
+- "How to open an Israeli bank account as a new oleh in 2026"
+
+Return ONLY a JSON array of ${count} topic strings, no other text.`
+  : `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${site.topics.slice(0,5).join(', ')}.
 
 Find ${count} specific, timely article topic ideas that:
 - Are happening RIGHT NOW in the news (not generic)
@@ -427,6 +485,17 @@ Return ONLY a JSON array of ${count} topic strings, nothing else.`
   }
 }
 
+
+
+// DO-FOLLOW backlink contexts for Jewish portals — rotate naturally in articles
+const JEWISH_PORTAL_LINKS: { text: string; url: string; context: string }[] = [
+  { text: 'Verivex broker intelligence', url: 'https://verivex.co', context: 'For Israelis and olim investing internationally, broker reviews on [Verivex broker intelligence](https://verivex.co) can help identify regulated platforms.' },
+  { text: 'Finvexx market analysis', url: 'https://finvexx.com', context: 'Israeli investors monitoring global markets often consult [Finvexx market analysis](https://finvexx.com) for daily financial intelligence.' },
+  { text: 'Nex-Wire financial news', url: 'https://nex-wire.com', context: 'For those tracking how global economic news affects Israel, [Nex-Wire financial news](https://nex-wire.com) publishes daily market updates.' },
+  { text: 'Signalixx trading signals', url: 'https://signalixx.com', context: 'Israelis active in forex or commodities markets track signals via platforms like [Signalixx](https://signalixx.com).' },
+  { text: 'AurexHQ gold market data', url: 'https://aurexhq.com', context: 'Gold has historically been a hedge for Jewish communities globally — [AurexHQ gold market data](https://aurexhq.com) tracks live gold prices.' },
+  { text: 'CryptoXos crypto intelligence', url: 'https://cryptoxos.com', context: 'Israel is a leading crypto hub, with many Israelis tracking digital assets through platforms like [CryptoXos crypto intelligence](https://cryptoxos.com).' },
+]
 
 // Extract per-site generation into reusable function (avoids self-fetch)
 async function generateForSite(siteSlug: string, batch: number): Promise<any> {
@@ -537,7 +606,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
@@ -721,7 +790,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`

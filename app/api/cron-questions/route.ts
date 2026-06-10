@@ -63,11 +63,31 @@ const SITE_NICHES: Record<string, { niche: string; keywords: string[]; persona: 
     keywords: ['stock broker review','online trading platform','fractional shares','commission free trading','ISA account broker','options broker','ETF investing broker','SIPC protection'],
     persona: 'A personal finance blogger who has tested 20+ brokers and helps beginners choose the right platform for their investment goals'
   },
-  'jewish-news-now': { niche: 'Jewish and Israel news', keywords: ['Israel news','Jewish community','aliya','Tel Aviv','Jerusalem'], persona: 'Jewish news reporter covering Israel and global Jewish community' },
-  'jewish-property-report': { niche: 'Israeli real estate investment', keywords: ['Israeli real estate','Tel Aviv apartments','Jerusalem property'], persona: 'Israeli property analyst helping diaspora investors' },
-  'aliya-today': { niche: 'Aliya immigration to Israel', keywords: ['make aliya','olim','Nefesh BNefesh','ulpan'], persona: 'Experienced oleh helping people make aliya to Israel' },
+  'jewish-news-now': {
+    niche: 'Jewish and Israel breaking news',
+    keywords: ['Israel news today','Jewish community','Gaza Israel','Tel Aviv','Jerusalem','antisemitism','Israeli politics','aliya','Jewish world'],
+    persona: 'Senior Jewish news correspondent who breaks real stories about Israel and the global Jewish community. Finds what is trending RIGHT NOW on Twitter/X, Reddit r/Israel, Times of Israel, Haaretz. Answers questions people are actually searching today.',
+  },
+  'jewish-property-report': {
+    niche: 'Israeli real estate market intelligence',
+    keywords: ['Israeli real estate 2026','Tel Aviv apartment prices','Jerusalem property','buy property Israel foreigner','Israel real estate invest','Netanya property','Herzliya real estate'],
+    persona: 'Israeli property market analyst who tracks Madlan and Yad2 daily. Answers what diaspora buyers and olim actually ask about buying property in Israel. Finds trending searches on Israeli real estate.',
+  },
+  'aliya-today': {
+    niche: 'Aliya to Israel immigration guides',
+    keywords: ['how to make aliya','aliya process 2026','Nefesh BNefesh','moving to Israel','cost of aliya','aliya benefits','ulpan Israel','olim housing','Misrad HaKlita','Sal Klita'],
+    persona: 'Experienced oleh who made aliya from the US and helps thousands of people navigate the process. Knows exactly what people Google before, during and after aliya. Finds the hottest questions people are asking right now.',
+  },
 }
 // Google Trends RSS for real-time trending searches
+// Israeli/Jewish news RSS feeds for real-time discovery
+const JEWISH_NEWS_FEEDS = [
+  'https://www.jpost.com/rss/rssfeedsfrontpage.aspx',
+  'https://www.timesofisrael.com/feed/',
+  'https://www.haaretz.com/srv/haaretz-article-rss.xml',
+  'https://trends.google.com/trending/rss?geo=IL',  // Israel Google Trends
+]
+
 const TRENDS_FEEDS: Record<string, string> = {
   finance: 'https://trends.google.com/trending/rss?geo=US&category=7',  // Finance category
   tech: 'https://trends.google.com/trending/rss?geo=US&category=5',
@@ -124,19 +144,41 @@ async function discoverTrendingQuestions(siteSlug: string): Promise<string[]> {
   const keywordStr = config.keywords.join(', ')
 
   // Use Claude with web search — target LOW-COMPETITION rankable questions
-  const prompt = `Search the web right now and find 5 questions people are actively searching in ${config.niche} that:
+  const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug || '')
+
+  const prompt = isJewishPortal
+  ? `You are a content strategist for a ${config.niche} publication. Use web search to find what is TRENDING RIGHT NOW about: ${config.keywords.join(', ')}.
+
+Find 5 questions that:
+1. People are ACTUALLY searching today (check Google Trends Israel, Reddit r/Israel, r/aliyah, Twitter/X)
+2. Have genuine search intent — real people asking real questions
+3. Can be fully answered in a 700-900 word article
+4. Are specific to ${config.niche}
+5. Include a MIX of: breaking news questions ("What is happening with..."), evergreen guides ("How do I..."), and hot debates ("Is it better to...")
+
+For each question return EXACTLY:
+QUESTION: [the exact question as people search it]
+INTENT: [what they want to know]
+ARTICLE_TITLE: [SEO-optimized title, include year 2026 if relevant]
+NOTES: [key points to cover, real data to include]
+
+Return exactly 5 questions. No JSON. Just the format above repeated 5 times.`
+  : `Search the web right now and find 5 questions people are actively searching in ${config.niche} that:`
+
+  const fullPrompt = isJewishPortal ? prompt : prompt + `
 1. Have LOW competition (small/new sites can rank for them)
-2. Match "People Also Ask" format on Google
-3. Are trending on Reddit, Trustpilot, Quora, or finance forums RIGHT NOW
+2. Match "People Also Ask" format
+3. Can be answered in 700-900 words
+4. Are being discussed on Reddit, Quora, or forums RIGHT NOW
+5. Include a MIX of: how-to questions, what-is questions, comparison questions, and opinion questions
 
-Best performing formats for ${config.niche}:
-- "Is [specific broker/platform] safe/legitimate/regulated in 2026?"
-- "How does [specific feature] work?"
-- "What is [specific term] and should I use it?"
-- "[Broker name] vs [Broker name] — which is better?"
-- "What happens if [specific risk scenario]?"
-- "Is [specific broker] regulated by [FCA/ASIC/CySEC]?"
+For each return:
+QUESTION: [exact question]
+INTENT: [what searcher wants]
+ARTICLE_TITLE: [SEO title for the article]
+NOTES: [3-4 key points to cover]
 
+Return exactly 5 questions.
 Topic areas: ${keywordStr}
 
 IMPORTANT: Be SPECIFIC — not "Is forex safe?" but "Is IC Markets regulated by ASIC in 2026?"
