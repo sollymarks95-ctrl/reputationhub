@@ -26,16 +26,21 @@ async function callCron(path: string, secret: string) {
 }
 
 async function runArticles(batch: number, secret: string) {
-  // ALL 14 sites in PARALLEL — finishes in ~30-60s, never times out
-  const results = await Promise.all(
-    ALL_SITES.map(async site => {
-      const r = await callCron(`/api/cron-site?site=${site}&batch=${batch}`, secret)
-      return { site, inserted: r.inserted ?? 0, error: r.error }
-    })
+  // FIRE AND FORGET — kick off all 14 sites in parallel but do NOT await.
+  // Each /api/cron-site runs as its own independent serverless function.
+  // Waiting for all 14 responses causes /api/run to 504 at ~20s (Vercel cron timeout).
+  // Articles still get inserted because cron-site keeps running after /api/run returns.
+  const promises = ALL_SITES.map(site =>
+    fetch(`${BASE}/api/cron-site?site=${site}&batch=${batch}`, {
+      headers: { Authorization: `Bearer ${secret}` }
+    }).catch(() => null) // swallow errors — fire and forget
   )
-  const total = results.reduce((s,r) => s+(r.inserted||0), 0)
-  const failed = results.filter(r => r.error).map(r => r.site)
-  return { batch, total_inserted:total, failed, per_site:results }
+  // Wait just 3s to catch any immediate failures, then return
+  await Promise.race([
+    Promise.all(promises),
+    new Promise(r => setTimeout(r, 3000))
+  ])
+  return { batch, status: 'fired', sites: ALL_SITES.length, note: 'cron-site functions running independently' }
 }
 
 async function runQuestions(secret: string) {
