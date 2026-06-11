@@ -660,6 +660,20 @@ SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
 - Name specific entities: countries, organisations, institutions (not made-up, real ones)
 - First paragraph: answer WHO WHAT WHEN WHERE directly (inverted pyramid style) — max 3 sentences for mobile scanning. This paragraph must work as a STANDALONE ANSWER to the implied question — Perplexity and ChatGPT pull this directly. Make it cite-worthy: factual, specific, complete in isolation.
 
+RANKING PLAYBOOK — apply all of these to beat position 52 pages:
+
+PAA CAPTURE (People Also Ask):
+Think of the 4 most commonly searched questions related to "${topic}". These are the questions Google shows in the PAA box for this keyword. Structure 4 H3 subheadings EXACTLY as natural questions people type into Google (e.g. "How does X work?", "What is the best Y for Z?", "Why is X important in 2026?"). Answer each one in a tight 60-80 word paragraph directly beneath the H3. These H3+answer pairs must appear naturally within the article body — not grouped together as a block.
+
+SEARCH INTENT MATCH:
+Before writing, consider: is "${topic}" primarily searched by people who want (a) a quick factual answer, (b) a step-by-step guide, (c) a comparison/best-of list, or (d) breaking news? Structure the article to match that intent. If it is a comparison intent, lead with a comparison table. If it is a guide intent, use numbered steps. If it is news intent, lead with the most recent data point.
+
+INFORMATION GAIN (beat what is already ranking):
+Your article must contain at least ONE piece of unique value that competing articles on this topic lack. Options: a specific calculation with numbers, a regional breakdown no one else covers, a timeline of key events, a named expert or institution perspective, or a data comparison table with 5+ rows. Generic summaries that mirror what is already on Google page 1 will not rank. Add something that makes this the most useful single resource on "${topic}".
+
+KEYWORD CANNIBALIZATION PREVENTION:
+The already-published titles listed above cover related angles. Make sure this article targets a DISTINCT keyword angle — a different user intent, a different time frame, a different geographic focus, or a different audience. Do not write an article that would compete with your own published content for the same exact search query.
+
 Body HTML format: follow the FORMAT template for this portal — do NOT use a generic structure.
 Use semantic HTML: <p>, <h2>, <h3>, <ul><li>, <table> as appropriate for your format.
 Each portal has unique structural DNA — respect it.
