@@ -500,7 +500,7 @@ function getCrossLink(siteSlug: string, topic: string, articleIndex: number): st
 }
 
 
-async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false) {
+async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false, recentTitles: string[] = []) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
@@ -509,7 +509,12 @@ async function writeArticle(site: any, topic: string, brandNote: string, isJewis
   const format  = SITE_FORMAT[site.slug] || 'FORMAT: Standard financial news. 700-800 words. H2 sections, Key Takeaways, 2 FAQ questions.'
   const uniqueId = Date.now().toString(36) // prevents cached/repeated outputs
 
+  const recentBlock = recentTitles.length > 0
+    ? `\nALREADY PUBLISHED (do NOT repeat these angles or perspectives — write something genuinely different):\n${recentTitles.slice(0,20).map(t => `- ${t}`).join('\n')}\n`
+    : ''
+
   const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}. ID:${uniqueId}
+${recentBlock}
 
 EDITORIAL VOICE FOR ${site.name}: ${persona}
 ANGLE FOR THIS ARTICLE: ${angle}
@@ -736,6 +741,17 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
     .select('*', { count: 'exact', head: true })
     .eq('news_site_id', site.id)
     .eq('status', 'published')
+
+  // Fetch recent titles — passed to Claude so it never repeats angles
+  const { data: recentRows } = await getDb()
+    .from('news_articles')
+    .select('title')
+    .eq('news_site_id', site.id)
+    .gte('published_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+    .order('published_at', { ascending: false })
+    .limit(200)
+  const recentTitles: string[] = (recentRows || []).map((r: any) => r.title)
+
   const today = new Date().toISOString().split('T')[0]
   let inserted = 0
   const skipped: string[] = []
@@ -839,7 +855,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
@@ -933,6 +949,17 @@ export async function GET(req: NextRequest) {
     .select('*', { count: 'exact', head: true })
     .eq('news_site_id', site.id)
     .eq('status', 'published')
+
+  // Fetch recent titles — passed to Claude so it never repeats angles
+  const { data: recentRows2 } = await getDb()
+    .from('news_articles')
+    .select('title')
+    .eq('news_site_id', site.id)
+    .gte('published_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+    .order('published_at', { ascending: false })
+    .limit(200)
+  const recentTitles: string[] = (recentRows2 || []).map((r: any) => r.title)
+
   const today = new Date().toISOString().split('T')[0]
   let inserted = 0
   const skipped: string[] = []
@@ -1036,7 +1063,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
