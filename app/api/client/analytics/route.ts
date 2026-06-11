@@ -7,6 +7,8 @@ function db() {
 
 const CLIENT_ID = 'a1b2c3d4-0000-0000-0000-000000000001'
 
+export const runtime = 'nodejs'
+
 export async function GET(req: NextRequest) {
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const since30 = new Date(Date.now() - 30 * 86400000).toISOString()

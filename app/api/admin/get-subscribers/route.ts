@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+export const runtime = 'nodejs'
+
 export async function GET() {
   const { data, count } = await supabase.from('newsletter_subscribers').select('*', { count: 'exact' }).order('subscribed_at', { ascending: false })
   const bySite: Record<string, number> = {}

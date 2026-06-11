@@ -8,6 +8,8 @@ function getDb() {
   )
 }
 
+export const runtime = 'nodejs'
+
 export async function POST(req: NextRequest) {
   try {
     const { subscription, email, siteSlug, siteName } = await req.json()

@@ -17,6 +17,8 @@ const NICHE: Record<string, string> = {
   'trade-hub-iq':       'stock broker review, online trading platform, fractional shares, ETF investing, ISA account',
 }
 
+export const runtime = 'nodejs'
+
 export async function OPTIONS() { return new Response(null, { status: 204, headers: CORS }) }
 
 export async function POST(req: NextRequest) {

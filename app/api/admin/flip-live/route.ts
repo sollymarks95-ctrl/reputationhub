@@ -8,6 +8,8 @@ function db() {
   )
 }
 
+export const runtime = 'nodejs'
+
 export async function POST(req: NextRequest) {
   try {
     const { slug } = await req.json()

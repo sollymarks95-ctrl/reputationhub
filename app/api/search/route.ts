@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
+export const runtime = 'nodejs'
+
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q') || ''
   const siteId = req.nextUrl.searchParams.get('site') || ''

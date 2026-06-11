@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 const CORS = { 'Access-Control-Allow-Origin': '*' }
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
+export const runtime = 'nodejs'
+
 export async function OPTIONS() { return new Response(null,{status:204,headers:{...CORS,'Access-Control-Allow-Methods':'POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type'}})}
 export async function POST(req: NextRequest) {
   const { id, status } = await req.json()

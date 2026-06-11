@@ -50,6 +50,8 @@ const SITE_TOPICS: Record<string, { topic: string; type: string }> = {
   markets: { topic: 'market signals, trading intelligence, commodity analysis, forex movements', type: 'Dark trading intelligence dashboard' },
 }
 
+export const runtime = 'nodejs'
+
 export async function POST(req: NextRequest) {
   const { siteId, siteType, siteName, categories, targetCount = 15, daysBack = 14 } = await req.json()
   const config = SITE_TOPICS[siteType] || SITE_TOPICS.news
