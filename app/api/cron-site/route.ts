@@ -730,7 +730,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   const ANTHROPIC = await getAnthropicKey()
   const site = CORE_SITES[siteSlug]
   if (!site) return { error: 'Unknown site', inserted: 0 }
-    const BATCH_SIZE = 10
+    const BATCH_SIZE = isJewishPortal ? 5 : 10  // Jewish: Sonnet+websearch ~25s/article → 5×25=125s safe; Haiku: 10×8s=80s
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const batchStart = batch * BATCH_SIZE
 
@@ -948,8 +948,8 @@ export async function GET(req: NextRequest) {
   const site = CORE_SITES[siteSlug]
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
-  const BATCH_SIZE = 10
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+  const BATCH_SIZE = isJewishPortal ? 5 : 10  // Jewish: Sonnet+websearch ~25s/article → 5×25=125s safe
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
