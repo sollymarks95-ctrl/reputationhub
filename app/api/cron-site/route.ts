@@ -715,29 +715,40 @@ Return ONLY valid JSON, no markdown fences:
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
       const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
-      // Try direct JSON parse first
+
+      // Strip web-search citation tags that leak into body HTML
+      const stripCites = (s: string) => s
+        .replace(/<cite\s+index="[^"]*">[^<]*<\/cite>/gi, '')
+        .replace(/<cite\s+index="[^"]*"\s*\/?>/gi, '')
+        .trim()
+
       let parsed: any = null
       try {
-        const raw = '{"title":"' + clean
-        const end = raw.lastIndexOf('}')
-        if (end !== -1) parsed = JSON.parse(raw.slice(0, end+1))
+        // Sonnet+web_search may include preamble text before JSON — find first real {
+        // Haiku uses assistant prefill so entire clean string is JSON continuation
+        const jsonStr = useWebSearch ? clean.slice(clean.indexOf('{')) : '{"title":"' + clean
+        const end = jsonStr.lastIndexOf('}')
+        if (end !== -1) parsed = JSON.parse(jsonStr.slice(0, end+1))
       } catch(_) {
-        // Fallback: extract title and body via regex
+        // Fallback: regex extraction — works regardless of preamble
         try {
-          const fullText = '{"title":"' + clean
-          const titleM = fullText.match(/"title"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/)
-          const bodyM = fullText.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/)
-          const catM = fullText.match(/"category"\s*:\s*"([^"]+)"/)
-          const excM = fullText.match(/"excerpt"\s*:\s*"([^"]+)"/)
+          const titleM = clean.match(/"title"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/)
+          const bodyM  = clean.match(/"body"\s*:\s*"((?:[^"\\]|\\.)*)"/)
+          const catM   = clean.match(/"category"\s*:\s*"([^"]+)"/)
+          const excM   = clean.match(/"excerpt"\s*:\s*"([^"]+)"/)
           if (titleM && bodyM) parsed = {
-            title: titleM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n').slice(0,200),
-            body: bodyM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n'),
-            category: catM?.[1] || 'Markets',
-            excerpt: excM?.[1] || titleM[1].slice(0,120),
+            title:    titleM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n').slice(0,200),
+            body:     bodyM[1].replace(/\\"/g,'"').replace(/\\n/g,'\n'),
+            category: catM?.[1] || 'News',
+            excerpt:  excM?.[1] || titleM[1].slice(0,120),
           }
         } catch(_) {}
       }
-      if (!parsed?.title || !parsed?.body) { console.error(`Parse fail attempt ${attempt+1}: ${clean.slice(0,60)}`); continue }
+      if (!parsed?.title || !parsed?.body || parsed.title === '{') { console.error(`Parse fail attempt ${attempt+1}: ${clean.slice(0,100)}`); continue }
+      // Strip citation artifacts from all fields
+      parsed.title   = stripCites(parsed.title)
+      parsed.body    = stripCites(parsed.body)
+      parsed.excerpt = parsed.excerpt ? stripCites(parsed.excerpt) : ''
       // Convert plain text to HTML
       const rawBody = parsed.body as string
       const htmlBody = '<p>' + rawBody
