@@ -36,5 +36,197 @@
       "path": "/api/run?job=trends",
       "schedule": "30 6 * * *"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "nex-wire.com"
+        }
+      ],
+      "destination": "/news/global-trade-wire/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.nex-wire.com"
+        }
+      ],
+      "destination": "/news/global-trade-wire/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "finvexx.com"
+        }
+      ],
+      "destination": "/finance/finance-terminal/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.finvexx.com"
+        }
+      ],
+      "destination": "/finance/finance-terminal/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "bizplezx.com"
+        }
+      ],
+      "destination": "/magazine/business-pulse/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.bizplezx.com"
+        }
+      ],
+      "destination": "/magazine/business-pulse/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aurexhq.com"
+        }
+      ],
+      "destination": "/commodities/gold-markets-today/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.aurexhq.com"
+        }
+      ],
+      "destination": "/commodities/gold-markets-today/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "verivex.co"
+        }
+      ],
+      "destination": "/reviews-hub/trust-score/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.verivex.co"
+        }
+      ],
+      "destination": "/reviews-hub/trust-score/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "invexhuby.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "signalixx.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "execvex.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "cryptoxos.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "fxvexx.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "tradehubiq.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "jewishnewsnow.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "jewishpropertyreport.com"
+        }
+      ],
+      "destination": "/s/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aliyatoday.com"
+        }
+      ],
+      "destination": "/s/$1"
+    }
   ]
 }
