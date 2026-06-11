@@ -784,8 +784,8 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
 
     // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
     // Ultra-natural editorial rate — indistinguishable from organic coverage
-    const isBrand        = globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
-    const isClientFeature = globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
+    const isBrand        = !isJewishPortal && globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
+    const isClientFeature = !isJewishPortal && globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
@@ -1002,8 +1002,8 @@ export async function GET(req: NextRequest) {
 
     // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
     // Ultra-natural editorial rate — indistinguishable from organic coverage
-    const isBrand        = globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
-    const isClientFeature = globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
+    const isBrand        = !isJewishPortal && globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
+    const isClientFeature = !isJewishPortal && globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
