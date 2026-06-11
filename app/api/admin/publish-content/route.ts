@@ -16,7 +16,6 @@ const UNSPLASH_BY_TYPE: Record<string,string> = {
   research: 'photo-1551288049-bebda4e38f71',
 }
 
-export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {

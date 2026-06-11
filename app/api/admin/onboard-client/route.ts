@@ -16,7 +16,6 @@ const ALL_PORTALS = [
   { name:'Signalix', slug:'market-radar', color:'#b91c1c' },
 ]
 
-export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {

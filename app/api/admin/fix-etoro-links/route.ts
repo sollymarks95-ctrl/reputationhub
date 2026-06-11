@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export const runtime = 'nodejs'
 export const maxDuration = 60
 
 const ETORO_LINK = '<a href="https://etoro.com" rel="noopener noreferrer" target="_blank">eToro</a>'

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getSiteConfig, pickPortalGuestVoice, SITE_PODCAST_CONFIG as PODCAST_CFG } from '@/app/lib/podcast-config'
 
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST,OPTIONS' }

@@ -2,11 +2,6 @@
 const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   images: { unoptimized: true },
-
-  // Prevent @supabase from being bundled into Edge Runtime (middleware)
-  // This fixes ReferenceError: __dirname in middleware
-  serverExternalPackages: ['@supabase/supabase-js', '@supabase/postgrest-js', '@supabase/realtime-js', '@supabase/storage-js', '@supabase/functions-js', '@supabase/node-fetch'],
-
   async headers() {
     return [
       {

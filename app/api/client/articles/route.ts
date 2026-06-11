@@ -19,7 +19,6 @@ const DOMAIN_MAP: Record<string,string> = {
   'trust-score': 'https://verivex.co',
 }
 
-export const runtime = 'nodejs'
 
 export async function GET(req: NextRequest) {
   const client = req.nextUrl.searchParams.get('client') || 'etoro'

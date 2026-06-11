@@ -4,7 +4,6 @@ const CORS = { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 // Map full DB category strings → normalised display groups
-export const runtime = 'nodejs'
 
 export function normaliseCategory(cat: string): string {
   const c = (cat || '').toLowerCase()

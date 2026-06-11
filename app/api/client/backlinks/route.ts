@@ -35,7 +35,6 @@ function extractAnchorText(body: string, target: string): string {
   return body.slice(start, end).replace(/<[^>]+>/g, '').trim()
 }
 
-export const runtime = 'nodejs'
 
 export async function GET(req: NextRequest) {
   const days = parseInt(req.nextUrl.searchParams.get('days') || '90')

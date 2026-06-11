@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getArticleImage } from '@/app/lib/articleImages'
 
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 const CORE_SITES: Record<string, any> = {

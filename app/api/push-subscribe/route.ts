@@ -8,7 +8,6 @@ function getDb() {
   )
 }
 
-export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {

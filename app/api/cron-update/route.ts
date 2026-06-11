@@ -16,7 +16,6 @@ const PORTAL_AUTHORS: Record<string, string[]> = {
   'fx-vexx':           ['Marcus Chen','Elena Volkov','James Thornton','Priya Kapoor','Ahmed Al-Rashid','Sofia Andersen','Ryan MacLeod','Yuki Tanaka'],
   'trade-hub-iq':      ['Sophie Grant','Oliver Hughes','Rachel Kim','Daniel Foster','Amara Osei','Liam Novak','Chloe Beaumont','Tom Ellison'],
 }
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!

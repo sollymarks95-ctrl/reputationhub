@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export const runtime = 'nodejs'
 export const maxDuration = 60
 
 const OUR_DOMAINS = ['nex-wire.com','finvexx.com','bizplezx.com','aurexhq.com','verivex.co','invexhuby.com','signalixx.com','execvex.com','cryptoxos.com','fxvexx.com','tradehubiq.com']

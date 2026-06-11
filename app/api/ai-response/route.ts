@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   const { review_text, rating, platform, company, sentiment } = await req.json()

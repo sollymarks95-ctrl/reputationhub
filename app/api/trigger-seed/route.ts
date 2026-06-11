@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 // One-time seeder: fills all 12 sites with 40 historical articles each

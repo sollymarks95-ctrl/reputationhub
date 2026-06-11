@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { generateArticleImage } from '@/app/api/admin/generate-image/route'
 
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 export async function GET(req: NextRequest) {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export const runtime = 'nodejs'
 export const maxDuration = 300
 
 // Runs all 5 batches for ExecVex + CryptoXos daily at 08:00 UTC

@@ -40,7 +40,6 @@ async function generateArticle(prompt: string, siteContext: string, brandName: s
   try { return JSON.parse(data.content?.[0]?.text || '{}') } catch { return null }
 }
 
-export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   const { siteId, siteType, brandName, newsQuery, categories } = await req.json()
