@@ -194,7 +194,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     .replace(/\\n/g, '\n')   // literal \n → real newline
     .replace(/\\t/g, ' ')    // literal \t → space
     .trim()
-  const paragraphs = rawBody.split(/\n\n+/).filter(b => b.trim().length > 0)
+  const paragraphs = rawBody.split(/\n\n+/).filter((b: string) => b.trim().length > 0)
   // SEO: canonical must point to custom domain, not rephuby.com
   const DOMAIN_MAP: Record<string,string> = {
     'global-trade-wire': 'https://nex-wire.com',
@@ -300,16 +300,49 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       description: cl.regulation ? `${cl.regulation} regulated financial services platform.` : `Leading financial services platform.`,
     })
   })
-  // Legacy eToro schema for backwards compatibility
+  // Full entity schema for eToro — rich signals for AI/GEO engines
   if (mentionedBrands.includes('etoro') && !mentionedClients.find((c: any) => c.company_name?.toLowerCase() === 'etoro')) {
     jsonLd.push({
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': 'FinancialService',
       name: 'eToro',
+      alternateName: ['eToro Group', 'eToro Ltd'],
       url: 'https://www.etoro.com',
-      description: 'FCA, CySEC and ASIC regulated social trading and investment platform.',
-      sameAs: ['https://www.etoro.com'],
+      logo: 'https://www.etoro.com/wp-content/themes/etoro/assets/images/logos/etoro-logo-white.png',
+      foundingDate: '2007',
+      foundingLocation: { '@type': 'Place', name: 'Tel Aviv, Israel' },
+      description: 'eToro is a global social trading and multi-asset investment platform founded in 2007. Regulated by the FCA (UK, FRN 583263), CySEC (EU, 109/10), and ASIC (Australia, 491139), eToro serves over 35 million registered users across 140 countries, offering stocks, ETFs, commodities, crypto, and copy trading.',
+      numberOfEmployees: { '@type': 'QuantitativeValue', value: 1700 },
+      areaServed: 'Worldwide',
+      hasCredential: [
+        { '@type': 'EducationalOccupationalCredential', credentialCategory: 'FCA Authorisation', recognizedBy: { '@type': 'Organization', name: 'Financial Conduct Authority', url: 'https://register.fca.org.uk/s/firm?id=001b000000MfJTnAAN' } },
+        { '@type': 'EducationalOccupationalCredential', credentialCategory: 'CySEC Licence 109/10', recognizedBy: { '@type': 'Organization', name: 'Cyprus Securities and Exchange Commission', url: 'https://www.cysec.gov.cy' } },
+        { '@type': 'EducationalOccupationalCredential', credentialCategory: 'ASIC Authorisation 491139', recognizedBy: { '@type': 'Organization', name: 'Australian Securities and Investments Commission', url: 'https://www.asic.gov.au' } },
+      ],
+      sameAs: [
+        'https://www.etoro.com',
+        'https://en.wikipedia.org/wiki/EToro',
+        'https://www.wikidata.org/wiki/Q5390183',
+        'https://www.linkedin.com/company/etoro',
+        'https://twitter.com/eToro',
+        'https://www.facebook.com/etoro',
+        'https://register.fca.org.uk/s/firm?id=001b000000MfJTnAAN',
+      ],
+      contactPoint: { '@type': 'ContactPoint', contactType: 'Customer Support', url: 'https://www.etoro.com/customer-service/' },
     })
+  }
+
+  // Add `mentions` to the NewsArticle — signals to AI engines which entities this article covers
+  const mentionEntities: any[] = []
+  if (mentionedBrands.includes('etoro')) {
+    mentionEntities.push({ '@type': 'Organization', name: 'eToro', url: 'https://www.etoro.com', sameAs: 'https://en.wikipedia.org/wiki/EToro' })
+  }
+  mentionedClients.forEach((cl: any) => {
+    if (cl.company_name) mentionEntities.push({ '@type': 'Organization', name: cl.company_name, url: cl.website_url || undefined })
+  })
+  if (mentionEntities.length > 0 && jsonLd[0]) {
+    jsonLd[0].mentions = mentionEntities
+    jsonLd[0].about = mentionEntities[0] // primary entity this article is about
   }
 
   return (
