@@ -2,6 +2,11 @@
 const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   images: { unoptimized: true },
+
+  // Prevent @supabase from being bundled into Edge Runtime (middleware)
+  // This fixes ReferenceError: __dirname in middleware
+  serverExternalPackages: ['@supabase/supabase-js', '@supabase/postgrest-js', '@supabase/realtime-js', '@supabase/storage-js', '@supabase/functions-js', '@supabase/node-fetch'],
+
   async headers() {
     return [
       {
@@ -16,5 +21,3 @@ const nextConfig = {
   },
 }
 export default nextConfig
-
-// Note: CORS is already handled in each route file via OPTIONS export
