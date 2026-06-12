@@ -18,7 +18,10 @@ const ALL_SITES = [
 
 async function callCron(path: string, secret: string) {
   try {
-    const r = await fetch(`${BASE}${path}`, {
+    // Pass secret as BOTH header (for newer routes) AND query param (for legacy routes)
+    const sep = path.includes('?') ? '&' : '?'
+    const url = `${BASE}${path}${sep}secret=${encodeURIComponent(secret)}`
+    const r = await fetch(url, {
       headers: { Authorization: `Bearer ${secret}` }
     })
     return r.ok ? await r.json().catch(() => ({ ok:true })) : { error:`HTTP ${r.status}` }
@@ -31,7 +34,7 @@ async function runArticles(batch: number, secret: string) {
   // Waiting for all 14 responses causes /api/run to 504 at ~20s (Vercel cron timeout).
   // Articles still get inserted because cron-site keeps running after /api/run returns.
   const promises = ALL_SITES.map(site =>
-    fetch(`${BASE}/api/cron-site?site=${site}&batch=${batch}`, {
+    fetch(`${BASE}/api/cron-site?site=${site}&batch=${batch}&secret=${encodeURIComponent(secret)}`, {
       headers: { Authorization: `Bearer ${secret}` }
     }).catch(() => null) // swallow errors — fire and forget
   )
