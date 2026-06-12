@@ -14,6 +14,7 @@ const ALL_SITES = [
   'invest-data','business-pulse','market-radar','executive-network',
   'crypto-hub','fx-vexx','trade-hub-iq',
   'jewish-news-now','jewish-property-report','aliya-today',
+  'rephuby-intelligence',
 ]
 
 async function callCron(path: string, secret: string) {

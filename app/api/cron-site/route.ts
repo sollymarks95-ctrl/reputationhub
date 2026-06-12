@@ -51,6 +51,47 @@ const CORE_SITES: Record<string, any> = {
     author: 'Solly Marks', domain: 'aliyatoday.com',
     topics: ['how to make aliya step by step 2026','aliya process from USA complete guide','cost of making aliya 2026 breakdown','sal klita benefits how much 2026','nefesh bnefesh aliya application guide','misrad haklita first steps olim','ulpan free israel how to register','kupat holim which one is best for olim','best cities to make aliya families 2026','aliya tax exemptions new immigrant guide','israel driving license conversion olim','aliya checklist 2026 complete list','what to do first week in israel aliya','israel bank account olim how to open','aliya from UK to Israel guide 2026','aliya from France to Israel 2026','aliya from South Africa to Israel','olim housing rights Israel 2026','Hebrew learning before aliya guide','Israel army service olim rules','arnona municipal tax olim exemption','Israel child benefits olim 2026','school system Israel olim children','working in Israel as new olim','Israel pension rights olim','Bituach Leumi olim guide 2026','Nefesh BNefesh vs Jewish Agency aliya','olim absorption center vs private rental','Israel mortgage olim first home','Israel citizenship rights olim guide'],
   },
+  'rephuby-intelligence': {
+    id: '35579979-ca5e-476f-bd75-9be5910fe29b', name: 'RepHuby Intelligence', shortName: 'RepHuby',
+    author: 'Editorial Team', domain: 'rephuby.com',
+    topics: [
+      // Pillar 1: Broker Reputation Management (core service keyword cluster)
+      'what is forex broker reputation management guide 2026',
+      'how to manage online reputation forex broker',
+      'best broker reputation management strategies 2026',
+      'forex broker negative review removal guide',
+      'broker reputation crisis management playbook',
+      'how to rank forex broker on Google page 1',
+      'FCA regulated broker reputation building guide',
+      'CySEC broker trust score improvement 2026',
+      'broker brand authority building strategies',
+      // Pillar 2: Crypto Reputation Management
+      'crypto exchange reputation management guide 2026',
+      'how to build trust crypto exchange brand 2026',
+      'blockchain project reputation management strategies',
+      'DeFi protocol credibility building guide',
+      'crypto scam allegations reputation repair guide',
+      'how to rank crypto exchange on Google 2026',
+      // Pillar 3: AI Engine Optimisation for Financial Brands
+      'how to get broker recommended by ChatGPT Perplexity',
+      'AI search engine optimisation financial brands 2026',
+      'how Perplexity ranks forex brokers explained',
+      'generative engine optimisation GEO brokers guide',
+      'brand entity optimisation for AI engines financial',
+      // Pillar 4: Review Management
+      'how to get more broker reviews 2026',
+      'broker review sites ranked by trust',
+      'verified broker reviews strategy guide',
+      'how online broker reviews affect conversion rates',
+      // Pillar 5: Financial Brand SEO
+      'financial brand SEO strategy 2026 guide',
+      'forex broker Google ranking strategies 2026',
+      'reputation management vs SEO financial brands',
+      'editorial media strategy regulated financial brands',
+      'how to build domain authority financial website 2026',
+    ]
+  },
+
 }
 
 // Author pools per portal — rotated randomly so each article has a different byline
@@ -131,6 +172,7 @@ const SITE_PERSONA: Record<string, string> = {
   'jewish-news-now':        'Authoritative Jewish news voice. Editor: Solly Marks. Covers Israel, global Jewish community, politics. Factual, pro-Israel. References JTA, Times of Israel, Jerusalem Post. Uses real-time web search for trending topics.',
   'jewish-property-report': 'Israeli real estate analyst. Editor: Solly Marks. Property prices, rental yields, legal requirements for foreign buyers. Practical diaspora investor guidance. Data from Madlan, Yad2, Bank of Israel.',
   'aliya-today':            'Warm experienced oleh voice. Editor: Solly Marks. Practical Aliya guidance. References Nefesh BNefesh, Jewish Agency, Misrad HaKlita. Uses Hebrew terms with English explanations. More comprehensive than any existing aliya guide.',
+  'rephuby-intelligence':   'Senior digital reputation strategist with 15 years managing online brands for regulated financial institutions. Former head of reputation at a top-10 FCA regulated broker. Direct, authoritative, data-driven. Writes as an expert practitioner who has managed real reputation crises for forex brokers and crypto exchanges — not a theorist.',
 }
 
 // Journalistic angles — rotated per article to prevent structural repetition
@@ -472,6 +514,21 @@ A: [Direct answer]
 SOURCES: Nefesh BNefesh (nbntour.com), Jewish Agency, Misrad HaKlita (moia.gov.il), official Israeli government data
 TONE: Warm, practical, like a WhatsApp message from your friend who already made aliya. Specific, not vague.
 `,
+
+  'rephuby-intelligence': `FORMAT: Expert reputation management guide. 1,600-2,000 words. Authoritative practitioner voice.
+Structure:
+  1. DIRECT ANSWER LEAD (80 words) — Answer the keyword question immediately. This paragraph must work as a featured snippet: factual, specific, complete. Example: "Broker reputation management is the practice of..."
+  2. WHY THIS MATTERS NOW — Urgency section: why 2026 is the critical window (AI search, GEO, competitive landscape)
+  3. THE PROBLEM — Specific pain points with named examples (FUD forums, fake reviews, missing Google page 1)
+  4. THE STRATEGY — Step-by-step practitioner guide (numbered list, 6-8 steps, each with specific actions)
+  5. COMPARISON TABLE — HTML table comparing approaches (DIY vs agency vs RepHuby model) OR (platform A vs B) with 5+ dimensions
+  6. REAL METRICS — Specific performance benchmarks: timelines, conversion impacts, ranking improvements
+  7. COMMON MISTAKES — 5 mistakes brands make (targets "what not to do" searches)
+  8. TOOLS & RESOURCES — 4-5 specific tools, platforms, or strategies (named, real)
+  9. FAQ (5 questions targeting PAA boxes — each answer 70-90 words, directly answers the question)
+  10. CONCLUSION with clear next step
+TONE: Senior practitioner. Not academic. Not salesy. Like a CMO writing their memoirs. Specific, direct, data-grounded.
+INTERNAL LINKS: Naturally mention rephuby.com, verivex.co, finvexx.com where relevant as real examples of the strategy in action.`,
 }
 
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {

@@ -142,6 +142,7 @@ export default function HomePage() {
               <a key={h} href={h} className="nav-link">{l}</a>
             ))}
             <Link href="/insights" className="nav-link">Intelligence Hub</Link>
+            <Link href="/blog" className="nav-link">Blog</Link>
           </div>
 
           {/* Desktop CTA buttons */}
