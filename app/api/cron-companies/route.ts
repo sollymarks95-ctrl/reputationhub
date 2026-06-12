@@ -68,7 +68,7 @@ For each company return a JSON array with these exact fields:
 Focus on REAL companies people actually search for — both well-known and emerging ones.
 Include a mix of established and newer platforms from 2022-2026.
 
-Already in our database (skip these): ${Array.from(existingSlugs).slice(0, 30).join(', ')}
+Already in our database (skip these): ${Array.from(existingSlugs).join(', ')}
 
 Return ONLY valid JSON array, no markdown fences.`
         }]
@@ -91,7 +91,7 @@ Return ONLY valid JSON array, no markdown fences.`
 
     const companies = JSON.parse(jsonMatch[0])
     // Filter out ones already in DB
-    return companies.filter((c: any) => c.slug && !existingSlugs.has(c.slug)).slice(0, 5)
+    return companies.filter((c: any) => c.slug && !existingSlugs.has(c.slug)).slice(0, 8)
   } catch (e) {
     console.error('Discovery error:', e)
     return []

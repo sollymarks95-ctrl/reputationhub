@@ -936,7 +936,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 15)  // Jewish:5, Rephuby:3, Finance:15 (=45/day)
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -1155,7 +1155,7 @@ export async function GET(req: NextRequest) {
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 15)  // Jewish:5, Rephuby:3, Finance:15 (=45/day)
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
