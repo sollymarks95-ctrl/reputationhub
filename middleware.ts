@@ -39,7 +39,7 @@ export function middleware(request: NextRequest) {
   // rephuby.com sitemap — rewrite to dedicated API route
   if ((host === 'rephuby.com' || host === 'www.rephuby.com') && pathname === '/sitemap.xml') {
     const rewrite = new URL(request.url)
-    rewrite.pathname = '/api/rephuby-sitemap'
+    rewrite.pathname = '/rephuby-sitemap'
     return NextResponse.rewrite(rewrite)
   }
 
