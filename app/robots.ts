@@ -52,7 +52,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       { userAgent: 'Applebot-Extended', allow: '/' },
       { userAgent: 'YouBot',         allow: '/' },
     ],
-    sitemap: host === 'rephuby.com' ? 'https://rephuby.com/rephuby-sitemap' : `https://${host}/sitemap.xml`,
+    sitemap: `https://${host}/sitemap.xml`,
     host: `https://${host}`,
   }
 }
