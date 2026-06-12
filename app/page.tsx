@@ -141,6 +141,7 @@ export default function HomePage() {
             {[['#portals','Network'],['#features','Platform'],['#pricing','Pricing'],['#proof','Results']].map(([h,l]) => (
               <a key={h} href={h} className="nav-link">{l}</a>
             ))}
+            <Link href="/insights" className="nav-link">Intelligence Hub</Link>
           </div>
 
           {/* Desktop CTA buttons */}

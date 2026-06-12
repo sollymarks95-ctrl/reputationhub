@@ -5,14 +5,24 @@ import CookieConsent from './components/CookieConsent'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: 'RepHuby Intelligence — Global Markets & Trade News',
-  description: 'Professional market intelligence, trade news, and financial analysis across global commodity, currency, and equity markets.',
-  keywords: 'commodity trading, trade finance, financial markets, gold price, forex, market analysis',
-  // robots handled per-page — portals set index:true, noindex portals set noindex
+  title: {
+    default: 'RepHuby Intelligence — Broker & Crypto Reputation Management',
+    template: '%s | RepHuby Intelligence',
+  },
+  description: 'RepHuby Intelligence is the leading reputation management platform for forex brokers, crypto exchanges, and financial brands. 14 editorial portals, 150+ daily articles, verified reviews across global financial markets.',
+  keywords: 'broker reputation management, crypto reputation management, forex broker reputation, financial brand reputation, online broker reviews, crypto exchange reputation, reputation management fintech, broker review management, forex reputation management, crypto broker reputation',
+  robots: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   openGraph: {
     siteName: 'RepHuby Intelligence',
     type: 'website',
     locale: 'en_GB',
+    title: 'RepHuby Intelligence — Broker & Crypto Reputation Management',
+    description: 'The reputation infrastructure for financial brands. 14 editorial portals publishing 150+ daily articles about forex brokers, crypto exchanges, and global financial markets.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RepHuby Intelligence — Broker & Crypto Reputation Management',
+    description: 'Reputation management platform for forex brokers and crypto exchanges.',
   },
   other: {
     'google-site-verification': 'rephub-intelligence-verified',
