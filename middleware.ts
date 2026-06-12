@@ -36,6 +36,13 @@ export function middleware(request: NextRequest) {
   const pathname = url.pathname
   const portal   = DOMAIN_MAP[host]
 
+  // rephuby.com sitemap — rewrite to dedicated API route
+  if ((host === 'rephuby.com' || host === 'www.rephuby.com') && pathname === '/sitemap.xml') {
+    const rewrite = new URL(request.url)
+    rewrite.pathname = '/api/rephuby-sitemap'
+    return NextResponse.rewrite(rewrite)
+  }
+
   if (!portal) return NextResponse.next()
 
   if (
