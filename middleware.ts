@@ -36,13 +36,6 @@ export function middleware(request: NextRequest) {
   const pathname = url.pathname
   const portal   = DOMAIN_MAP[host]
 
-  // rephuby.com: /sitemap.xml → /rephuby-sitemap (outside /api/ so Googlebot can access)
-  if ((host === 'rephuby.com' || host === 'www.rephuby.com') && pathname === '/sitemap.xml') {
-    const rw = new URL(request.url)
-    rw.pathname = '/rephuby-sitemap'
-    return NextResponse.rewrite(rw)
-  }
-
   if (!portal) return NextResponse.next()
 
   if (
@@ -79,5 +72,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|map)).*)'],
+  matcher: ['/((?!_next/static|_next/image|sitemap\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|map)).*)'],
 }
