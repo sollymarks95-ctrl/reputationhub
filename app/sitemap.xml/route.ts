@@ -61,19 +61,43 @@ export async function GET(req: NextRequest) {
     const homeLastmod = new Date(site.updated_at || Date.now()).toISOString().split('T')[0]
     entries.push(url(base, homeLastmod, 'hourly', '1.0'))
 
-    // Category pages
-    const cats = [...new Set((articles || []).map((a: any) => a.category).filter(Boolean))]
-    for (const cat of cats.slice(0, 20)) {
-      entries.push(url(`${base}/category/${cat.toLowerCase()}`, homeLastmod, 'daily', '0.7'))
-    }
+    // rephuby.com gets special treatment — blog URL format + all static pages
+    const isRephuby = host === 'rephuby.com' || host === 'www.rephuby.com'
 
-    // Articles
-    for (const a of (articles || [])) {
-      if (!a.slug) continue
-      const lastmod = a.published_at
-        ? new Date(a.published_at).toISOString().split('T')[0]
-        : homeLastmod
-      entries.push(url(`${base}/article/${site.slug}/${a.slug}`, lastmod, 'never', '0.8'))
+    if (isRephuby) {
+      // Static landing pages
+      const staticPages = [
+        ['/blog',                  'daily',  '0.9'],
+        ['/insights',             'daily',  '0.9'],
+        ['/for/forex-brokers',    'weekly', '0.9'],
+        ['/for/crypto-exchanges', 'weekly', '0.9'],
+      ]
+      for (const [path, freq, pri] of staticPages) {
+        entries.push(url(`${base}${path}`, homeLastmod, freq, pri))
+      }
+      // Blog articles at /blog/[slug]
+      for (const a of (articles || [])) {
+        if (!a.slug) continue
+        const lastmod = a.published_at
+          ? new Date(a.published_at).toISOString().split('T')[0]
+          : homeLastmod
+        entries.push(url(`${base}/blog/${a.slug}`, lastmod, 'never', '0.9'))
+      }
+    } else {
+      // All other portals — standard format
+      // Category pages
+      const cats = [...new Set((articles || []).map((a: any) => a.category).filter(Boolean))]
+      for (const cat of cats.slice(0, 20)) {
+        entries.push(url(`${base}/category/${cat.toLowerCase()}`, homeLastmod, 'daily', '0.7'))
+      }
+      // Articles at /article/[site-slug]/[article-slug]
+      for (const a of (articles || [])) {
+        if (!a.slug) continue
+        const lastmod = a.published_at
+          ? new Date(a.published_at).toISOString().split('T')[0]
+          : homeLastmod
+        entries.push(url(`${base}/article/${site.slug}/${a.slug}`, lastmod, 'never', '0.8'))
+      }
     }
 
     const body = `${xml_header}\n<urlset ${xmlns}>\n${entries.join('\n')}\n</urlset>`

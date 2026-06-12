@@ -742,7 +742,7 @@ Return ONLY valid JSON, no markdown fences:
     try {
       if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt))
       // Jewish portals use web search + Sonnet for richer, real-time content
-      const useWebSearch = isJewishPortal
+      const useWebSearch = isJewishPortal && !isRephubySite  // Rephuby uses Haiku — guides don't need live search
       const genHeaders: Record<string,string> = {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC,
@@ -934,8 +934,9 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   const ANTHROPIC = await getAnthropicKey()
   const site = CORE_SITES[siteSlug]
   if (!site) return { error: 'Unknown site', inserted: 0 }
-    const BATCH_SIZE = isJewishPortal ? 5 : 10  // Jewish: Sonnet+websearch ~25s/article → 5×25=125s safe; Haiku: 10×8s=80s
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+  const isRephubySite   = siteSlug === 'rephuby-intelligence'
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -988,8 +989,8 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
 
     // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
     // Ultra-natural editorial rate — indistinguishable from organic coverage
-    const isBrand        = !isJewishPortal && globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
-    const isClientFeature = !isJewishPortal && globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
+    const isBrand        = !isJewishPortal && !isRephubySite && globalIndex % 14 === 0 && clients.length > 0
+    const isClientFeature = !isJewishPortal && !isRephubySite && globalIndex % 42 === 0 && clients.length > 0
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
@@ -1153,7 +1154,8 @@ export async function GET(req: NextRequest) {
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
-  const BATCH_SIZE = isJewishPortal ? 5 : 10  // Jewish: Sonnet+websearch ~25s/article → 5×25=125s safe
+  const isRephubySite   = siteSlug === 'rephuby-intelligence'
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -1206,8 +1208,8 @@ export async function GET(req: NextRequest) {
 
     // Content mix: ~93% general news · ~5% brand mention · ~2% full client feature
     // Ultra-natural editorial rate — indistinguishable from organic coverage
-    const isBrand        = !isJewishPortal && globalIndex % 14 === 0 && clients.length > 0  // every 14th: client mention (~7%)
-    const isClientFeature = !isJewishPortal && globalIndex % 42 === 0 && clients.length > 0  // every 42nd: full feature (~2%)
+    const isBrand        = !isJewishPortal && !isRephubySite && globalIndex % 14 === 0 && clients.length > 0
+    const isClientFeature = !isJewishPortal && !isRephubySite && globalIndex % 42 === 0 && clients.length > 0
     const crossLink = getCrossLink(site.slug, topic, i)
 
     let brandNote = ''
