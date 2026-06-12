@@ -138,7 +138,7 @@ export default function HomePage() {
           
           {/* Desktop nav links */}
           <div className="nl" style={{ display:'flex', gap:2, flex:1, justifyContent:'center' }}>
-            {[['#portals','Network'],['#features','Platform'],['#pricing','Pricing'],['#proof','Results']].map(([h,l]) => (
+            {[['#portals','Network'],['#features','Platform'],['#podcast','Podcast'],['#pricing','Plans'],['#proof','Results']].map(([h,l]) => (
               <a key={h} href={h} className="nav-link">{l}</a>
             ))}
             <Link href="/insights" className="nav-link">Intelligence Hub</Link>
@@ -417,6 +417,108 @@ export default function HomePage() {
 
 
 
+      {/* AUDIO & VIDEO PODCAST MARKETING — Advance plan feature */}
+      <section id="podcast" className="sec" style={{ padding:'96px 0', background:'rgba(245,158,11,0.03)', borderTop:'1px solid rgba(245,158,11,0.08)', borderBottom:'1px solid rgba(245,158,11,0.08)' }}>
+        <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
+          <div style={{ textAlign:'center', marginBottom:64 }}>
+            <span className="tag" style={{ background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.25)', color:'#F59E0B', marginBottom:16, display:'inline-flex' }}>Advance Plan Exclusive</span>
+            <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, marginBottom:16, lineHeight:1.1 }}>
+              Your CEO's Voice on <span style={{ background:'linear-gradient(135deg,#F59E0B,#F97316)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Every Platform</span>
+            </h2>
+            <p style={{ fontSize:18, color:'#64748b', maxWidth:580, margin:'0 auto', lineHeight:1.7 }}>
+              When a prospect Googles your broker — they find your CEO talking. When they ask ChatGPT — it cites your interview. Audio and video authority that no competitor can fake.
+            </p>
+          </div>
+
+          {/* Two column layout */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32, marginBottom:64, alignItems:'center' }}>
+            {/* Left — what we produce */}
+            <div>
+              <div style={{ marginBottom:32 }}>
+                <div style={{ display:'flex', gap:16, marginBottom:24 }}>
+                  <div style={{ width:48, height:48, borderRadius:12, background:'linear-gradient(135deg,#F59E0B,#F97316)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>🎙️</div>
+                  <div>
+                    <div style={{ fontSize:18, fontWeight:700, marginBottom:6 }}>AI-Powered Audio Podcasts</div>
+                    <div style={{ fontSize:14, color:'#64748B', lineHeight:1.6 }}>Your CEO, analysts, and trading experts speak directly to your audience. Each episode covers your market positioning, regulatory standing, and trading insights. Produced, edited, and published — hands free.</div>
+                  </div>
+                </div>
+                <div style={{ display:'flex', gap:16, marginBottom:24 }}>
+                  <div style={{ width:48, height:48, borderRadius:12, background:'linear-gradient(135deg,#818CF8,#6366F1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>🎬</div>
+                  <div>
+                    <div style={{ fontSize:18, fontWeight:700, marginBottom:6 }}>CEO & Analyst Video Interviews</div>
+                    <div style={{ fontSize:14, color:'#64748B', lineHeight:1.6 }}>Professional AI-generated video interviews with your leadership team. Market analysis, trading strategy, regulatory commentary — the content prospects search for before they deposit.</div>
+                  </div>
+                </div>
+                <div style={{ display:'flex', gap:16 }}>
+                  <div style={{ width:48, height:48, borderRadius:12, background:'linear-gradient(135deg,#10B981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>📡</div>
+                  <div>
+                    <div style={{ fontSize:18, fontWeight:700, marginBottom:6 }}>Multi-Platform Distribution</div>
+                    <div style={{ fontSize:14, color:'#64748B', lineHeight:1.6 }}>Every episode published to Spotify, Apple Podcasts, YouTube, and Google Podcasts. Your broker's voice reaches traders on every device, every platform — automatically.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — platform badges + impact stats */}
+            <div>
+              {/* Platform distribution */}
+              <div className="glass" style={{ padding:28, borderRadius:14, marginBottom:20 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#475569', letterSpacing:'.08em', textTransform:'uppercase', marginBottom:16 }}>Published To</div>
+                <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+                  {[
+                    { name:'Spotify', color:'#1DB954', bg:'rgba(29,185,84,0.12)' },
+                    { name:'YouTube', color:'#FF0000', bg:'rgba(255,0,0,0.1)' },
+                    { name:'Apple Podcasts', color:'#FC3C44', bg:'rgba(252,60,68,0.1)' },
+                    { name:'Google Podcasts', color:'#4285F4', bg:'rgba(66,133,244,0.1)' },
+                  ].map(p => (
+                    <div key={p.name} style={{ padding:'8px 16px', background:p.bg, borderRadius:8, fontSize:13, fontWeight:600, color:p.color }}>{p.name}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Why it works */}
+              <div className="glass" style={{ padding:28, borderRadius:14 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#475569', letterSpacing:'.08em', textTransform:'uppercase', marginBottom:16 }}>Why It Works</div>
+                {[
+                  { stat:'#1', desc:'Google ranks podcast episodes as authoritative brand content' },
+                  { stat:'48h', desc:'CEO interview live on all platforms within 48 hours' },
+                  { stat:'AI', desc:'ChatGPT and Perplexity cite audio/video as trust signals' },
+                ].map(item => (
+                  <div key={item.stat} style={{ display:'flex', gap:14, marginBottom:16, alignItems:'flex-start' }}>
+                    <div style={{ minWidth:42, height:42, borderRadius:8, background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, color:'#F59E0B' }}>{item.stat}</div>
+                    <div style={{ fontSize:14, color:'#94A3B8', lineHeight:1.5, paddingTop:4 }}>{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* What a prospect finds */}
+          <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:'36px 40px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:32 }}>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#EF4444', letterSpacing:'.06em', marginBottom:12 }}>WITHOUT ADVANCE</div>
+              <div style={{ fontSize:15, color:'#475569', marginBottom:10 }}>Prospect Googles "[Your Broker] review"</div>
+              {['Forum thread: "Is [Broker] a scam?"','TrustPilot: 2.3 stars (unmanaged)','Competitor comparison page','No executive presence found'].map(t => (
+                <div key={t} style={{ display:'flex', gap:8, marginBottom:8, fontSize:13 }}><span style={{color:'#EF4444'}}>✕</span><span style={{color:'#475569'}}>{t}</span></div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#10B981', letterSpacing:'.06em', marginBottom:12 }}>WITH ADVANCE</div>
+              <div style={{ fontSize:15, color:'#F1F5F9', marginBottom:10 }}>Prospect Googles "[Your Broker] review"</div>
+              {['CEO podcast: "Why We\'re the Regulated Choice"','300+ editorial portals covering your brand','4.8★ verified reviews across platforms','Your analyst\'s YouTube market commentary'].map(t => (
+                <div key={t} style={{ display:'flex', gap:8, marginBottom:8, fontSize:13 }}><span style={{color:'#10B981'}}>✓</span><span style={{color:'#94A3B8'}}>{t}</span></div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ textAlign:'center', marginTop:40 }}>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-gold" style={{ display:'inline-flex', fontSize:15 }}>
+              Get Advance Plan →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* PLANS — no prices, lead gen focus */}
       <section id="pricing" className="sec" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
@@ -432,16 +534,17 @@ export default function HomePage() {
                 clr: '#94A3B8',
                 ft: false,
                 badge: null,
-                desc: 'The essential reputation infrastructure for regulated brokers and crypto brands entering the RepHuby network.',
+                desc: 'The essential reputation infrastructure. 14 dedicated financial portals publishing daily content about your brand.',
                 feats: [
-                  'Full 300+ portal editorial network',
-                  '30+ articles published daily',
+                  '14 financial editorial portals',
+                  '10 targeted articles daily',
                   'Verified review generation',
                   'Real-time rank monitoring',
                   'Brand mention tracking',
                   'Monthly performance report',
                   'Client portal dashboard',
                 ],
+                excl: ['Video & podcast marketing','CEO interview production'],
                 cta: 'Talk to Us →',
               },
               {
@@ -449,16 +552,19 @@ export default function HomePage() {
                 clr: '#0EA5E9',
                 ft: true,
                 badge: 'MOST POPULAR',
-                desc: 'Everything in Starter, plus AI-powered podcast and video interviews that put your CEO\'s voice on Spotify, YouTube, and Apple Podcasts.',
+                desc: 'Full 300-portal network plus AI-powered video and podcast interviews that put your CEO on Spotify, YouTube, and Apple Podcasts.',
                 feats: [
-                  'Everything in Starter',
-                  'AI podcast episodes monthly',
-                  'CEO & analyst video interviews',
+                  '300+ financial editorial portals',
+                  '30+ articles published daily',
+                  'Verified review generation',
+                  'Real-time rank monitoring & tracking',
+                  'AI video & podcast interviews',
                   'Published to Spotify, YouTube, Apple Podcasts',
                   'Brand crisis rapid response',
                   'Weekly executive briefing',
                   'Dedicated account manager',
                 ],
+                excl: [],
                 cta: 'Talk to Us →',
               },
             ].map(p => (
@@ -468,7 +574,8 @@ export default function HomePage() {
                 <div className="syne" style={{ fontSize:40, fontWeight:900, lineHeight:1, marginBottom:12, color:p.clr }}>{p.tier}</div>
                 <p style={{ fontSize:14, color:'#64748B', lineHeight:1.6, marginBottom:20 }}>{p.desc}</p>
                 <div style={{ height:1, background:'rgba(255,255,255,0.07)', marginBottom:20 }} />
-                {p.feats.map(f => <div key={f} style={{ display:'flex', gap:9, marginBottom:11, fontSize:14, alignItems:'flex-start' }}><span style={{color:'#10B981',flexShrink:0}}>✓</span><span style={{color:'#94A3B8',lineHeight:1.4}}>{f}</span></div>)}
+                {p.feats.map((f:string) => <div key={f} style={{ display:'flex', gap:9, marginBottom:11, fontSize:14, alignItems:'flex-start' }}><span style={{color:'#10B981',flexShrink:0}}>✓</span><span style={{color:'#94A3B8',lineHeight:1.4}}>{f}</span></div>)}
+                {p.excl.map((f:string) => <div key={f} style={{ display:'flex', gap:9, marginBottom:11, fontSize:14, alignItems:'flex-start' }}><span style={{color:'#334155',flexShrink:0}}>✕</span><span style={{color:'#334155',lineHeight:1.4}}>{f}</span></div>)}
                 <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ display:'block', marginTop:28 }}>
                   <button className={`btn ${p.ft?'btn-blue':'btn-ghost'}`} style={{ width:'100%', justifyContent:'center', fontSize:14 }}>{p.cta}</button>
                 </a>
