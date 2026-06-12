@@ -115,7 +115,7 @@ async function callClaude(prompt: string, useWebSearch = false): Promise<string>
   }
   if (useWebSearch) {
     body.tools = [{ type: 'web_search_20250305', name: 'web_search' }]
-    body.model = 'claude-sonnet-4-20250514' // Web search needs Sonnet+
+    body.model = 'claude-sonnet-4-6' // Web search needs Sonnet+
     body.max_tokens = 3000
   }
 

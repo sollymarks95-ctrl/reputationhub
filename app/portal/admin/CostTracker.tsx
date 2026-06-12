@@ -86,7 +86,7 @@ export default function CostTracker() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          model:'claude-sonnet-4-20250514',
+          model:'claude-sonnet-4-6',
           max_tokens:1500,
           system:`Search Gmail for emails from Anthropic or billing@anthropic.com or receipts from claude.ai in the last 14 days. 
 Look for: invoice emails, receipt emails, credit topup confirmations, billing notifications.

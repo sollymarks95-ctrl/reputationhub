@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1500,
+        model: 'claude-sonnet-4-6', max_tokens: 1500,
         system: 'You are a senior financial journalist writing for elite financial portals. Write substantive, credible content. Never use filler phrases or obvious promotional language.',
         messages: [{ role: 'user', content: typePrompts[articleType] || typePrompts.analysis }],
       }),

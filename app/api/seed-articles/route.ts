@@ -15,7 +15,7 @@ async function generateBatch(
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 8000,
       system: `You are a professional journalist for ${siteName}, a ${siteType} publication. 
 Generate ${count} unique, high-quality news articles. Each must be different topic.
