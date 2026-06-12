@@ -656,7 +656,7 @@ function getCrossLink(siteSlug: string, topic: string, articleIndex: number): st
 }
 
 
-async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false, recentTitles: string[] = []) {
+async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false, recentTitles: string[] = [], isRephubySite = false) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
@@ -755,8 +755,8 @@ Return ONLY valid JSON, no markdown fences:
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: isPillarArticle ? 8000 : 4000,
+        model: isRephubySite ? 'claude-sonnet-4-20250514' : 'claude-haiku-4-5-20251001',  // Sonnet for rephuby long-form guides
+        max_tokens: isPillarArticle || isRephubySite ? 8000 : 4000,
         messages: [
           { role: 'user', content: prompt },
           { role: 'assistant', content: '{"title":"' }
@@ -1070,7 +1070,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
@@ -1286,7 +1286,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
