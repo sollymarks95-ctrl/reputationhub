@@ -416,34 +416,72 @@ export default function HomePage() {
 
 
 
-      {/* PRICING */}
+      {/* PLANS — no prices, lead gen focus */}
       <section id="pricing" className="sec" style={{ padding:'96px 0' }}>
         <div style={{ maxWidth:1280, margin:'0 auto', padding:'0 24px' }}>
           <div style={{ textAlign:'center', marginBottom:52 }}>
-            <span className="tag" style={{ background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.25)', color:'#F59E0B', marginBottom:16, display:'inline-flex' }}>Transparent Pricing</span>
-            <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>Investment That <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Pays For Itself</span></h2>
-            <p style={{ fontSize:17, color:'#64748b' }}>One qualified lead from a cleaner Google Page 1 covers months of service. ROI in 30 days.</p>
+            <span className="tag" style={{ background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.25)', color:'#0EA5E9', marginBottom:16, display:'inline-flex' }}>Choose Your Plan</span>
+            <h2 className="syne h2s" style={{ fontSize:44, fontWeight:900, marginBottom:14, lineHeight:1.1 }}>Two Plans. <span style={{ background:'linear-gradient(135deg,#10B981,#34D399)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>One Goal.</span></h2>
+            <p style={{ fontSize:17, color:'#64748b', maxWidth:500, margin:'0 auto' }}>Full editorial authority for your brand across the RepHuby portal network. Talk to us to find the right fit.</p>
           </div>
-          <div className="pg" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:22 }}>
+          <div className="pg" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:22, maxWidth:800, margin:'0 auto' }}>
             {[
-              { tier:'Authority Starter', price:'5,000', clr:'#94A3B8', ft:false, cta:'Start Dominating →', feats:['12 domains from our network','10 articles per day published','Real-time rank monitoring','2 AI podcast episodes/month','Monthly performance report'] },
-              { tier:'Authority Pro', price:'9,500', clr:'#0EA5E9', ft:true, cta:'Get Authority Pro →', feats:['Full 300+ portal network','30 articles per day published','Real-time rank tracking','8 AI podcast episodes/month','Brand crisis rapid response','Weekly executive briefing','Dedicated account manager'] },
-              { tier:'Enterprise Command', price:'Custom', clr:'#F59E0B', ft:false, cta:'Request Quote →', feats:['Unlimited portal coverage','100+ articles/week','Multi-brand management','Daily AI podcast production','24/7 brand monitoring','Regulatory crisis PR','C-suite strategy sessions'] },
+              {
+                tier: 'Starter',
+                clr: '#94A3B8',
+                ft: false,
+                badge: null,
+                desc: 'The essential reputation infrastructure for regulated brokers and crypto brands entering the RepHuby network.',
+                feats: [
+                  'Full 14-portal editorial network',
+                  '30+ articles published daily',
+                  'Verified review generation',
+                  'Real-time rank monitoring',
+                  'Brand mention tracking',
+                  'Monthly performance report',
+                  'Client portal dashboard',
+                ],
+                cta: 'Talk to Us →',
+              },
+              {
+                tier: 'Advance',
+                clr: '#0EA5E9',
+                ft: true,
+                badge: 'MOST POPULAR',
+                desc: 'Everything in Starter, plus AI-powered podcast and video interviews that put your CEO\'s voice on Spotify, YouTube, and Apple Podcasts.',
+                feats: [
+                  'Everything in Starter',
+                  'AI podcast episodes monthly',
+                  'CEO & analyst video interviews',
+                  'Published to Spotify, YouTube, Apple Podcasts',
+                  'Brand crisis rapid response',
+                  'Weekly executive briefing',
+                  'Dedicated account manager',
+                ],
+                cta: 'Talk to Us →',
+              },
             ].map(p => (
               <div key={p.tier} className={`pc${p.ft?' ft':''}`} style={{ position:'relative' }}>
-                {p.ft && <div style={{ position:'absolute', top:-14, left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#0EA5E9,#818CF8)', color:'#fff', fontSize:10, fontWeight:800, letterSpacing:'.1em', padding:'4px 14px', borderRadius:100, whiteSpace:'nowrap' }}>MOST POPULAR</div>}
-                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', marginBottom:10, textTransform:'uppercase', letterSpacing:'.06em' }}>{p.tier}</div>
-                <div className="syne price-n" style={{ fontSize:50, fontWeight:900, lineHeight:1, marginBottom:4, color:p.clr }}>
-                  {p.price!=='Custom'&&<span style={{fontSize:24,color:'#64748b',fontWeight:400}}>$</span>}{p.price}
-                </div>
-                <div style={{ fontSize:13, color:'#64748b', marginBottom:18 }}>per month · 3 month minimum</div>
-                <div style={{ height:1, background:'rgba(255,255,255,0.07)', marginBottom:18 }} />
+                {p.badge && <div style={{ position:'absolute', top:-14, left:'50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#0EA5E9,#818CF8)', color:'#fff', fontSize:10, fontWeight:800, letterSpacing:'.1em', padding:'4px 14px', borderRadius:100, whiteSpace:'nowrap' }}>{p.badge}</div>}
+                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', marginBottom:8, textTransform:'uppercase', letterSpacing:'.08em' }}>Plan</div>
+                <div className="syne" style={{ fontSize:40, fontWeight:900, lineHeight:1, marginBottom:12, color:p.clr }}>{p.tier}</div>
+                <p style={{ fontSize:14, color:'#64748B', lineHeight:1.6, marginBottom:20 }}>{p.desc}</p>
+                <div style={{ height:1, background:'rgba(255,255,255,0.07)', marginBottom:20 }} />
                 {p.feats.map(f => <div key={f} style={{ display:'flex', gap:9, marginBottom:11, fontSize:14, alignItems:'flex-start' }}><span style={{color:'#10B981',flexShrink:0}}>✓</span><span style={{color:'#94A3B8',lineHeight:1.4}}>{f}</span></div>)}
-                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ display:'block', marginTop:24 }}>
-                  <button className={`btn ${p.ft?'btn-blue':p.price==='Custom'?'btn-gold':'btn-ghost'}`} style={{ width:'100%', justifyContent:'center', fontSize:14 }}>{p.cta}</button>
+                <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" style={{ display:'block', marginTop:28 }}>
+                  <button className={`btn ${p.ft?'btn-blue':'btn-ghost'}`} style={{ width:'100%', justifyContent:'center', fontSize:14 }}>{p.cta}</button>
                 </a>
               </div>
             ))}
+          </div>
+          {/* Soft CTA below plans */}
+          <div style={{ textAlign:'center', marginTop:48, padding:'32px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:12, maxWidth:600, margin:'48px auto 0' }}>
+            <p style={{ fontSize:15, color:'#64748B', lineHeight:1.7, marginBottom:20 }}>
+              Not sure which plan fits? Message us on Telegram — we'll look at your brand's current reputation position and tell you exactly what makes sense.
+            </p>
+            <a href="https://t.me/Benrephuby" target="_blank" rel="noopener noreferrer" className="btn btn-green" style={{ display:'inline-flex' }}>
+              Message Us on Telegram →
+            </a>
           </div>
         </div>
       </section>
