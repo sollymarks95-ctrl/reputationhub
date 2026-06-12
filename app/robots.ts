@@ -4,7 +4,9 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-const ALWAYS_BLOCK = new Set(['rephuby.com'])
+const ALWAYS_BLOCK = new Set<string>([
+  // rephuby.com is now a public SEO site — removed from block list
+])
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const headersList = await headers()

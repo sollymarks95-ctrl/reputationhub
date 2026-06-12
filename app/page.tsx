@@ -434,7 +434,7 @@ export default function HomePage() {
                 badge: null,
                 desc: 'The essential reputation infrastructure for regulated brokers and crypto brands entering the RepHuby network.',
                 feats: [
-                  'Full 14-portal editorial network',
+                  'Full 300+ portal editorial network',
                   '30+ articles published daily',
                   'Verified review generation',
                   'Real-time rank monitoring',
