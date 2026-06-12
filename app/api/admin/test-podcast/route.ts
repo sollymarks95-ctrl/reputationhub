@@ -28,7 +28,7 @@ export async function GET() {
     const r = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':anthKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:'Write a 3-minute financial podcast script (approx 400 words) between HOST Marcus Webb and GUEST James Richardson CEO of eToro. Format as "HOST: ..." or "GUEST: ..." per line. Topic: regulatory credibility and institutional trust in 2026. Start immediately.'}]})
+      body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:1500,messages:[{role:'user',content:'Write a 3-minute financial podcast script (approx 400 words) between HOST Marcus Webb and GUEST James Richardson CEO of eToro. Format as "HOST: ..." or "GUEST: ..." per line. Topic: regulatory credibility and institutional trust in 2026. Start immediately.'}]})
     })
     const d = await r.json()
     script = d.content?.[0]?.text || ''

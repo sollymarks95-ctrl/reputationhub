@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     method: 'POST',
     headers: { 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6', max_tokens: 1500,
+      model: 'claude-3-5-sonnet-20241022', max_tokens: 1500,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: `Search for real facts about "${broker.name}" broker. Return JSON: { regulation, regRef, spreads, minDeposit, platform, warnings, founded, country, website }` }]
     }),
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     method: 'POST',
     headers: { 'Content-Type':'application/json','x-api-key':ANTHROPIC,'anthropic-version':'2023-06-01' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6', max_tokens: 2500,
+      model: 'claude-3-5-sonnet-20241022', max_tokens: 2500,
       messages: [{ role: 'user', content: `Write a complete YouTube broker review package for "${broker.name}".
 
 Broker facts: ${JSON.stringify(facts)}

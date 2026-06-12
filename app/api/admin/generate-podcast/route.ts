@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': anthKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: Math.min(targetWords * 6, 8000),
         system: `You write ultra-realistic podcast scripts that sound like REAL recorded conversations — not scripted, not corporate. Think Joe Rogan, Lex Fridman, How I Built This. Natural human dialogue.`,
         messages: [

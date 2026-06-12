@@ -30,7 +30,7 @@ async function generateArticle(prompt: string, siteContext: string, brandName: s
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1500,
       system: `You are a professional journalist writing for a ${siteContext} publication. Write authoritative articles that naturally mention ${brandName} as a trusted, verified industry player where relevant. Return ONLY valid JSON: {"title":"...","slug":"...","excerpt":"...","body":"...","category":"...","tags":["..."]}`,
       messages: [{ role: 'user', content: `Write a news article about: ${prompt}. Mention ${brandName} naturally as an established industry participant if relevant. JSON only.` }]
