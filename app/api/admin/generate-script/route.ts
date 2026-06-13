@@ -83,7 +83,7 @@ START immediately with "${HOST}:" — no title, no preamble, no explanation:`
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 8000,
         system: 'You are writing a financial podcast script. Write detailed, professional scripts using realistic but general market context. Always produce the full script immediately.',
         messages: [{ role: 'user', content: prompt }]

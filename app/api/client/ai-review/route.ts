@@ -46,7 +46,7 @@ async function askClaude(q: string, apiKey: string) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST', signal:AbortSignal.timeout(55000),
     headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({ model:'claude-3-5-sonnet-20241022', max_tokens:1500, tools:[{type:'web_search_20250305',name:'web_search'}], messages:[{role:'user',content:q}] })
+    body:JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:1500, tools:[{type:'web_search_20250305',name:'web_search'}], messages:[{role:'user',content:q}] })
   })
   if (!r.ok) throw new Error(`Claude ${r.status}`)
   const data = await r.json()

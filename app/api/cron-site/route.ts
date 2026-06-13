@@ -750,12 +750,12 @@ Return ONLY valid JSON, no markdown fences:
         ...(useWebSearch ? { 'anthropic-beta': 'web-search-2025-03-05' } : {})
       }
       const genBody: any = useWebSearch ? {
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: isPillarArticle ? 8000 : 4000,
+        model: 'claude-haiku-4-5-20251001',  // Haiku confirmed working with web search on this key
+        max_tokens: 4000,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
-        model: isRephubySite ? 'claude-3-5-sonnet-20241022' : 'claude-haiku-4-5-20251001',  // Sonnet for rephuby long-form guides
+        model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
         max_tokens: isPillarArticle || isRephubySite ? 8000 : 4000,
         messages: [
           { role: 'user', content: prompt },

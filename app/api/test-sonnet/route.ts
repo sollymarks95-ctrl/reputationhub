@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 100,
       messages: [{ role: 'user', content: 'Say hello in one word.' }]
     })
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
       'anthropic-beta': 'web-search-2025-03-05',
     },
     body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 200,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: 'Search for today\'s gold price and give me one sentence.' }]
