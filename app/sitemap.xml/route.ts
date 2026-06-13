@@ -50,10 +50,15 @@ export async function GET(req: NextRequest) {
     if (!site || site.noindex) return new NextResponse(empty, { status:200, headers:HEADERS })
 
     const { data: arts } = await db.from('news_articles')
-      .select('slug,published_at').eq('news_site_id',site.id)
+      .select('slug,published_at,category').eq('news_site_id',site.id)
       .eq('status','published').order('published_at',{ascending:false}).limit(5000)
 
     const entries = [u(`${base}/`, 'daily', '1.0', today)]
+    // Category pages — topical hubs for SEO
+    const cats = [...new Set((arts||[]).map((a: any) => a.category).filter(Boolean))]
+    for (const cat of cats) {
+      entries.push(u(`${base}/article/${site.slug}/category/${encodeURIComponent(String(cat).toLowerCase())}`, today, 'daily', '0.8'))
+    }
     for (const a of arts||[]) {
       if (!a.slug) continue
       entries.push(u(`${base}/article/${site.slug}/${a.slug}`, 'never', '0.8',

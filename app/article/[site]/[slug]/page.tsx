@@ -187,7 +187,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   // On custom domains (nex-wire.com etc), use "/" for home — not the internal route path
   const hdrs = await (await import('next/headers')).headers()
   const homeUrl = hdrs.get('x-custom-domain') === 'true' ? '/' : `/${route}/${siteSlug}`
-  const related = allArticles.filter((a: any) => a.slug !== slug).slice(0, 8)
+  // Same-category articles first for better topical relevance + SEO internal linking
+  const articleCategory = article.category || ''
+  const sameCategory = allArticles.filter((a: any) => a.slug !== slug && a.category === articleCategory)
+  const otherArticles = allArticles.filter((a: any) => a.slug !== slug && a.category !== articleCategory)
+  const related = [...sameCategory, ...otherArticles].slice(0, 8)
   const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
   // Normalize body: handle both real newlines and literal \n from DB
   const rawBody = (article.body || '')
@@ -284,7 +288,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: site.name, item: BASE },
-        { '@type': 'ListItem', position: 2, name: article.category || 'Markets', item: `${BASE}/?category=${encodeURIComponent(article.category||'Markets')}` },
+        { '@type': 'ListItem', position: 2, name: article.category || 'Markets', item: `${BASE}/category/${encodeURIComponent((article.category||'Markets').toLowerCase())}` },
         { '@type': 'ListItem', position: 3, name: article.title, item: canonicalUrl },
       ]
     },
@@ -721,6 +725,29 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 {col.links.map((l: any) => <Link key={l.label} href={l.href}><div style={{ fontSize:13, color:'#475569', marginBottom:8 }}>{l.label}</div></Link>)}
               </div>
             ))}
+          </div>
+          {/* Inter-portal network links — SEO internal linking across RepHuby network */}
+          <div style={{ borderTop:'1px solid #1e293b', paddingTop:20, marginBottom:20 }}>
+            <div style={{ fontSize:10, fontWeight:800, color:'#475569', textTransform:'uppercase', letterSpacing:'.1em', marginBottom:12 }}>RepHuby Intelligence Network</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+              {[
+                {name:'Verivex — Broker Reviews', url:'https://verivex.co'},
+                {name:'CryptoXos — Crypto Markets', url:'https://cryptoxos.com'},
+                {name:'Finvexx — Financial Markets', url:'https://finvexx.com'},
+                {name:'Nex-Wire — Trade Intelligence', url:'https://nex-wire.com'},
+                {name:'AurexHQ — Commodities', url:'https://aurexhq.com'},
+                {name:'InvexHuby — Investment Intel', url:'https://invexhuby.com'},
+                {name:'Signalixx — Market Signals', url:'https://signalixx.com'},
+                {name:'ExecVex — Executive Network', url:'https://execvex.com'},
+                {name:'BizPlezx — Business Strategy', url:'https://bizplezx.com'},
+                {name:'FXVexx — FX & Brokers', url:'https://fxvexx.com'},
+                {name:'TradeHubIQ — Platform Reviews', url:'https://tradehubiq.com'},
+              ].filter(p => !p.url.includes(BASE.replace('https://',''))).slice(0,8).map(portal => (
+                <a key={portal.url} href={portal.url} target="_blank" rel="noopener" style={{ fontSize:11, color:'#475569', padding:'4px 10px', border:'1px solid #1e293b', borderRadius:4, textDecoration:'none' }}>
+                  {portal.name}
+                </a>
+              ))}
+            </div>
           </div>
           <div style={{ borderTop:'1px solid #1e293b', paddingTop:16, fontSize:11, color:'#334155', lineHeight:1.8, marginBottom:12 }}>
             <strong style={{color:'#475569'}}>Risk Disclosure:</strong> Trading in financial instruments involves high risks. Prices may not be real-time or accurate. {site.name} does not accept liability for losses resulting from reliance on information provided. Content is for informational purposes only and does not constitute investment advice.
