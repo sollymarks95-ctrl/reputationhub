@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-export const revalidate = 1800 // refresh every 30 min
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Financial Intelligence Hub — Latest Broker & Crypto News',

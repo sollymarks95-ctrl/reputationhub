@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-export const revalidate = 900
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Reputation Management Blog — Broker & Crypto Brand Strategy',
