@@ -768,7 +768,12 @@ Return ONLY valid JSON, no markdown fences:
         body: JSON.stringify(genBody),
         signal: AbortSignal.timeout(60000),
       })
-      if (!res.ok) { console.error(`Attempt ${attempt+1}: ${res.status}`); if (res.status===429||res.status>=500) continue; return null }
+      if (!res.ok) {
+        const errBody = await res.text().catch(()=>'')
+        console.error(`[writeArticle] FAIL attempt=${attempt+1} status=${res.status} model=${genBody.model} useWebSearch=${useWebSearch} site=${site.slug||site.domain||'?'} err=${errBody.slice(0,400)}`)
+        if (res.status===429||res.status>=500) continue
+        return null
+      }
       const data = await res.json()
       const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
       const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
