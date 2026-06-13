@@ -94,13 +94,37 @@ function hash(s: string): number {
   return h
 }
 
+// Israel / Jewish community / aliya / property themed photos
+const JEWISH_PHOTOS = [
+  // Jerusalem & Israel landscapes
+  'photo-1527838832700-5059252407fa','photo-1528360983277-13d401cdc186','photo-1562571700-39cd5d5e4e01',
+  'photo-1566836610593-62a64888a216','photo-1580674684081-7617fbf3d745','photo-1558441440-d4111d18d48f',
+  'photo-1512453979798-5ea266f8880c','photo-1539650116574-75c0c6d73f6e','photo-1543832923-44667a44c804',
+  // Israeli city / architecture
+  'photo-1518684079-3c830dcef090','photo-1504376379689-8d54347b26c6','photo-1579038773867-044c48daf789',
+  'photo-1547483238-f400e65ccd56','photo-1558618047-3c8c76ca6bfd','photo-1560472355-536de3962603',
+  // Community / people / cultural
+  'photo-1529156069898-49953e39b3ac','photo-1491438590914-bc09fcaaf77a','photo-1511632765486-a01980e01a18',
+  'photo-1506869640319-fe1a24fd76dc','photo-1515169067868-5387ec356754','photo-1529156069898-49953e39b3ac',
+  // Property / real estate / buildings
+  'photo-1560518883-ce09059eeffa','photo-1512917774080-9991f1c4c750','photo-1570129477492-45c003edd2be',
+  'photo-1580587771525-78b9dba3b914','photo-1600585154340-be6161a56a0c','photo-1600607687939-ce8a6c25118c',
+  'photo-1600566753376-12c8ab7fb75b','photo-1600047509807-ba8f99d2cdde','photo-1600596542815-ffad4c1539a9',
+  // Immigration / travel / passport
+  'photo-1436491865332-7a61a109cc05','photo-1488646953014-85cb44e25828','photo-1501621965065-c6e1cf6b53e2',
+  'photo-1476514525535-07fb3b4ae5f1','photo-1530789253388-582c481c54b0','photo-1503220317375-aaad61436b1b',
+  // Middle East / culture
+  'photo-1518684079-3c830dcef090','photo-1490806843957-31f4c9a91c65','photo-1547483238-f400e65ccd56',
+  'photo-1534430480872-27fbc0d5b820','photo-1548013146-72479768bada','photo-1525935944571-f7f2f7806b36',
+]
+
+const JEWISH_DOMAINS = new Set(['jewishnewsnow.com','jewishpropertyreport.com','aliyatoday.com'])
+
 // Returns a unique image URL for each article
-// Key: combines site domain + full article slug so same topic on different
-// days / different sites always produces a different image
+// Jewish sites use Israel/community imagery; finance sites use financial imagery
 export function getArticleImage(category: string, slug: string, siteDomain = ''): string {
-  // Combine site + slug for maximum uniqueness
-  const key = `${siteDomain}:${slug}:${category}`
-  const idx = hash(key) % ALL_PHOTOS.length
-  const photoId = ALL_PHOTOS[idx]
-  return `https://images.unsplash.com/${photoId}?w=1200&h=630&fit=crop&q=80&auto=format`
+  const pool = JEWISH_DOMAINS.has(siteDomain) ? JEWISH_PHOTOS : ALL_PHOTOS
+  const key  = `${siteDomain}:${slug}:${category}`
+  const idx  = hash(key) % pool.length
+  return `https://images.unsplash.com/${pool[idx]}?w=1200&h=630&fit=crop&q=80&auto=format`
 }
