@@ -31,7 +31,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
   const db = getDb()
   const { data: a } = await db
     .from('news_articles')
-    .select('id,title,slug,excerpt,body,author,published_at,tags')
+    .select('id,title,slug,excerpt,body,author_name,published_at,tags')
     .eq('slug', slug).eq('news_site_id', SITE_ID).eq('status', 'published').single()
   if (!a) notFound()
 
@@ -52,7 +52,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
     description: a.excerpt,
     datePublished: a.published_at,
     dateModified: a.published_at,
-    author: { '@type': 'Person', name: a.author || 'RepHuby Intelligence Editorial' },
+    author: { '@type': 'Person', name: a.author_name || 'RepHuby Intelligence Editorial' },
     publisher: {
       '@type': 'Organization',
       name: 'RepHuby Intelligence',
@@ -119,7 +119,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
             </p>
           )}
           <div style={{ display: 'flex', gap: 20, fontSize: 13, color: '#475569', flexWrap: 'wrap' }}>
-            <span>By {a.author || 'RepHuby Intelligence Editorial'}</span>
+            <span>By {a.author_name || 'RepHuby Intelligence Editorial'}</span>
             <span>{date}</span>
             <span>{readTime} min read</span>
           </div>

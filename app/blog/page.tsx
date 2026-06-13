@@ -22,7 +22,7 @@ export default async function BlogPage() {
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ANON)
   const { data: articles } = await db
     .from('news_articles')
-    .select('id,title,slug,excerpt,published_at,author')
+    .select('id,title,slug,excerpt,published_at,author_name')
     .eq('news_site_id', '35579979-ca5e-476f-bd75-9be5910fe29b')
     .eq('status', 'published')
     .order('published_at', { ascending: false })
