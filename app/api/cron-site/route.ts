@@ -1338,5 +1338,22 @@ Required structure:
     await new Promise(r => setTimeout(r, 400))
   }
 
+  // Auto-flip noindex → false once site reaches 30+ articles
+  if (inserted > 0) {
+    try {
+      const dbCheck = getDb()
+      const { count: total } = await dbCheck.from('news_articles')
+        .select('*', { count: 'exact', head: true })
+        .eq('news_site_id', site.id).eq('status', 'published')
+      if ((total || 0) >= 30) {
+        const { data: siteRow } = await dbCheck.from('news_sites').select('noindex').eq('id', site.id).single()
+        if (siteRow?.noindex === true) {
+          await dbCheck.from('news_sites').update({ noindex: false }).eq('id', site.id)
+          console.log(`[auto-index] ${siteSlug} reached ${total} articles — opened to Google ✅`)
+        }
+      }
+    } catch(e: any) { console.error('[auto-index]', e.message) }
+  }
+
   return NextResponse.json({ site: siteSlug, batch, inserted, skipped: skipped.length })
 }
