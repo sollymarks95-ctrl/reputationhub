@@ -780,7 +780,7 @@ Return ONLY valid JSON, no markdown fences:
 
       // Strip web-search citation tags that leak into body HTML
       const stripCites = (s: string) => s
-        .replace(/<cite\s+index="[^"]*">[^<]*<\/cite>/gi, '')
+        .replace(/<cite\s+index="[^"]*">([^<]*)<\/cite>/gi, '$1')
         .replace(/<cite\s+index="[^"]*"\s*\/?>/gi, '')
         .trim()
 
