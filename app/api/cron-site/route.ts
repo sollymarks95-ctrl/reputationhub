@@ -756,7 +756,7 @@ Return ONLY valid JSON, no markdown fences:
         messages: [{ role: 'user', content: prompt }],
       } : {
         model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
-        max_tokens: isPillarArticle || isRephubySite ? 8000 : 4000,
+        max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
         messages: [
           { role: 'user', content: prompt },
           { role: 'assistant', content: '{"title":"' }
@@ -941,7 +941,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 15)  // Jewish:5, Rephuby:3, Finance:15 (=45/day)
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10 (=30/day) — reduced for cost
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -1160,7 +1160,7 @@ export async function GET(req: NextRequest) {
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 15)  // Jewish:5, Rephuby:3, Finance:15 (=45/day)
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 10)  // Jewish:5, Rephuby:3, Finance:10 (=30/day) — reduced for cost
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing

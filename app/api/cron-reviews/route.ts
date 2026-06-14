@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
   // Pick 5 unique companies
   const picked: any[] = []
   const seen = new Set<string>()
-  for (let i = 0; i < 200 && picked.length < 8; i++) {
+  for (let i = 0; i < 200 && picked.length < 5; i++) {
     const co = rand(weighted) as any
     if (!seen.has(co.slug)) { picked.push(co); seen.add(co.slug) }
   }
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
   const results: any[] = []
 
   for (const company of picked) {
-    const reviewsToAdd = randInt(3, 6)
+    const reviewsToAdd = randInt(2, 4)
     const reviews = await generateReviewsForCompany(company, reviewsToAdd)
     if (reviews.length === 0) continue
 
