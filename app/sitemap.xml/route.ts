@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     // Category pages — topical hubs for SEO
     const cats = [...new Set((arts||[]).map((a: any) => a.category).filter(Boolean))]
     for (const cat of cats) {
-      entries.push(u(`${base}/article/${site.slug}/category/${encodeURIComponent(String(cat).toLowerCase())}`, today, 'daily', '0.8'))
+      entries.push(u(`${base}/article/${site.slug}/category/${encodeURIComponent(String(cat).toLowerCase())}`, 'daily', '0.8', today))
     }
     for (const a of arts||[]) {
       if (!a.slug) continue

@@ -854,11 +854,24 @@ async function getTrendingFromDB(siteSlug: string, count: number): Promise<strin
   return []
 }
 
-async function discoverFreshTopics(site: any, count: number, isJewishPortal = false): Promise<string[]> {
+async function discoverFreshTopics(site: any, count: number, isJewishPortal = false, recentTitles: string[] = []): Promise<string[]> {
   const ANTH = process.env.ANTHROPIC_API_KEY
   if (!ANTH) return site.topics.slice(0, count)
 
   const today = new Date().toISOString().split('T')[0]
+  // Rotate which static topics are used as search seeds, based on day-of-year,
+  // so the same 5 themes aren't searched every single day (was causing the
+  // same ~30 themes to be recycled daily — Google treats reworded repeats of
+  // the same theme as near-duplicate content and only indexes a fraction).
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000)
+  const poolLen = site.topics.length
+  const seedStart = (dayOfYear * 5) % poolLen
+  const seedTopics = Array.from({length: Math.min(5, poolLen)}, (_, k) => site.topics[(seedStart + k) % poolLen])
+  const rotatedPool = Array.from({length: poolLen}, (_, k) => site.topics[(seedStart + k) % poolLen])
+  // Recent titles (last ~30 days) — explicitly told to AI to avoid re-covering these themes
+  const avoidBlock = recentTitles.length
+    ? `\n\nAVOID these themes/angles — already covered recently, do NOT propose topics that rehash these:\n${recentTitles.slice(0,25).map(t=>`- ${t}`).join('\n')}\n`
+    : ''
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -876,7 +889,8 @@ async function discoverFreshTopics(site: any, count: number, isJewishPortal = fa
           role: 'user',
           content: isJewishPortal
   ? `Search the web for what is trending TODAY (${today}) about ${site.name}.
-Search specifically: "${site.topics.slice(0,4).join('", "')}"
+Search specifically: "${seedTopics.slice(0,4).join('", "')}"
+${avoidBlock}
 
 Find ${count} HIGH-QUALITY article topics that are:
 1. REAL and happening RIGHT NOW (check Times of Israel, Haaretz, Jerusalem Post, JTA)
@@ -891,13 +905,14 @@ Examples of GOOD topics:
 - "How to open an Israeli bank account as a new oleh in 2026"
 
 Return ONLY a JSON array of ${count} topic strings, no other text.`
-  : `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${site.topics.slice(0,5).join(', ')}.
-
+  : `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${seedTopics.join(', ')}.
+${avoidBlock}
 Find ${count} specific, timely article topic ideas that:
 - Are happening RIGHT NOW in the news (not generic)
 - Have specific data points, company names, or events
 - Would make someone click to read
 - Are different from generic evergreen topics
+- Are NOT a rehash of the AVOID list above — pick genuinely different sub-topics or angles
 
 Examples of GOOD topics (specific + timely):
 - "Fed signals third rate cut delay as employment beats forecasts"
@@ -909,15 +924,15 @@ Return ONLY a JSON array of ${count} topic strings, nothing else.`
       }),
       signal: AbortSignal.timeout(20000),
     })
-    if (!res.ok) return site.topics.slice(0, count)
+    if (!res.ok) return rotatedPool.slice(0, count)
     const data = await res.json()
     const text = (data.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('')
     const match = text.match(/\[([\s\S]*?)\]/)
-    if (!match) return site.topics.slice(0, count)
+    if (!match) return rotatedPool.slice(0, count)
     const topics = JSON.parse('[' + match[1] + ']')
-    return Array.isArray(topics) ? topics.filter(Boolean).slice(0, count) : site.topics.slice(0, count)
+    return Array.isArray(topics) ? topics.filter(Boolean).slice(0, count) : rotatedPool.slice(0, count)
   } catch {
-    return site.topics.slice(0, count) // fallback to static list
+    return rotatedPool.slice(0, count) // fallback to static list
   }
 }
 
@@ -981,14 +996,14 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
       if (isJewishPortal) {
         freshTopics = await getTrendingFromDB(siteSlug, BATCH_SIZE)
         if (freshTopics.length < 3) {
-          const more = await discoverFreshTopics(site, BATCH_SIZE, true)
+          const more = await discoverFreshTopics(site, BATCH_SIZE, true, recentTitles)
           freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
         }
       } else {
-        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false)
+        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false, recentTitles)
       }
     }
-    const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
+    const topic = freshTopics[i] || site.topics[(batchStart + i + Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000) * 5) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
 
@@ -1200,14 +1215,14 @@ export async function GET(req: NextRequest) {
       if (isJewishPortal) {
         freshTopics = await getTrendingFromDB(siteSlug, BATCH_SIZE)
         if (freshTopics.length < 3) {
-          const more = await discoverFreshTopics(site, BATCH_SIZE, true)
+          const more = await discoverFreshTopics(site, BATCH_SIZE, true, recentTitles)
           freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
         }
       } else {
-        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false)
+        freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false, recentTitles)
       }
     }
-    const topic = freshTopics[i] || site.topics[(batchStart + i) % site.topics.length]
+    const topic = freshTopics[i] || site.topics[(batchStart + i + Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000) * 5) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
 
