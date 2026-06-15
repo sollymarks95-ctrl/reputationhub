@@ -32,11 +32,11 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     title: `${catLabel} — ${site.name}`,
     description: `Latest ${catLabel} coverage from ${site.name}. ${site.tagline || ''}`,
     robots: site.noindex ? 'noindex,nofollow' : 'index,follow,max-snippet:-1,max-image-preview:large',
-    alternates: { canonical: `${base}/category/${cat}` },
+    alternates: { canonical: `${base}/article/${siteSlug}/category/${cat}` },
     openGraph: {
       title: `${catLabel} — ${site.name}`,
       description: `All ${catLabel} articles from ${site.name}`,
-      type: 'website', siteName: site.name, url: `${base}/category/${cat}`,
+      type: 'website', siteName: site.name, url: `${base}/article/${siteSlug}/category/${cat}`,
     },
   }
 }
@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ site:
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: site.name, item: base },
-      { '@type': 'ListItem', position: 2, name: catLabel, item: `${base}/category/${cat}` },
+      { '@type': 'ListItem', position: 2, name: catLabel, item: `${base}/article/${siteSlug}/category/${cat}` },
     ]
   })
 
@@ -65,7 +65,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ site:
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${catLabel} — ${site.name}`,
-    url: `${base}/category/${cat}`,
+    url: `${base}/article/${siteSlug}/category/${cat}`,
     description: `All ${catLabel} articles from ${site.name}`,
     publisher: { '@type': 'Organization', name: site.name, url: base },
     mainEntity: {

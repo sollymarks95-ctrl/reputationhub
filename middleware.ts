@@ -36,6 +36,13 @@ export function middleware(request: NextRequest) {
   const pathname = url.pathname
   const portal   = DOMAIN_MAP[host]
 
+  // jewishnewsnowcom.com is an accidental duplicate domain registration —
+  // it was serving rephuby.com's homepage with no canonical, causing
+  // "Duplicate without user-selected canonical" in GSC. 301 to the real domain.
+  if (host === 'jewishnewsnowcom.com' || host === 'www.jewishnewsnowcom.com') {
+    return NextResponse.redirect(`https://jewishnewsnow.com${pathname}${url.search}`, 301)
+  }
+
   if (!portal) return NextResponse.next()
 
   if (
