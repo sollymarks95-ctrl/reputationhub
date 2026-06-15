@@ -46,6 +46,43 @@ export async function getArticleCountByCategory(siteId: string, category: string
   return count || 0
 }
 
+export async function getTotalArticleCount(siteId: string) {
+  const { count } = await supabase
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', siteId)
+    .eq('status', 'published')
+  return count || 0
+}
+
+export async function getTodayArticleCount(siteId: string) {
+  const startOfDay = new Date()
+  startOfDay.setUTCHours(0, 0, 0, 0)
+  const { count } = await supabase
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', siteId)
+    .eq('status', 'published')
+    .gte('published_at', startOfDay.toISOString())
+  return count || 0
+}
+
+// Real DB count for a homepage section nav item — matches articles whose
+// category contains any of the section's keywords (case-insensitive),
+// so the displayed number reflects ALL published articles, not just the
+// most-recent-60 sample used for the article feed.
+export async function getSectionArticleCount(siteId: string, keywords: string[]) {
+  if (!keywords.length) return 0
+  const orFilter = keywords.map(k => `category.ilike.%${k}%`).join(',')
+  const { count } = await supabase
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', siteId)
+    .eq('status', 'published')
+    .or(orFilter)
+  return count || 0
+}
+
 export async function getLatestArticles(siteId: string, limit = 20) {
   const { data } = await supabase
     .from('news_articles')

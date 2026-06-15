@@ -110,7 +110,7 @@ function Newsletter({siteName,p}:any) {
       <button type="submit" style={{padding:'10px 22px',background:p,color:'#fff',border:'none',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:13,cursor:'pointer'}}>Subscribe Free</button>
     </form>
 }
-export default function WireTemplate({ articles=[], site, siteSlug, primaryColor , searchParams}:any) {
+export default function WireTemplate({ articles=[], site, siteSlug, primaryColor , searchParams, totalCount, todayCount, sectionCounts}:any) {
   const [section, setSection] = useState('All')
   const meta = SITE_META[siteSlug] || {name:site?.name||'Nex-Wire',domain:'nex-wire.com',color:'#1971C2',tagline:'Global Intelligence'}
   const p = primaryColor || meta.color
@@ -291,18 +291,22 @@ export default function WireTemplate({ articles=[], site, siteSlug, primaryColor
           <div style={{textAlign:'right'}}>
             <div style={{fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,background:p,color:'#fff',padding:'3px 10px',borderRadius:2,letterSpacing:'.06em',marginBottom:6,display:'inline-block'}}>● LIVE</div>
             <div style={{fontFamily:'Inter,sans-serif',fontSize:11,color:'#888'}}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-            <div style={{fontFamily:'Inter,sans-serif',fontSize:11,color:'#aaa',marginTop:2}}>{articles.length} stories today</div>
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:11,color:'#aaa',marginTop:2}}>{typeof todayCount==='number' ? todayCount : articles.length} published today · {(typeof totalCount==='number' ? totalCount : articles.length).toLocaleString()} in archive</div>
           <a href="/podcasts" style={{fontFamily:'Inter,sans-serif',fontSize:11,fontWeight:700,color:p,marginTop:6,display:'inline-flex',alignItems:'center',gap:4,letterSpacing:'.04em'}}>🎙 Podcast</a>
           </div>
         </div>
         {/* Section nav */}
         <nav className="snav" style={{display:'flex',flexWrap:'wrap',borderBottom:'1px solid #eee',alignItems:'center'}}>
           {SECTIONS.map(s => {
-          const cnt = s === 'All' ? articles.length : articles.filter((a:any) => {
-            const cat = (a.category||'').toLowerCase().trim()
-            const kws = SEC_FILTER[s] || [s.toLowerCase()]
-            return cat === s.toLowerCase() || kws.some((k:string) => (a.title||'').toLowerCase().includes(k) || cat.includes(k))
-          }).length
+          const cnt = s === 'All'
+            ? (typeof totalCount==='number' ? totalCount : articles.length)
+            : (sectionCounts && typeof sectionCounts[s] === 'number')
+              ? sectionCounts[s]
+              : articles.filter((a:any) => {
+                  const cat = (a.category||'').toLowerCase().trim()
+                  const kws = SEC_FILTER[s] || [s.toLowerCase()]
+                  return cat === s.toLowerCase() || kws.some((k:string) => (a.title||'').toLowerCase().includes(k) || cat.includes(k))
+                }).length
           return (
             <button key={s} onClick={()=>setSection(s)} className={section===s?'on':''}>
               {s}{s!=='All' && cnt>0 && <span style={{marginLeft:4,fontSize:9,opacity:.7}}>({cnt})</span>}
