@@ -1,4 +1,4 @@
-import { getNewsSite, getArticlesByCategory, getLatestArticles } from '@/lib/news'
+import { getNewsSite, getArticlesByCategory, getArticleCountByCategory, getLatestArticles } from '@/lib/news'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -49,6 +49,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ site:
   const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1).replace(/-/g,' ')
   const base     = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
   const articles = await getArticlesByCategory(site.id, catLabel, 30)
+  const totalCount = await getArticleCountByCategory(site.id, catLabel)
   const latest   = await getLatestArticles(site.id, 6)
   const color    = site.primary_color || '#1971C2'
 
@@ -96,7 +97,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ site:
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 900, marginBottom: 8, color: '#111' }}>{catLabel}</h1>
             <p style={{ fontSize: 14, color: '#666', marginBottom: 24 }}>
-              {articles.length} articles · {site.name}
+              {totalCount > articles.length
+                ? `Showing ${articles.length} of ${totalCount} articles`
+                : `${totalCount} articles`} · {site.name}
             </p>
 
             {articles.length === 0 && (

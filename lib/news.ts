@@ -22,15 +22,28 @@ export async function getFeaturedArticles(siteId: string, limit = 5) {
 }
 
 export async function getArticlesByCategory(siteId: string, category: string, limit = 8) {
+  // Case-insensitive match — DB categories are Title Case (e.g. "Shipping and Logistics")
+  // but the [cat] URL slug only capitalizes the first letter ("Shipping and logistics"),
+  // so an exact match would silently return 0 rows for multi-word categories.
   const { data } = await supabase
     .from('news_articles')
     .select('*')
     .eq('news_site_id', siteId)
     .eq('status', 'published')
-    .eq('category', category)
+    .ilike('category', category)
     .order('published_at', { ascending: false })
     .limit(limit)
   return data || []
+}
+
+export async function getArticleCountByCategory(siteId: string, category: string) {
+  const { count } = await supabase
+    .from('news_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('news_site_id', siteId)
+    .eq('status', 'published')
+    .ilike('category', category)
+  return count || 0
 }
 
 export async function getLatestArticles(siteId: string, limit = 20) {
