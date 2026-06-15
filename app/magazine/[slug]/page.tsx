@@ -1,4 +1,4 @@
-import { getNewsSite, getLatestArticles } from '@/lib/news'
+import { getNewsSite, getLatestArticles, getTotalArticleCount, getSectionArticleCount } from '@/lib/news'
 import TrackView from '@/app/components/TrackView'
 import { notFound } from 'next/navigation'
 import SiteRenderer from '@/app/components/SiteRenderer'
@@ -51,6 +51,26 @@ export default async function SitePage({
   }
   if (!site) notFound()
   const articles = await getLatestArticles(site.id, 60)
+
+  // Real DB-wide counts for the homepage stats / nav badges — the article
+  // feed above is capped at 60 (most recent) for payload size, but the
+  // counts shown to users should reflect ALL published articles.
+  const SECTION_KEYWORDS: Record<string, string[]> = {
+    Markets:    ['markets', 'equities', 'stocks', 'financial'],
+    Strategy:   ['strategy', 'strategic', 'execution', 'planning'],
+    Leadership: ['leadership', 'executive', 'ceo', 'management', 'director'],
+    ESG:        ['esg', 'sustainability', 'environment', 'governance', 'social'],
+    Analysis:   ['analysis', 'research', 'report', 'outlook'],
+    Business:   ['business', 'corporate', 'enterprise', 'company'],
+  }
+  const [totalCount, sectionCountEntries] = await Promise.all([
+    getTotalArticleCount(site.id),
+    Promise.all(Object.entries(SECTION_KEYWORDS).map(async ([sec, kws]) =>
+      [sec, await getSectionArticleCount(site.id, kws)] as const
+    )),
+  ])
+  const sectionCounts = Object.fromEntries(sectionCountEntries)
+
   const url = CUSTOM_DOMAINS[slug] || 'https://rephuby.com'
   const p = site.primary_color || '#7c3aed'
 
@@ -108,6 +128,8 @@ export default async function SitePage({
         siteSlug={slug}
         primaryColor={p}
         searchParams={sp}
+        totalCount={totalCount}
+        sectionCounts={sectionCounts}
       />
     </>
     </>

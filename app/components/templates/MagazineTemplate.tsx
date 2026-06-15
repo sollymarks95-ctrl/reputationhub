@@ -56,7 +56,7 @@ function Newsletter({siteName,p}:any) {
       <button type="submit" style={{padding:'11px 22px',background:'#1A1A1A',color:'#fff',border:'none',fontFamily:'Inter,sans-serif',fontWeight:700,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>Join Free →</button>
     </form>
 }
-export default function MagazineTemplate({ articles=[], site, siteSlug, primaryColor , searchParams}:any) {
+export default function MagazineTemplate({ articles=[], site, siteSlug, primaryColor , searchParams, totalCount, sectionCounts}:any) {
   const [section, setSection] = useState('All')
   const meta = SITE_META[siteSlug] || {name:site?.name||'Bizplezx',domain:'bizplezx.com',color:'#6741D9',tagline:'Business Intelligence'}
   const p = primaryColor || meta.color
@@ -189,11 +189,15 @@ export default function MagazineTemplate({ articles=[], site, siteSlug, primaryC
         </div>
         <nav className="mnav" style={{display:'flex',justifyContent:'center',flexWrap:'wrap'}}>
           {SECTIONS.map(s => {
-          const cnt = s === 'All' ? articles.length : articles.filter((a:any) => {
-            const cat = (a.category||'').toLowerCase().trim()
-            const kws = SEC_FILTER[s] || [s.toLowerCase()]
-            return cat === s.toLowerCase() || kws.some((k:string) => (a.title||'').toLowerCase().includes(k) || cat.includes(k))
-          }).length
+          const cnt = s === 'All'
+            ? (typeof totalCount==='number' ? totalCount : articles.length)
+            : (sectionCounts && typeof sectionCounts[s] === 'number')
+              ? sectionCounts[s]
+              : articles.filter((a:any) => {
+                  const cat = (a.category||'').toLowerCase().trim()
+                  const kws = SEC_FILTER[s] || [s.toLowerCase()]
+                  return cat === s.toLowerCase() || kws.some((k:string) => (a.title||'').toLowerCase().includes(k) || cat.includes(k))
+                }).length
           return (
             <button key={s} onClick={()=>setSection(s)} className={section===s?'on':''}>
               {s}{s!=='All' && cnt>0 && <span style={{marginLeft:4,fontSize:9,opacity:.7}}>({cnt})</span>}

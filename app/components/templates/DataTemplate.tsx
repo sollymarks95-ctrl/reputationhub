@@ -35,7 +35,7 @@ const NAV_LINKS = [
   { label:'Commodities',      category:'Commodities' },
 ]
 
-export default function DataTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor, searchParams }: any) {
+export default function DataTemplate({ articles = [], site, routePrefix, siteSlug, primaryColor, searchParams, totalCount, sectionCounts }: any) {
   const [activeCat, setActiveCat] = useState<string|null>((searchParams as any)?.category || null)
   const activeCategory = activeCat
   const p = primaryColor || '#B08700'
@@ -64,7 +64,9 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
   const categories = AUREX_CATEGORIES
   const catCounts: Record<string,number> = {}
   AUREX_CATEGORIES.filter(c=>c!=='All').forEach(cat => {
-    catCounts[cat] = articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
+    catCounts[cat] = (sectionCounts && typeof sectionCounts[cat] === 'number')
+      ? sectionCounts[cat]
+      : articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
   })
 
 
@@ -219,7 +221,7 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
           })}
           <div style={{ flex:1 }}/>
           <div style={{ fontSize:11, color:'#888', borderLeft:'1px solid #E5E0D5', paddingLeft:16, marginLeft:8, whiteSpace:'nowrap' }}>
-            {articles.length} articles
+            {typeof totalCount==='number' ? totalCount : articles.length} articles
           </div>
         </div>
       </div>
@@ -233,7 +235,11 @@ export default function DataTemplate({ articles = [], site, routePrefix, siteSlu
       <div style={{background:'#fff',borderBottom:'2px solid #e8e0d0',padding:'0 24px',display:'flex',gap:0,overflowX:'auto',fontFamily:"'Inter',sans-serif"}}>
         {AUREX_CATEGORIES.map((cat:string) => {
           const isActive = cat === 'All' ? !activeCat : activeCat?.toLowerCase() === cat.toLowerCase()
-          const cnt = cat === 'All' ? articles.length : articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
+          const cnt = cat === 'All'
+            ? (typeof totalCount==='number' ? totalCount : articles.length)
+            : (sectionCounts && typeof sectionCounts[cat] === 'number')
+              ? sectionCounts[cat]
+              : articles.filter((a:any) => (a.category||'').toLowerCase().includes(cat.toLowerCase())).length
           return (
             <button key={cat} onClick={()=>setActiveCat(cat==='All'?null:cat)}
               style={{padding:'10px 16px',background:'none',border:'none',borderBottom:isActive?'2px solid #B08700':'2px solid transparent',
