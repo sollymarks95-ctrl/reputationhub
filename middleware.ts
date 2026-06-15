@@ -45,6 +45,15 @@ export function middleware(request: NextRequest) {
 
   if (!portal) return NextResponse.next()
 
+  // Old category canonical bug: pages previously declared canonical as
+  // /category/[cat] (a non-existent route, only /article/[site]/category/[cat]
+  // exists). Google indexed that broken URL and now 404s on it. Redirect
+  // it to the real page so Google re-resolves cleanly.
+  const catMatch = pathname.match(/^\/category\/([^/]+)\/?$/)
+  if (catMatch) {
+    return NextResponse.redirect(`https://${host}/article/${portal.slug}/category/${catMatch[1]}`, 301)
+  }
+
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
