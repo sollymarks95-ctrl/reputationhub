@@ -28,18 +28,34 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = `https://${host}`
   const noindex   = site?.noindex ?? true
 
-  // Rich SEO title with keywords
-  const seoTitle = `${siteName} — ${tagline}`
-  // AI-optimised description: direct, factual, answers "what is X"
-  const seoDesc  = site?.seo_description || `${siteName} provides ${tagline.toLowerCase()}. Expert financial journalism, daily market analysis and breaking news for finance professionals.`
+  // Niche-targeted SEO per site
+  const NICHE_KW: Record<string, string> = {
+    'aliya-today': 'making aliyah, aliyah guide 2026, how to make aliyah, nefesh bnefesh, aliyah checklist, move to israel, aliyah process, olim advice',
+    'jewish-news-now': 'jewish news, israel news today, jewish community news, jewish world news, israel breaking news 2026',
+    'jewish-property-report': 'israel real estate, buy property in israel, israel apartments, tel aviv property market, invest in israel, israel housing',
+  }
+  const nicheKw = NICHE_KW[site?.slug||''] || ''
+
+  const seoTitle = site?.slug && ['aliya-today','jewish-news-now','jewish-property-report'].includes(site.slug)
+    ? `${siteName} — ${tagline} | Solly Marks`
+    : `${siteName} — ${tagline}`
+
+  const seoDesc = site?.seo_description || (
+    site?.slug === 'aliya-today' ? 'The complete guide to making Aliyah in 2026. Step-by-step advice on the process, costs, health funds, bank accounts, ulpan and life in Israel — written by Solly Marks.'
+    : site?.slug === 'jewish-news-now' ? 'Breaking Jewish news from Israel and around the world. Daily coverage of Israel, Jewish communities, politics and culture — updated every day by Solly Marks.'
+    : site?.slug === 'jewish-property-report' ? 'Israeli real estate news and investment guides for diaspora buyers. Property prices, legal requirements, neighborhoods and market trends — by Solly Marks.'
+    : `${siteName} provides ${tagline.toLowerCase()}. Expert financial journalism, daily market analysis and breaking news for finance professionals.`
+  )
+
+  const isJewish = ['aliya-today','jewish-news-now','jewish-property-report'].includes(site?.slug||'')
 
   return {
     title: { default: seoTitle, template: `%s | ${siteName}` },
     description: seoDesc,
     robots: noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1',
     alternates: { canonical },
-    keywords: `${tagline}, financial news, market intelligence, finance, ${site?.category || 'markets'}`,
-    authors: [{ name: siteName, url: canonical }],
+    keywords: nicheKw || `${tagline}, financial news, market intelligence, finance, ${site?.category || 'markets'}`,
+    authors: [{ name: isJewish ? 'Solly Marks' : siteName, url: isJewish ? canonical : canonical }],
     creator: siteName,
     publisher: siteName,
     openGraph: {

@@ -39,12 +39,26 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   // Extract brand mentions for keyword enrichment
   const bodyText = (article.body || '').toLowerCase()
   const clientKeywords = ['etoro'].filter(k => bodyText.includes(k))
-  const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords].filter(Boolean).join(', ')
+
+  // Niche SEO keyword boosting per site — helps rank for primary search terms
+  const SITE_NICHE_KEYWORDS: Record<string, string[]> = {
+    'aliya-today': ['aliyah 2026','making aliyah','how to make aliyah','aliyah guide','aliyah process','nefesh bnefesh','jewish agency aliyah','move to israel','aliyah checklist','olim','new immigrant israel'],
+    'jewish-news-now': ['jewish news','israel news today','jewish world news','jewish community news','israel news 2026','jewish breaking news'],
+    'jewish-property-report': ['israel real estate','buy apartment in israel','israel property market','property in tel aviv','jerusalem real estate','invest in israel property','israeli apartments'],
+  }
+  const nicheKws = SITE_NICHE_KEYWORDS[siteSlug] || []
+  const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords, ...nicheKws].filter(Boolean).join(', ')
+
+  const isJewishSite2 = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+  const metaTitle = isJewishSite2
+    ? `${article.title} | Solly Marks – ${site.name}`
+    : `${article.title} | ${site.name}`
+
   return {
-    title: `${article.title} | ${site.name}`,
+    title: metaTitle,
     description: article.excerpt,
-    keywords: (article.tags || []).join(', '),
-    authors: [{ name: article.author_name || site.name }],
+    keywords: allKeywords,
+    authors: [{ name: isJewishSite2 ? 'Solly Marks' : (article.author_name || site.name) }],
     robots: isNoindex ? 'noindex, nofollow' : 'index, follow',
     alternates: { canonical: canonicalUrl },
     icons: {
@@ -269,7 +283,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       image: article.cover_image_url ? [article.cover_image_url] : [],
       datePublished: article.published_at,
       dateModified: article.updated_at || article.published_at,
-      author: { '@type': 'Person', name: article.author_name || 'Editorial Team', url: `${BASE}/author/${(article.author_name||'editorial').toLowerCase().replace(/\s+/g,'-')}` },
+      author: (() => {
+        const isJewishAuthor = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+        if (isJewishAuthor) return {
+          '@type': 'Person',
+          name: 'Solly Marks',
+          url: `${BASE}/author/solly-marks`,
+          description: 'Israeli publisher, media buyer, and community builder. Founder of AliyaToday.com, JewishNewsNow.com and JewishPropertyReport.com. Writing practical guides for the global Jewish community.',
+          sameAs: ['https://aliyatoday.com','https://jewishnewsnow.com','https://jewishpropertyreport.com'],
+        }
+        return { '@type': 'Person', name: article.author_name || 'Editorial Team', url: `${BASE}/author/${(article.author_name||'editorial').toLowerCase().replace(/\s+/g,'-')}` }
+      })(),
       publisher: {
         '@type': 'NewsMediaOrganization', name: site.name, url: BASE,
         logo: { '@type': 'ImageObject', url: `${BASE}/logo.png` }

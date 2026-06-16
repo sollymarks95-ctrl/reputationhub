@@ -96,45 +96,19 @@ const CORE_SITES: Record<string, any> = {
 
 // Author pools per portal — rotated randomly so each article has a different byline
 const PORTAL_AUTHORS: Record<string, string[]> = {
-  'global-trade-wire': [
-    'James Hart', 'Sarah Brennan', 'Michael Osei', 'Elena Vasquez', 'Tom Whitfield',
-    'Priya Nair', 'David Kowalski', 'Amara Okonkwo', 'Chris Flanagan', 'Leila Ahmadi',
-  ],
-  'finance-terminal': [
-    'Marcus Webb', 'Julia Hartmann', 'Ryan Chen', 'Fatima Al-Rashid', 'Ben Stafford',
-    'Sophie Leclerc', 'Omar Farouk', 'Natalie Pearce', 'Alex Drummond', 'Ingrid Svensson',
-  ],
-  'business-pulse': [
-    'Daniel Sterling', 'Rachel Kim', 'Patrick Obrien', 'Aisha Mensah', 'Luke Thornton',
-    'Chloe Martínez', 'Sam Okafor', 'Hannah Fischer', 'Jack Brennan', 'Zara Ahmed',
-  ],
-  'gold-markets-today': [
-    'Richard Stone', 'Victoria Chen', 'Paul Nakamura', 'Clara Russo', 'Oliver Grant',
-    'Mei Lin', 'Stefan Müller', 'Isabella Rossi', 'Noah Clarke', 'Adaora Eze',
-  ],
-  'trust-score': [
-    'Nathan Chen', 'Emma Morrison', 'David Osei', 'Layla Hassan', 'George Patel',
-    'Anastasia Volkov', 'Marcus Johnson', 'Freya Andersen', 'Carlos Rivera', 'Yuki Tanaka',
-  ],
-  'invest-data': [
-    'Michael Torres', 'Sarah Kim', 'James Blackwood', 'Priya Sharma', 'Alex Morgan',
-    'Claudia Becker', 'Ben Adeyemi', 'Nina Kowalska', 'Tom Harrington', 'Sana Sheikh',
-  ],
-  'market-radar': [
-    'Jordan Blake', 'Petra Fischer', 'Callum MacLeod', 'Diana Ivanova', 'Ravi Kumar',
-    'Scarlett Thompson', 'Felix Weber', 'Amira El-Sayed', 'Chris Vaughan', 'Lena Johansson',
-  ],
-  'executive-network': [
-    'Alexander Ross', 'Caroline Hughes', 'William Park', 'Nadia Osman', 'Henry Stafford',
-    'Isabelle Morel', 'David Kamau', 'Emma Lindqvist', 'Marcus Reid', 'Jasmine Patel',
-  ],
-  'crypto-hub': [
-    'Alex Rivera', 'Sam Walsh', 'Mia Nakamura', 'Ethan Blake', 'Zoe Patel',
-    'Connor Murphy', 'Ava Chen', 'Leo Santos', 'Iris Bergström', 'Max Okonkwo',
-  ],
+  'global-trade-wire': ['James Hart','Sarah Brennan','Michael Osei','Elena Vasquez','Tom Whitfield','Priya Nair','David Kowalski','Amara Okonkwo','Chris Flanagan','Leila Ahmadi'],
+  'finance-terminal':  ['Marcus Webb','Julia Hartmann','Ryan Chen','Fatima Al-Rashid','Ben Stafford','Sophie Leclerc','Omar Farouk','Natalie Pearce','Alex Drummond','Ingrid Svensson'],
+  'business-pulse':    ['Daniel Sterling','Rachel Kim','Patrick Obrien','Aisha Mensah','Luke Thornton','Chloe Martínez','Sam Okafor','Hannah Fischer','Jack Brennan','Zara Ahmed'],
+  'gold-markets-today':['Richard Stone','Victoria Chen','Paul Nakamura','Clara Russo','Oliver Grant','Mei Lin','Stefan Müller','Isabella Rossi','Noah Clarke','Adaora Eze'],
+  'trust-score':       ['Nathan Chen','Emma Morrison','David Osei','Layla Hassan','George Patel','Anastasia Volkov','Marcus Johnson','Freya Andersen','Carlos Rivera','Yuki Tanaka'],
+  'invest-data':       ['Michael Torres','Sarah Kim','James Blackwood','Priya Sharma','Alex Morgan','Claudia Becker','Ben Adeyemi','Nina Kowalska','Tom Harrington','Sana Sheikh'],
+  'market-radar':      ['Jordan Blake','Petra Fischer','Callum MacLeod','Diana Ivanova','Ravi Kumar','Scarlett Thompson','Felix Weber','Amira El-Sayed','Chris Vaughan','Lena Johansson'],
+  'executive-network': ['Alexander Ross','Caroline Hughes','William Park','Nadia Osman','Henry Stafford','Isabelle Morel','David Kamau','Emma Lindqvist','Marcus Reid','Jasmine Patel'],
+  'crypto-hub':        ['Alex Rivera','Sam Walsh','Mia Nakamura','Ethan Blake','Zoe Patel','Connor Murphy','Ava Chen','Leo Santos','Iris Bergström','Max Okonkwo'],
 }
-
+// Jewish sites use Solly Marks for E-E-A-T; finance sites rotate named authors
 function getAuthor(siteSlug: string): string {
+  if (['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)) return 'Solly Marks'
   const pool = PORTAL_AUTHORS[siteSlug] || ['Editorial Team']
   return pool[Math.floor(Math.random() * pool.length)]
 }
