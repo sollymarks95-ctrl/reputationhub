@@ -43,16 +43,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(`https://jewishnewsnow.com${pathname}${url.search}`, 301)
   }
 
-  // ── AliyaToday Separate Admin ─────────────────────────────────────────────
-  // aliyatoday.com/admin/* → /aliya-admin/* (completely separate from RepHuby dashboard)
-  if ((host === 'aliyatoday.com' || host === 'www.aliyatoday.com') && pathname.startsWith('/admin')) {
-    const rewriteAdmin = new URL(request.url)
-    rewriteAdmin.pathname = pathname.replace('/admin', '/aliya-admin')
-    return NextResponse.rewrite(rewriteAdmin)
+  if (!portal) return NextResponse.next()
+
+  // ── AliyaToday Separate Admin ───────────────────────────────────────────
+  // Must be checked after portal detection (so we know site slug) but BEFORE
+  // the generic /s rewrite — otherwise /admin gets caught by portal route='s'
+  if (portal.slug === 'aliya-today' && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
+    const adminRewrite = new URL(request.url)
+    adminRewrite.pathname = '/aliya-admin' + (pathname === '/admin' ? '' : pathname.slice('/admin'.length))
+    return NextResponse.rewrite(adminRewrite)
   }
   if (pathname.startsWith('/aliya-admin')) return NextResponse.next()
-
-  if (!portal) return NextResponse.next()
 
   // Old category canonical bug: pages previously declared canonical as
   // /category/[cat] (a non-existent route, only /article/[site]/category/[cat]
