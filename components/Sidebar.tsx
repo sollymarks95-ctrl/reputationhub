@@ -3,13 +3,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Globe, Users, FileText, Video, Star, BarChart3,
-  Settings, ChevronRight, Zap, TrendingUp, Mail, Newspaper
+  Settings, ChevronRight, Zap, TrendingUp, Mail, Newspaper, Star as StarOfDavid
 } from 'lucide-react'
 
 const nav = [
   { label: 'Overview', href: '/dashboard', icon: BarChart3 },
   { label: 'Sites', href: '/dashboard/sites', icon: Globe },
   { label: 'News Sites', href: '/dashboard/news', icon: Newspaper },
+  { label: 'Jewish Posts 🕍', href: '/dashboard/jewish-posts', icon: Star },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { label: 'Content', href: '/dashboard/content', icon: FileText },
