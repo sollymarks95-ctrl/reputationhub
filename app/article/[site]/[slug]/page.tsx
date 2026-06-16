@@ -97,6 +97,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const site = await getNewsSite(siteSlug)
   if (!site) notFound()
 
+  const isJewishSite = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+
   // Detect dark theme from site template_config
   const cfg = site.template_config || {}
   const isDark = false // Always light — matches all 9 portal homepage templates
