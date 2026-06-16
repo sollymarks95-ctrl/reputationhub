@@ -368,6 +368,7 @@ A: [Direct answer]
 [Natural mention: "Stay informed on Jewish news daily — join our [community on Facebook](https://www.facebook.com/groups/1620082289091191)."]
 
 SOURCES: Times of Israel, JTA, Jerusalem Post, Haaretz, AJC, WJC — cite at least 2
+INTERNAL LINKS: Naturally mention and link to 1-2 relevant JewishNewsNow articles on related topics.
 AUTHOR: Solly Marks — Jewish news publisher
 TONE: Authoritative, factual, pro-Israel. The Associated Press of Jewish journalism.
 `,
@@ -556,6 +557,9 @@ A: [Direct answer on tax exemption 10-year rule, disclosure requirements from 20
 
 [Natural AliyaToday community mention: "Join thousands of olim planning their move in our [Facebook Community](https://www.facebook.com/groups/1620082289091191) — real questions, real answers from people who have done it."]
 
+INTERNAL LINKS: Naturally link to 2-3 AliyaToday articles. Use real anchor text like:
+  - "making aliyah from the USA" → link to a relevant /article/aliya-today/... URL if you know one
+  If unsure of URLs, just describe what to link to in [brackets] — the editor will fill in.
 SOURCES: Cite Nefesh BNefesh, Jewish Agency, Misrad HaKlita, Times of Israel, CBS Israel
 AUTHOR: Solly Marks — Israeli publisher and community builder
 `,

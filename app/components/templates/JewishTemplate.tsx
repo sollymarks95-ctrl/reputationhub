@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import TrackView from '../TrackView'
 
 
 // ─── Shared Newsletter Subscribe Form ───
@@ -69,6 +70,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
     ][i % 5]
 
   return (<>
+    <TrackView siteSlug="jewish-news-now" siteDomain="jewishnewsnow.com" />
 
       {/* JSON-LD NewsArticle Schema */}
       {articles[0] && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -219,6 +221,7 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
     ][i % 5]
 
   return (<>
+    <TrackView siteSlug="jewish-property-report" siteDomain="jewishpropertyreport.com" />
     <style>{`
       *{box-sizing:border-box;margin:0;padding:0}body{background:#f7f9f7;font-family:'Inter',system-ui,sans-serif}
       .jpr-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
@@ -367,6 +370,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
     ][i % 5]
 
   return (<>
+    <TrackView siteSlug="aliya-today" siteDomain="aliyatoday.com" />
     <style>{`
       *{box-sizing:border-box;margin:0;padding:0}body{background:#fff8f0;font-family:'Georgia',serif}
       .at-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
