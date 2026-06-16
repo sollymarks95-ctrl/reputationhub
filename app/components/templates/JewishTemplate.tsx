@@ -178,9 +178,6 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         <a href="/legal/terms" style={{ color: '#999' }}>Terms</a>
       </div>
       <div style={{ fontSize: 10, color: '#555', marginTop: 12 }}>© {new Date().getFullYear()} Jewish News Now</div>
-      <div style={{ display:'flex', gap:16, flexWrap:'wrap', justifyContent:'center', marginTop:14, fontSize:11, color:'#444' }}>
-        {['https://verivex.co|Verivex','https://finvexx.com|Finvexx','https://nex-wire.com|Nex-Wire','https://aurexhq.com|AurexHQ','https://signalixx.com|Signalixx','https://cryptoxos.com|CryptoXos'].map(l=>{ const[u,n]=l.split('|'); return <a key={n} href={u} target="_blank" rel="noopener" style={{color:'#444'}}>{n}</a> })}
-      </div>
     </footer>
 
     <style>{`@media(max-width:768px){
@@ -318,15 +315,6 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
           </div>
         </div>
         <div style={{ borderTop: '1px solid #1a3a2a', paddingTop: 16, fontSize: 10, color: '#444' }}>© {new Date().getFullYear()} Jewish Property Report</div>
-        <div style={{ display:'flex', gap:14, flexWrap:'wrap', marginTop:12, fontSize:11 }}>
-          <span style={{ color:'#999', fontSize:9, textTransform:'uppercase', letterSpacing:'.1em', marginRight:4 }}>Network: </span>
-          <a href="https://verivex.co" target="_blank" rel="noopener" style={{ color:'#888' }}>Verivex</a>
-          <a href="https://finvexx.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Finvexx</a>
-          <a href="https://nex-wire.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Nex-Wire</a>
-          <a href="https://aurexhq.com" target="_blank" rel="noopener" style={{ color:'#888' }}>AurexHQ</a>
-          <a href="https://signalixx.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Signalixx</a>
-          <a href="https://cryptoxos.com" target="_blank" rel="noopener" style={{ color:'#888' }}>CryptoXos</a>
-        </div>
       </div>
     </footer>
 
@@ -503,15 +491,6 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
           </div>
         </div>
         <div style={{ borderTop: '1px solid #3a2010', paddingTop: 16, fontSize: 10, color: '#444' }}>© {new Date().getFullYear()} AliyaToday · Your Journey Home</div>
-        <div style={{ display:'flex', gap:14, flexWrap:'wrap', marginTop:12, fontSize:11 }}>
-          <span style={{ color:'#999', fontSize:9, textTransform:'uppercase', letterSpacing:'.1em', marginRight:4 }}>Network: </span>
-          <a href="https://verivex.co" target="_blank" rel="noopener" style={{ color:'#888' }}>Verivex</a>
-          <a href="https://finvexx.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Finvexx</a>
-          <a href="https://nex-wire.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Nex-Wire</a>
-          <a href="https://aurexhq.com" target="_blank" rel="noopener" style={{ color:'#888' }}>AurexHQ</a>
-          <a href="https://signalixx.com" target="_blank" rel="noopener" style={{ color:'#888' }}>Signalixx</a>
-          <a href="https://cryptoxos.com" target="_blank" rel="noopener" style={{ color:'#888' }}>CryptoXos</a>
-        </div>
       </div>
     </footer>
 
