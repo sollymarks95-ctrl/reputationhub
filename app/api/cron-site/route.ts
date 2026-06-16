@@ -942,7 +942,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 6)  // Jewish:5 (5×60s=300s✓ edge), Rephuby:3, Finance:6 — rebuilding after article reset
+  const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3, Finance:6 (6×45s=270s✓)
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
