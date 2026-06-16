@@ -43,6 +43,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(`https://jewishnewsnow.com${pathname}${url.search}`, 301)
   }
 
+  // ── AliyaToday Separate Admin ─────────────────────────────────────────────
+  // aliyatoday.com/admin/* → /aliya-admin/* (completely separate from RepHuby dashboard)
+  if ((host === 'aliyatoday.com' || host === 'www.aliyatoday.com') && pathname.startsWith('/admin')) {
+    const rewriteAdmin = new URL(request.url)
+    rewriteAdmin.pathname = pathname.replace('/admin', '/aliya-admin')
+    return NextResponse.rewrite(rewriteAdmin)
+  }
+  if (pathname.startsWith('/aliya-admin')) return NextResponse.next()
+
   if (!portal) return NextResponse.next()
 
   // Old category canonical bug: pages previously declared canonical as
