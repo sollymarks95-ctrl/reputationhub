@@ -149,11 +149,50 @@ const JEWISH_PHOTOS = [
 
 const JEWISH_DOMAINS = new Set(['jewishnewsnow.com','jewishpropertyreport.com','aliyatoday.com'])
 
-// Returns a unique image URL for each article
-// Jewish sites use Israel/community imagery; finance sites use financial imagery
+// Picsum photo IDs curated by category — deterministic per article (same slug = same image).
+// Using picsum.photos (free, no API key, no hotlink restrictions, browser-safe).
+// These IDs map to specific beautiful stock photos on Lorem Picsum's CDN.
+
+const FINANCE_PICSUM = [
+  // Markets / trading floors / screens
+  1002,1004,1005,1006,1007,1008,1009,1010,1011,1012,
+  1015,1016,1018,1019,1020,1021,1025,1031,1033,1035,
+  1038,1040,1041,1042,1043,1044,1045,1048,1050,1052,
+  1055,1057,1058,1059,1061,1062,1064,1065,1066,1067,
+  1068,1069,1071,1072,1073,1074,1075,1076,1079,1080,
+  // Office / business / city
+  200,201,202,203,204,205,206,207,208,209,
+  210,211,212,213,214,215,216,217,218,219,
+  220,221,222,223,224,225,226,227,228,229,
+  // Architecture / skyline
+  400,401,402,403,404,405,406,407,408,409,
+  410,411,412,413,414,415,416,417,418,419,
+  // Nature / landscape (for commodity/energy articles)
+  500,501,502,503,504,505,506,507,508,509,
+  510,511,512,513,514,515,516,517,518,519,
+]
+
+const JEWISH_PICSUM = [
+  // Middle Eastern / Mediterranean architecture, cities, landscapes
+  1082,1083,1084,1085,1086,1087,1088,1089,1090,1091,
+  1092,1093,1094,1095,1096,1097,1098,1099,1100,1101,
+  // People / community
+  300,301,302,303,304,305,306,307,308,309,
+  310,311,312,313,314,315,316,317,318,319,
+  // Travel / immigration / passports / maps
+  600,601,602,603,604,605,606,607,608,609,
+  // Property / real estate
+  700,701,702,703,704,705,706,707,708,709,
+  710,711,712,713,714,715,716,717,718,719,
+]
+
+// Returns a deterministic, unique image URL per article using Picsum Photos.
+// Picsum is free, requires no API key, and works in all browsers and <img> tags.
+// URL format: https://picsum.photos/id/{id}/{width}/{height}
 export function getArticleImage(category: string, slug: string, siteDomain = ''): string {
-  const pool = JEWISH_DOMAINS.has(siteDomain) ? JEWISH_PHOTOS : ALL_PHOTOS
+  const pool = JEWISH_DOMAINS.has(siteDomain) ? JEWISH_PICSUM : FINANCE_PICSUM
   const key  = `${siteDomain}:${slug}:${category}`
   const idx  = hash(key) % pool.length
-  return `https://images.unsplash.com/${pool[idx]}?w=1200&h=630&fit=crop&q=80&auto=format`
+  const id   = pool[idx]
+  return `https://picsum.photos/id/${id}/1200/630`
 }
