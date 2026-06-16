@@ -20,7 +20,7 @@ function fmt(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'nume
 function fmtDate(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) }
 
 export default function AliyaAdmin() {
-  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'>('overview')
+  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'>('overview')
   const [auth, setAuth] = useState(false)
   const [pw, setPw] = useState('')
   const [pwErr, setPwErr] = useState(false)
@@ -36,6 +36,9 @@ export default function AliyaAdmin() {
   const [generating, setGenerating] = useState(false)
   const [tone, setTone] = useState('Warm & Personal')
   const [copied, setCopied] = useState<string|null>(null)
+  const [analytics, setAnalytics] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [analyticsDays, setAnalyticsDays] = useState(30)
 
   // Auth
   useEffect(()=>{ if(typeof window!=='undefined'&&sessionStorage.getItem('aliya_admin')==='ok') setAuth(true) },[])
@@ -55,6 +58,15 @@ export default function AliyaAdmin() {
     } finally { setArtLoading(false) }
   },[])
   useEffect(()=>{ if(auth&&tab==='articles') loadArticles(artPage,artSite) },[auth,tab,artPage,artSite,loadArticles])
+
+  const loadAnalytics = useCallback(async(days:number)=>{
+    setAnalyticsLoading(true)
+    try {
+      const r = await fetch('/api/aliya-admin/analytics?days='+days)
+      setAnalytics(await r.json())
+    } finally { setAnalyticsLoading(false) }
+  },[])
+  useEffect(()=>{ if(auth&&tab==='analytics') loadAnalytics(analyticsDays) },[auth,tab,analyticsDays,loadAnalytics])
 
   async function generatePosts(){
     setGenerating(true)
@@ -82,7 +94,7 @@ export default function AliyaAdmin() {
     </div>
   )
 
-  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'}]
+  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'}]
 
   return (
     <div style={{display:'flex',minHeight:'100vh',fontFamily:'Inter,sans-serif',background:'#f8fafc'}}>
@@ -382,6 +394,166 @@ More daily guides 👉 AliyaToday.com
 Ask questions. Share your story. Help each other home. 🕍`}
               </div>
             </div>
+          </>
+        )}
+
+        {/* ── TRAFFIC ANALYTICS ────────────────────────────────────────────────*/}
+        {tab==='analytics' && (
+          <>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24,flexWrap:'wrap',gap:12}}>
+              <div>
+                <h1 style={{fontSize:24,fontWeight:900,color:'#111',margin:0}}>Traffic Analytics</h1>
+                <p style={{color:'#6b7280',fontSize:13,marginTop:4}}>All 3 Jewish sites combined — jewishnewsnow.com · jewishpropertyreport.com · aliyatoday.com</p>
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                {[7,14,30,90].map(d=>(
+                  <button key={d} onClick={()=>{setAnalyticsDays(d);loadAnalytics(d)}}
+                    style={{padding:'7px 14px',borderRadius:8,border:'1px solid '+(analyticsDays===d?'#c47d1a':'#e5e7eb'),background:analyticsDays===d?'#c47d1a':'#fff',color:analyticsDays===d?'#fff':'#374151',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+                    {d}d
+                  </button>
+                ))}
+              </div>
+            </div>
+            {analyticsLoading ? (
+              <div style={{textAlign:'center',padding:60,color:'#9ca3af'}}>
+                <div style={{fontSize:32,marginBottom:12}}>📊</div>
+                <div style={{fontSize:15,fontWeight:700,color:'#374151'}}>Loading analytics...</div>
+              </div>
+            ) : !analytics ? null : (
+              <>
+                {/* KPI cards */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+                  {[
+                    {label:`Total Views (${analyticsDays}d)`,val:analytics.total.toLocaleString(),icon:'👁',color:'#1a56b0'},
+                    {label:'Today',val:analytics.todayViews.toLocaleString(),icon:'🌅',color:'#c47d1a'},
+                    {label:'Yesterday',val:analytics.yesterdayViews.toLocaleString(),icon:'📅',color:'#0a7c4e'},
+                    {label:'Daily Growth',val:(analytics.growthPct>=0?'+':'')+analytics.growthPct+'%',icon:analytics.growthPct>=0?'📈':'📉',color:analytics.growthPct>=0?'#16a34a':'#dc2626'},
+                  ].map(k=>(
+                    <div key={k.label} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'18px 20px'}}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                        <div>
+                          <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{k.label}</div>
+                          <div style={{fontSize:28,fontWeight:900,color:k.color}}>{k.val}</div>
+                        </div>
+                        <span style={{fontSize:24}}>{k.icon}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Daily chart (simple bar) */}
+                <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+                  <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:16}}>📅 Daily Views — Last {analyticsDays} Days</div>
+                  <div style={{display:'flex',alignItems:'flex-end',gap:3,height:80,overflow:'hidden'}}>
+                    {(() => {
+                      const max = Math.max(...(analytics.daily||[]).map((d:any)=>d.views), 1)
+                      return (analytics.daily||[]).map((d:any,i:number)=>(
+                        <div key={i} title={d.date+': '+d.views+' views'} style={{flex:1,minWidth:2,background:'#c47d1a',borderRadius:2,height:Math.max(2,Math.round(d.views/max*76))+'px',opacity:.8,cursor:'default'}} />
+                      ))
+                    })()}
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:10,color:'#9ca3af'}}>
+                    <span>{(analytics.daily||[])[0]?.date}</span>
+                    <span>{(analytics.daily||[])[(analytics.daily||[]).length-1]?.date}</span>
+                  </div>
+                </div>
+
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:20}}>
+                  {/* By Site */}
+                  <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden'}}>
+                    <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',fontWeight:800,fontSize:13,color:'#111'}}>🌐 Views by Site</div>
+                    {(analytics.bySite||[]).map((s:any)=>(
+                      <div key={s.slug} style={{padding:'12px 20px',borderBottom:'1px solid #f3f4f6'}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                          <div>
+                            <span style={{fontWeight:700,fontSize:13,color:s.color}}>{s.domain}</span>
+                          </div>
+                          <span style={{fontWeight:800,fontSize:14,color:'#111'}}>{s.views.toLocaleString()}</span>
+                        </div>
+                        <div style={{background:'#f3f4f6',borderRadius:4,height:6,overflow:'hidden'}}>
+                          <div style={{background:s.color,height:'100%',width:s.pct+'%',borderRadius:4,transition:'width .3s'}} />
+                        </div>
+                        <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>{s.pct}% of total</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* By Device */}
+                  <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden'}}>
+                    <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',fontWeight:800,fontSize:13,color:'#111'}}>📱 Device Split</div>
+                    {(analytics.byDevice||[]).map((d:any)=>(
+                      <div key={d.device} style={{padding:'14px 20px',borderBottom:'1px solid #f3f4f6'}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                          <span style={{fontWeight:700,fontSize:13,color:'#374151',textTransform:'capitalize'}}>{d.device==='desktop'?'🖥 Desktop':d.device==='mobile'?'📱 Mobile':'📟 Tablet'}</span>
+                          <span style={{fontWeight:800,fontSize:14,color:'#111'}}>{d.views.toLocaleString()}</span>
+                        </div>
+                        <div style={{background:'#f3f4f6',borderRadius:4,height:6}}>
+                          <div style={{background:'#c47d1a',height:'100%',width:d.pct+'%',borderRadius:4}} />
+                        </div>
+                        <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>{d.pct}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Countries */}
+                <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden',marginBottom:20}}>
+                  <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',fontWeight:800,fontSize:13,color:'#111'}}>🌍 Top Countries</div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:0}}>
+                    {(analytics.byCountry||[]).map((c:any,i:number)=>(
+                      <div key={c.country} style={{padding:'10px 20px',borderBottom:'1px solid #f3f4f6',borderRight:i%2===0?'1px solid #f3f4f6':'none',display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:20,flexShrink:0}}>{c.flag}</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                            <span style={{fontWeight:700,fontSize:13,color:'#111',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.name}</span>
+                            <span style={{fontWeight:800,fontSize:13,color:'#374151',flexShrink:0,marginLeft:8}}>{c.views}</span>
+                          </div>
+                          <div style={{background:'#f3f4f6',borderRadius:3,height:4,marginTop:4}}>
+                            <div style={{background:'#1a56b0',height:'100%',width:c.pct+'%',borderRadius:3}} />
+                          </div>
+                          <div style={{fontSize:10,color:'#9ca3af',marginTop:2}}>{c.pct}%</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top Articles */}
+                <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden',marginBottom:20}}>
+                  <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',fontWeight:800,fontSize:13,color:'#111'}}>🔥 Top Articles by Views</div>
+                  {(analytics.topArticles||[]).length===0 ? (
+                    <div style={{padding:32,textAlign:'center',color:'#9ca3af',fontSize:13}}>No article views tracked yet</div>
+                  ) : (analytics.topArticles||[]).map((a:any,i:number)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:14,padding:'12px 20px',borderBottom:'1px solid #f3f4f6'}}>
+                      <div style={{fontWeight:900,fontSize:18,color:'#e5e7eb',width:28,textAlign:'center',flexShrink:0}}>#{i+1}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <a href={a.url} target="_blank" rel="noopener" style={{fontWeight:700,fontSize:13,color:'#111',textDecoration:'none',display:'block',lineHeight:1.4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                          {a.title}
+                        </a>
+                        <div style={{fontSize:11,color:a.color,fontWeight:600,marginTop:2}}>{a.domain}</div>
+                      </div>
+                      <div style={{textAlign:'right',flexShrink:0}}>
+                        <div style={{fontWeight:900,fontSize:16,color:'#111'}}>{a.views}</div>
+                        <div style={{fontSize:10,color:'#9ca3af'}}>views</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Top Referrers */}
+                {(analytics.byReferrer||[]).length>0 && (
+                  <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden'}}>
+                    <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',fontWeight:800,fontSize:13,color:'#111'}}>🔗 Top Traffic Sources</div>
+                    {(analytics.byReferrer||[]).map((r:any,i:number)=>(
+                      <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 20px',borderBottom:'1px solid #f3f4f6'}}>
+                        <span style={{fontSize:13,fontWeight:600,color:'#374151'}}>{r.referrer}</span>
+                        <span style={{fontSize:13,fontWeight:800,color:'#111'}}>{r.views} views</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </main>
