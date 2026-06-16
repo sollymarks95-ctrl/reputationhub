@@ -1,57 +1,45 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 
-const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
+const TONE_MAP: Record<string, string> = {
+  'Warm & Personal': 'Write warmly, like a fellow community member sharing something genuinely helpful. Sound like a real person.',
+  'Informative':     'Lead with the most useful insight. Clear and factual. No fluff.',
+  'Direct & Punchy': 'Short sentences. Bold hook. Real talk. Maximum 4 sentences.',
+  'Question Hook':   'Open with a compelling question that makes the reader stop.',
+  'Storytelling':    "Open with a brief relatable scenario, then connect it to the article insight.",
+}
 
 export async function POST(req: NextRequest) {
-  const { articles, tone } = await req.json()
-
-  const SITE_CONTEXT: Record<string, string> = {
-    'jewish-news-now':        'Jewish News Now covers Israel & global Jewish community news. Audience: diaspora Jews interested in Israel.',
-    'jewish-property-report': 'Jewish Property Report covers Israeli real estate for foreign buyers & diaspora investors. Audience: Jews considering property in Israel.',
-    'aliya-today':            'Aliya Today is the go-to guide for Jews making Aliyah (moving to Israel). Audience: people actively planning or considering Aliyah.',
-  }
-
-  const TONE_INSTRUCTIONS: Record<string, string> = {
-    'Informative':      'Write in a clear, factual tone. Lead with the most useful insight. No fluff.',
-    'Warm & Personal':  'Write warmly, like a fellow community member sharing something genuinely helpful. Use "we", "our community", "my fellow olim" etc.',
-    'Direct & Punchy':  'Short sentences. Bold hook. Real talk. No padding.',
-    'Question Hook':    'Open with a question that makes the reader stop scrolling. Then answer it with the article.',
-    'Storytelling':     "Open with a brief relatable scenario or moment, then connect it to the article's insight.",
-  }
-
+  const { articles, tone = 'Warm & Personal' } = await req.json()
+  const toneInstr = TONE_MAP[tone] || TONE_MAP['Warm & Personal']
   const posts = []
 
-  for (const article of articles.slice(0, 3)) {
-    const url = `https://${article.site_domain}/article/${article.site_slug}/${article.slug}`
-    const siteCtx = SITE_CONTEXT[article.site_slug] || ''
-    const toneInstr = TONE_INSTRUCTIONS[tone] || TONE_INSTRUCTIONS['Warm & Personal']
+  for (const a of articles) {
+    const prompt = `Write a Facebook post for a Jewish community group about this article.
 
-    const prompt = `You are writing a Facebook post for a Jewish community group about this article.
-
-SITE CONTEXT: ${siteCtx}
 TONE: ${toneInstr}
+ARTICLE: ${a.title}
+EXCERPT: ${a.excerpt}
+URL: ${a.url}
+SITE: ${a.siteName}
 
-ARTICLE TITLE: ${article.title}
-ARTICLE EXCERPT: ${article.excerpt}
-ARTICLE URL: ${url}
+Rules:
+- 3–5 sentences, under 120 words
+- Strong opening line
+- 1–3 emojis placed naturally
+- End with "Link below 👇" or similar CTA
+- Do NOT include URL in body
+- Sound like a real community member
 
-Write a Facebook post that:
-- Is 3–5 sentences (max 100 words)
-- Has a strong opening line that stops the scroll
-- Includes 1–2 relevant emojis naturally
-- Does NOT include the URL (it will be added separately)
-- Does NOT say "Check out this article" or "I found this article" — be natural
-- Ends with a call to action like "Full guide below 👇" or "Read the full breakdown below" or similar
-- Sounds like a real person from the community, NOT a brand
-
-Return ONLY the post text, nothing else.`
+Return ONLY the post text.`
 
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': ANTHROPIC,
+          'x-api-key': process.env.ANTHROPIC_API_KEY!,
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
@@ -61,27 +49,11 @@ Return ONLY the post text, nothing else.`
         }),
         signal: AbortSignal.timeout(30000),
       })
-
       const data = await res.json()
-      const postText = data.content?.[0]?.text?.trim() || ''
-
-      posts.push({
-        site: article.site_name,
-        siteIcon: article.site_slug === 'aliya-today' ? '✈️' : article.site_slug === 'jewish-property-report' ? '🏠' : '📰',
-        siteColor: article.site_slug === 'aliya-today' ? '#c47d1a' : article.site_slug === 'jewish-property-report' ? '#0a7c4e' : '#1a56b0',
-        article,
-        post: postText,
-        tone,
-      })
-    } catch (e) {
-      posts.push({
-        site: article.site_name,
-        siteIcon: '📰',
-        siteColor: '#1a56b0',
-        article,
-        post: `[Generation failed for this article — try again]`,
-        tone,
-      })
+      const text = data.content?.[0]?.text?.trim() || '[Generation failed]'
+      posts.push({ ...a, postBody: text, fullPost: `${text}\n\n👉 ${a.url}` })
+    } catch {
+      posts.push({ ...a, postBody: '[Generation failed]', fullPost: `[Generation failed]\n\n👉 ${a.url}` })
     }
   }
 

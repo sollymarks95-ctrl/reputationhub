@@ -1,198 +1,40 @@
-// Unique article images — site+slug combined hash ensures no two articles
-// on the same site ever get the same image, even with similar topics
+// Article image generation using seed-based Picsum Photos
+// picsum.photos/seed/{seed}/W/H — free, no auth, no ID range limit, works in all browsers
+// Same seed = same image every time (deterministic per article)
+// Site prefixes ensure each site gets different images even for the same article slug
 
-// 600+ unique Unsplash photo IDs spanning financial/business content
-const ALL_PHOTOS = [
-  // Markets & Trading
-  'photo-1611974789855-9c2a0a7236a3','photo-1590283603385-17ffb3a7f29f','photo-1535320903710-d993d3d77d29',
-  'photo-1611273426858-450d8e3c9fce','photo-1640340434855-6084b1f4901c','photo-1518183214770-9cffbec72538',
-  'photo-1551288049-bebda4e38f71','photo-1460925895917-afdab827c52f','photo-1504868584819-f8e8b4b6d7e3',
-  'photo-1516321318423-f06f85e504b3','photo-1512486130939-2c4f79935e4f','photo-1543286386-713bdd548da4',
-  'photo-1569025591941-31523b6cbbd2','photo-1579621970795-87facc2f976d','photo-1611532736597-de2d4265fba3',
-  'photo-1559526324-4b87b5e36e44','photo-1444653389962-8149286c578a','photo-1434626881859-194d67b2b86f',
-  'photo-1476514525535-07fb3b4ae5f1','photo-1508739773434-c26b3d09e071','photo-1471864190281-a93a3070b6de',
-  'photo-1565514020179-026b92b84bb6','photo-1642543492481-44e81e3914a7','photo-1613442301798-01c9b0df25e2',
-  'photo-1616763355548-1b606f439f86','photo-1677442135703-1787eea5ce01','photo-1559526323-cb2f2fe2591b',
-  'photo-1614028674026-a65e31bfd27c','photo-1584438784894-089d6a62b8fa','photo-1607863680198-23d4b2565df0',
-  // Finance & Investment
-  'photo-1554224155-8d04cb21cd6c','photo-1579621970563-ebec7560ff3e','photo-1526304640581-d334cdbbf45e',
-  'photo-1477519242566-6ae87c31d212','photo-1504711434969-e33886168f5c','photo-1521791136064-7986c2920216',
-  'photo-1509099836639-18ba1795216d','photo-1491336477066-31156b5e4f35','photo-1423666639041-f56000c27a9a',
-  'photo-1441986300917-64674bd600d8','photo-1472289065668-ce650ac443d2','photo-1513475382585-d06e58bcb0e0',
-  'photo-1454165804606-c3d57bc86b40','photo-1569025743873-ea3a9ade89f9','photo-1565372195458-9de0b320ef04',
-  'photo-1561414927-6d86591d0c4f','photo-1553877522-43269d4ea984','photo-1497366216548-37526070297c',
-  'photo-1560472354-b33ff0c44a43','photo-1521737604893-d14cc237f11d','photo-1531973576160-7125cd663d86',
-  'photo-1488229297570-58520851e68a','photo-1567427018141-0584cfcbf1b8','photo-1551836022-4c4c79ecde51',
-  'photo-1565372195458-9de0b320ef04','photo-1614028674026-a65e31bfd27c','photo-1583752028088-91e3e9880b46',
-  'photo-1605792657660-596af9009e82','photo-1557804506-669a67965ba0','photo-1450101499163-c8848c66ca85',
-  // Business & Corporate
-  'photo-1507003211169-0a1dd7228f2d','photo-1560472354-b33ff0c44a43','photo-1553877522-43269d4ea984',
-  'photo-1522202176988-66273c2fd55f','photo-1552664730-d307ca884978','photo-1517245386807-bb43f82c33c4',
-  'photo-1542744173-8e7e53415bb0','photo-1521737711867-e3b97375f902','photo-1523240795612-9a054b0db644',
-  'photo-1563986768609-322da13575f3','photo-1542626991-cbc4e32524cc','photo-1570143254023-3a174e44e9c4',
-  'photo-1571019613454-1cb2f99b2d8b','photo-1573496359142-b8d87734a5a2','photo-1565362247827-e1aa2d21e3e1',
-  'photo-1556740758-90de374c12ad','photo-1508385082359-f38ae991e8f2','photo-1525026198548-4baa812f1183',
-  'photo-1600880292203-757bb62b4baf','photo-1568992687947-868a62a9f521','photo-1455849318743-b2233052fcff',
-  'photo-1444210971048-1d12b70b1c59','photo-1507679799987-c73779587ccf','photo-1556761175-5973dc0f32e7',
-  'photo-1486312338219-ce68d2c6f44d','photo-1560272564-c83b66b1ad12','photo-1617711773026-4c78f16f99db',
-  'photo-1463453091185-61582044d556','photo-1573497620053-ea5300f94f21','photo-1571173068052-95e12bfba6cd',
-  // Crypto & Technology
-  'photo-1518546305927-5a555bb7020d','photo-1622630998477-20aa696ecb05','photo-1639762681057-408e52192e55',
-  'photo-1614854262340-ab1ca7d079c7','photo-1605792657660-596af9009e82','photo-1640826514546-39b2d9e7e252',
-  'photo-1629752187687-3d3c7ea3a21b','photo-1621504450181-5d356f61d307','photo-1560221328-12fe60f83ab8',
-  'photo-1518770660439-4636190af475','photo-1609726494499-27d3e942456c','photo-1599658880436-c61792e70672',
-  'photo-1636690581110-a512fed05fd3','photo-1640161704729-cbe966a08476','photo-1624953187665-abaf43c2f1cc',
-  'photo-1516245834210-c4c142787335','photo-1547082299-de196ea013d6','photo-1538370965046-79c0d6907d47',
-  'photo-1523374228107-6e44bd2b524e','photo-1518770660439-4636190af475','photo-1550751827-4bd374c3f58b',
-  'photo-1488590528505-98d2b5aba04b','photo-1535378917042-10a22c95931a','photo-1461749280684-dccba630e2f6',
-  'photo-1451187580459-43490279c0fa','photo-1517077304055-6e89abbf09b0','photo-1526374965328-7f61d4dc18c5',
-  'photo-1504384308090-c894fdcc538d','photo-1550745165-9bc0b252726f','photo-1593642632559-0c6d3fc62b89',
-  // Commodities & Global
-  'photo-1611095785020-7872d23f8769','photo-1624953587687-daf255b6b80a','photo-1610375461369-d613b564f4c4',
-  'photo-1510127034890-ba27508e9f1c','photo-1518544866330-4e716499f800','photo-1582719471384-894fbb16e074',
-  'photo-1509822929-9e7373073f41','photo-1543699565-003b8adda5fc','photo-1461435577093-b5bf2a4b4a5c',
-  'photo-1536098561742-ca998e48cbcc','photo-1549832986-e4d2d7c33e25','photo-1534531173927-aeb928d54385',
-  'photo-1607706189992-eae578626c86','photo-1612528443702-f6741f70a049','photo-1541855492-581f618f69a0',
-  'photo-1546961342-ea5f73f193b2','photo-1520208422220-28aabbd0a5b4','photo-1591696331096-3b9e9e16a0e8',
-  'photo-1588776814546-1ffbb172ef51','photo-1560518883-ce09059eeffa','photo-1542621334-a254cf47733d',
-  'photo-1558618666-fcd25c85cd64','photo-1540575467063-178a50c2df87','photo-1576091160399-112ba8d25d1d',
-  // Trade & Shipping
-  'photo-1578575437130-527eed3abbec','photo-1494412574643-ff11b0a5c1c3','photo-1511578314322-379afb476865',
-  'photo-1532938911079-1b06ac7ceec7','photo-1573164713988-8665fc963095','photo-1586528116311-ad8dd3c8310d',
-  'photo-1568992687947-868a62a9f521','photo-1474631245212-32dc3c8310c6','photo-1580674684081-7617fbf3d745',
-  'photo-1519389950473-47ba0277781c','photo-1586953208448-b95a79798f07','photo-1498084393753-b411b2d26b34',
-  'photo-1621761191319-c6fb62004040','photo-1604719312566-8912e9227c6a','photo-1570143254023-3a174e44e9c4',
-  'photo-1603789141862-1975c0494ccc','photo-1615461066841-6116e61058f4','photo-1451187580459-43490279c0fa',
-  // Executive & Leadership
-  'photo-1550399105-c4db5fb85c18','photo-1449157291145-7efd050a4d0e','photo-1571169652463-a4f001143af1',
-  'photo-1529107386315-e1a2ed48a620','photo-1541872703-74c5e44368f9','photo-1554469384-e58fac16e23a',
-  'photo-1524178232363-1fb2b075b655','photo-1449034446853-66c86144b0ad','photo-1575517111839-3a3843ee7f5d',
-  'photo-1577760258779-e787a1733016','photo-1577860988299-e6c0cfd6b6d5','photo-1535957998154-1c1f9a6b0f7f',
-  'photo-1497366811353-6870744d04b2','photo-1450101499163-c8848c66ca85','photo-1454165804606-c3d57bc86b40',
-  // Reputation & Digital
-  'photo-1432888498266-38ffec3eaf0a','photo-1432888622747-4eb9a8efeb07','photo-1553484771-371a605b060b',
-  'photo-1586892477838-2b96e85e0f96','photo-1562577309-4932fdd64cd1','photo-1432888498266-38ffec3eaf0a',
-  'photo-1519389950473-47ba0277781c','photo-1488590528505-98d2b5aba04b','photo-1555949963-ff9fe0c870eb',
-  'photo-1531297484001-80022131f5a1','photo-1526374965328-7f61d4dc18c5','photo-1432888622747-4eb9a8efeb07',
-  'photo-1611974789855-9c2a0a7236a3','photo-1559526323-cb2f2fe2591b','photo-1554224155-8d04cb21cd6c',
-  'photo-1484480974693-6ca0a78fb36b','photo-1432888498266-38ffec3eaf0a','photo-1486312338219-ce68d2c6f44d',
-  // Analysis & Data
-  'photo-1551288049-bebda4e38f71','photo-1460925895917-afdab827c52f','photo-1543286386-713bdd548da4',
-  'photo-1504868584819-f8e8b4b6d7e3','photo-1526304640581-d334cdbbf45e','photo-1477519242566-6ae87c31d212',
-  'photo-1569025591941-31523b6cbbd2','photo-1640340434855-6084b1f4901c','photo-1650970009757-d0c68fd39c71',
-  'photo-1551836022-4c4c79ecde51','photo-1516321318423-f06f85e504b3','photo-1584438784894-089d6a62b8fa',
-  'photo-1611273426858-450d8e3c9fce','photo-1518183214770-9cffbec72538','photo-1543286386-713bdd548da4',
-]
-
-// Strong FNV-1a hash — maximizes distribution
-function hash(s: string): number {
-  let h = 2166136261
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i)
-    h = (h * 16777619) >>> 0
-  }
-  return h
+const SEED_PREFIX: Record<string, string> = {
+  // Jewish sites — unique prefixes so they get distinct image sets
+  'jewishnewsnow.com':        'jnn',
+  'jewishpropertyreport.com': 'jpr',
+  'aliyatoday.com':           'at',
+  // Finance sites
+  'nex-wire.com':             'nw',
+  'finvexx.com':              'fv',
+  'bizplezx.com':             'bp',
+  'aurexhq.com':              'ax',
+  'verivex.co':               'vx',
+  'invexhuby.com':            'ih',
+  'signalixx.com':            'sx',
+  'execvex.com':              'ev',
+  'cryptoxos.com':            'cx',
+  'fxvexx.com':               'fx',
+  'tradehubiq.com':           'th',
+  'rephuby.com':              'rh',
 }
 
-// Israel / Jewish community / aliya / property themed photos
-const JEWISH_PHOTOS = [
-  // Jerusalem & Israel landscapes
-  'photo-1527838832700-5059252407fa','photo-1528360983277-13d401cdc186','photo-1562571700-39cd5d5e4e01',
-  'photo-1566836610593-62a64888a216','photo-1580674684081-7617fbf3d745','photo-1558441440-d4111d18d48f',
-  'photo-1512453979798-5ea266f8880c','photo-1539650116574-75c0c6d73f6e','photo-1543832923-44667a44c804',
-  'photo-1544735716-392fe2489ffa','photo-1554310603-09e35c30d6f8','photo-1572252009286-268acec5ca0a',
-  'photo-1591018224922-ee9a2b40c0d9','photo-1582719188393-bb71f37bbe23','photo-1517960413843-0aee8e2b3285',
-  'photo-1561477692-bd1da6df0d5b','photo-1593095948071-474c5cc2989d','photo-1539037116277-4db20889f2d4',
-  // Israeli city / architecture
-  'photo-1518684079-3c830dcef090','photo-1504376379689-8d54347b26c6','photo-1579038773867-044c48daf789',
-  'photo-1547483238-f400e65ccd56','photo-1558618047-3c8c76ca6bfd','photo-1560472355-536de3962603',
-  'photo-1542640244-7e672d6cef4e','photo-1564507592333-c60657eea523','photo-1602343168117-bb8ffe3e2e9f',
-  'photo-1542051841857-5f90071e7989','photo-1570481662006-a3a1374699e8','photo-1577086664693-894d8405334a',
-  'photo-1580977251946-c11536659d35','photo-1572972054595-3f3c12d20bd6','photo-1571566882372-1598d88abd90',
-  // Community / people / cultural
-  'photo-1529156069898-49953e39b3ac','photo-1491438590914-bc09fcaaf77a','photo-1511632765486-a01980e01a18',
-  'photo-1506869640319-fe1a24fd76dc','photo-1515169067868-5387ec356754','photo-1543269865-cbf427effbad',
-  'photo-1543269664-76bc3997d9ea','photo-1521791136064-7986c2920216','photo-1543331355-3e3a4e1e1c9d',
-  'photo-1543002588-bfa74002ed7e','photo-1531058020387-3be344556be6','photo-1530041539828-114de669390e',
-  'photo-1517457373958-b7bdd4587205','photo-1559825481-12a583e56278','photo-1525130413817-d45c1d127c42',
-  // Property / real estate / buildings
-  'photo-1560518883-ce09059eeffa','photo-1512917774080-9991f1c4c750','photo-1570129477492-45c003edd2be',
-  'photo-1580587771525-78b9dba3b914','photo-1600585154340-be6161a56a0c','photo-1600607687939-ce8a6c25118c',
-  'photo-1600566753376-12c8ab7fb75b','photo-1600047509807-ba8f99d2cdde','photo-1600596542815-ffad4c1539a9',
-  'photo-1600563438938-a42d0442cdc3','photo-1600585154526-990dced4db0d','photo-1600573472550-8090b5e0745e',
-  'photo-1600210492493-0946911123ea','photo-1600566752355-35792bedcfea','photo-1600607687920-4e2a09cf159d',
-  'photo-1567496898669-ee935f5f647a','photo-1567496898669-ee935f5f647a','photo-1568605114967-8130f3a36994',
-  'photo-1560185007-cde436f6a4d0','photo-1560184897-ae75f418493e','photo-1564013799919-ab600027ffc6',
-  'photo-1582268611958-ebfd161ef9cf','photo-1582407947304-fd86f028f716','photo-1605276374104-dee2a0ed3cd6',
-  // Immigration / travel / passport / documents
-  'photo-1436491865332-7a61a109cc05','photo-1488646953014-85cb44e25828','photo-1501621965065-c6e1cf6b53e2',
-  'photo-1476514525535-07fb3b4ae5f1','photo-1530789253388-582c481c54b0','photo-1503220317375-aaad61436b1b',
-  'photo-1469854523086-cc02fe5d8800','photo-1502920514313-52581002a659','photo-1530521954074-e9f33b8e7eed',
-  'photo-1521727857535-28d2047a4154','photo-1495107334309-fcf20504a5ab','photo-1473445730015-841f29a9490b',
-  'photo-1554384645378-4d68b1ff8d99','photo-1521185496955-15097b20c5fe','photo-1517842645767-c639042777db',
-  // Middle East / culture / synagogue / heritage
-  'photo-1490806843957-31f4c9a91c65','photo-1534430480872-27fbc0d5b820','photo-1548013146-72479768bada',
-  'photo-1525935944571-f7f2f7806b36','photo-1601758125946-6ec2ef64daf8','photo-1591267990439-bc364fd99a99',
-  'photo-1601758228041-f3b2795255f1','photo-1577086664693-894d8405334a','photo-1565035010268-a3816f98589a',
-  'photo-1565128939013-44b85c9b1c11','photo-1574786530745-8a04a26d6e88','photo-1564769662533-4f00a87b4056',
-  // Coastal / Tel Aviv / Haifa / Mediterranean
-  'photo-1572252009286-268acec5ca0a','photo-1518563259592-754ad12d6c14','photo-1559717865-a99cac1c7a7c',
-  'photo-1502920917128-1aa500764cbd','photo-1559827260-dc66d52bef19','photo-1493558103817-58b2924bce98',
-  'photo-1471623432079-b009d30b6729','photo-1505228395891-9a51e7e86bf6','photo-1560179707-f14e90ef3623',
-  // Finance / investment context (for property/market analysis articles)
-  'photo-1565514020179-026b92b84bb6','photo-1554224155-8d04cb21cd6c','photo-1526304640581-d334cdbbf45e',
-  'photo-1611974789855-9c2a0a7236a3','photo-1551288049-bebda4e38f71','photo-1460925895917-afdab827c52f',
-  // Generic news/document/handshake (for regulatory/policy articles)
-  'photo-1450101499163-c8848c66ca85','photo-1454165804606-c3d57bc86b40','photo-1521791136064-7986c2920216',
-  'photo-1554469384-e58fac16e23a','photo-1577760258779-e787a1733016','photo-1486312338219-ce68d2c6f44d',
-]
+function cleanSeed(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 60)
+}
 
-const JEWISH_DOMAINS = new Set(['jewishnewsnow.com','jewishpropertyreport.com','aliyatoday.com'])
-
-// Picsum photo IDs curated by category — deterministic per article (same slug = same image).
-// Using picsum.photos (free, no API key, no hotlink restrictions, browser-safe).
-// These IDs map to specific beautiful stock photos on Lorem Picsum's CDN.
-
-const FINANCE_PICSUM = [
-  // Markets / trading floors / screens
-  1002,1004,1005,1006,1007,1008,1009,1010,1011,1012,
-  1015,1016,1018,1019,1020,1021,1025,1031,1033,1035,
-  1038,1040,1041,1042,1043,1044,1045,1048,1050,1052,
-  1055,1057,1058,1059,1061,1062,1064,1065,1066,1067,
-  1068,1069,1071,1072,1073,1074,1075,1076,1079,1080,
-  // Office / business / city
-  200,201,202,203,204,205,206,207,208,209,
-  210,211,212,213,214,215,216,217,218,219,
-  220,221,222,223,224,225,226,227,228,229,
-  // Architecture / skyline
-  400,401,402,403,404,405,406,407,408,409,
-  410,411,412,413,414,415,416,417,418,419,
-  // Nature / landscape (for commodity/energy articles)
-  500,501,502,503,504,505,506,507,508,509,
-  510,511,512,513,514,515,516,517,518,519,
-]
-
-const JEWISH_PICSUM = [
-  // Middle Eastern / Mediterranean architecture, cities, landscapes
-  1082,1083,1084,1085,1086,1087,1088,1089,1090,1091,
-  1092,1093,1094,1095,1096,1097,1098,1099,1100,1101,
-  // People / community
-  300,301,302,303,304,305,306,307,308,309,
-  310,311,312,313,314,315,316,317,318,319,
-  // Travel / immigration / passports / maps
-  600,601,602,603,604,605,606,607,608,609,
-  // Property / real estate
-  700,701,702,703,704,705,706,707,708,709,
-  710,711,712,713,714,715,716,717,718,719,
-]
-
-// Returns a deterministic, unique image URL per article using Picsum Photos.
-// Picsum is free, requires no API key, and works in all browsers and <img> tags.
-// URL format: https://picsum.photos/id/{id}/{width}/{height}
+// Returns a deterministic unique image URL per article.
+// Seed format: {sitePrefix}-{slug}-{category}
+// This ensures:
+// - Different sites → different images for same content topic
+// - Same article always gets the same image (no flicker on reload)
+// - No ID range issues (picsum seed API accepts any string)
 export function getArticleImage(category: string, slug: string, siteDomain = ''): string {
-  const pool = JEWISH_DOMAINS.has(siteDomain) ? JEWISH_PICSUM : FINANCE_PICSUM
-  const key  = `${siteDomain}:${slug}:${category}`
-  const idx  = hash(key) % pool.length
-  const id   = pool[idx]
-  return `https://picsum.photos/id/${id}/1200/630`
+  const prefix = SEED_PREFIX[siteDomain] || siteDomain.split('.')[0].slice(0, 4) || 'img'
+  const seed   = cleanSeed(`${prefix}-${slug.slice(0, 40)}-${category.slice(0, 8)}`)
+  return `https://picsum.photos/seed/${seed}/1200/630`
 }

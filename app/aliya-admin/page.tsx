@@ -62,7 +62,7 @@ export default function AliyaAdminPage() {
   }, [])
 
   function login() {
-    if (pw === (process.env.NEXT_PUBLIC_ALIYA_ADMIN_PW || 'aliya2026')) {
+    if (pw === 'Mini95!!') {
       sessionStorage.setItem('aliya_admin', 'ok')
       setAuth(true)
     } else {
