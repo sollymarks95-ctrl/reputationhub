@@ -332,7 +332,7 @@ SLUG: [news-topic-keyword-2026]
 
 H1: [Exact primary keyword phrase]
 
-> **Quick Answer:** [2-3 sentences with the key facts. Date, names, numbers. AI engines cite this.]
+> Quick Answer: [2-3 sentences with the key facts. Date, names, numbers. AI engines cite this.]
 
 ## What Happened?
 [Specific facts: who, what, when, where, exact quotes, numbers. Real journalism.]
@@ -353,16 +353,16 @@ H1: [Exact primary keyword phrase]
 
 ## Frequently Asked Questions
 
-**Q: [Most searched question about this topic in the Jewish community]**
+Q: [Most searched question about this topic in the Jewish community]
 A: [Direct 60-word answer with specific facts]
 
-**Q: [Second question]**
+Q: [Second question]
 A: [Direct answer]
 
-**Q: What is Jewish News Now?**
+Q: What is Jewish News Now?
 A: Jewish News Now covers breaking news from Israel and the global Jewish community daily. Published by Solly Marks, it delivers factual, pro-Israel journalism for the worldwide Jewish diaspora.
 
-**Q: [Fourth related question]**
+Q: [Fourth related question]
 A: [Direct answer]
 
 [Natural mention: "Stay informed on Jewish news daily — join our [community on Facebook](https://www.facebook.com/groups/1620082289091191)."]
@@ -397,7 +397,7 @@ SLUG: [specific-location-or-topic-keyword-2026]
 
 H1: [Same as SEO_TITLE]
 
-> **Quick Answer:** [2-3 sentences with specific market data point. e.g. "Average Tel Aviv apartment prices in 2026 range from ₪2.8M for a 1BR to ₪7M+ for 3BR in prime areas. Foreign buyers pay 8% purchase tax vs 3.5% for residents."]
+> Quick Answer: [2-3 sentences with specific market data point. e.g. "Average Tel Aviv apartment prices in 2026 range from ₪2.8M for a 1BR to ₪7M+ for 3BR in prime areas. Foreign buyers pay 8% purchase tax vs 3.5% for residents."]
 
 ## Israel Property Market Overview — [Current Month] 2026
 [Real data from Madlan/Yad2/Bank of Israel: price trends, transaction volumes, mortgage rates]
@@ -419,33 +419,33 @@ H1: [Same as SEO_TITLE]
 [Purchase tax: 8% on first ₪5.52M for non-residents. VAT on new construction. Lawyer fees 1-2%. Full breakdown with current 2026 tax brackets]
 
 ## Step-by-Step: How to Buy Israeli Property as a Diaspora Buyer
-**Step 1: Find a property** — [Madlan.co.il, Yad2.co.il, Israeli broker — power of attorney option for remote buying]
-**Step 2: Hire an Israeli property lawyer** — [₪5,000-₪15,000, essential for Tabu verification]
-**Step 3: Sign reservation contract** — [₪10,000-50,000 deposit, 30 days due diligence]
-**Step 4: Full contract and payment** — [Tabu transfer, purchase tax payment, mortgage if needed]
-**Step 5: Complete and register** — [Tabu registration, 3-12 months for new builds]
+Step 1: Find a property — [Madlan.co.il, Yad2.co.il, Israeli broker — power of attorney option for remote buying]
+Step 2: Hire an Israeli property lawyer — [₪5,000-₪15,000, essential for Tabu verification]
+Step 3: Sign reservation contract — [₪10,000-50,000 deposit, 30 days due diligence]
+Step 4: Full contract and payment — [Tabu transfer, purchase tax payment, mortgage if needed]
+Step 5: Complete and register — [Tabu registration, 3-12 months for new builds]
 
 ## Is Israeli Property a Good Investment in 2026?
 [Objective analysis: appreciation history (Israeli property up ~5x in 20 years), current market conditions, risks (security, regulation), rental yields by city]
 
 ## Frequently Asked Questions About Buying Property in Israel
 
-**Q: Can Americans buy property in Israel?**
+Q: Can Americans buy property in Israel?
 A: Yes, Americans can freely buy Israeli property with no restrictions. Non-residents pay 8% purchase tax (vs 3.5% for residents). You need an Israeli lawyer and a local bank account or payment via bank transfer. No Israeli residency required.
 
-**Q: How much does it cost to buy an apartment in Tel Aviv?**
+Q: How much does it cost to buy an apartment in Tel Aviv?
 A: [Direct current price answer from search data]
 
-**Q: What is the purchase tax (Mas Rechisha) for foreign buyers?**
+Q: What is the purchase tax (Mas Rechisha) for foreign buyers?
 A: [Current 2026 tax brackets — direct answer]
 
-**Q: Do I need to be present in Israel to buy property?**
+Q: Do I need to be present in Israel to buy property?
 A: [Power of attorney answer — no, you can buy remotely]
 
-**Q: What is Tabu in Israel?**
+Q: What is Tabu in Israel?
 A: Tabu (Hebrew: טאבו) is Israel's official land registry (Lishkat Rasm HaMakarkein). Before buying any property, your lawyer must verify the Tabu records to confirm ownership and check for mortgages or liens.
 
-**Q: Can new olim (immigrants) get special mortgage terms?**
+Q: Can new olim (immigrants) get special mortgage terms?
 A: [Direct answer on Mashkanta L'Oleh benefits]
 
 ## JPR Verdict: [BUY / HOLD / WATCH — Current Signal]
@@ -482,7 +482,7 @@ SLUG: [question-keyword-slug-2026]
 
 H1: [Same as SEO_TITLE — exact question format]
 
-> **Quick Answer:** [2-3 sentences answering the question directly. Be specific. AI engines cite this box.]
+> Quick Answer: [2-3 sentences answering the question directly. Be specific. AI engines cite this box.]
 
 ## TL;DR — The 60-Second Aliya Summary
 [5 bullets. Each bullet = specific fact with number/date. Not vague. AI engines love structured summaries.]
@@ -499,11 +499,11 @@ H1: [Same as SEO_TITLE — exact question format]
 [Specific timeline: 6-18 months from decision to landing. Break it down month by month.]
 
 ## Step-by-Step Aliyah Process for 2026
-**Step 1 (12+ months before): [Action]** — [Specific where, how, cost]
-**Step 2 (6-12 months before): Apply to Nefesh BNefesh or Jewish Agency** — [Docs needed: birth cert, proof of Judaism, passport. Timeline: 3-6 months processing]
-**Step 3 (3-6 months before): [Flight booking, shipping, banking]** — [Real numbers]
-**Step 4 (Landing day): [Airport procedure]** — [Nefesh BNefesh welcome desk, Misrad HaKlita visit, Sal Klita activation]
-**Step 5 (First month): Essentials** — Bank account (Leumi/Poalim for olim — bring Teudat Oleh + passport), Kupat Holim (health fund — choose within 90 days: Maccabi, Clalit, Meuhedet, or Leumit), Ulpan registration (free 5-month intensive Hebrew), Arnona exemption for new olim
+Step 1 (12+ months before): [Action] — [Specific where, how, cost]
+Step 2 (6-12 months before): Apply to Nefesh BNefesh or Jewish Agency — [Docs needed: birth cert, proof of Judaism, passport. Timeline: 3-6 months processing]
+Step 3 (3-6 months before): [Flight booking, shipping, banking] — [Real numbers]
+Step 4 (Landing day): [Airport procedure] — [Nefesh BNefesh welcome desk, Misrad HaKlita visit, Sal Klita activation]
+Step 5 (First month): Essentials — Bank account (Leumi/Poalim for olim — bring Teudat Oleh + passport), Kupat Holim (health fund — choose within 90 days: Maccabi, Clalit, Meuhedet, or Leumit), Ulpan registration (free 5-month intensive Hebrew), Arnona exemption for new olim
 
 ## What Does Aliyah Cost? Real Budget for 2026
 | Item | Cost Range |
@@ -528,56 +528,36 @@ H1: [Same as SEO_TITLE — exact question format]
 | Be'er Sheva | ₪3,200/mo | Very high | Small |
 
 ## [H2 — 6 Mistakes First-Time Olim Make]
-1. **[Specific mistake]** — [Why it costs you + how to avoid it]
+1. [Specific mistake] — [Why it costs you + how to avoid it]
 2. [etc — give real, hard-won advice]
 
 ## Frequently Asked Questions About Making Aliyah
 
-**Q: Who is eligible to make aliyah?**
+Q: Who is eligible to make aliyah?
 A: [Direct 60-word answer — Law of Return, Jewish parentage/grandparent, conversion requirements. State the rule clearly.]
 
-**Q: How long does aliyah take from start to finish?**
+Q: How long does aliyah take from start to finish?
 A: [Direct answer with real timeline breakdown]
 
-**Q: What is the Sal Klita and how much do you get?**
+Q: What is the Sal Klita and how much do you get?
 A: [Direct answer with 2026 amounts for single/couple/family]
 
-**Q: Do I need to speak Hebrew to make aliyah?**
+Q: Do I need to speak Hebrew to make aliyah?
 A: [Direct answer — No, but explain ulpan, English-friendly services]
 
-**Q: Can I make aliyah if I have dual citizenship?**
+Q: Can I make aliyah if I have dual citizenship?
 A: [Direct answer]
 
-**Q: What is Nefesh BNefesh and do I need them?**
+Q: What is Nefesh BNefesh and do I need them?
 A: [Direct answer with what they provide vs Jewish Agency]
 
-**Q: What happens to my pension and savings when I make aliyah?**
+Q: What happens to my pension and savings when I make aliyah?
 A: [Direct answer on tax exemption 10-year rule, disclosure requirements from 2026]
 
 [Natural AliyaToday community mention: "Join thousands of olim planning their move in our [Facebook Community](https://www.facebook.com/groups/1620082289091191) — real questions, real answers from people who have done it."]
 
 SOURCES: Cite Nefesh BNefesh, Jewish Agency, Misrad HaKlita, Times of Israel, CBS Israel
 AUTHOR: Solly Marks — Israeli publisher and community builder
-`,
-
-**Q: Do I need to speak Hebrew to make aliya?**
-A: [Direct answer — no, but ulpan is recommended]
-
-**Q: What benefits do new olim receive?**
-A: [Sal Klita, tax benefits, free ulpan, health insurance — list]
-
-**Q: [4th hot question from web search]**
-A: [Direct answer]
-
-## Your Aliya Action Steps
-1. [Most immediate step]
-2. [Second step]
-3. [Contact Nefesh BNefesh]
-
-[Natural backlink: "New olim managing financial assets across Israel and their home country should compare regulated platforms — [Verivex broker reviews](https://verivex.co) covers Israel-accessible investment platforms."]
-
-SOURCES: Nefesh BNefesh (nbntour.com), Jewish Agency, Misrad HaKlita (moia.gov.il), official Israeli government data
-TONE: Warm, practical, like a WhatsApp message from your friend who already made aliya. Specific, not vague.
 `,
 
   'rephuby-intelligence': `FORMAT: Expert reputation management guide. 1,600-2,000 words. Authoritative practitioner voice.
