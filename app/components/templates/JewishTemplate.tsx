@@ -170,6 +170,18 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         <SubscribeForm siteSlug="jewish-news-now" siteName="Jewish News Now" accent="#1a56b0" />
       </div>
     </div>
+
+    {/* Facebook Community Banner — all 3 Jewish sites */}
+    <a
+      href="https://www.facebook.com/groups/1620082289091191"
+      target="_blank" rel="noopener"
+      style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12,
+        background:'#1877f2', color:'#fff', padding:'14px 24px',
+        fontSize:15, fontWeight:800, textDecoration:'none', lineHeight:1.4, textAlign:'center' }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+      🇮🇱 Looking to make Aliya to Israel? Join our Facebook Community →
+    </a>
     <footer style={{ background: '#000', color: '#999', padding: '28px 0', textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontFamily: 'Georgia', marginBottom: 6 }}>JEWISH NEWS NOW</div>
       <div style={{ fontSize: 11, marginBottom: 12 }}>The Jewish World, Today</div>
@@ -302,6 +314,18 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
         <SubscribeForm siteSlug="jewish-property-report" siteName="Jewish Property Report" accent="#0a7c4e" />
       </div>
     </div>
+
+    {/* Facebook Community Banner — all 3 Jewish sites */}
+    <a
+      href="https://www.facebook.com/groups/1620082289091191"
+      target="_blank" rel="noopener"
+      style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12,
+        background:'#1877f2', color:'#fff', padding:'14px 24px',
+        fontSize:15, fontWeight:800, textDecoration:'none', lineHeight:1.4, textAlign:'center' }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+      🇮🇱 Looking to make Aliya to Israel? Join our Facebook Community →
+    </a>
     <footer style={{ background: '#0a2e1e', color: '#888', padding: '32px 0 20px', marginTop: 8 }}>
       <div className="jpr-wrap">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>

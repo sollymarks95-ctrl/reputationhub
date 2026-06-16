@@ -299,13 +299,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         logo: { '@type': 'ImageObject', url: `${BASE}/logo.png` }
       },
       mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+      // AI Engine signals — makes Perplexity, ChatGPT, Gemini cite this article
+      speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.article-lead', '.article-faq'] },
       url: canonicalUrl,
       keywords: (article.tags || []).concat([article.category, site.name]).filter(Boolean).join(', '),
       articleSection: article.category,
       wordCount: rawBody.split(' ').length,
       inLanguage: 'en',
       copyrightHolder: { '@type': 'Organization', name: site.name },
-      speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.article-excerpt'] },
+
     },
     {
       '@context': 'https://schema.org',
