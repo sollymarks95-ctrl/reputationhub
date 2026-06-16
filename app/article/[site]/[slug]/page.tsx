@@ -620,9 +620,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             <div style={{ background:bgHeader, border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
               <div>
                   <div style={{ fontWeight:800, fontSize:15, color:headingText }}>{article.author_name || 'Editorial Team'}</div>
-                  <div style={{ fontSize:11, color:p, fontWeight:700, marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>{site.name} Correspondent · {article.category || 'Markets'}</div>
+                  <div style={{ fontSize:11, color:p, fontWeight:700, marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>{isJewishSite ? site.shortName || site.name : site.name} · {article.category || (isJewishSite ? 'Guide' : 'Markets')}</div>
                   <p style={{ fontSize:13, color:textSecondary, lineHeight:1.65 }}>
-                    {article.author_name || 'The editorial team'} at {site.name} delivers expert analysis and breaking coverage across global markets, trade intelligence, and business strategy — combining deep industry expertise with rigorous reporting standards to provide actionable intelligence for business leaders worldwide.
+                    {isJewishSite ? (
+                      siteSlug === 'aliya-today'
+                        ? `${article.author_name || 'Solly Marks'} is an Israeli publisher, media buyer, and experienced oleh writing practical aliyah guides for English-speaking Jews worldwide. AliyaToday covers real costs, bureaucratic steps, money-saving tips, and life in Israel — everything you need to make a successful aliyah.`
+                        : siteSlug === 'jewish-news-now'
+                        ? `${article.author_name || 'Solly Marks'} is a Jewish news publisher covering Israel and the global Jewish community. JewishNewsNow delivers factual, pro-Israel journalism — breaking news, community updates, and analysis for the worldwide Jewish diaspora.`
+                        : `${article.author_name || 'Solly Marks'} is an Israeli property analyst and publisher writing for diaspora Jewish buyers and investors. JewishPropertyReport covers real estate prices, buying guides, and market data across Israel — practical intelligence for overseas buyers.`
+                    ) : `${article.author_name || 'The editorial team'} at ${site.name} delivers expert analysis and breaking coverage across global markets, trade intelligence, and business strategy — combining deep industry expertise with rigorous reporting standards to provide actionable intelligence for business leaders worldwide.`}
                   </p>
               </div>
             </div>
