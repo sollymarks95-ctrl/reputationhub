@@ -754,7 +754,7 @@ Return ONLY valid JSON, no markdown fences:
       }
       const genBody: any = useWebSearch ? {
         model: 'claude-haiku-4-5-20251001',  // Haiku confirmed working with web search on this key
-        max_tokens: 8000,
+        max_tokens: 4500,  // Reduced: 8000 tokens took 60-80s; 4500 = ~45s = fits in 90s budget
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
@@ -769,7 +769,7 @@ Return ONLY valid JSON, no markdown fences:
         method: 'POST',
         headers: genHeaders,
         body: JSON.stringify(genBody),
-        signal: AbortSignal.timeout(22000),
+        signal: AbortSignal.timeout(useWebSearch || isPillarArticle || isRephubySite ? 90000 : 45000),
       })
       if (!res.ok) {
         const errBody = await res.text().catch(()=>'')
@@ -959,7 +959,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 6)  // Jewish:5, Rephuby:3, Finance:6 (=18/day) — reduced from 10 to fit reliably within the 300s function limit (was 504-ing mid-batch on retries, losing the rest of the batch)
+  const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3 (3×90s=270s✓), Finance:6 (6×45s=270s✓) — all fit in 300s limit
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
@@ -1182,7 +1182,7 @@ export async function GET(req: NextRequest) {
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 6)  // Jewish:5, Rephuby:3, Finance:6 (=18/day) — reduced from 10 to fit reliably within the 300s function limit (was 504-ing mid-batch on retries, losing the rest of the batch)
+  const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3 (3×90s=270s✓), Finance:6 (6×45s=270s✓) — all fit in 300s limit
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
