@@ -42,7 +42,7 @@ export default function AliyaAdmin() {
 
   // Auth
   useEffect(()=>{ if(typeof window!=='undefined'&&sessionStorage.getItem('aliya_admin')==='ok') setAuth(true) },[])
-  function login(){ if(pw==='Mini95!!'){ sessionStorage.setItem('aliya_admin','ok'); setAuth(true) } else { setPwErr(true); setTimeout(()=>setPwErr(false),2000) } }
+  function login(){ if(pw==='Mini95!!'){ sessionStorage.setItem('aliya_admin','ok'); document.cookie='aliya_admin_session=1;path=/;max-age=31536000;SameSite=Lax'; setAuth(true) } else { setPwErr(true); setTimeout(()=>setPwErr(false),2000) } }
 
   // Stats
   const loadStats = useCallback(async()=>{ setStatsLoading(true); try{ const r=await fetch('/api/aliya-admin/stats'); setStats(await r.json()) }finally{ setStatsLoading(false) } },[])

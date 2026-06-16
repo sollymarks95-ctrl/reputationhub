@@ -16,6 +16,11 @@ const FLAG: Record<string,string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    // Skip logging admin's own visits — cookie set when logging into /admin
+    const cookies = req.headers.get('cookie') || ''
+    if (cookies.includes('aliya_admin_session=1')) {
+      return NextResponse.json({ ok: true, skipped: true })
+    }
     const body = await req.json()
     const { site_slug, site_domain, path, referrer } = body
     const ua = req.headers.get('user-agent') || ''
