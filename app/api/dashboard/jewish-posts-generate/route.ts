@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     'Warm & Personal':  'Write warmly, like a fellow community member sharing something genuinely helpful. Use "we", "our community", "my fellow olim" etc.',
     'Direct & Punchy':  'Short sentences. Bold hook. Real talk. No padding.',
     'Question Hook':    'Open with a question that makes the reader stop scrolling. Then answer it with the article.',
-    'Storytelling':     'Open with a brief relatable scenario or moment, then connect it to the article's insight.',
+    'Storytelling':     "Open with a brief relatable scenario or moment, then connect it to the article's insight.",
   }
 
   const posts = []
