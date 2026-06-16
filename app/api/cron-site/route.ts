@@ -738,9 +738,12 @@ Each portal has unique structural DNA — respect it.
 Return ONLY valid JSON, no markdown fences:
 {"title":"Headline here","excerpt":"One factual sentence under 155 chars","body":"<p>...</p>...","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}`
 
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 1; attempt++) {
     try {
-      if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt))
+      // Single attempt only — if it fails, the article is skipped and picked up next batch.
+      // Cron runs 3×/day so a skip is harmless; retrying wastes 35s and causes 504s when
+      // multiple sites are running in parallel (each article failure previously cost 35s×2=70s,
+      // pushing the slowest sites past the 300s function limit).
       // Jewish portals use web search + Sonnet for richer, real-time content
       const useWebSearch = isJewishPortal && !isRephubySite  // Rephuby uses Haiku — guides don't need live search
       const genHeaders: Record<string,string> = {
@@ -766,7 +769,7 @@ Return ONLY valid JSON, no markdown fences:
         method: 'POST',
         headers: genHeaders,
         body: JSON.stringify(genBody),
-        signal: AbortSignal.timeout(35000),
+        signal: AbortSignal.timeout(22000),
       })
       if (!res.ok) {
         const errBody = await res.text().catch(()=>'')
@@ -922,7 +925,7 @@ Examples of GOOD topics (specific + timely):
 Return ONLY a JSON array of ${count} topic strings, nothing else.`
         }]
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(12000),
     })
     if (!res.ok) return rotatedPool.slice(0, count)
     const data = await res.json()
@@ -999,6 +1002,10 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
           const more = await discoverFreshTopics(site, BATCH_SIZE, true, recentTitles)
           freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
         }
+      } else if (siteSlug === 'trade-hub-iq') {
+        // Skip web-search topic discovery — static 15-topic pool is sufficient
+        // and the extra 12s web call was pushing it past the 300s function limit
+        freshTopics = [...site.topics.slice(batchStart % site.topics.length), ...site.topics].slice(0, BATCH_SIZE)
       } else {
         freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false, recentTitles)
       }
@@ -1218,6 +1225,10 @@ export async function GET(req: NextRequest) {
           const more = await discoverFreshTopics(site, BATCH_SIZE, true, recentTitles)
           freshTopics = [...freshTopics, ...more].slice(0, BATCH_SIZE)
         }
+      } else if (siteSlug === 'trade-hub-iq') {
+        // Skip web-search topic discovery — static 15-topic pool is sufficient
+        // and the extra 12s web call was pushing it past the 300s function limit
+        freshTopics = [...site.topics.slice(batchStart % site.topics.length), ...site.topics].slice(0, BATCH_SIZE)
       } else {
         freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false, recentTitles)
       }
