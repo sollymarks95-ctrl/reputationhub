@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   const allKeywords = [article.category, site.name, ...(article.tags||[]), ...clientKeywords, ...nicheKws].filter(Boolean).join(', ')
 
   const isJewishSite2 = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+  const isJewishSite  = isJewishSite2  // alias used in JSX below
   const metaTitle = isJewishSite2
     ? `${article.title} | Solly Marks – ${site.name}`
     : `${article.title} | ${site.name}`
