@@ -47,7 +47,8 @@ export async function GET(req: NextRequest) {
 
     // ── All other portals ────────────────────────────────────────────────────
     const { data: site } = await db.from('news_sites').select('id,slug,noindex').eq('domain',host).single()
-    if (!site || site.noindex) return new NextResponse(empty, { status:200, headers:HEADERS })
+    if (!site) return new NextResponse(empty, { status:200, headers:HEADERS })
+    // ALL sites are now open to indexing — noindex flag ignored for sitemap
 
     const { data: arts } = await db.from('news_articles')
       .select('slug,published_at,category').eq('news_site_id',site.id)
