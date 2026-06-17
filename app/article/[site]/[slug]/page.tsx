@@ -218,17 +218,23 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const paragraphs = rawBody.split(/\n\n+/).filter((b: string) => b.trim().length > 0)
   // SEO: canonical must point to custom domain, not rephuby.com
   const DOMAIN_MAP: Record<string,string> = {
-    'global-trade-wire': 'https://nex-wire.com',
-    'finance-terminal':  'https://finvexx.com',
-    'business-pulse':    'https://bizplezx.com',
-    'gold-markets-today':'https://aurexhq.com',
-    'trust-score':       'https://verivex.co',
-    'invest-data':       'https://invexhuby.com',
-    'market-radar':      'https://signalixx.com',
-    'executive-network': 'https://execvex.com',
-    'crypto-hub':        'https://cryptoxos.com',
+    'global-trade-wire':     'https://nex-wire.com',
+    'finance-terminal':      'https://finvexx.com',
+    'business-pulse':        'https://bizplezx.com',
+    'gold-markets-today':    'https://aurexhq.com',
+    'trust-score':           'https://verivex.co',
+    'invest-data':           'https://invexhuby.com',
+    'market-radar':          'https://signalixx.com',
+    'executive-network':     'https://execvex.com',
+    'crypto-hub':            'https://cryptoxos.com',
+    'fx-vexx':               'https://fxvexx.com',
+    'trade-hub-iq':          'https://tradehubiq.com',
+    'aliya-today':           'https://aliyatoday.com',
+    'jewish-news-now':       'https://jewishnewsnow.com',
+    'jewish-property-report':'https://jewishpropertyreport.com',
+    'rephuby-intelligence':  'https://rephuby.com',
   }
-  const BASE = DOMAIN_MAP[siteSlug] || 'https://rephuby.com'
+  const BASE = DOMAIN_MAP[siteSlug] || `https://${site.domain || 'rephuby.com'}`
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
 
   // Auto-detect client brand mentions — dynamic from portal_clients
