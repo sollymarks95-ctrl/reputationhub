@@ -367,7 +367,8 @@ STEP 2: Write a practical, tip-focused article on the topic.
 - Quick Answer: first paragraph must directly answer the core question in 2-3 sentences with a real number or fact
 - 3 FAQ questions at end (Q:/A: format), 40-word answers each
 - End every article: "Join our [Facebook community](https://www.facebook.com/groups/1620082289091191) — thousands of olim sharing real advice."
-- Internal link: mention one other AliyaToday article topic naturally in the body
+- Internal links: naturally mention 1-2 other AliyaToday topics (e.g. 'as covered in our Kupat Holim guide') — link to the topic, not raw URLs
+- Entity mentions: name real institutions (Misrad HaKlita, Nefesh B'Nefesh, Bituach Leumi, Bank Leumi, Bank Hapoalim, Jewish Agency) at least 2× per article
 
 STEP 3: Return ONLY valid JSON, no markdown fences, no preamble:
 {"title":"Headline here (50-60 chars, keyword first)","excerpt":"One sentence under 155 chars with key fact","body":"<h2>...</h2><p>...</p>...","category":"Finance","tags":["aliyah","israel","olim","aliya guide","2026"]}
@@ -591,6 +592,15 @@ Your article must contain at least ONE piece of unique value that competing arti
 KEYWORD CANNIBALIZATION PREVENTION:
 The already-published titles listed above cover related angles. Make sure this article targets a DISTINCT keyword angle — a different user intent, a different time frame, a different geographic focus, or a different audience. Do not write an article that would compete with your own published content for the same exact search query.
 
+ENTITY MENTIONS — CRITICAL FOR E-E-A-T (include naturally, not forced):
+Mention at least 3 real named entities per article: real institutions (Federal Reserve, IMF, BlackRock, Goldman Sachs, JPMorgan, ECB, Bank of England, OPEC, WTO), real people (Jerome Powell, Christine Lagarde, Warren Buffett, Ray Dalio), or real publications (Reuters, Bloomberg, Financial Times, Wall Street Journal). Entity mentions signal to Google that this is a real, knowledgeable source.
+
+INTERNAL LINKS — 2 per article minimum:
+Naturally reference 1-2 related topics that ${site.name} covers. Phrase as: "As we covered in our analysis of [related topic]..." or "For traders watching [related market], [site domain] tracks..." — never as raw URLs in the body text. These signal topical authority to Google.
+
+EXTERNAL AUTHORITY LINKS — 1 per article:
+Link out to one authoritative source cited in the article: Reuters, Bloomberg, Federal Reserve (federalreserve.gov), IMF, World Bank, SEC. Format: <a href="[URL]" target="_blank" rel="noopener">[anchor text]</a>. Outbound authority links improve credibility signals.
+
 Body HTML format: follow the FORMAT template for this portal — do NOT use a generic structure.
 Use semantic HTML: <p>, <h2>, <h3>, <ul><li>, <table> as appropriate for your format.
 Each portal has unique structural DNA — respect it.
@@ -629,7 +639,7 @@ Return ONLY valid JSON, no markdown fences:
         method: 'POST',
         headers: genHeaders,
         body: JSON.stringify(genBody),
-        signal: AbortSignal.timeout(useWebSearch || isPillarArticle || isRephubySite ? 90000 : 45000),
+        signal: AbortSignal.timeout(useWebSearch ? 55000 : isPillarArticle || isRephubySite ? 90000 : 38000),
       })
       if (!res.ok) {
         const errBody = await res.text().catch(()=>'')
@@ -824,7 +834,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3, Finance:6 (6×45s=270s✓)
+  const BATCH_SIZE = isJewishPortal ? 4 : (isRephubySite ? 3 : 6)  // Jewish:4 (4×55s=220s✓), Rephuby:3, Finance:6 (6×38s=228s✓) — 5 runs/day → Finance:30/day, Jewish:20/day
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
