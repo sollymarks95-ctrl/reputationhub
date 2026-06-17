@@ -731,16 +731,16 @@ Return ONLY valid JSON, no markdown fences:
       }
       const genBody: any = useWebSearch ? {
         model: 'claude-haiku-4-5-20251001',  // Haiku confirmed working with web search on this key
-        max_tokens: 3000,  // Jewish sites: 700-900 word target, 3000 tokens = ~30s fits in 90s budget
-        system: 'You are an expert Jewish content writer. Use web search for real data, then ALWAYS end your response with ONLY valid JSON starting with {"title": — no text after the closing }. The JSON must contain title, excerpt, body (HTML), category, and tags.',
+        max_tokens: 4000,  // Jewish sites: 2000-2500 word target, 4000 tokens needed for full articles
+        system: 'You are an expert Jewish content writer. Use web search for real current data. After gathering data, output ONLY a single compact JSON line with no newlines in the JSON wrapper: {"title":"...","excerpt":"...","body":"<html content>","category":"...","tags":[...]}  The body contains HTML but the outer JSON must be compact. No preamble, no explanation, no markdown fences.',
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
         model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
         max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
-        system: 'You are a financial news writer. Always respond with ONLY valid JSON — no preamble, no explanation, no markdown fences. Output must start with { and end with }.',
+        system: 'You are a financial news writer. Always respond with ONLY valid compact JSON on a SINGLE LINE — no preamble, no explanation, no markdown fences, no newlines inside the JSON. Output must be: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}  The body may contain HTML but the JSON wrapper must be compact single-line.',
         messages: [
-          { role: 'user', content: prompt + '\n\nRETURN ONLY VALID JSON STARTING WITH {. The body must be 1,400-2,000 words minimum with H2/H3 sections, real entity names, data points, and 4 PAA-format H3 questions. Format: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
+          { role: 'user', content: prompt + '\n\nOUTPUT: Single compact JSON line, no newlines in the JSON wrapper. The body field contains HTML but the JSON itself must be one line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
         ]
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -776,22 +776,29 @@ Return ONLY valid JSON, no markdown fences:
         // Haiku uses assistant prefill so entire clean string is JSON continuation
         // Find JSON in response — handles both prefill-style and preamble outputs
         // Haiku 4.5 sometimes outputs preamble ("I'll write...") before JSON even with prefill
-        // Find the article JSON — look for {"title" specifically to skip
-        // false positives from web search results that contain other JSON
+        // ROBUST JSON EXTRACTION
+        // Model outputs pretty-printed JSON like {\n  "title": "..."\n}
+        // Strategy: find first { then try progressively: direct parse, last }, cleaned
         let jsonStr = ''
-        const titleIdx = clean.indexOf('{"title"')
-        const titleIdx2 = clean.indexOf('{ "title"')  // pretty-printed variant
-        const bestIdx = titleIdx !== -1 ? titleIdx : (titleIdx2 !== -1 ? titleIdx2 : clean.indexOf('{'))
-        if (bestIdx !== -1) {
-          const raw = clean.slice(bestIdx)
-          const end = raw.lastIndexOf('}')
-          jsonStr = end !== -1 ? raw.slice(0, end+1) : raw
-          // Normalize pretty-printed JSON (remove excess whitespace around colons/braces)
-          jsonStr = jsonStr.replace(/\{\s+"title"/, '{"title"')
+        const firstBrace = clean.indexOf('{')
+        if (firstBrace !== -1) {
+          const raw = clean.slice(firstBrace)
+          const lastBrace = raw.lastIndexOf('}')
+          jsonStr = lastBrace !== -1 ? raw.slice(0, lastBrace + 1) : raw
         } else {
-          jsonStr = '{"title":"' + clean  // fallback: prefill continuation
+          jsonStr = '{"title":"' + clean + '"}'
         }
-        if (jsonStr) parsed = JSON.parse(jsonStr)
+        // Try direct parse first (handles compact and pretty-printed JSON)
+        try {
+          parsed = JSON.parse(jsonStr)
+        } catch {
+          // Try stripping control characters and normalising whitespace
+          const cleaned = jsonStr
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')  // remove control chars
+            .replace(/,\s*}/g, '}')  // trailing commas
+            .replace(/,\s*]/g, ']')  // trailing commas in arrays
+          parsed = JSON.parse(cleaned)
+        }
       } catch(_) {
         // Fallback: regex extraction — works regardless of preamble
         try {
