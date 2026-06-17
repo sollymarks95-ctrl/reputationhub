@@ -28,6 +28,10 @@ const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
   'jewishpropertyreport.com': { route:'s', slug:'jewish-property-report' },
   'aliyatoday.com':           { route:'s', slug:'aliya-today'        },
   'www.aliyatoday.com':       { route:'s', slug:'aliya-today'        },
+  'copyvexx.com':             { route:'copytrade', slug:'copy-trade-iq'     },
+  'www.copyvexx.com':         { route:'copytrade', slug:'copy-trade-iq'     },
+  'expatinvestiq.com':        { route:'expat',     slug:'expat-invest-iq'   },
+  'www.expatinvestiq.com':    { route:'expat',     slug:'expat-invest-iq'   },
 }
 
 export function middleware(request: NextRequest) {
