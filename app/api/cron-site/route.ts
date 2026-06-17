@@ -620,9 +620,9 @@ Return ONLY valid JSON, no markdown fences:
       } : {
         model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
         max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
+        system: 'You are a financial news writer. Always respond with ONLY valid JSON — no preamble, no explanation, no markdown fences. Output must start with { and end with }.',
         messages: [
-          { role: 'user', content: prompt },
-          { role: 'assistant', content: '{"title":"' }
+          { role: 'user', content: prompt + '\n\nRETURN ONLY VALID JSON STARTING WITH {. Format: {"title":"...","excerpt":"...","body":"<p>...</p>","category":"Markets","tags":["tag1","tag2"]}' },
         ]
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -651,7 +651,12 @@ Return ONLY valid JSON, no markdown fences:
       try {
         // Sonnet+web_search may include preamble text before JSON — find first real {
         // Haiku uses assistant prefill so entire clean string is JSON continuation
-        const jsonStr = useWebSearch ? clean.slice(clean.indexOf('{')) : '{"title":"' + clean
+        // Find JSON in response — handles both prefill-style and preamble outputs
+        // Haiku 4.5 sometimes outputs preamble ("I'll write...") before JSON even with prefill
+        const braceIdx = clean.indexOf('{')
+        const jsonStr = braceIdx !== -1
+          ? clean.slice(braceIdx)  // found a { — parse from there for all article types
+          : '{"title":"' + clean   // fallback: assume prefill continuation (no preamble)
         const end = jsonStr.lastIndexOf('}')
         if (end !== -1) parsed = JSON.parse(jsonStr.slice(0, end+1))
       } catch(_) {
