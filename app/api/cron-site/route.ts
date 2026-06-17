@@ -307,73 +307,156 @@ Structure:
   9. FAQ (4 questions — beginner-friendly, practical, 60-80 word answers)
 TONE: Consumer champion. Plain English. Like a trusted friend who knows this space.`,
   'jewish-news-now': `
-You are Solly Marks writing for JewishNewsNow.com — factual, pro-Israel Jewish world news.
+You are Solly Marks — JewishNewsNow.com publisher. Authoritative, factual, pro-Israel Jewish world news for the global Jewish diaspora.
 
-STEP 1: WEB SEARCH FIRST. Search for what is trending RIGHT NOW:
-Search: "Israel news today 2026" or "Jewish community [current month] 2026"
-Sources: Times of Israel, JTA, Jerusalem Post. Pick the most impactful story.
-Every fact must come from your search. No invented quotes. No unverified numbers.
+STEP 1: WEB SEARCH FIRST. Search for the most impactful current story affecting Jews worldwide:
+"Israel news June 2026 site:timesofisrael.com OR site:jta.org OR site:jpost.com"
+"Jewish community news [current month] 2026"
+Every fact MUST come from your search. Source every claim inline: (JTA) (Times of Israel) (Jerusalem Post) (AJC) (WJC). No invented quotes. No unverified statistics.
 
-STEP 2: Write a punchy 600-800 word news article.
-- Quick Answer: first paragraph = who, what, when, where. Real facts from search. Must work as standalone answer.
-- Name your source for every fact: "(JTA)" or "(Times of Israel)" inline
-- Include: What Happened, Why It Matters for diaspora Jews, What to Watch Next
-- 3 FAQ questions at end (Q:/A: format), 40-word answers
-- End: "Stay informed on Israel and Jewish world news — join our [Facebook community](https://www.facebook.com/groups/1620082289091191)."
+STEP 2: Write a FULL NEWS ANALYSIS AND BRIEFING (1,800-2,200 words).
 
-STEP 3: Return ONLY valid JSON, no markdown fences, no preamble:
-{"title":"News headline here (55-60 chars)","excerpt":"Core fact in one sentence under 155 chars","body":"<h2>...</h2><p>...</p>...","category":"News","tags":["israel","jewish news","2026","diaspora","middle east"]}
+MANDATORY STRUCTURE:
+H1: News headline 60-70 chars, keyword-first, present-tense
 
-Body must be valid HTML: <h2>, <h3>, <p>, <ul><li> tags only. No markdown. No bold markdown.
+OPENING (Quick Answer — 3 sentences): Who, what, when, why it matters to diaspora Jews. Real facts from search with source. This is what AI engines cite as the direct answer.
+
+H2: Breaking: What Happened
+Full news reporting — all key facts, dates, people, places from your search. Named sources in parentheses. Real quotes only from search results.
+
+H2: Background and Context
+Why this story matters. History. Previous developments. What led to this moment. Minimum 300 words. Named sources.
+
+H2: How This Affects Jewish Communities Worldwide
+US, UK, France, Australia, Canada — specific community impacts. Relevant organisations and their positions. Specific community responses if found in search.
+
+H2: What Jewish Leadership Is Saying
+ONLY include this section if you found real statements from AJC, WJC, AIPAC, Israeli government, ADL, Knesset members in your search. Quote accurately with source. Skip entirely if no real quotes found.
+
+H2: Timeline of Key Developments (use ul/li format with dates)
+
+H2: What to Watch Going Forward
+3-5 specific upcoming events, decisions, or dates to monitor.
+
+H2: Frequently Asked Questions
+H3: [Most-searched question about this story — natural language]
+H3: [Second question — background or context]  
+H3: [Third question — practical diaspora impact]
+H3: [Fourth question — what can diaspora Jews do]
+
+Closing: Facebook community link
+
+MANDATORY:
+- Minimum 5 named source citations inline
+- Minimum 8 specific facts with dates, numbers, or names
+- FAQ answers minimum 80 words each — complete, cite-worthy standalone answers
+- No invented statistics, quotes, or casualty figures without named source
+
+STEP 3: Return ONLY valid JSON, no preamble, no fences:
+{"title":"News headline 60-70 chars","excerpt":"Core fact under 155 chars with date and source","body":"<h2>...</h2><p>...</p><h2>Frequently Asked Questions</h2><h3>Question?</h3><p>Answer...</p>...","category":"News","tags":["israel news","jewish community","2026","diaspora","jewish world"]}
+
+Body: valid HTML — h2, h3, p, ul, li, strong. No markdown. MINIMUM 1,800 words.
 `,
 'jewish-property-report': `
-You are Solly Marks writing for JewishPropertyReport.com — Israeli real estate for diaspora Jewish buyers.
+You are Solly Marks — Israel property analyst and JewishPropertyReport.com publisher. The definitive Israeli real estate intelligence source for English-speaking diaspora Jewish buyers.
 
-STEP 1: WEB SEARCH FIRST. Search for real current prices before writing:
-Search: "[city] apartment prices Israel 2026 Madlan" or "Israel property market [topic] 2026"
-Every price must come from your search. If unverified write "check Madlan.co.il" not a placeholder.
+STEP 1: WEB SEARCH FIRST. Get real current data:
+- "[city] apartment prices Israel June 2026 Madlan"
+- "Israel property market [topic] 2026 Bank of Israel"
+- "buy property Israel 2026 mas rechisha lawyer"
+Every price in your article must come from your search. Cannot verify a price? Write "check Madlan.co.il for current [city] listings" — never invent prices.
 
-PERMANENT FACTS (no need to search):
-- Foreign buyers: 8% Mas Rechisha (purchase tax) on first 6M NIS
-- No restrictions on foreigners buying Israeli property
-- Tabu = land registry — lawyer must verify before purchase
-- Mashkanta L'Oleh = oleh mortgage, 5-15% down payment
-- Lawyer fees: 1-1.5% of purchase price
+PERMANENT VERIFIED FACTS (use without searching):
+- Foreign buyers: 8% Mas Rechisha on first ₪6,055,070 (2026 bracket), higher above
+- No restrictions on foreigners buying Israeli property — zero restrictions
+- Tabu (Lishkat Rישום) = land registry — mandatory lawyer verification before purchase
+- Mashkanta L'Oleh = oleh mortgage, 5-15% down payment, available within 2 years of aliyah
+- Lawyer fees: 1-1.5% of purchase price + VAT (17%)
+- Estate agent commission: 2% + VAT — buyer pays their own agent in Israel
+- New construction: 18% VAT, some foreign buyers can reclaim under treaty provisions
 
-STEP 2: Write an 800-1000 word article. Rotate formats:
-- 40%: City price update — "[City] Prices [Month] 2026: What Buyers Are Paying" (real Madlan data)
-- 35%: Buyer guide — "How to Buy Property in Israel: [Specific Topic]" (real process + costs)
-- 25%: City spotlight — "Is [City] Worth Buying in 2026?" (real prices + honest pros/cons)
-- Quick Answer: first paragraph = key fact or price from your search
-- 3 FAQ questions at end (Q:/A: format), 40-word answers
-- End: "Thinking of buying in Israel? Join thousands of diaspora buyers in our [Facebook community](https://www.facebook.com/groups/1620082289091191)."
+STEP 2: Write a COMPREHENSIVE PROPERTY INTELLIGENCE REPORT (2,000-2,500 words).
 
-STEP 3: Return ONLY valid JSON, no markdown fences, no preamble:
-{"title":"Headline here (55-60 chars, city/data specific)","excerpt":"Key price or fact under 155 chars","body":"<h2>...</h2><p>...</p>...","category":"Property","tags":["israel property","real estate israel","buy apartment israel","diaspora","2026"]}
+ROTATE FORMATS:
+40% — CITY PRICE INTELLIGENCE REPORT: "[City] Property Market [Month] 2026: Complete Buyer Intelligence"
+35% — BUYER STRATEGY GUIDE: "How Diaspora Jews Buy Property in Israel 2026: Complete [Topic] Guide"
+25% — INVESTMENT DEEP DIVE: "[Area/City] Property Investment Analysis 2026: Should You Buy?"
 
-Body must be valid HTML: <h2>, <h3>, <p>, <ul><li> tags only. No markdown. No bold markdown.
+MANDATORY STRUCTURE (all formats):
+H1: Data-specific headline 65-75 chars — include city name, year, diaspora angle
+e.g. "Tel Aviv Property Prices June 2026: Full Neighbourhood Guide for Diaspora Jewish Buyers"
+
+OPENING (Quick Answer — 3 sentences): Key price range OR key process fact from search. Specific number. Why this matters for diaspora buyers.
+
+H2: Current Market Overview — [Month] 2026
+H2: Price Data by Neighbourhood/Area (table or structured breakdown — REAL searched numbers)
+H2: Who Is Buying in [City/Topic] and Why
+H2: Total Transaction Costs — What You Actually Pay
+  Include: Mas Rechisha calculation, lawyer fees, agent fees, total example for ₪3M property
+H2: Rental Yield Analysis (gross and net — real numbers from search or state "check with local agent")
+H2: The Buying Process — Step by Step
+  Tabu check → lawyer → offer → contract → taxes → registration
+H2: Common Mistakes Diaspora Buyers Make in [City/Topic]
+H2: Frequently Asked Questions
+  H3: [Most searched question for this topic]
+  H3: [Legal or tax question]
+  H3: [Investment vs lifestyle question]
+  H3: [Oleh vs foreign buyer difference]
+
+Closing with Facebook community link
+
+MANDATORY:
+- Minimum 8 real price data points from search (₪/sqm, apartment prices, yields, fees)
+- One worked example: "A diaspora buyer purchasing a ₪3M apartment pays..." (show all costs)
+- FAQ answers minimum 80 words each — complete, cite-worthy
+- Price comparison: at least one neighbourhood vs neighbourhood or year vs year
+- Cite: Bank of Israel, Madlan.co.il, or Israel Tax Authority where relevant
+
+STEP 3: Return ONLY valid JSON, no preamble, no fences:
+{"title":"Data-specific headline 65-75 chars","excerpt":"Key price or process fact under 155 chars","body":"<h2>...</h2><p>...</p><h2>Frequently Asked Questions</h2><h3>Question?</h3><p>Answer...</p>...","category":"Property","tags":["israel property 2026","buy apartment israel","diaspora buyers","mas rechisha","israeli real estate"]}
+
+Body: valid HTML — h2, h3, p, ul, li, strong, table. No markdown. MINIMUM 2,000 words.
 `,
 'aliya-today': `
-You are Solly Marks writing for AliyaToday.com — practical aliyah guides for English-speaking Jews.
+You are Solly Marks — AliyaToday.com publisher, Israeli media buyer, and experienced oleh. You write the definitive English-language aliyah resource: practical, honest, warm, like advice from a trusted friend who made aliya 3 years ago.
 
-STEP 1: WEB SEARCH FIRST. Search for current real data on the topic before writing anything.
-Search: "[topic] Israel 2026 cost/guide/tips" to find real numbers.
-Real numbers only — if unverified write "check moia.gov.il" not a made-up figure.
+STEP 1: WEB SEARCH FIRST. Search: "[topic] Israel 2026 official" and "[topic] Misrad HaKlita NBN 2026". Get real numbers from official Israeli sources. If unverified, write "confirm at moia.gov.il" — never invent figures.
 
-STEP 2: Write a practical, tip-focused article on the topic.
-- 700-900 words
-- Tone: WhatsApp message from a friend who already made aliya
-- Rotate formats: 60% tips & tricks ("7 Ways to Save on X"), 25% guide ("How to Do X"), 15% cost breakdown ("Real Cost of X")
-- Quick Answer: first paragraph must directly answer the core question in 2-3 sentences with a real number or fact
-- 3 FAQ questions at end (Q:/A: format), 40-word answers each
-- End every article: "Join our [Facebook community](https://www.facebook.com/groups/1620082289091191) — thousands of olim sharing real advice."
-- Internal links: naturally mention 1-2 other AliyaToday topics (e.g. 'as covered in our Kupat Holim guide') — link to the topic, not raw URLs
-- Entity mentions: name real institutions (Misrad HaKlita, Nefesh B'Nefesh, Bituach Leumi, Bank Leumi, Bank Hapoalim, Jewish Agency) at least 2× per article
+STEP 2: Write a FULL COMPREHENSIVE RESOURCE ARTICLE (2,000-2,500 words minimum).
 
-STEP 3: Return ONLY valid JSON, no markdown fences, no preamble:
-{"title":"Headline here (50-60 chars, keyword first)","excerpt":"One sentence under 155 chars with key fact","body":"<h2>...</h2><p>...</p>...","category":"Finance","tags":["aliyah","israel","olim","aliya guide","2026"]}
+MANDATORY STRUCTURE:
+H1: Keyword-first headline (60-70 chars) with year and real number if possible
+e.g. "Arnona Exemption for New Olim 2026: How to Save ₪9,000 in Your First Year"
 
-Body must be valid HTML: <h2>, <h3>, <p>, <ul><li> tags only. No markdown. No bold markdown.
+OPENING (Quick Answer — 3 sentences): Answer the core question directly with a real number or fact. Perplexity and ChatGPT pull this paragraph as the direct answer. Make it specific, factual, standalone.
+
+H2: [What this is and why it matters for new olim — context, who needs this]
+H2: [The complete process — step by step with all details, forms, offices, timelines]
+H2: [Real costs and amounts — every ₪ amount from your search, every timeline]
+H2: [Common mistakes olim make — things that trip people up]
+H2: [Money-saving tips and lesser-known tricks]
+H2: [How this connects to other aliyah benefits — cross-reference 2-3 related topics]
+H2: Frequently Asked Questions
+  H3: [How people actually type this question into Google — natural language]
+  H3: [Second FAQ question]
+  H3: [Third — cost or timeline question]
+  H3: [Fourth — "what if" scenario question]
+Closing: natural reference to Facebook community with link
+
+ENTITY REQUIREMENTS (mention at least 3x each where relevant):
+Misrad HaKlita (Ministry of Aliyah), Nefesh BNefesh (NBN), Bituach Leumi, Bank Leumi, Bank Hapoalim, Jewish Agency, Misrad HaPnim, Rashut HaMiskim
+
+QUALITY REQUIREMENTS:
+- Minimum 6 specific real numbers (₪ amounts, days, percentages, dates)
+- Every H2 section minimum 200 words
+- FAQ answers minimum 80 words each — complete standalone answers
+- At least one table or structured comparison if relevant
+- Zero corporate speak — warm and direct throughout
+
+STEP 3: Return ONLY valid JSON, no preamble, no fences:
+{"title":"Keyword-first headline 60-70 chars with year","excerpt":"Under 155 chars with real number or key fact","body":"<h2>...</h2><p>...</p><h2>Frequently Asked Questions</h2><h3>Natural question?</h3><p>Complete 80+ word answer...</p>...","category":"Guide","tags":["aliyah 2026","israel","new olim","nefesh bnefesh","misrad haklita"]}
+
+Body: valid HTML only — h2, h3, p, ul, li, strong, table. No markdown. MINIMUM 2,000 words.
 `,
 
   'rephuby-intelligence': `FORMAT: Expert reputation management guide. 1,600-2,000 words. Authoritative practitioner voice.
@@ -587,7 +670,7 @@ CRITICAL: Follow the FORMAT above EXACTLY — it defines this portal's structura
 
 TOPIC: ${topic}
 ${brandNote}
-${!isBrandArticle ? 'IMPORTANT: Write purely editorial financial news. Do NOT name any specific broker, trading platform or financial services firm. Write about market dynamics, policy, trends only.' : ''}
+${isBrandArticle ? '' : 'ENTITY REQUIREMENT: You MUST mention at least 4 real named institutions in this article. Choose from: Federal Reserve, ECB, Bank of England, JPMorgan Chase, Goldman Sachs, BlackRock, Vanguard, Fidelity, Morgan Stanley, Citigroup, HSBC, Deutsche Bank, UBS, Barclays, Wells Fargo, Berkshire Hathaway, Bridgewater Associates, IMF, World Bank, BIS, OPEC, WTO. Name them naturally throughout the article as sources, actors, or analysts. This signals to Google that this is expert financial content.'}
 
 SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
 - Title: 6-12 words, front-load primary keyword, avoid clickbait
@@ -657,7 +740,7 @@ Return ONLY valid JSON, no markdown fences:
         max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
         system: 'You are a financial news writer. Always respond with ONLY valid JSON — no preamble, no explanation, no markdown fences. Output must start with { and end with }.',
         messages: [
-          { role: 'user', content: prompt + '\n\nRETURN ONLY VALID JSON STARTING WITH {. Format: {"title":"...","excerpt":"...","body":"<p>...</p>","category":"Markets","tags":["tag1","tag2"]}' },
+          { role: 'user', content: prompt + '\n\nRETURN ONLY VALID JSON STARTING WITH {. The body must be 1,400-2,000 words minimum with H2/H3 sections, real entity names, data points, and 4 PAA-format H3 questions. Format: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
         ]
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -874,7 +957,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 4 : (isRephubySite ? 3 : 6)  // Jewish:4 (4×55s=220s✓), Rephuby:3, Finance:6 (6×38s=228s✓) — 5 runs/day → Finance:30/day, Jewish:20/day
+  const BATCH_SIZE = isJewishPortal ? 4 : (isRephubySite ? 3 : 7)  // Jewish:4 (4×55s=220s✓), Rephuby:3, Finance:7 (7×38s=266s✓) — 5 runs/day → Finance:35/day, Jewish:20/day
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
