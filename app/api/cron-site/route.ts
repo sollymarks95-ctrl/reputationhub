@@ -649,6 +649,7 @@ Return ONLY valid JSON, no markdown fences:
       const genBody: any = useWebSearch ? {
         model: 'claude-haiku-4-5-20251001',  // Haiku confirmed working with web search on this key
         max_tokens: 3000,  // Jewish sites: 700-900 word target, 3000 tokens = ~30s fits in 90s budget
+        system: 'You are an expert Jewish content writer. Use web search for real data, then ALWAYS end your response with ONLY valid JSON starting with {"title": — no text after the closing }. The JSON must contain title, excerpt, body (HTML), category, and tags.',
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
@@ -672,7 +673,12 @@ Return ONLY valid JSON, no markdown fences:
         return null
       }
       const data = await res.json()
-      const text = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text).join('')
+      // For web search: get LAST text block (the article JSON after search results)
+      // For regular: join all text blocks (single block anyway)
+      const textBlocks = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text)
+      const text = useWebSearch && textBlocks.length > 1
+        ? textBlocks[textBlocks.length - 1]  // last block = final article (after web search)
+        : textBlocks.join('')
       const clean = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim()
 
       // Strip web-search citation tags that leak into body HTML
@@ -687,12 +693,22 @@ Return ONLY valid JSON, no markdown fences:
         // Haiku uses assistant prefill so entire clean string is JSON continuation
         // Find JSON in response — handles both prefill-style and preamble outputs
         // Haiku 4.5 sometimes outputs preamble ("I'll write...") before JSON even with prefill
-        const braceIdx = clean.indexOf('{')
-        const jsonStr = braceIdx !== -1
-          ? clean.slice(braceIdx)  // found a { — parse from there for all article types
-          : '{"title":"' + clean   // fallback: assume prefill continuation (no preamble)
-        const end = jsonStr.lastIndexOf('}')
-        if (end !== -1) parsed = JSON.parse(jsonStr.slice(0, end+1))
+        // Find the article JSON — look for {"title" specifically to skip
+        // false positives from web search results that contain other JSON
+        let jsonStr = ''
+        const titleIdx = clean.indexOf('{"title"')
+        const titleIdx2 = clean.indexOf('{ "title"')  // pretty-printed variant
+        const bestIdx = titleIdx !== -1 ? titleIdx : (titleIdx2 !== -1 ? titleIdx2 : clean.indexOf('{'))
+        if (bestIdx !== -1) {
+          const raw = clean.slice(bestIdx)
+          const end = raw.lastIndexOf('}')
+          jsonStr = end !== -1 ? raw.slice(0, end+1) : raw
+          // Normalize pretty-printed JSON (remove excess whitespace around colons/braces)
+          jsonStr = jsonStr.replace(/\{\s+"title"/, '{"title"')
+        } else {
+          jsonStr = '{"title":"' + clean  // fallback: prefill continuation
+        }
+        if (jsonStr) parsed = JSON.parse(jsonStr)
       } catch(_) {
         // Fallback: regex extraction — works regardless of preamble
         try {
