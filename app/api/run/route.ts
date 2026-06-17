@@ -13,6 +13,7 @@ const ALL_SITES = [
   'global-trade-wire','finance-terminal','trust-score','gold-markets-today',
   'invest-data','business-pulse','market-radar','executive-network',
   'crypto-hub','fx-vexx','trade-hub-iq',
+  'copy-trade-iq','expat-invest-iq',
   'jewish-news-now','jewish-property-report','aliya-today',
   'rephuby-intelligence',
 ]

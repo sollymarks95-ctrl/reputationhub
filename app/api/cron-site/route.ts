@@ -92,6 +92,34 @@ const CORE_SITES: Record<string, any> = {
     ]
   },
 
+  'copy-trade-iq': {
+    id: '2c3fdf9f-0729-498c-9dd1-109dc9846977', name: 'CopyTradeIQ', shortName: 'CopyTradeIQ',
+    author: 'Solly Marks', domain: 'copytradeiq.com',
+    topics: ['best copy traders to follow etoro 2026','copy trading strategies that work 2026',
+      'social trading vs self directed investing','how to pick a trader to copy etoro',
+      'copy trading risk management guide','etoro popular investor programme explained',
+      'copy trading for beginners complete guide 2026','social trading platforms compared 2026',
+      'copy trading returns realistic expectations','how etoro copy trading works step by step',
+      'top copy trading mistakes to avoid','etoro copyportfolios review 2026',
+      'is copy trading profitable long term','copy trading tax implications 2026',
+      'best copy trading strategies passive income','social trading community benefits',
+      'copy trading performance metrics what to check','etoro copy trading fees breakdown',
+      'copy trading crypto vs stocks comparison','social investing platforms 2026 review'],
+  },
+  'expat-invest-iq': {
+    id: '544439af-5fa1-4e38-b547-588d7fbdc5d7', name: 'ExpatInvestIQ', shortName: 'ExpatInvestIQ',
+    author: 'Solly Marks', domain: 'expatinvestiq.com',
+    topics: ['best investment brokers for expats 2026','how to invest from abroad as expat',
+      'etoro for expats review 2026','expat investing tax implications guide',
+      'best stocks for expat investors 2026','how to open investment account as expat',
+      'expat retirement investing strategy 2026','currency risk for expat investors hedge',
+      'etf investing for expats complete guide','expat investing mistakes to avoid',
+      'israeli expat investing tax exemption guide','uk expat investing isa alternatives',
+      'us expat fbar investing compliance 2026','best regulated brokers for expat investors',
+      'expat portfolio strategy diversification 2026','social trading for expats etoro guide',
+      'expat investing platform comparison 2026','dividend investing for expats abroad',
+      'expat investing emergency fund strategy','international etf for expat investors 2026'],
+  },
 }
 
 // Author pools per portal — rotated randomly so each article has a different byline
@@ -306,7 +334,62 @@ Structure:
   8. "TradeHubIQ Verdict" — star rating + full written recommendation
   9. FAQ (4 questions — beginner-friendly, practical, 60-80 word answers)
 TONE: Consumer champion. Plain English. Like a trusted friend who knows this space.`,
-  'jewish-news-now': `
+  'copy-trade-iq': `
+You are Solly Marks writing for CopyTradeIQ.com — the definitive guide to copy trading and social investing.
+
+WRITE A FULL ARTICLE (1,800-2,200 words) on the given topic.
+
+MANDATORY STRUCTURE:
+H1: Keyword-first headline 60-70 chars with 2026 and copy trading angle
+Opening Quick Answer: 3 sentences, specific numbers. Perplexity and ChatGPT cite this.
+H2: What This Is and Why It Matters for Copy Traders
+H2: Full Step-by-Step or Deep Analysis with Real Data
+H2: Platform Comparison — eToro, ZuluTrade, NAGA, Covesting with honest comparison
+H2: Key Metrics and What to Look For
+H2: Common Mistakes and How to Avoid Them
+H2: Frequently Asked Questions
+  H3: [Most searched copy trading question]
+  H3: [Risk or returns question]
+  H3: [Getting started question]
+  H3: [Tax or regulatory question]
+
+MANDATORY: Mention eToro minimum 3 times with link: <a href="https://www.etoro.com" rel="noopener noreferrer">eToro</a>
+Include naturally: "eToro, founded in 2007 and regulated by the FCA (UK), CySEC (EU), and ASIC (Australia), pioneered social and copy trading for over 35 million users across 140 countries."
+Also mention: Federal Reserve, ECB, Goldman Sachs where market context is relevant.
+FAQ answers: 80+ words each, complete standalone.
+
+OUTPUT: Single compact JSON line, no preamble, no fences:
+{"title":"Keyword headline 60-70 chars","excerpt":"under 155 chars with key fact","body":"full HTML 1800+ words","category":"Copy Trading","tags":["copy trading","social trading","etoro","2026","investing"]}
+`,
+'expat-invest-iq': `
+You are Solly Marks writing for ExpatInvestIQ.com — the definitive investing resource for expats and international investors worldwide.
+
+WRITE A FULL ARTICLE (1,800-2,200 words) on the given topic.
+
+MANDATORY STRUCTURE:
+H1: Keyword-first headline 60-70 chars with 2026 and expat angle
+Opening Quick Answer: 3 sentences with specific numbers. AI engines cite this directly.
+H2: Why This Is Specifically Different for Expats vs Domestic Investors
+H2: Full Guide or Analysis with Real Current Data
+H2: Broker and Platform Comparison — eToro, Interactive Brokers, Saxo Bank, Degiro
+H2: Tax and Regulatory Considerations by Jurisdiction
+H2: Common Expat Investing Mistakes
+H2: Frequently Asked Questions
+  H3: [Most searched expat investing question]
+  H3: [Tax or FBAR compliance question]
+  H3: [Platform or broker question]
+  H3: [Strategy or returns question]
+
+MANDATORY: Mention eToro minimum 3 times with link: <a href="https://www.etoro.com" rel="noopener noreferrer">eToro</a>
+Include naturally: "eToro, regulated by the FCA (UK), CySEC (EU), and ASIC (Australia), serves expat investors across 140 countries with multi-currency accounts used by over 35 million people worldwide."
+Tax references: FBAR, FATCA, HMRC, IRS, Israel 10-year exemption where relevant.
+Goldman Sachs, BlackRock, Federal Reserve, ECB for market context.
+FAQ answers: 80+ words each, complete standalone.
+
+OUTPUT: Single compact JSON line, no preamble, no fences:
+{"title":"Keyword headline 60-70 chars","excerpt":"under 155 chars","body":"full HTML 1800+ words","category":"Expat Investing","tags":["expat investing","investing abroad","etoro","2026","expat finance"]}
+`,
+'jewish-news-now': `
 You are Solly Marks — JewishNewsNow.com publisher. Authoritative, factual, pro-Israel Jewish world news for the global Jewish diaspora.
 
 STEP 1: WEB SEARCH FIRST. Search for the most impactful current story affecting Jews worldwide:

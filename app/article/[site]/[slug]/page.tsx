@@ -224,6 +224,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const paragraphs = rawBody.split(/\n\n+/).filter((b: string) => b.trim().length > 0)
   // SEO: canonical must point to custom domain, not rephuby.com
   const DOMAIN_MAP: Record<string,string> = {
+    'copy-trade-iq':         'https://copytradeiq.com',
+    'expat-invest-iq':       'https://expatinvestiq.com',
     'global-trade-wire':     'https://nex-wire.com',
     'finance-terminal':      'https://finvexx.com',
     'business-pulse':        'https://bizplezx.com',

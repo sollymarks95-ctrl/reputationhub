@@ -21,6 +21,8 @@ const SITE_META: Record<string, { name: string; domain: string; desc: string; ca
   'aliya-today':           { name:'AliyaToday', domain:'aliyatoday.com', desc:'Practical aliyah guides, real costs, and step-by-step advice for English-speaking Jews moving to Israel', category:'Aliyah' },
   'jewish-news-now':       { name:'JewishNewsNow', domain:'jewishnewsnow.com', desc:'Breaking news and analysis for the global Jewish community and Israel watchers', category:'Jewish News' },
   'jewish-property-report':{ name:'JewishPropertyReport', domain:'jewishpropertyreport.com', desc:'Israeli real estate prices, buyer guides and property market data for diaspora Jewish investors', category:'Real Estate' },
+  'copy-trade-iq':         { name:'CopyTradeIQ', domain:'copytradeiq.com', desc:'Copy trading strategies, social trading guides and platform reviews for retail investors worldwide', category:'Copy Trading' },
+  'expat-invest-iq':       { name:'ExpatInvestIQ', domain:'expatinvestiq.com', desc:'Investing guides for expats and international investors — brokers, tax, platforms and strategies', category:'Expat Investing' },
   'rephuby-intelligence':  { name:'RepHuby', domain:'rephuby.com', desc:'Reputation intelligence for financial brands and institutional analysis', category:'Finance' },
 }
 
