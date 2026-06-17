@@ -722,7 +722,9 @@ Return ONLY valid JSON, no markdown fences:
       // multiple sites are running in parallel (each article failure previously cost 35s×2=70s,
       // pushing the slowest sites past the 300s function limit).
       // Jewish portals use web search + Sonnet for richer, real-time content
-      const useWebSearch = isJewishPortal && !isRephubySite  // Rephuby uses Haiku — guides don't need live search
+      // Jewish articles alternate: even index uses web search (news/current data), odd index skips it (timeless guides)
+      // 3×55s (web) + 3×38s (no web) = 279s per 6-article batch — safely within 300s Vercel limit
+      const useWebSearch = isJewishPortal && !isRephubySite && (articleIndex % 2 === 0)
       const genHeaders: Record<string,string> = {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC,
@@ -964,7 +966,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 4 : (isRephubySite ? 3 : 7)  // Jewish:4 (4×55s=220s✓), Rephuby:3, Finance:7 (7×38s=266s✓) — 5 runs/day → Finance:35/day, Jewish:20/day
+  const BATCH_SIZE = isJewishPortal ? 6 : (isRephubySite ? 3 : 7)  // Jewish:6 (3×55s+3×38s=279s✓), Rephuby:3, Finance:7 (7×38s=266s✓) — 5 runs/day → Finance:35/day, Jewish:30/day
   const batchStart = batch * BATCH_SIZE
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
