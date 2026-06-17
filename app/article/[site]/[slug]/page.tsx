@@ -62,6 +62,9 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     authors: [{ name: isJewishSite2 ? 'Solly Marks' : (article.author_name || site.name) }],
     robots: isNoindex ? 'noindex, nofollow' : 'index, follow',
     alternates: { canonical: canonicalUrl },
+    other: {
+      'news_keywords': article.tags?.join(', ') || article.category || '',
+    },
     icons: {
       icon: siteSlug === 'global-trade-wire' ? '/icon-nexwire.svg' :
             siteSlug === 'finance-terminal'  ? '/icon-finvexx.svg' :
@@ -286,10 +289,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const jsonLd: any[] = [
     {
       '@context': 'https://schema.org',
-      '@type': 'NewsArticle',
+      '@type': ['NewsArticle', 'Article'],
       headline: article.title,
       description: article.excerpt,
       image: article.cover_image_url ? [article.cover_image_url] : [],
+      isAccessibleForFree: true,
       datePublished: article.published_at,
       dateModified: article.updated_at || article.published_at,
       author: (() => {
@@ -305,6 +309,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
       })(),
       publisher: {
         '@type': 'NewsMediaOrganization', name: site.name, url: BASE,
+        hasOfferCatalog: { '@type': 'OfferCatalog', name: 'Free News Articles' },
         logo: { '@type': 'ImageObject', url: `${BASE}/logo.png` }
       },
       mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },

@@ -392,6 +392,30 @@ TONE: Senior practitioner. Not academic. Not salesy. Like a CMO writing their me
 INTERNAL LINKS: Naturally mention rephuby.com, verivex.co, finvexx.com where relevant as real examples of the strategy in action.`,
 }
 
+
+// TOPICAL AUTHORITY CLUSTERS — each site owns 5 deep topic pillars
+// Each pillar has a main article + 7 supporting articles = 8 total per pillar
+// Cluster articles interlink and signal topical authority to Google
+const TOPIC_CLUSTERS: Record<string, string[][]> = {
+  'global-trade-wire': [
+    ['US China Trade War 2026','US China tariff impact','China export controls 2026','US trade deficit analysis','Supply chain decoupling strategy','Trade war winners sectors 2026','Tariff exemption list 2026','Trade war small business impact'],
+    ['OPEC Oil Production 2026','Oil price forecast 2026','OPEC cut impact on markets','Energy sector trade flows','Oil supply demand balance','Petrodollar future 2026','Energy transition trade routes','Oil price inflation link'],
+  ],
+  'aliya-today': [
+    ['Aliyah Cost Breakdown 2026','Sal Klita 2026 amounts','Shipping to Israel cost','Israel apartment deposit rules','Oleh mortgage guide 2026','Arnona exemption how to claim','Customs free import Israel','Aliyah buffer fund planning'],
+    ['Kupat Holim Guide 2026','Clalit vs Maccabi 2026','90 day health rule Israel','Meuhedet Anglo community','Leumit membership review','Bituach mashlim worth it','Health fund transfer process','Tourist plan Israel health'],
+    ['Israel Tax For Olim 2026','10 year tax exemption Israel','Income disclosure 2026 Israel','Yoetz mas Israel find one','US Israeli dual taxation','Exit tax home country aliyah','FBAR for Israeli residents','Capital gains Israel oleh'],
+  ],
+  'jewish-news-now': [
+    ['Israel Gaza Ceasefire 2026','Gaza hostage deal 2026','Israel Hamas ceasefire terms','International pressure Israel 2026','Qatar mediation Israel Gaza','Ceasefire violations 2026','Post war Gaza governance','Gaza aid corridor 2026'],
+    ['Antisemitism Report 2026','Campus antisemitism 2026','European Jewish security 2026','ADL antisemitism data','Jewish community response hate','Antisemitism legislation US','Social media hate speech Jews','Pro Israel advocacy 2026'],
+  ],
+  'jewish-property-report': [
+    ['Tel Aviv Property Prices 2026','Tel Aviv apartment prices June 2026','Tel Aviv price per sqm 2026','Tel Aviv vs Jerusalem property','Tel Aviv rental yield 2026','North Tel Aviv vs South prices','Tel Aviv property investment risk','Buy or rent Tel Aviv 2026'],
+    ['Buy Property Israel Diaspora Guide','Purchase tax Israel foreigners 2026','Tabu process Israel step by step','Israeli lawyer property fees','Mashkanta Leoleh diaspora guide','Israeli mortgage foreign income','Property inspection Israel guide','Title search Israel process'],
+  ],
+}
+
 const PORTAL_LINKS: Record<string, { domain: string; name: string; topics: string[] }[]> = {
   'global-trade-wire': [
     { domain: 'finvexx.com', name: 'Finvexx Markets', topics: ['currency', 'forex', 'rate', 'bank', 'credit'] },
@@ -885,7 +909,15 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
         freshTopics = await discoverFreshTopics(site, BATCH_SIZE, false, recentTitles)
       }
     }
-    const topic = freshTopics[i] || site.topics[(batchStart + i + Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000) * 5) % site.topics.length]
+    // Every 5th article: use a topical cluster topic to build authority pillars
+    const clusterTopic = (i % 5 === 4 && TOPIC_CLUSTERS[siteSlug])
+      ? (() => {
+          const clusters = TOPIC_CLUSTERS[siteSlug]
+          const pillar = clusters[Math.floor(Date.now() / 86400000) % clusters.length]
+          return pillar[Math.floor(Math.random() * pillar.length)]
+        })()
+      : null
+    const topic = clusterTopic || freshTopics[i] || site.topics[(batchStart + i + Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0).getTime()) / 86400000) * 5) % site.topics.length]
     if (!topic) break
     const globalIndex = (historicalCount || 0) + i  // true rolling index across all history
 
