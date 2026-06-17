@@ -61,7 +61,10 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     keywords: allKeywords,
     authors: [{ name: isJewishSite2 ? 'Solly Marks' : (article.author_name || site.name) }],
     robots: isNoindex ? 'noindex, nofollow' : 'index, follow',
-    alternates: { canonical: canonicalUrl },
+    alternates: { 
+      canonical: canonicalUrl,
+      types: { 'application/rss+xml': `${BASE}/feed.xml` }
+    },
     other: {
       'news_keywords': article.tags?.join(', ') || article.category || '',
     },

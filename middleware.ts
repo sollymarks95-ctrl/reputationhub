@@ -69,9 +69,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/article/') ||
     pathname.startsWith('/author/') ||
+    pathname.startsWith('/about') ||
     pathname.startsWith('/podcasts') ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/portal') ||
+    pathname === '/feed.xml' ||
+    pathname === '/rss.xml' ||
     pathname === '/favicon.ico' ||
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml' ||
