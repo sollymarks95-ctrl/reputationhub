@@ -19,7 +19,7 @@ const SITES = [
   { slug: 'crypto-hub',             domain: 'cryptoxos.com',             type: 'finance' },
   { slug: 'fx-vexx',                domain: 'fxvexx.com',                type: 'finance' },
   { slug: 'trade-hub-iq',           domain: 'tradehubiq.com',            type: 'finance' },
-  { slug: 'copy-trade-iq',       domain: 'copytradeiq.com',      type: 'finance' },
+  { slug: 'copy-trade-iq',       domain: 'copyvexx.com',      type: 'finance' },
   { slug: 'expat-invest-iq',     domain: 'expatinvestiq.com',    type: 'finance' },
   { slug: 'aliya-today',            domain: 'aliyatoday.com',            type: 'jewish' },
   { slug: 'jewish-news-now',        domain: 'jewishnewsnow.com',         type: 'jewish' },

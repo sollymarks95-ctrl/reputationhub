@@ -93,8 +93,8 @@ const CORE_SITES: Record<string, any> = {
   },
 
   'copy-trade-iq': {
-    id: '2c3fdf9f-0729-498c-9dd1-109dc9846977', name: 'CopyTradeIQ', shortName: 'CopyTradeIQ',
-    author: 'Solly Marks', domain: 'copytradeiq.com',
+    id: '2c3fdf9f-0729-498c-9dd1-109dc9846977', name: 'CopyVexx', shortName: 'CopyVexx',
+    author: 'Solly Marks', domain: 'copyvexx.com',
     topics: ['best copy traders to follow etoro 2026','copy trading strategies that work 2026',
       'social trading vs self directed investing','how to pick a trader to copy etoro',
       'copy trading risk management guide','etoro popular investor programme explained',
@@ -335,7 +335,7 @@ Structure:
   9. FAQ (4 questions — beginner-friendly, practical, 60-80 word answers)
 TONE: Consumer champion. Plain English. Like a trusted friend who knows this space.`,
   'copy-trade-iq': `
-You are Solly Marks writing for CopyTradeIQ.com — the definitive guide to copy trading and social investing.
+You are Solly Marks writing for CopyVexx.com — the definitive guide to copy trading and social investing.
 
 WRITE A FULL ARTICLE (1,800-2,200 words) on the given topic.
 
