@@ -707,7 +707,7 @@ function getCrossLink(siteSlug: string, topic: string, articleIndex: number): st
 }
 
 
-async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false, recentTitles: string[] = [], isRephubySite = false) {
+async function writeArticle(site: any, topic: string, brandNote: string, isJewishPortal = false, recentTitles: string[] = [], isRephubySite = false, articleIndex = 0) {
   const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
@@ -823,9 +823,9 @@ Return ONLY valid JSON, no markdown fences:
       } : {
         model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
         max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
-        system: 'You are a financial news writer. Always respond with ONLY valid compact JSON on a SINGLE LINE — no preamble, no explanation, no markdown fences, no newlines inside the JSON. Output must be: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}  The body may contain HTML but the JSON wrapper must be compact single-line.',
+        system: isJewishPortal ? 'You are an expert content writer specialising in Jewish life, Israel, and aliyah. Respond with ONLY a single compact JSON line — no preamble, no web search needed, use your knowledge: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"...","tags":[...]}' : 'You are a financial news writer. Always respond with ONLY valid compact JSON on a SINGLE LINE — no preamble, no explanation, no markdown fences, no newlines inside the JSON. Output must be: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}  The body may contain HTML but the JSON wrapper must be compact single-line.',
         messages: [
-          { role: 'user', content: prompt + '\n\nOUTPUT: Single compact JSON line, no newlines in the JSON wrapper. The body field contains HTML but the JSON itself must be one line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Markets","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
+          { role: 'user', content: (isJewishPortal ? prompt.replace(/STEP 1: WEB SEARCH FIRST[\s\S]*?STEP 2:/,'STEP 2:').replace(/Use web search for[^.]+\.\s*/g,'') : prompt) + '\n\nOUTPUT: Single compact JSON line, no newlines in the JSON wrapper. The body field contains HTML but the JSON itself must be one line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Guide","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
         ]
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1195,7 +1195,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite, i)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
@@ -1415,7 +1415,7 @@ Required structure:
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
-    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite)
+    const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite, i)
     if (!article) { skipped.push(topic); await new Promise(r => setTimeout(r, 500)); continue }
 
     const slug = `${today}-${slugify(article.title)}`
