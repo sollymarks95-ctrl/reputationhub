@@ -5,10 +5,7 @@ import CookieConsent from './components/CookieConsent'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: {
-    default: 'RepHuby Intelligence — Broker & Crypto Reputation Management',
-    template: '%s | RepHuby Intelligence',
-  },
+  title: 'RepHuby Intelligence — Broker & Crypto Reputation Management',
   description: 'RepHuby Intelligence is the leading reputation management platform for forex brokers, crypto exchanges, and financial brands. 14 editorial portals, 150+ daily articles, verified reviews across global financial markets.',
   keywords: 'broker reputation management, crypto reputation management, forex broker reputation, financial brand reputation, online broker reviews, crypto exchange reputation, reputation management fintech, broker review management, forex reputation management, crypto broker reputation',
   robots: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
