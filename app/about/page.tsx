@@ -27,13 +27,27 @@ const SITE_ABOUT: Record<string, {
   'jewish-property-report':{ name:'JewishPropertyReport', domain:'jewishpropertyreport.com', tagline:'Israeli Real Estate for Diaspora Jewish Buyers', mission:'JewishPropertyReport covers the Israeli property market for English-speaking diaspora Jewish buyers and investors. We publish real price data, buyer guides, city spotlights, and practical legal and tax information for foreigners purchasing property in Israel. Our analysis draws on current Madlan.co.il and Yad2.co.il listing data, Bank of Israel statistics, and direct property professional expertise.', coverage:['Tel Aviv, Jerusalem, and major city property prices','Purchase tax and legal process for foreign buyers','Oleh mortgage (Mashkanta L\'Oleh) guide','Neighbourhood spotlights and investment analysis','Israeli property market trends and Bank of Israel data'], editorial:'All property prices published by JewishPropertyReport are sourced from current Madlan.co.il or Yad2.co.il listings or official Bank of Israel data. Where live data is unavailable, we direct readers to check directly rather than publish estimates.', founded:'2025', category:'Israeli Real Estate' },
 }
 
+const ABOUT_ICON_MAP: Record<string,string> = {
+  'global-trade-wire':'/icon-nexwire.svg','finance-terminal':'/icon-finvexx.svg',
+  'trust-score':'/icon-verivex.svg','gold-markets-today':'/icon-aurexhq.svg',
+  'invest-data':'/icon-invexhuby.svg','business-pulse':'/icon-bizplezx.svg',
+  'market-radar':'/icon-signalixx.svg','executive-network':'/icon-execvex.svg',
+  'crypto-hub':'/icon-cryptoxos.svg','fx-vexx':'/icon-fxvexx.svg',
+  'trade-hub-iq':'/icon-tradehubiq.svg','aliya-today':'/icon-aliya-today.svg',
+  'jewish-news-now':'/icon-jewish-news-now.svg','jewish-property-report':'/icon-jewish-property-report.svg',
+  'copy-trade-iq':'/icon-copyvexx.svg','expat-invest-iq':'/icon-expatinvestiq.svg',
+}
+
 export async function generateMetadata() {
   const headersList = await headers()
   const host = (headersList.get('host') || '').replace(':3000','').replace('www.','')
-  const site = Object.values(SITE_ABOUT).find(s => s.domain.replace('www.','') === host) || SITE_ABOUT['global-trade-wire']
+  const siteEntry = Object.entries(SITE_ABOUT).find(([,s]) => s.domain.replace('www.','') === host)
+  const site = siteEntry?.[1] || SITE_ABOUT['global-trade-wire']
+  const slug = siteEntry?.[0] || 'global-trade-wire'
   return {
     title: `About ${site.name} — ${site.tagline}`,
     description: site.mission.slice(0, 155),
+    icons: { icon: ABOUT_ICON_MAP[slug] || '/icon-rephuby.svg' },
     openGraph: { title: `About ${site.name}`, description: site.mission.slice(0,155), type: 'website' }
   }
 }

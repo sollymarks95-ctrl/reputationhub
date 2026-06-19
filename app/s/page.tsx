@@ -6,6 +6,26 @@ import DynamicTemplate from '@/app/components/templates/DynamicTemplate'
 import JewishTemplate from '@/app/components/templates/JewishTemplate'
 import type { Metadata } from 'next'
 
+const SITE_ICON_MAP: Record<string, string> = {
+  'global-trade-wire':      '/icon-nexwire.svg',
+  'finance-terminal':       '/icon-finvexx.svg',
+  'trust-score':            '/icon-verivex.svg',
+  'gold-markets-today':     '/icon-aurexhq.svg',
+  'invest-data':            '/icon-invexhuby.svg',
+  'business-pulse':         '/icon-bizplezx.svg',
+  'market-radar':           '/icon-signalixx.svg',
+  'executive-network':      '/icon-execvex.svg',
+  'crypto-hub':             '/icon-cryptoxos.svg',
+  'fx-vexx':                '/icon-fxvexx.svg',
+  'trade-hub-iq':           '/icon-tradehubiq.svg',
+  'aliya-today':            '/icon-aliya-today.svg',
+  'jewish-news-now':        '/icon-jewish-news-now.svg',
+  'jewish-property-report': '/icon-jewish-property-report.svg',
+  'copy-trade-iq':          '/icon-copyvexx.svg',
+  'expat-invest-iq':        '/icon-expatinvestiq.svg',
+  'rephuby-intelligence':   '/icon-rephuby.svg',
+}
+
 export const dynamic = 'force-dynamic'
 
 function getDb() {
@@ -67,14 +87,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'en_US',
     },
     icons: {
-      icon: site?.slug === 'fx-vexx'      ? '/icon-fxvexx.svg' :
-            site?.slug === 'trade-hub-iq' ? '/icon-tradehubiq.svg' :
-            site?.slug === 'global-trade-wire' ? '/icon-nexwire.svg' :
-            site?.slug === 'finance-terminal'  ? '/icon-finvexx.svg' :
-            site?.slug === 'business-pulse'    ? '/icon-bizplezx.svg' :
-            site?.slug === 'executive-network' ? '/icon-execvex.svg' :
-            site?.slug === 'crypto-hub'        ? '/icon-cryptoxos.svg' :
-            '/icon-rephuby.svg',
+      icon: SITE_ICON_MAP[site?.slug || ''] || '/icon-rephuby.svg',
     },
     twitter: {
       card: 'summary_large_image',

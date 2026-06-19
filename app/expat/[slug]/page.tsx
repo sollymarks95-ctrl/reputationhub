@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: 'The definitive investing guide for expats. Best brokers, tax implications, FBAR, HMRC, portfolio strategy and platform reviews for international investors.',
     robots: 'noindex,nofollow',
     alternates: { canonical: 'https://expatinvestiq.com' },
+    icons: { icon: '/icon-expatinvestiq.svg' },
     openGraph: { title: 'ExpatInvestIQ', description: 'Investing Intelligence for Expats', type: 'website', url: 'https://expatinvestiq.com' }
   }
 }

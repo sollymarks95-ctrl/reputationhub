@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: 'Expert copy trading strategies, platform reviews, and social investing analysis. Follow top traders, understand the risks, and build your copy portfolio.',
     robots: 'noindex,nofollow',
     alternates: { canonical: 'https://copyvexx.com' },
+    icons: { icon: '/icon-copyvexx.svg' },
     openGraph: { title: 'CopyVexx', description: 'Copy Trading Intelligence', type: 'website', url: 'https://copyvexx.com' }
   }
 }
