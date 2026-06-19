@@ -15,7 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: 'noindex,nofollow',
     alternates: { canonical: 'https://expatinvestiq.com' },
     icons: { icon: '/icon-expatinvestiq.svg' },
-    openGraph: { title: 'ExpatInvestIQ', description: 'Investing Intelligence for Expats', type: 'website', url: 'https://expatinvestiq.com' }
+    openGraph: { title: 'ExpatInvestIQ', description: 'Investing Intelligence for Expats', type: 'website', url: 'https://expatinvestiq.com' },
+    twitter: { card: 'summary_large_image', title: 'ExpatInvestIQ', description: 'Investing Intelligence for Expats' }
   }
 }
 

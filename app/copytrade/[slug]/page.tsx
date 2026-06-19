@@ -17,7 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: 'noindex,nofollow',
     alternates: { canonical: 'https://copyvexx.com' },
     icons: { icon: '/icon-copyvexx.svg' },
-    openGraph: { title: 'CopyVexx', description: 'Copy Trading Intelligence', type: 'website', url: 'https://copyvexx.com' }
+    openGraph: { title: 'CopyVexx', description: 'Copy Trading Intelligence', type: 'website', url: 'https://copyvexx.com' },
+    twitter: { card: 'summary_large_image', title: 'CopyVexx', description: 'Copy Trading Intelligence' }
   }
 }
 
