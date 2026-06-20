@@ -376,6 +376,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       .at-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
       .at-mob{display:none}.at-desk{display:block}
       a{text-decoration:none;color:inherit}a:hover{opacity:.85}
+      .at-search-input::placeholder{color:rgba(255,255,255,.4)}
       @media(max-width:768px){.at-mob{display:block}.at-desk{display:none}.at-wrap{padding:0 16px}}
     `}</style>
 
@@ -388,7 +389,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
           <span>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </div>
         {/* Logo */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0 16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0 16px', flexWrap: 'wrap', gap: 16 }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ fontSize: 40, lineHeight: 1 }}>✈️</div>
             <div>
@@ -398,9 +399,23 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', marginTop: 3, fontStyle: 'italic' }}>Your Complete Guide to Making Aliya</div>
             </div>
           </a>
-          {/* Facebook Community button */}
-          <div className="at-desk" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Search */}
+            <form action="/search" method="GET" style={{ display: 'flex', gap: 8 }}>
+              <input type="hidden" name="site" value="aliya-today" />
+              <input
+                className="at-search-input"
+                type="text" name="q" placeholder="Search aliya guides, housing, ulpan..."
+                style={{ width: 220, padding: '10px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 13, outline: 'none', fontFamily: 'Georgia, serif' }}
+              />
+              <button type="submit" aria-label="Search"
+                style={{ background: P, color: '#fff', border: 'none', padding: '0 16px', borderRadius: 8, fontWeight: 800, fontSize: 14, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                🔍
+              </button>
+            </form>
+            {/* Facebook Community button */}
             <a
+              className="at-desk"
               href="https://www.facebook.com/groups/1620082289091191"
               target="_blank" rel="noopener"
               style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1877f2', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(24,119,242,.4)', letterSpacing: '.01em' }}

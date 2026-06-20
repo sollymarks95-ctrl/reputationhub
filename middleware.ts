@@ -72,6 +72,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/article/') ||
+    pathname.startsWith('/search') ||
     pathname.startsWith('/author/') ||
     pathname.startsWith('/about') ||
     pathname.startsWith('/podcasts') ||

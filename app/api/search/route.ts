@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { resolveSite } from '@/app/lib/sites'
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q') || ''
-  const siteId = req.nextUrl.searchParams.get('site') || ''
+  const siteParam = req.nextUrl.searchParams.get('site') || ''
+  const site = resolveSite(siteParam) // accepts either a slug ("aliya-today") or a raw news_site_id uuid
   const category = req.nextUrl.searchParams.get('category') || ''
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '20'), 50)
 
@@ -16,7 +18,7 @@ export async function GET(req: NextRequest) {
     .eq('status', 'published')
     .limit(limit)
 
-  if (siteId) query = query.eq('news_site_id', siteId)
+  if (site) query = query.eq('news_site_id', site.id)
   if (category) query = query.eq('category', category)
   
   // Use full-text search
@@ -25,11 +27,13 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query.order('published_at', { ascending: false })
   if (error) {
     // Fallback to ilike if full-text fails
-    const { data: fallback } = await getDb().from('news_articles')
+    let fallbackQuery = getDb().from('news_articles')
       .select('id, title, slug, excerpt, category, cover_image_url, published_at, read_time_minutes, author_name, news_site_id')
       .eq('status', 'published')
       .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
       .limit(limit)
+    if (site) fallbackQuery = fallbackQuery.eq('news_site_id', site.id)
+    const { data: fallback } = await fallbackQuery
     return NextResponse.json({ results: fallback || [], query: q })
   }
   return NextResponse.json({ results: data || [], query: q })
