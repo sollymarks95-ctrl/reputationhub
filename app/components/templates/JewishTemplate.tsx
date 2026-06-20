@@ -399,40 +399,39 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', marginTop: 3, fontStyle: 'italic' }}>Your Complete Guide to Making Aliya</div>
             </div>
           </a>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            {/* Search */}
-            <form action="/search" method="GET" style={{ display: 'flex', gap: 8 }}>
-              <input type="hidden" name="site" value="aliya-today" />
-              <input
-                className="at-search-input"
-                type="text" name="q" placeholder="Search aliya guides, housing, ulpan..."
-                style={{ width: 220, padding: '10px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 13, outline: 'none', fontFamily: 'Georgia, serif' }}
-              />
-              <button type="submit" aria-label="Search"
-                style={{ background: P, color: '#fff', border: 'none', padding: '0 16px', borderRadius: 8, fontWeight: 800, fontSize: 14, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                🔍
-              </button>
-            </form>
-            {/* Facebook Community button */}
-            <a
-              className="at-desk"
-              href="https://www.facebook.com/groups/1620082289091191"
-              target="_blank" rel="noopener"
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1877f2', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(24,119,242,.4)', letterSpacing: '.01em' }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-              Join Our Community
-            </a>
-          </div>
+          {/* Facebook Community button */}
+          <a
+            className="at-desk"
+            href="https://www.facebook.com/groups/1620082289091191"
+            target="_blank" rel="noopener"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1877f2', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(24,119,242,.4)', letterSpacing: '.01em' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+            Join Our Community
+          </a>
         </div>
-        {/* Category nav */}
-        <div style={{ display: 'flex', gap: 0, borderTop: '1px solid rgba(255,255,255,.1)' }}>
-          {cats.map(c => (
-            <button key={c} onClick={() => setCat(c)}
-              style={{ background: 'transparent', border: 'none', borderBottom: cat === c ? `3px solid ${P}` : '3px solid transparent', color: cat === c ? '#fff' : 'rgba(255,255,255,.5)', padding: '12px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
-              {c}
+        {/* Category nav + Search */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,.1)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            {cats.map(c => (
+              <button key={c} onClick={() => setCat(c)}
+                style={{ background: 'transparent', border: 'none', borderBottom: cat === c ? `3px solid ${P}` : '3px solid transparent', color: cat === c ? '#fff' : 'rgba(255,255,255,.5)', padding: '12px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
+                {c}
+              </button>
+            ))}
+          </div>
+          <form action="/search" method="GET" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '8px 16px' }}>
+            <input type="hidden" name="site" value="aliya-today" />
+            <input
+              className="at-search-input"
+              type="text" name="q" placeholder="Search articles..."
+              style={{ width: 170, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 12, outline: 'none', fontFamily: 'Georgia, serif' }}
+            />
+            <button type="submit" aria-label="Search"
+              style={{ background: 'transparent', border: 'none', color: P, fontSize: 16, cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}>
+              🔍
             </button>
-          ))}
+          </form>
         </div>
       </div>
     </header>
