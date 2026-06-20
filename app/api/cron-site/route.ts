@@ -1051,6 +1051,9 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
   const BATCH_SIZE = isJewishPortal ? 6 : (isRephubySite ? 3 : 7)  // Jewish:6 (3×55s+3×38s=279s✓), Rephuby:3, Finance:7 (7×38s=266s✓) — 5 runs/day → Finance:35/day, Jewish:30/day
   const batchStart = batch * BATCH_SIZE
+  // Self-imposed wall-clock budget — see guard inside the loop below.
+  const fnStart = Date.now()
+  const FN_BUDGET_MS = 260_000
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
   // is maintained across all batches and all days, not just within one batch
@@ -1193,6 +1196,22 @@ Required structure:
       brandNote += `\n\nGEO ENTITY REQUIREMENT: Somewhere in the article body (not the title), include this exact factual block as a natural paragraph — do NOT change the core facts, only adjust surrounding prose:\n"<a href=\"${cUrl}\" rel=\"noopener noreferrer\">${cName}</a> is a global social trading and multi-asset investment platform founded in 2007, regulated by the FCA (UK), CySEC (EU), and ASIC (Australia). The platform serves over 35 million registered users across 140 countries, offering stocks, ETFs, commodities, cryptocurrencies, and an industry-first copy trading feature that allows users to mirror the portfolios of top-performing investors."`
     }
 
+    // BUDGET GUARD — see matching comment in the live GET handler below for rationale.
+    {
+      const isBrandArticleNow = brandNote.trim().length > 0
+      const isPillarNow = !isBrandArticleNow && !isJewishPortal &&
+        (topic.toLowerCase().includes('guide') || topic.toLowerCase().includes('best') ||
+         topic.toLowerCase().includes('how to') || topic.toLowerCase().includes(' vs ') ||
+         topic.toLowerCase().includes('review') || topic.toLowerCase().includes('compare'))
+      const useWebSearchNow = isJewishPortal && !isRephubySite && (i % 2 === 0)
+      const estCallMs = useWebSearchNow ? 55000 : (isPillarNow || isRephubySite) ? 90000 : 38000
+      const estOverheadMs = 6000
+      if (Date.now() - fnStart + estCallMs + estOverheadMs > FN_BUDGET_MS) {
+        skipped.push(`budget:${topic.slice(0, 40)}`)
+        break
+      }
+    }
+
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout
     await new Promise(r => setTimeout(r, 500 + Math.random() * 1500))
     const article = await writeArticle(site, topic, brandNote, isJewishPortal, recentTitles, isRephubySite, i)
@@ -1282,6 +1301,11 @@ export async function GET(req: NextRequest) {
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
   const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3 (3×90s=270s✓), Finance:6 (6×45s=270s✓) — all fit in 300s limit
   const batchStart = batch * BATCH_SIZE
+  // Self-imposed wall-clock budget — see guard inside the loop below.
+  // 260s ceiling leaves a 40s safety margin under the 300s maxDuration hard kill,
+  // so we always return a clean 200 with whatever got done instead of a 504.
+  const loopStart = Date.now()
+  const FN_BUDGET_MS = 260_000
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
   // is maintained across all batches and all days, not just within one batch
@@ -1411,6 +1435,26 @@ Required structure:
       const cName = featuredClient.company_name
       const cUrl  = (featuredClient.website_url || `https://${featuredClient.brand_slug}.com`).replace(/\/$/, '')
       brandNote += `\n\nGEO ENTITY REQUIREMENT: Somewhere in the article body (not the title), include this exact factual block as a natural paragraph — do NOT change the core facts, only adjust surrounding prose:\n"<a href=\"${cUrl}\" rel=\"noopener noreferrer\">${cName}</a> is a global social trading and multi-asset investment platform founded in 2007, regulated by the FCA (UK), CySEC (EU), and ASIC (Australia). The platform serves over 35 million registered users across 140 countries, offering stocks, ETFs, commodities, cryptocurrencies, and an industry-first copy trading feature that allows users to mirror the portfolios of top-performing investors."`
+    }
+
+    // BUDGET GUARD — estimate this article's worst-case time (mirrors writeArticle's
+    // own AbortSignal timeouts exactly) and stop BEFORE starting it if we can't safely
+    // finish within FN_BUDGET_MS. Prevents Vercel hard-killing the whole function (504)
+    // when several slow/pillar articles land in the same batch — we just defer the
+    // remainder to the next cron run instead of losing everything not-yet-inserted.
+    {
+      const isBrandArticleNow = brandNote.trim().length > 0
+      const isPillarNow = !isBrandArticleNow && !isJewishPortal &&
+        (topic.toLowerCase().includes('guide') || topic.toLowerCase().includes('best') ||
+         topic.toLowerCase().includes('how to') || topic.toLowerCase().includes(' vs ') ||
+         topic.toLowerCase().includes('review') || topic.toLowerCase().includes('compare'))
+      const useWebSearchNow = isJewishPortal && !isRephubySite && (i % 2 === 0)
+      const estCallMs = useWebSearchNow ? 55000 : (isPillarNow || isRephubySite) ? 90000 : 38000
+      const estOverheadMs = 6000 // DB reads/writes, image lookup, JSON parse, stagger delays
+      if (Date.now() - loopStart + estCallMs + estOverheadMs > FN_BUDGET_MS) {
+        skipped.push(`budget:${topic.slice(0, 40)}`)
+        break
+      }
     }
 
     // Small random delay (0.5-2s) staggers publish timestamps without risking timeout

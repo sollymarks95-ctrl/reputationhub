@@ -18,13 +18,14 @@ const ALL_SITES = [
   'rephuby-intelligence',
 ]
 
-async function callCron(path: string, secret: string) {
+async function callCron(path: string, secret: string, timeoutMs = 60000) {
   try {
     // Pass secret as BOTH header (for newer routes) AND query param (for legacy routes)
     const sep = path.includes('?') ? '&' : '?'
     const url = `${BASE}${path}${sep}secret=${encodeURIComponent(secret)}`
     const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${secret}` }
+      headers: { Authorization: `Bearer ${secret}` },
+      signal: AbortSignal.timeout(timeoutMs), // guard against a hung downstream route eating /api/run's own 300s budget
     })
     return r.ok ? await r.json().catch(() => ({ ok:true })) : { error:`HTTP ${r.status}` }
   } catch(e:any) { return { error:e.message } }
@@ -49,10 +50,21 @@ async function runArticles(batch: number, secret: string) {
 }
 
 async function runQuestions(secret: string) {
-  // Questions run sequentially — each is fast (<10s), total ~140s for 14 sites
+  // Questions run sequentially — each is fast (<10s), total ~140s for 14 sites.
+  // BUDGET GUARD: stop calling more sites once we're close to /api/run's own 300s
+  // maxDuration, so a few slow/stuck downstream calls can't 504 the whole job and
+  // silently lose every site that hadn't run yet. We just defer the rest to the
+  // next day's cron run instead.
+  const start = Date.now()
+  const BUDGET_MS = 260_000 // 40s safety margin under the 300s hard limit
+  const PER_CALL_TIMEOUT_MS = 20000
   const results = []
   for (const site of ALL_SITES) {
-    const r = await callCron(`/api/cron-questions?site=${site}`, secret)
+    if (Date.now() - start + PER_CALL_TIMEOUT_MS + 1000 > BUDGET_MS) {
+      results.push({ site, error: 'skipped: time budget exceeded, deferred to next run' })
+      continue
+    }
+    const r = await callCron(`/api/cron-questions?site=${site}`, secret, PER_CALL_TIMEOUT_MS)
     results.push({ site, ...r })
     await new Promise(res => setTimeout(res, 500)) // small gap between calls
   }
