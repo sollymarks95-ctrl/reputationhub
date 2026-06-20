@@ -369,6 +369,44 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
      'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
     ][i % 5]
 
+  // ── Live search-as-you-type ──
+  // Debounced fetch against /api/search, scoped to this site, so a small
+  // dropdown of matching article titles appears under the search box as
+  // the visitor types — they preview titles and decide whether to click
+  // through, instead of being forced to submit and load a full results page.
+  const [q, setQ] = React.useState('')
+  const [liveResults, setLiveResults] = React.useState<any[]>([])
+  const [searchOpen, setSearchOpen] = React.useState(false)
+  const [searching, setSearching] = React.useState(false)
+  const searchBoxRef = React.useRef<HTMLDivElement>(null)
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  React.useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    const term = q.trim()
+    if (term.length < 2) { setLiveResults([]); setSearching(false); return }
+    setSearching(true)
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/search?q=${encodeURIComponent(term)}&site=aliya-today&limit=6`)
+        const d = await r.json()
+        setLiveResults(d.results || [])
+      } catch { setLiveResults([]) }
+      setSearching(false)
+    }, 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [q])
+
+  React.useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) setSearchOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSearchOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
+  }, [])
+
   return (<>
     <TrackView siteSlug="aliya-today" siteDomain="aliyatoday.com" />
     <style>{`
@@ -420,18 +458,51 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
               </button>
             ))}
           </div>
-          <form action="/search" method="GET" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '8px 16px' }}>
-            <input type="hidden" name="site" value="aliya-today" />
-            <input
-              className="at-search-input"
-              type="text" name="q" placeholder="Search articles..."
-              style={{ width: 170, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 12, outline: 'none', fontFamily: 'Georgia, serif' }}
-            />
-            <button type="submit" aria-label="Search"
-              style={{ background: 'transparent', border: 'none', color: P, fontSize: 16, cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}>
-              🔍
-            </button>
-          </form>
+          <div ref={searchBoxRef} style={{ position: 'relative' }}>
+            <form action="/search" method="GET" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '8px 16px' }}>
+              <input type="hidden" name="site" value="aliya-today" />
+              <input
+                className="at-search-input"
+                type="text" name="q" placeholder="Search articles..."
+                value={q}
+                onChange={e => { setQ(e.target.value); setSearchOpen(true) }}
+                onFocus={() => { if (q.trim().length >= 2) setSearchOpen(true) }}
+                autoComplete="off"
+                style={{ width: 170, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 12, outline: 'none', fontFamily: 'Georgia, serif' }}
+              />
+              <button type="submit" aria-label="Search"
+                style={{ background: 'transparent', border: 'none', color: P, fontSize: 16, cursor: 'pointer', padding: '2px 4px', lineHeight: 1 }}>
+                🔍
+              </button>
+            </form>
+
+            {searchOpen && q.trim().length >= 2 && (
+              <div style={{ position: 'absolute', top: '100%', right: 16, width: 320, maxWidth: 'calc(100vw - 32px)', maxHeight: 420, overflowY: 'auto', background: '#fff', borderRadius: 12, boxShadow: '0 16px 40px rgba(0,0,0,.4)', zIndex: 200, fontFamily: 'Georgia, serif' }}>
+                {searching ? (
+                  <div style={{ padding: 18, fontSize: 12, color: '#999', textAlign: 'center' }}>Searching…</div>
+                ) : liveResults.length === 0 ? (
+                  <div style={{ padding: 18, fontSize: 12, color: '#999', textAlign: 'center' }}>No articles found for "{q.trim()}"</div>
+                ) : (
+                  <>
+                    {liveResults.map((a: any) => (
+                      <a key={a.id} href={`/article/aliya-today/${a.slug}`}
+                        style={{ display: 'flex', gap: 10, padding: '10px 14px', borderBottom: '1px solid #f0e8e0', alignItems: 'flex-start' }}>
+                        {a.cover_image_url && <img src={a.cover_image_url} alt="" style={{ width: 48, height: 36, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {a.category && <div style={{ fontSize: 8, color: P, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 2 }}>{a.category}</div>}
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#1a0f00', lineHeight: 1.3 }}>{a.title}</div>
+                        </div>
+                      </a>
+                    ))}
+                    <a href={`/search?site=aliya-today&q=${encodeURIComponent(q.trim())}`}
+                      style={{ display: 'block', padding: '11px 14px', fontSize: 11, fontWeight: 800, color: P, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                      See all results →
+                    </a>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
