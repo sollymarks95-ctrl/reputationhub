@@ -949,7 +949,18 @@ function Dashboard({ site, articles, p, font, slug, variant , selectedCat, setSe
       </div>
       <div style={{ maxWidth:1400, margin:'0 auto', padding:'20px 24px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-          {[['Published Today',String(articles?.length||0)],['This Week',String(Math.max(articles?.length||0,0))],['Categories',String(new Set(articles?.map((a:any)=>a.category)||[]).size||0)],['Updated',new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})]].map(([l,v])=>(
+          {(() => {
+            const now = Date.now()
+            const todayStr = new Date().toISOString().split('T')[0]
+            const publishedToday = (articles || []).filter((a: any) => a.published_at?.startsWith(todayStr)).length
+            const publishedWeek = (articles || []).filter((a: any) => now - new Date(a.published_at).getTime() < 7 * 86400000).length
+            return [
+              ['Published Today', String(publishedToday)],
+              ['This Week', String(publishedWeek)],
+              ['Categories', String(new Set(articles?.map((a: any) => a.category) || []).size || 0)],
+              ['Updated', new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })],
+            ]
+          })().map(([l,v])=>(
             <div key={l} style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:8, padding:'14px 18px' }}>
               <div style={{ fontSize:10, color:'#94a3b8', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>{l}</div>
               <div style={{ fontSize:22, fontWeight:800, color:p }}>{v}</div>

@@ -1299,7 +1299,7 @@ export async function GET(req: NextRequest) {
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 3 : (isRephubySite ? 3 : 6)  // Jewish:3 (3×90s=270s✓), Rephuby:3 (3×90s=270s✓), Finance:6 (6×45s=270s✓) — all fit in 300s limit
+  const BATCH_SIZE = isJewishPortal ? 6 : (isRephubySite ? 3 : 6)  // Jewish:6 (was 3 — capped daily output at 15/day, half the 30/day target; raised to match Finance now that the wall-clock budget guard below safely handles any run that can't fit all 6), Rephuby:3, Finance:6
   const batchStart = batch * BATCH_SIZE
   // Self-imposed wall-clock budget — see guard inside the loop below.
   // 260s ceiling leaves a 40s safety margin under the 300s maxDuration hard kill,
