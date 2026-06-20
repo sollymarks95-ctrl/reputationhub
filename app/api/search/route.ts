@@ -13,28 +13,47 @@ export async function GET(req: NextRequest) {
 
   if (q.length < 2) return NextResponse.json({ results: [], query: q })
 
-  let query = getDb().from('news_articles')
-    .select('id, title, slug, excerpt, category, tags, cover_image_url, published_at, read_time_minutes, author_name, news_site_id')
+  // Substring match on title/excerpt/category, not full-text search.
+  // Postgres websearch_to_tsquery requires complete words/stems — typing
+  // "uk ali" (mid-word, e.g. while live-typing "UK Aliyah") matches nothing
+  // under full-text search even though "UK Aliyah..." is an obvious match.
+  // ILIKE %term% matches any substring at any point in the word, which is
+  // what both live-as-you-type search and a normal "search this site" box
+  // actually need.
+  //
+  // Title matches are fetched first and ranked above excerpt/category-only
+  // matches — a search dropdown showing titles should surface articles
+  // whose TITLE contains the term before ones that merely mention it in
+  // passing in the excerpt.
+  const cols = 'id, title, slug, excerpt, category, tags, cover_image_url, published_at, read_time_minutes, author_name, news_site_id'
+
+  let titleQuery = getDb().from('news_articles')
+    .select(cols)
     .eq('status', 'published')
+    .ilike('title', `%${q}%`)
+    .order('published_at', { ascending: false })
     .limit(limit)
+  if (site) titleQuery = titleQuery.eq('news_site_id', site.id)
+  if (category) titleQuery = titleQuery.eq('category', category)
+  const { data: titleMatches, error: titleError } = await titleQuery
+  if (titleError) return NextResponse.json({ results: [], query: q, error: titleError.message })
 
-  if (site) query = query.eq('news_site_id', site.id)
-  if (category) query = query.eq('category', category)
-  
-  // Use full-text search
-  query = query.textSearch('search_vector', q, { type: 'websearch', config: 'english' })
+  let results = titleMatches || []
 
-  const { data, error } = await query.order('published_at', { ascending: false })
-  if (error) {
-    // Fallback to ilike if full-text fails
-    let fallbackQuery = getDb().from('news_articles')
-      .select('id, title, slug, excerpt, category, cover_image_url, published_at, read_time_minutes, author_name, news_site_id')
+  if (results.length < limit) {
+    const haveIds = results.map(r => r.id)
+    let restQuery = getDb().from('news_articles')
+      .select(cols)
       .eq('status', 'published')
-      .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
-      .limit(limit)
-    if (site) fallbackQuery = fallbackQuery.eq('news_site_id', site.id)
-    const { data: fallback } = await fallbackQuery
-    return NextResponse.json({ results: fallback || [], query: q })
+      .or(`excerpt.ilike.%${q}%,category.ilike.%${q}%`)
+      .order('published_at', { ascending: false })
+      .limit(limit - results.length)
+    if (site) restQuery = restQuery.eq('news_site_id', site.id)
+    if (category) restQuery = restQuery.eq('category', category)
+    if (haveIds.length) restQuery = restQuery.not('id', 'in', `(${haveIds.join(',')})`)
+    const { data: restMatches } = await restQuery
+    results = results.concat(restMatches || [])
   }
-  return NextResponse.json({ results: data || [], query: q })
+
+  return NextResponse.json({ results, query: q })
 }
