@@ -1299,13 +1299,37 @@ export async function GET(req: NextRequest) {
 
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 6 : (isRephubySite ? 3 : 6)  // Jewish:6 (was 3 — capped daily output at 15/day, half the 30/day target; raised to match Finance now that the wall-clock budget guard below safely handles any run that can't fit all 6), Rephuby:3, Finance:6
+  const isFinanceSite   = !isJewishPortal && !isRephubySite
+  const BATCH_SIZE = isJewishPortal ? 6 : (isRephubySite ? 3 : 6)  // Jewish:6 (was 3 — capped daily output at 15/day, half the 30/day target; raised to match Finance now that the wall-clock budget guard below safely handles any run that can't fit all 6), Rephuby:3, Finance:6 (ceiling — see FINANCE_DAILY_CAP below, which now caps actual output to 3/day regardless of this ceiling)
   const batchStart = batch * BATCH_SIZE
   // Self-imposed wall-clock budget — see guard inside the loop below.
   // 260s ceiling leaves a 40s safety margin under the 300s maxDuration hard kill,
   // so we always return a clean 200 with whatever got done instead of a 504.
   const loopStart = Date.now()
   const FN_BUDGET_MS = 260_000
+
+  // FINANCE_DAILY_CAP — finance-category portals (everything except the Jewish
+  // portals and rephuby-intelligence) are capped at 3 articles/day. Rather than
+  // touch the shared cron schedule (5 runs/day, same trigger for every site),
+  // we self-limit per call: count how many this site already published today,
+  // and only generate up to the remainder. Once 3 are published, every
+  // subsequent run today for this site is a clean no-op until UTC midnight.
+  const FINANCE_DAILY_CAP = 3
+  let effectiveBatchSize = BATCH_SIZE
+  if (isFinanceSite) {
+    const todayStartUTC = new Date(); todayStartUTC.setUTCHours(0, 0, 0, 0)
+    const { count: todayCount } = await getDb()
+      .from('news_articles')
+      .select('id', { count: 'exact', head: true })
+      .eq('news_site_id', site.id)
+      .eq('status', 'published')
+      .gte('published_at', todayStartUTC.toISOString())
+    const remaining = FINANCE_DAILY_CAP - (todayCount || 0)
+    if (remaining <= 0) {
+      return NextResponse.json({ site: siteSlug, batch, inserted: 0, skipped: 0, note: `daily cap of ${FINANCE_DAILY_CAP} already reached (${todayCount} published today)` })
+    }
+    effectiveBatchSize = Math.min(BATCH_SIZE, remaining)
+  }
 
   // TRUE 7% globalIndex — uses total historical count so brand spacing
   // is maintained across all batches and all days, not just within one batch
@@ -1337,7 +1361,7 @@ export async function GET(req: NextRequest) {
     .eq('is_active', true)
   const clients = activeClients || []
 
-  for (let i = 0; i < BATCH_SIZE; i++) {
+  for (let i = 0; i < effectiveBatchSize; i++) {
     // Use fresh web-discovered topics for first item in each batch, fallback to static
     let freshTopics: string[] = []
     if (i === 0) {
