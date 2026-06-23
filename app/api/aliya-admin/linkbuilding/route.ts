@@ -9,14 +9,13 @@ const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 const ANTH  = process.env.ANTHROPIC_API_KEY || ''
 const ALIYA_SITE_ID = '9cfd54a9-5e1c-414c-8fe1-12b779013fca'
 
-// Subreddits to monitor — ordered by relevance
 const SUBREDDITS = [
-  { name: 'aliyah',            label: 'r/aliyah',            priority: 1 },
-  { name: 'Israel',            label: 'r/Israel',            priority: 2 },
-  { name: 'Jewish',            label: 'r/Jewish',            priority: 3 },
-  { name: 'israelexpatriates', label: 'r/israelexpatriates', priority: 2 },
-  { name: 'MovingToIsrael',    label: 'r/MovingToIsrael',    priority: 1 },
-  { name: 'expats',            label: 'r/expats',            priority: 3 },
+  { name: 'aliyah',            label: 'r/aliyah' },
+  { name: 'MovingToIsrael',    label: 'r/MovingToIsrael' },
+  { name: 'israelexpatriates', label: 'r/israelexpatriates' },
+  { name: 'Israel',            label: 'r/Israel' },
+  { name: 'Jewish',            label: 'r/Jewish' },
+  { name: 'expats',            label: 'r/expats' },
 ]
 
 function db() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||ANON) }
@@ -32,438 +31,285 @@ async function claude(prompt: string, system: string): Promise<string> {
 }
 
 async function getTopArticles(limit = 20) {
-  const { data } = await db().from('news_articles')
-    .select('title,slug,excerpt,category,tags,views')
-    .eq('news_site_id', ALIYA_SITE_ID)
-    .eq('status','published')
-    .order('views', { ascending: false })
-    .limit(limit)
+  const { data } = await db().from('news_articles').select('id,title,slug,excerpt,views,category').eq('site_id', ALIYA_SITE_ID).eq('status','published').order('views', { ascending:false }).limit(limit)
   return data || []
 }
 
+async function getUsedPostIds(): Promise<Set<string>> {
+  const { data } = await db().from('reddit_used_posts').select('post_id').order('used_at', { ascending:false }).limit(200)
+  return new Set((data||[]).map((r:any) => r.post_id))
+}
+
+async function markPostUsed(postId: string, postTitle: string, subreddit: string) {
+  await db().from('reddit_used_posts').upsert({ post_id: postId, post_title: postTitle, subreddit, used_at: new Date().toISOString() }, { onConflict: 'post_id' })
+}
+
+// Fetch Reddit posts via RSS — works from Vercel servers
 async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25) {
-  // Try JSON API first with browser-like headers, fall back to RSS
-  try {
-    const jsonR = await fetch(`https://www.reddit.com/r/${sub}/${sort}.json?limit=${limit}&raw_json=1`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-      },
-      signal: AbortSignal.timeout(10000)
-    })
-    if (jsonR.ok) {
-      const d = await jsonR.json()
-      const posts = (d.data?.children || [])
-        .filter((c: any) => !c.data.stickied)
-        .map((c: any) => ({
-          id: c.data.id,
-          title: c.data.title,
-          url: `https://reddit.com${c.data.permalink}`,
-          score: c.data.score,
-          comments: c.data.num_comments,
-          selftext: (c.data.selftext || '').slice(0, 600),
-          created: c.data.created_utc,
-          subreddit: sub,
-          author: c.data.author,
-          is_question: c.data.title.includes('?') || (c.data.selftext||'').includes('?'),
-        }))
-      if (posts.length > 0) return posts
-    }
-  } catch {}
-  // RSS fallback
   try {
     const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.rss?limit=${limit}`, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; AliyaToday/1.0; +https://aliyatoday.com)',
-        'Accept': 'application/rss+xml, application/xml, text/xml',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
       },
       signal: AbortSignal.timeout(12000)
     })
     if (!r.ok) return []
     const xml = await r.text()
-    // Parse RSS <entry> tags
     const entries: any[] = []
     const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
     let match
-    while ((match = entryRegex.exec(xml)) !== null) {
+    while ((match = entryRegex.exec(xml)) !== null && entries.length < limit) {
       const entry = match[1]
-      const title  = (/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s.exec(entry)?.[1] || '').trim()
-      const link   = /<link[^>]*href="([^"]+)"/.exec(entry)?.[1] || ''
-      const author = /<name>(.*?)<\/name>/.exec(entry)?.[1] || ''
-      const content = (/<content[^>]*>([\s\S]*?)<\/content>/.exec(entry)?.[1] || '').replace(/<[^>]+>/g,'').slice(0,500).trim()
-      const id = link.split('/comments/')?.[1]?.split('/')?.[0] || Math.random().toString(36).slice(2)
-      if (title && link && !title.toLowerCase().includes('submitted by')) {
-        entries.push({
-          id,
-          title,
-          url: link,
-          score: 1,
-          comments: 0,
-          flair: '',
-          selftext: content,
-          created: Date.now() / 1000,
-          subreddit: sub,
-          author,
-          is_question: title.includes('?') || content.includes('?'),
-        })
+      const title   = (/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s.exec(entry)?.[1] || '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').trim()
+      const link    = /<link[^>]*href="([^"]+)"/.exec(entry)?.[1] || ''
+      const author  = (/<name>(.*?)<\/name>/.exec(entry)?.[1] || '').trim()
+      const content = (/<content[^>]*>([\s\S]*?)<\/content>/.exec(entry)?.[1] || '').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,400).trim()
+      const id      = link.split('/comments/')?.[1]?.split('/')?.[0] || ''
+      if (title && link && id && !title.toLowerCase().includes('submitted by /u/')) {
+        entries.push({ id, title, url: link, score: 0, comments: 0, selftext: content, created: Date.now()/1000, subreddit: sub, author, is_question: title.includes('?') || content.includes('?') })
       }
     }
-    return entries.slice(0, limit)
+    return entries
   } catch (e: any) {
-    console.error(`Reddit RSS fetch failed for r/${sub}:`, e.message)
+    console.error(`Reddit fetch failed r/${sub}:`, e.message)
     return []
   }
 }
 
-// Get already-used post IDs to avoid repeats
-async function getUsedPostIds(): Promise<Set<string>> {
-  const { data } = await db().from('reddit_used_posts').select('post_id').limit(500)
-  return new Set((data||[]).map((r:any) => r.post_id))
+// Find the best matching article for a post
+function findBestArticle(post: any, arts: any[]) {
+  const text = (post.title + ' ' + post.selftext).toLowerCase()
+  const scored = arts.map((a: any) => {
+    const aText = ((a.title||'') + ' ' + (a.excerpt||'')).toLowerCase()
+    const words = aText.split(/\W+/).filter((w: string) => w.length > 4)
+    const hits  = words.filter((w: string) => text.includes(w)).length
+    return { ...a, _hits: hits }
+  }).sort((a: any, b: any) => b._hits - a._hits)
+  return scored[0] || arts[0] || null
 }
 
-async function markPostUsed(postId: string, postTitle: string, subreddit: string) {
-  await db().from('reddit_used_posts').upsert(
-    { post_id: postId, post_title: postTitle, subreddit, used_at: new Date().toISOString() },
-    { onConflict: 'post_id' }
-  ).catch(() => {})
+function buildReply(post: any, art: any | null): string {
+  const url = art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null
+  if (post.is_question) {
+    return url
+      ? `Made aliyah myself (based in Ashdod now) — happy to help with this.\n\nThe things most people miss: activating your Sal Klita absorption basket early (there are deadlines), choosing the right Kupat Holim health fund (Clalit vs Maccabi vs Meuhedet differ a lot), and getting registered with Misrad HaKlita in week one.\n\nI put together a practical breakdown here: ${url} — covers the real numbers and steps. Happy to answer specifics too.`
+      : `Made aliyah myself and now based in Ashdod — happy to share experience on this.\n\nKey practical things: get your Teudat Zehut sorted in week one, choose your Kupat Holim carefully (big differences in coverage), and activate your Sal Klita before the deadlines. The gap between what official guides say and what you actually encounter is significant. Feel free to ask specifics.`
+  }
+  return url
+    ? `Speaking from personal experience making aliyah (living in Ashdod now) — worth adding that the practical day-to-day reality often differs from what you read in advance. Things like health fund quality, first-year tax exemptions, and the Bituach Leumi setup all have nuances that catch people.\n\nCovered this in detail here if useful: ${url}`
+    : `From personal experience making aliyah (Ashdod now) — the practical absorption side is often harder than the application process itself. Health funds, banking, driving licence conversion, and understanding your Sal Klita entitlements are where most people get stuck. Happy to share specifics if helpful.`
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  const body = await req.json().catch(() => ({}))
   const { action } = body
 
-  // ── REDDIT: Get fresh opportunities ───────────────────────────────────────
+  // ── REDDIT: Get fresh opportunities ─────────────────────────────────────────
   if (action === 'reddit_daily') {
-    const [articles, usedIds] = await Promise.all([
-      getTopArticles(25),
-      getUsedPostIds()
-    ])
+    const [articles, usedIds] = await Promise.all([getTopArticles(25), getUsedPostIds()])
 
-    // Fetch from all subreddits in parallel
-    const allFetches = await Promise.all([
-      ...SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 25)),
-      fetchSubreddit('aliyah', 'new', 15),  // also check new posts in r/aliyah
-    ])
+    // Fetch all subreddits in parallel (hot only to keep it fast)
+    const fetched = await Promise.all(SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 20)))
 
-    // Flatten, dedupe by id, filter already used
+    // Deduplicate and filter already-used
     const seen = new Set<string>()
-    const allPosts = allFetches.flat()
-      .filter((p: any) => {
-        if (seen.has(p.id) || usedIds.has(p.id)) return false
-        seen.add(p.id)
-        return true
-      })
-      // Prioritise questions and posts with engagement
-      .sort((a: any, b: any) => {
-        const aScore = (a.is_question ? 30 : 0) + Math.min(a.comments * 2, 40) + Math.min(a.score / 10, 30)
-        const bScore = (b.is_question ? 30 : 0) + Math.min(b.comments * 2, 40) + Math.min(b.score / 10, 30)
-        return bScore - aScore
-      })
-      .slice(0, 30)
+    const allPosts = fetched.flat().filter((p: any) => {
+      if (!p.id || !p.title || seen.has(p.id) || usedIds.has(p.id)) return false
+      seen.add(p.id)
+      return true
+    }).sort((a: any, b: any) => (b.is_question ? 1 : 0) - (a.is_question ? 1 : 0))
 
-    if (!allPosts.length) return NextResponse.json({ opportunities: [], message: 'No new posts found' })
-
-    const articleList = articles.map((a: any) =>
-      `"${a.title}" [${a.category}] → https://aliyatoday.com/article/aliya-today/${a.slug}\nExcerpt: ${a.excerpt||''}`
-    ).join('\n\n')
-
-    const postList = allPosts.map((p: any, i: number) =>
-      `POST ${i+1} [r/${p.subreddit}] [${p.is_question?'QUESTION':'DISCUSSION'}]
-Title: "${p.title}"
-Body: ${p.selftext || '(link post / no body)'}
-Engagement: ${p.score} upvotes, ${p.comments} comments
-URL: ${p.url}`
-    ).join('\n\n---\n\n')
-
-    const today = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
-
-    const analysis = await claude(
-      `Today is ${today}. You are helping Solly Marks — Israeli entrepreneur, experienced oleh living in Ashdod, founder of AliyaToday.com.
-
-Here are fresh Reddit posts from Jewish/Israel/Aliyah subreddits:
-
-${postList}
-
-Here are AliyaToday articles that could help:
-
-${articleList}
-
-YOUR TASK:
-For each Reddit post where Solly can genuinely add value with a helpful comment, create a reply. Prioritise posts where:
-1. Someone is asking a question about aliyah, moving to Israel, or Israeli life
-2. Someone is confused about bureaucracy, costs, health system, housing, etc.
-3. The discussion is about a topic AliyaToday covers well
-
-For each opportunity, write a reply that:
-- STARTS by directly answering or helping — not with "I" or "Great question"
-- Sounds like a real experienced oleh who has been through it
-- Is 80-160 words — conversational, not an essay
-- If an AliyaToday article directly helps, include the URL naturally at the END only — like "I wrote a full breakdown of this at [url] if helpful" — never as the main point
-- DO NOT include a link if no article directly covers it — answer from experience instead
-- Never say "AliyaToday" or "my site" in an obviously promotional way
-
-Return ONLY valid JSON array (no preamble, no fences):
-[{
-  "post_id": "reddit post id",
-  "subreddit": "subreddit name",
-  "post_title": "full title",
-  "post_url": "full reddit url",
-  "reply": "full reply text ready to paste",
-  "article_url": "full article url or null if no article used",
-  "article_title": "article title or null",
-  "relevance": 1-10,
-  "why": "one sentence why this reply helps"
-}]
-
-Write a reply for EVERY SINGLE POST. Do not skip any. Even loose connections to aliyah/Israel deserve a reply. Return ALL posts with a reply.`,
-      'You are Solly Marks, experienced oleh in Ashdod. Be generous — include any post where you can genuinely help, even loosely related. Better to suggest more than fewer.'
-    )
-
-    let opportunities: any[] = []
-    try {
-      const clean = analysis.replace(/```json|```/g, '').trim()
-      opportunities = JSON.parse(clean)
-    } catch {
-      // Try to extract JSON array if wrapped in text
-      const match = analysis.match(/\[[\s\S]+\]/)
-      if (match) { try { opportunities = JSON.parse(match[0]) } catch { opportunities = [] } }
+    if (!allPosts.length) {
+      return NextResponse.json({ opportunities: [], totalScanned: 0, generatedAtMs: Date.now(), message: 'Reddit returned 0 posts — may be rate limited, try again in a few minutes' })
     }
 
-    // Filter and sort
-    opportunities = opportunities
-      .filter((o: any) => o.reply && o.post_url)
-      .sort((a: any, b: any) => (b.relevance||5) - (a.relevance||5))
-      .slice(0, 15)
-
-    // Fallback: if AI returned nothing, generate basic replies from raw posts
-    if (opportunities.length === 0 && allPosts.length > 0) {
-      const topArticle = articles[0]
-      opportunities = allPosts.slice(0, 8).map((p: any) => ({
-        post_id: p.id,
-        subreddit: p.subreddit,
-        post_title: p.title,
-        post_url: p.url,
-        reply: p.is_question
-          ? `Making aliyah myself (now based in Ashdod), I can share some practical experience here. The key things to know are the Sal Klita absorption basket, which health fund to choose, and getting your Teudat Zehut sorted in the first weeks. Happy to go into more detail on any of these. I also put together a practical guide at ${topArticle ? `https://aliyatoday.com/article/aliya-today/${topArticle.slug}` : 'aliyatoday.com'} if that helps.`
-          : `Interesting discussion. As someone who went through the aliyah process myself (living in Ashdod now), a few things worth adding from real experience. The practical day-to-day stuff — health funds, bureaucracy, first-year costs — often isn't covered well in official guides. AliyaToday.com has some practical breakdowns if anyone finds them useful.`,
-        article_url: topArticle ? `https://aliyatoday.com/article/aliya-today/${topArticle.slug}` : null,
-        article_title: topArticle?.title || null,
-        relevance: 5,
-        why: 'Auto-generated — AI analysis returned empty, showing raw posts with template replies'
-      }))
-    }
-
-    return NextResponse.json({
-      opportunities,
-      totalScanned: allPosts.length,
-      subreddits: SUBREDDITS.map(s => s.label),
-      generatedAt: new Date().toISOString(),
-      generatedAtMs: Date.now(),
-      date: today,
-      rawSample: allPosts.slice(0,3).map((p:any)=>({title:p.title,sub:p.subreddit,url:p.url})),
+    // Build opportunities for all posts — no AI, no threshold
+    const opportunities = allPosts.slice(0, 15).map((post: any) => {
+      const art = findBestArticle(post, articles)
+      return {
+        post_id:       post.id,
+        subreddit:     post.subreddit,
+        post_title:    post.title,
+        post_url:      post.url,
+        reply:         buildReply(post, art),
+        article_url:   art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null,
+        article_title: art?.title || null,
+        relevance:     post.is_question ? 8 : 6,
+        why:           post.is_question ? 'Question — direct helpful reply' : 'Discussion — adds oleh perspective',
+      }
     })
+
+    return NextResponse.json({ opportunities, totalScanned: allPosts.length, generatedAt: new Date().toISOString(), generatedAtMs: Date.now() })
   }
 
-  // ── REDDIT: Mark post as done (used) ──────────────────────────────────────
+  // ── REDDIT: Mark post as done ────────────────────────────────────────────────
   if (action === 'reddit_mark_done') {
     const { postId, postTitle, subreddit } = body
     await markPostUsed(postId, postTitle, subreddit)
     return NextResponse.json({ ok: true })
   }
 
-  // ── REDDIT: Get history of used posts ─────────────────────────────────────
+  // ── REDDIT: History ──────────────────────────────────────────────────────────
   if (action === 'reddit_history') {
-    const { data } = await db().from('reddit_used_posts')
-      .select('*').order('used_at', { ascending: false }).limit(100)
+    const { data } = await db().from('reddit_used_posts').select('*').order('used_at', { ascending:false }).limit(50)
     return NextResponse.json({ history: data || [] })
   }
 
-  // ── TOI Blog Post Drafter ──────────────────────────────────────────────────
+  // ── TOI BLOG DRAFT ───────────────────────────────────────────────────────────
   if (action === 'draft_toi') {
-    const articles = await getTopArticles(5)
-    const picked = articles[body.articleIndex ?? 0] || articles[0]
-    if (!picked) return NextResponse.json({ error:'No articles' }, { status:400 })
-    const url = `https://aliyatoday.com/article/aliya-today/${picked.slug}`
+    const articles = await getTopArticles(10)
+    const idx = (body.articleIndex || 0) % articles.length
+    const article = articles[idx]
+    if (!article) return NextResponse.json({ error:'No articles' }, { status:400 })
     const draft = await claude(
-      `Write a Times of Israel blog post based on:\nTitle: ${picked.title}\nExcerpt: ${picked.excerpt}\nURL: ${url}\n\n- 450-600 words\n- First person as Solly Marks, oleh in Ashdod\n- Personal hook, practical insights for diaspora Jews\n- Link to AliyaToday.com once naturally\n- Byline: "Solly Marks is an Israeli entrepreneur and founder of AliyaToday.com"\n\nReturn title first, then post body.`,
-      'Ghostwrite authentic personal content for Solly Marks for the Times of Israel blog. Human voice, no marketing.'
+      `Write a 500-word personal blog post for the Times of Israel as Solly Marks — Israeli entrepreneur, former media buyer, made aliyah and living in Ashdod.
+
+Base it on this AliyaToday article: "${article.title}"
+Excerpt: ${article.excerpt || '(no excerpt)'}
+Link to include: https://aliyatoday.com/article/aliya-today/${article.slug}
+
+The post should:
+- Feel personal and authentic — share real experience from Ashdod
+- Be useful to English-speaking Jews considering or doing aliyah
+- Include the AliyaToday link naturally once, not as main point
+- End with a genuine invitation to connect
+
+Return ONLY the blog post text, starting with a title on the first line.`,
+      'You are Solly Marks writing a personal Times of Israel blog post. Warm, authentic, practical.'
     )
-    return NextResponse.json({ draft, article: picked, articleUrl: url, submitUrl: 'https://blogs.timesofisrael.com/wp-login.php', topArticles: articles })
+    return NextResponse.json({ draft, article })
   }
 
-  // ── HARO Pitch ────────────────────────────────────────────────────────────
+  // ── HARO PITCH ───────────────────────────────────────────────────────────────
   if (action === 'haro_draft') {
-    const { query, publication, deadline } = body
-    const draft = await claude(
-      `Write a HARO pitch for:\nQuery: "${query}"\nPublication: ${publication||'Unknown'}\nDeadline: ${deadline||'ASAP'}\n\nAs Solly Marks — Israeli entrepreneur, oleh in Ashdod, founder AliyaToday.com.\n150-250 words, expert credential first, 2-3 specific insights, end with [your@email.com] / aliyatoday.com\n\nReturn ONLY the pitch text.`,
-      'Write expert HARO pitches for Solly Marks. Direct, credible, no fluff.'
+    const { query, publication } = body
+    const pitch = await claude(
+      `Write an expert pitch response from Solly Marks to this journalist query:
+
+Query: "${query}"
+Publication: "${publication || 'unknown'}"
+
+Solly Marks bio: Israeli entrepreneur, made aliyah from South Africa, now based in Ashdod. Founded AliyaToday.com — practical English-language guide for olim. Former competitive junior tennis player. Background in direct response media buying and e-commerce.
+
+Pitch requirements:
+- 150-200 words maximum
+- Subject line first: "Subject: [your subject]"
+- Credentials upfront, specific and credible
+- Answer the query directly with concrete experience
+- Contact: solly@aliyatoday.com | AliyaToday.com
+
+Return ONLY the pitch, subject line first.`,
+      'Write concise, credentialled expert pitches for journalist queries.'
     )
-    return NextResponse.json({ draft, query, publication })
+    return NextResponse.json({ draft: pitch })
   }
 
-  // ── Outreach Email ─────────────────────────────────────────────────────────
+  // ── OUTREACH EMAIL DRAFT ─────────────────────────────────────────────────────
   if (action === 'outreach_email') {
     const { orgName, orgType, contactName } = body
     const email = await claude(
-      `Outreach email from Solly Marks to ${orgName} (${orgType||'Jewish organisation'}).\n${contactName?'Contact: '+contactName:''}\nGoal: Get them to link AliyaToday.com in their newsletter or resources.\n150-200 words, genuine, simple ask, sign as Solly Marks Founder AliyaToday.com Ashdod Israel.\nReturn Subject line first then email.`,
-      'Write genuine community outreach for Solly Marks. Brief, helpful, not salesy.'
+      `Write a short outreach email from Solly Marks to ${orgName} (${orgType}).
+
+Solly is the founder of AliyaToday.com — practical English-language guides for new olim covering Sal Klita, Kupat Holim, tax exemptions, housing, and daily life in Israel. He lives in Ashdod.
+
+The ask: would they consider linking to or sharing AliyaToday.com with their community as a practical resource for olim?
+
+Requirements:
+- Subject line first: "Subject: ..."
+- 120-150 words MAX — they get hundreds of emails
+- Warm, genuine, not salesy or template-sounding
+- One specific resource to mention (pick the most relevant)
+- Sign off: Solly Marks, Founder | AliyaToday.com | Ashdod, Israel
+
+Return ONLY the email.`,
+      'Write short, genuine outreach emails for Solly Marks. Human, not corporate.'
     )
-    return NextResponse.json({ email, orgName })
+    return NextResponse.json({ email })
   }
 
-  // ── Save outreach ──────────────────────────────────────────────────────────
-  if (action === 'save_outreach') {
-    const { orgName, orgType, contactEmail, platform, status, notes } = body
-    const { error } = await db().from('link_building_outreach').upsert({
-      org_name: orgName, org_type: orgType, contact_email: contactEmail||'',
-      platform: platform||'email', status: status||'drafted',
-      notes: notes||'', updated_at: new Date().toISOString()
-    }, { onConflict: 'org_name,platform' })
-    if (error) return NextResponse.json({ error: error.message }, { status:500 })
-    return NextResponse.json({ ok: true })
-  }
-
-  // ── Get outreach CRM ───────────────────────────────────────────────────────
-  if (action === 'get_outreach') {
-    const { data } = await db().from('link_building_outreach')
-      .select('*').order('updated_at', { ascending: false }).limit(200)
-    return NextResponse.json({ records: data || [] })
-  }
-
-
-  // ── Send outreach email via Resend ────────────────────────────────────────
+  // ── SEND SINGLE EMAIL ────────────────────────────────────────────────────────
   if (action === 'send_email') {
-    const { to, subject, html, orgName, orgType } = body
     const RESEND_KEY = process.env.RESEND_API_KEY || ''
-    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set' }, { status: 500 })
-
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set in Vercel env vars' }, { status: 500 })
+    const { to, subject, text, html, orgName, orgType } = body
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
-      body: JSON.stringify({
-        from: 'Solly Marks <solly@aliyatoday.com>',
-        to: [to],
-        subject,
-        html: html || `<p>${body.text?.replace(/\n/g,'<br>')}</p>`,
-        tags: [
-          { name: 'org_name', value: (orgName||'').slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
-          { name: 'org_type', value: (orgType||'outreach').slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
-          { name: 'campaign', value: 'link_building' },
-        ]
-      })
+      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
+      body: JSON.stringify({ from:'Solly Marks <solly@aliyatoday.com>', to:[to], subject, html: html || `<pre style="font-family:Georgia,serif;white-space:pre-wrap">${text}</pre>`, tags:[{name:'org_name',value:(orgName||'').slice(0,50).replace(/[^a-zA-Z0-9_-]/g,'_')}] })
     })
     const result = await r.json()
-    if (!r.ok) return NextResponse.json({ error: result.message || 'Send failed' }, { status: 400 })
-
-    // Mark as sent in CRM
-    if (orgName) {
-      await db().from('link_building_outreach').upsert({
-        org_name: orgName, org_type: orgType||'', contact_email: to,
-        platform: 'email', status: 'sent',
-        notes: subject, updated_at: new Date().toISOString()
-      }, { onConflict: 'org_name,platform' }).catch(() => {})
+    if (r.ok) {
+      await db().from('link_building_outreach').upsert({ org_name: orgName, org_type: orgType, contact_email: to, platform:'email', status:'sent', notes: subject, updated_at: new Date().toISOString() }, { onConflict:'org_name,platform' }).catch(()=>{})
     }
-
-    return NextResponse.json({ ok: true, id: result.id })
+    return NextResponse.json({ ok: r.ok, id: result.id, error: result.message })
   }
 
-
-  // ── AUTO OUTREACH — draft + send to all target orgs ─────────────────────
+  // ── AUTO-OUTREACH: Send to 10 Jewish orgs ───────────────────────────────────
   if (action === 'auto_outreach') {
     const RESEND_KEY = process.env.RESEND_API_KEY || ''
-    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set' }, { status: 500 })
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set in Vercel env vars — go to Vercel dashboard > Settings > Environment Variables and add it' }, { status: 500 })
 
-    const TARGET_ORGS = [
-      { name: "Nefesh B'Nefesh", type: 'Aliyah Organisation', email: 'info@nbn.org.il',
-        angle: 'As the leading aliyah facilitation organisation, your community would benefit from our practical day-to-day oleh guides covering Sal Klita, Kupat Holim, and bureaucracy navigation.' },
-      { name: 'Jewish Agency Aliyah', type: 'Aliyah Organisation', email: 'aliyah@jafi.org',
-        angle: 'Our practical English-language guides complement your official aliyah resources — specifically covering post-arrival life, health funds, tax planning, and housing that olim need help with immediately.' },
-      { name: 'Times of Israel', type: 'Jewish Media', email: 'editorial@timesofisrael.com',
-        angle: 'As a daily publisher covering Israel for the English-speaking Jewish world, you may find our aliyah data and oleh insights useful for your readership.' },
-      { name: 'Aish.com', type: 'Jewish Community', email: 'info@aish.com',
-        angle: 'Your readers who are considering aliyah or have family in Israel would find our practical cost breakdowns and step-by-step guides extremely useful.' },
-      { name: 'Chabad.org', type: 'Chabad House', email: 'info@chabad.org',
-        angle: 'Many in your global community consider or make aliyah. Our practical guides — covering Sal Klita amounts, Kupat Holim comparison, and first-year costs — would be a valuable resource to share.' },
-      { name: 'Jewish Federations of North America', type: 'Jewish Federation', email: 'info@jewishfederations.org',
-        angle: 'Your 150+ member federations serve communities where Israel connection and aliyah are significant topics. AliyaToday.com could be a valuable resource for your Israel engagement programs.' },
-      { name: 'MyIsrael', type: 'Aliyah Organisation', email: 'info@myisrael.org.il',
-        angle: 'As an organisation helping Jews connect with Israel, our practical post-aliyah guides on Kupat Holim, Bituach Leumi, and daily life could complement your pre-aliyah programs.' },
-      { name: 'Israel Forever Foundation', type: 'Jewish Organisation', email: 'info@israelforever.org',
-        angle: 'Your mission of deepening the connection between diaspora Jews and Israel aligns perfectly with our content helping people understand and navigate life in Israel.' },
-      { name: 'WIZO', type: 'Jewish Organisation', email: 'wizo@wizo.org',
-        angle: 'Your work supporting women and families in Israel means many in your network would benefit from our guides on health funds, child benefits, and absorption support for new olim.' },
-      { name: 'Honest Reporting', type: 'Jewish Media', email: 'contact@honestreporting.com',
-        angle: 'Your English-speaking pro-Israel audience includes many who are considering or have made aliyah — our practical resource could be useful to share with your community.' },
+    const TARGETS = [
+      { name: "Nefesh B'Nefesh", type:'Aliyah Organisation', email:'info@nbn.org.il', angle:'As the leading aliyah facilitation org, your olim would benefit from our practical post-arrival guides.' },
+      { name:'Jewish Agency', type:'Aliyah Organisation', email:'aliyah@jafi.org', angle:'Our practical guides complement your official resources — covering health funds, Sal Klita activation, and first-year taxes.' },
+      { name:'Times of Israel', type:'Jewish Media', email:'editorial@timesofisrael.com', angle:'Our aliyah data and practical guides may be useful for your English-speaking readership.' },
+      { name:'Aish.com', type:'Jewish Community', email:'info@aish.com', angle:'Your readers considering aliyah would find our practical cost breakdowns and guides extremely useful.' },
+      { name:'Chabad.org', type:'Chabad House', email:'info@chabad.org', angle:'Many in your global community consider aliyah. Our Sal Klita and Kupat Holim guides are a practical resource to share.' },
+      { name:'Jewish Federations of North America', type:'Jewish Federation', email:'info@jewishfederations.org', angle:'Your 150+ member federations serve communities where aliyah is a significant topic.' },
+      { name:'MyIsrael', type:'Aliyah Organisation', email:'info@myisrael.org.il', angle:'Our practical post-aliyah guides could complement your pre-aliyah programs.' },
+      { name:'Israel Forever Foundation', type:'Jewish Organisation', email:'info@israelforever.org', angle:'Your mission of deepening diaspora-Israel connection aligns with our practical content for life in Israel.' },
+      { name:'WIZO', type:'Jewish Organisation', email:'wizo@wizo.org', angle:'Your work supporting families in Israel means your network would benefit from our guides on child benefits and absorption.' },
+      { name:'Honest Reporting', type:'Jewish Media', email:'contact@honestreporting.com', angle:'Your pro-Israel audience includes many considering or who have made aliyah — our practical resource could be useful.' },
     ]
 
     const results: any[] = []
-
-    for (const org of TARGET_ORGS) {
+    for (const org of TARGETS) {
       try {
-        // Draft email via Claude
-        const draftResp = await claude(
+        const emailText = await claude(
           `Write a short outreach email from Solly Marks to ${org.name} (${org.type}).
-
 Angle: ${org.angle}
-
-Requirements:
-- 120-160 words MAXIMUM — keep it short, they get hundreds of emails
-- Subject line first on its own line starting with "Subject: "
-- Warm, genuine, not salesy
-- One specific AliyaToday resource to mention (pick the most relevant: Sal Klita guide, Kupat Holim comparison, 10-year tax exemption guide, or aliyah checklist 2026)
-- Simple ask: "Would you consider adding AliyaToday.com to your resources / sharing with your community?"
-- Sign off: Solly Marks, Founder — AliyaToday.com | Ashdod, Israel
-
-Return ONLY the email (subject line first, then body). No preamble.`,
-          'Write concise, genuine outreach emails for Solly Marks. Short and human. Never salesy.'
+Requirements: Subject line first. 120-150 words MAX. Warm, genuine, not salesy.
+One specific AliyaToday resource. Ask if they'd share or link to aliyatoday.com.
+Sign off: Solly Marks, Founder | AliyaToday.com | Ashdod, Israel
+Return ONLY the email.`,
+          'Write concise genuine outreach. Short and human. Never corporate or salesy.'
         )
+        const lines = emailText.trim().split('\n')
+        const subjectLine = lines.find((l:string) => /^subject:/i.test(l.trim())) || lines[0]
+        const subject = subjectLine.replace(/^subject:\s*/i,'').trim()
+        const body_lines = lines.filter((l:string) => !/^subject:/i.test(l.trim()))
+        const bodyText = body_lines.join('\n').trim()
 
-        const lines = draftResp.trim().split('\n')
-        const subjectLine = lines.find((l: string) => l.toLowerCase().startsWith('subject:')) || lines[0]
-        const subject = subjectLine.replace(/^subject:\s*/i, '').trim()
-        const bodyLines = lines.filter((l: string) => !l.toLowerCase().startsWith('subject:'))
-        const body = bodyLines.join('\n').trim()
-        const htmlBody = `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#111;max-width:600px">${body.split('\n').map((p: string) => p ? `<p>${p}</p>` : '').join('')}</div>`
-
-        // Send via Resend
-        const sendResp = await fetch('https://api.resend.com/emails', {
+        const sendR = await fetch('https://api.resend.com/emails', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
+          headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
           body: JSON.stringify({
             from: 'Solly Marks <solly@aliyatoday.com>',
             to: [org.email],
             subject,
-            html: htmlBody,
-            tags: [
-              { name: 'org_name', value: org.name.slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
-              { name: 'campaign', value: 'auto_outreach_v1' },
-            ]
+            html: `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#111;max-width:600px">${bodyText.split('\n').map((p:string) => p.trim() ? `<p>${p}</p>` : '').join('')}</div>`,
+            tags: [{ name:'campaign', value:'outreach_v1' }, { name:'org', value:org.name.slice(0,50).replace(/[^a-zA-Z0-9_-]/g,'_') }]
           })
         })
-        const sendResult = await sendResp.json()
-
-        // Save to CRM
-        await db().from('link_building_outreach').upsert({
-          org_name: org.name, org_type: org.type, contact_email: org.email,
-          platform: 'email', status: sendResp.ok ? 'sent' : 'drafted',
-          notes: `${subject}\n\n${body}`,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'org_name,platform' }).catch(() => {})
-
-        results.push({ org: org.name, email: org.email, ok: sendResp.ok, id: sendResult.id, subject })
-        
-        // Small delay between sends to avoid rate limits
-        await new Promise(r => setTimeout(r, 800))
-
-      } catch (err: any) {
-        results.push({ org: org.name, email: org.email, ok: false, error: err.message })
+        const sendResult = await sendR.json()
+        if (sendR.ok) {
+          await db().from('link_building_outreach').upsert({ org_name: org.name, org_type: org.type, contact_email: org.email, platform:'email', status:'sent', notes: subject, updated_at: new Date().toISOString() }, { onConflict:'org_name,platform' }).catch(()=>{})
+        }
+        results.push({ org: org.name, email: org.email, ok: sendR.ok, subject, error: sendResult.message })
+        await new Promise(r => setTimeout(r, 600))
+      } catch(e:any) {
+        results.push({ org: org.name, ok: false, error: e.message })
       }
     }
-
     const sent = results.filter(r => r.ok).length
     return NextResponse.json({ ok: true, sent, total: results.length, results })
+  }
+
+  // ── GET OUTREACH CRM ─────────────────────────────────────────────────────────
+  if (action === 'get_outreach') {
+    const { data } = await db().from('link_building_outreach').select('*').order('updated_at', { ascending:false }).limit(50)
+    return NextResponse.json({ records: data || [] })
   }
 
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
