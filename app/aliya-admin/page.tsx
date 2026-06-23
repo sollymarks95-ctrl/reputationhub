@@ -929,7 +929,7 @@ function LinkBuildingTab() {
         <div style={{background:'#ff4500',padding:'16px 24px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
             <div style={{fontWeight:900,fontSize:16,color:'#fff'}}>👾 Reddit Daily Opportunities</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>r/aliyah · r/MovingToIsrael · r/israelexpatriates · r/Israel · r/Jewish · r/expats</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>r/aliyah · r/MovingToIsrael · r/israelexpatriates · r/living_in_israel · r/olim</div>
           </div>
           <button onClick={scanReddit} disabled={loading}
             style={{background:'#fff',color:'#ff4500',border:'none',padding:'10px 20px',borderRadius:8,fontWeight:800,fontSize:13,cursor:'pointer',opacity:loading?0.7:1,whiteSpace:'nowrap'}}>
@@ -946,12 +946,24 @@ function LinkBuildingTab() {
           {loading && (
             <div style={{textAlign:'center',padding:'24px',color:'#9ca3af',fontSize:13}}>
               <div style={{fontSize:28,marginBottom:8}}>🔍</div>
-              Scanning 6 subreddits and drafting replies... (~20 seconds)
+              Scanning 5 subreddits and drafting replies... (~20 seconds)
             </div>
           )}
           {data?.opportunities?.length === 0 && (
-            <div style={{textAlign:'center',padding:'20px',color:'#6b7280',fontSize:13}}>
-              🎉 No new high-relevance posts right now. Check back in a few hours.
+            <div style={{textAlign:'center',padding:'24px',color:'#6b7280',fontSize:13'}}>
+              {data.totalScanned === 0 || data.totalScanned === undefined ? (
+                <div>
+                  <div style={{fontSize:20,marginBottom:8}}>⏳</div>
+                  <div style={{fontWeight:700,color:'#374151',marginBottom:4}}>Reddit returned 0 posts — likely rate limited</div>
+                  <div>Wait 5-10 minutes and scan again. Reddit throttles automated requests from datacenter IPs.</div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{fontSize:20,marginBottom:8}}>✅</div>
+                  <div style={{fontWeight:700,color:'#374151',marginBottom:4}}>All caught up!</div>
+                  <div>No new aliyah-related posts since your last scan. Check back in a few hours.</div>
+                </div>
+              )}
             </div>
           )}
           {data && <div style={{fontSize:11,color:'#9ca3af',marginBottom:12}}>

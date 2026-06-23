@@ -109,7 +109,13 @@ export async function POST(req: NextRequest) {
     const [articles, usedIds] = await Promise.all([getTopArticles(25), getUsedPostIds()])
 
     // Fetch all subreddits in parallel (hot only to keep it fast)
-    const fetched = await Promise.all(SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 20)))
+    // Fetch hot + new from core subreddits to maximise post count
+    const hotFetch = Promise.all(SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 20)))
+    const newFetch = Promise.all(
+      ['aliyah','MovingToIsrael'].map(s => fetchSubreddit(s, 'new', 15))
+    )
+    const [hotResults, newResults] = await Promise.all([hotFetch, newFetch])
+    const fetched = [...hotResults, ...newResults]
 
     // Deduplicate and filter already-used
     const seen = new Set<string>()
@@ -120,7 +126,7 @@ export async function POST(req: NextRequest) {
     }).sort((a: any, b: any) => (b.is_question ? 1 : 0) - (a.is_question ? 1 : 0))
 
     if (!allPosts.length) {
-      return NextResponse.json({ opportunities: [], totalScanned: 0, generatedAtMs: Date.now(), message: 'Reddit returned 0 posts — may be rate limited, try again in a few minutes' })
+      return NextResponse.json({ opportunities: [], totalScanned: 0, generatedAtMs: Date.now(), rateLimited: true, message: 'Reddit returned 0 posts — rate limited. Try again in 5-10 minutes.' })
     }
 
     // Keyword filter — only posts relevant to aliyah, Israel living, Jewish relocation
