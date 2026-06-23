@@ -326,13 +326,11 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
           </a>
         ))}
       </div>
-    </div>
-
       </div>{/* end main content */}
       <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:28 }}>
         <IanMarksBanner siteUrl="https://jewishpropertyreport.com" />
       </div>
-    </div>{/* end flex */}
+    </div>
 
     {/* Newsletter Banner */}
     <div style={{ background: '#f0faf5', borderTop: '3px solid #0a7c4e', padding: '40px 0' }}>
@@ -638,7 +636,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:32 }}>
         <IanMarksBanner siteUrl="https://aliyatoday.com" />
       </div>
-    </div>{/* end flex */}
+    </div>
 
     {/* Newsletter Banner */}
     <div style={{ background: '#fff8f0', borderTop: '3px solid #c47d1a', padding: '40px 0' }}>
