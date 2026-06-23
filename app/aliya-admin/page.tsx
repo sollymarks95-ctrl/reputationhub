@@ -769,6 +769,7 @@ function AutoOutreachButton({ onDone }: { onDone: () => void }) {
       const d = await r.json()
       setResults(d); setState(d.ok ? 'done' : 'error')
       if (d.ok) onDone()
+      else alert('Send error: ' + JSON.stringify(d.results?.slice(0,2) || d.error || d))
     } catch { setState('error') }
   }
 
