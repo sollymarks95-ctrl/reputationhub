@@ -20,7 +20,7 @@ function fmt(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'nume
 function fmtDate(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) }
 
 export default function AliyaAdmin() {
-  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'|'api'>('overview')
+  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'|'api'|'linkbuilding'>('overview')
   const [auth, setAuth] = useState(false)
   const [pw, setPw] = useState('')
   const [pwErr, setPwErr] = useState(false)
@@ -94,7 +94,7 @@ export default function AliyaAdmin() {
     </div>
   )
 
-  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'},{id:'api' as const,label:'API & RSS',icon:'🔌'}]
+  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'},{id:'api' as const,label:'API & RSS',icon:'🔌'},{id:'linkbuilding' as const,label:'Link Building',icon:'🔗'}]
 
   return (
     <div style={{display:'flex',minHeight:'100vh',fontFamily:'Inter,sans-serif',background:'#f8fafc'}}>
@@ -628,6 +628,8 @@ function EndpointBlock({ method, path, desc, params, example }: { method:string;
   )
 }
 
+{tab==='linkbuilding' && <LinkBuildingTab />}
+
 function APITab() {
   return (
     <div>
@@ -738,6 +740,406 @@ for a in r.json()['articles']:
             <b>Headers:</b> <code style={{background:'#e5e7eb',padding:'1px 6px',borderRadius:4}}>Authorization: Bearer {API_KEY}</code><br/>
             <b>Query params:</b> <code style={{background:'#e5e7eb',padding:'1px 6px',borderRadius:4}}>limit=20</code> (add category, q, from/to as needed)
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── LINK BUILDING TAB ────────────────────────────────────────────────────────
+function LinkBuildingTab() {
+  const [subTab, setSubTab] = useState<'toi'|'reddit'|'haro'|'outreach'>('toi')
+  const A = '#c47d1a'
+
+  return (
+    <div style={{padding:'24px 28px'}}>
+      <div style={{marginBottom:24}}>
+        <h2 style={{fontSize:20,fontWeight:900,color:'#111',margin:'0 0 4px'}}>🔗 Link Building Console</h2>
+        <p style={{fontSize:13,color:'#6b7280',margin:0}}>Generate, draft and track backlink opportunities for AliyaToday.com</p>
+      </div>
+
+      {/* Sub tabs */}
+      <div style={{display:'flex',gap:8,marginBottom:24,flexWrap:'wrap'}}>
+        {([
+          {id:'toi',label:'📰 Times of Israel',desc:'Draft blog posts'},
+          {id:'reddit',label:'👾 Reddit',desc:'r/aliyah replies'},
+          {id:'haro',label:'📡 HARO / Media',desc:'Journalist pitches'},
+          {id:'outreach',label:'🤝 Outreach CRM',desc:'Community contacts'},
+        ] as const).map(t => (
+          <button key={t.id} onClick={()=>setSubTab(t.id)}
+            style={{padding:'10px 18px',borderRadius:10,border:`2px solid ${subTab===t.id?A:'#e5e7eb'}`,background:subTab===t.id?A:'#fff',color:subTab===t.id?'#fff':'#374151',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+            {t.label}
+            <span style={{display:'block',fontSize:10,fontWeight:400,opacity:0.8}}>{t.desc}</span>
+          </button>
+        ))}
+      </div>
+
+      {subTab==='toi'  && <TOITab />}
+      {subTab==='reddit' && <RedditTab />}
+      {subTab==='haro' && <HAROTab />}
+      {subTab==='outreach' && <OutreachTab />}
+    </div>
+  )
+}
+
+function TOITab() {
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [copied, setCopied] = useState(false)
+  const [artIdx, setArtIdx] = useState(0)
+
+  async function generate() {
+    setLoading(true); setResult(null)
+    try {
+      const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'draft_toi',articleIndex:artIdx}) })
+      setResult(await r.json())
+    } finally { setLoading(false) }
+  }
+
+  function copy() { if(result?.draft){ navigator.clipboard.writeText(result.draft); setCopied(true); setTimeout(()=>setCopied(false),2000) } }
+
+  return (
+    <div>
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:15,color:'#111',marginBottom:8}}>📰 Times of Israel Blog Post Drafter</div>
+        <p style={{fontSize:13,color:'#6b7280',margin:'0 0 16px',lineHeight:1.6}}>
+          TOI lets anyone publish in their Blogs section — free, instant, high-authority backlink. Each post links back to AliyaToday.com.
+          <a href="https://blogs.timesofisrael.com/wp-login.php" target="_blank" rel="noopener" style={{color:'#c47d1a',marginLeft:6,fontWeight:700}}>Open TOI Blog Editor →</a>
+        </p>
+
+        {result?.topArticles && (
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:8}}>Choose article to base post on:</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {result.topArticles.map((a:any,i:number) => (
+                <label key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'10px 14px',background:artIdx===i?'#fef3c7':'#f9fafb',border:`1px solid ${artIdx===i?'#c47d1a':'#e5e7eb'}`,borderRadius:8,cursor:'pointer'}}>
+                  <input type="radio" name="article" checked={artIdx===i} onChange={()=>setArtIdx(i)} style={{marginTop:2}} />
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:'#111'}}>{a.title}</div>
+                    <div style={{fontSize:11,color:'#9ca3af'}}>{a.category} · {a.views||0} views</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button onClick={generate} disabled={loading}
+          style={{background:'#c47d1a',color:'#fff',border:'none',padding:'12px 24px',borderRadius:10,fontWeight:800,fontSize:14,cursor:'pointer',opacity:loading?0.7:1,fontFamily:'Inter,sans-serif'}}>
+          {loading ? '✍️ Drafting post...' : '✍️ Generate TOI Blog Post'}
+        </button>
+      </div>
+
+      {result?.draft && (
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div style={{fontWeight:800,fontSize:14,color:'#111'}}>Draft ready — based on: {result.article?.title}</div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={copy} style={{background:copied?'#16a34a':'#f3f4f6',color:copied?'#fff':'#374151',border:'none',padding:'8px 16px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                {copied?'✅ Copied!':'📋 Copy All'}
+              </button>
+              <a href="https://blogs.timesofisrael.com/wp-login.php" target="_blank" rel="noopener"
+                style={{background:'#1a56b0',color:'#fff',border:'none',padding:'8px 16px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer',textDecoration:'none'}}>
+                📤 Open TOI Editor
+              </a>
+            </div>
+          </div>
+          <pre style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'16px',fontSize:13,lineHeight:1.7,whiteSpace:'pre-wrap',fontFamily:'Georgia,serif',color:'#111',margin:0,maxHeight:500,overflow:'auto'}}>
+            {result.draft}
+          </pre>
+          <div style={{marginTop:12,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#92400e'}}>
+            💡 Paste this into TOI Blog Editor → Add tags: aliyah, israel, immigration, olim → Publish. Link goes live immediately.
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RedditTab() {
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<any>(null)
+  const [copied, setCopied] = useState<string|null>(null)
+
+  async function scan() {
+    setLoading(true); setData(null)
+    try {
+      const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'reddit_opportunities'}) })
+      setData(await r.json())
+    } finally { setLoading(false) }
+  }
+
+  function copy(id:string,text:string){ navigator.clipboard.writeText(text); setCopied(id); setTimeout(()=>setCopied(null),2000) }
+
+  return (
+    <div>
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:15,color:'#111',marginBottom:8}}>👾 Reddit r/aliyah Opportunities</div>
+        <p style={{fontSize:13,color:'#6b7280',margin:'0 0 16px',lineHeight:1.6}}>
+          Scans live hot posts from r/aliyah, matches against your AliyaToday articles, and drafts genuine helpful replies. Only shows posts where a link actually adds value (score 7+).
+        </p>
+        <button onClick={scan} disabled={loading}
+          style={{background:'#ff4500',color:'#fff',border:'none',padding:'12px 24px',borderRadius:10,fontWeight:800,fontSize:14,cursor:'pointer',opacity:loading?0.7:1,fontFamily:'Inter,sans-serif'}}>
+          {loading ? '🔍 Scanning r/aliyah...' : '🔍 Scan r/aliyah Now'}
+        </button>
+      </div>
+
+      {data?.opportunities?.length === 0 && (
+        <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:12,padding:'24px',textAlign:'center',color:'#6b7280',fontSize:13}}>
+          No high-relevance opportunities right now (score &lt; 7). Check back later or after new articles publish.
+        </div>
+      )}
+
+      {data?.opportunities?.map((o:any,i:number) => (
+        <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+            <div>
+              <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:4}}>{o.post_title}</div>
+              <div style={{display:'flex',gap:12,fontSize:12,color:'#9ca3af'}}>
+                <span style={{background:'#fef3c7',color:'#92400e',padding:'2px 8px',borderRadius:20,fontWeight:700}}>Relevance: {o.score}/10</span>
+                <a href={o.post_url} target="_blank" rel="noopener" style={{color:'#ff4500',fontWeight:700}}>View on Reddit →</a>
+              </div>
+            </div>
+            <button onClick={()=>copy(`r${i}`,o.reply)}
+              style={{background:copied===`r${i}`?'#16a34a':'#f3f4f6',color:copied===`r${i}`?'#fff':'#374151',border:'none',padding:'8px 16px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer',whiteSpace:'nowrap'}}>
+              {copied===`r${i}`?'✅ Copied!':'📋 Copy Reply'}
+            </button>
+          </div>
+          <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'14px',fontSize:13,lineHeight:1.7,color:'#374151',fontFamily:'system-ui'}}>
+            {o.reply}
+          </div>
+          {o.article_url && (
+            <div style={{marginTop:8,fontSize:12,color:'#9ca3af'}}>
+              Links to: <a href={o.article_url} target="_blank" rel="noopener" style={{color:'#c47d1a'}}>{o.article_url}</a>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {data && (
+        <div style={{fontSize:12,color:'#9ca3af',textAlign:'center',padding:'8px'}}>
+          Scanned {data.totalPosts} live posts · {data.opportunities?.length||0} high-relevance opportunities found
+        </div>
+      )}
+    </div>
+  )
+}
+
+function HAROTab() {
+  const [query, setQuery] = useState('')
+  const [pub, setPub] = useState('')
+  const [deadline, setDeadline] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  async function generate() {
+    if(!query.trim()) return
+    setLoading(true); setDraft('')
+    try {
+      const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'haro_draft',query,publication:pub,deadline}) })
+      const d = await r.json()
+      setDraft(d.draft||'')
+    } finally { setLoading(false) }
+  }
+
+  function copy(){ navigator.clipboard.writeText(draft); setCopied(true); setTimeout(()=>setCopied(false),2000) }
+
+  return (
+    <div>
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:15,color:'#111',marginBottom:8}}>📡 HARO / Connectively Pitch Drafter</div>
+        <p style={{fontSize:13,color:'#6b7280',margin:'0 0 16px',lineHeight:1.6}}>
+          Paste a journalist query from HARO/Connectively and get a pitch drafted as Solly Marks in seconds.
+          <a href="https://www.connectively.us/" target="_blank" rel="noopener" style={{color:'#c47d1a',marginLeft:6,fontWeight:700}}>Open Connectively →</a>
+        </p>
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <div>
+            <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Journalist Query *</div>
+            <textarea value={query} onChange={e=>setQuery(e.target.value)} placeholder="Paste the journalist's query here..." rows={4}
+              style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,fontFamily:'system-ui',resize:'vertical',outline:'none',boxSizing:'border-box'}} />
+          </div>
+          <div style={{display:'flex',gap:12}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Publication</div>
+              <input value={pub} onChange={e=>setPub(e.target.value)} placeholder="e.g. Forbes, Haaretz, JTA"
+                style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Deadline</div>
+              <input value={deadline} onChange={e=>setDeadline(e.target.value)} placeholder="e.g. Today 5pm EST"
+                style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+            </div>
+          </div>
+          <button onClick={generate} disabled={loading||!query.trim()}
+            style={{background:'#c47d1a',color:'#fff',border:'none',padding:'12px 24px',borderRadius:10,fontWeight:800,fontSize:14,cursor:'pointer',opacity:(loading||!query.trim())?0.6:1,alignSelf:'flex-start',fontFamily:'Inter,sans-serif'}}>
+            {loading?'✍️ Drafting pitch...':'✍️ Draft Pitch'}
+          </button>
+        </div>
+      </div>
+
+      {draft && (
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div style={{fontWeight:800,fontSize:14,color:'#111'}}>Pitch Ready</div>
+            <button onClick={copy} style={{background:copied?'#16a34a':'#f3f4f6',color:copied?'#fff':'#374151',border:'none',padding:'8px 16px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+              {copied?'✅ Copied!':'📋 Copy Pitch'}
+            </button>
+          </div>
+          <pre style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'16px',fontSize:13,lineHeight:1.7,whiteSpace:'pre-wrap',fontFamily:'Georgia,serif',color:'#111',margin:0}}>
+            {draft}
+          </pre>
+          <div style={{marginTop:12,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#92400e'}}>
+            💡 Replace [your@email.com] with your real email before sending. Send directly via Connectively or HARO reply link.
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OutreachTab() {
+  const [orgName, setOrgName] = useState('')
+  const [orgType, setOrgType] = useState('Jewish community organisation')
+  const [contactName, setContactName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [records, setRecords] = useState<any[]>([])
+  const [recLoading, setRecLoading] = useState(false)
+  const [contactEmail, setContactEmail] = useState('')
+
+  const ORG_TYPES = ['Synagogue','Chabad House','JCC / Jewish Community Center','Jewish Federation','Aliyah organisation','Jewish school / Yeshiva','Jewish newsletter','Jewish charity','Jewish student union','Other']
+  const STATUS_COLORS:Record<string,string> = { drafted:'#6b7280', sent:'#1a56b0', replied:'#c47d1a', linked:'#16a34a', declined:'#ef4444' }
+
+  useEffect(()=>{ loadRecords() },[])
+
+  async function loadRecords(){
+    setRecLoading(true)
+    try { const r = await fetch('/api/aliya-admin/linkbuilding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'get_outreach'})}); const d = await r.json(); setRecords(d.records||[]) }
+    finally { setRecLoading(false) }
+  }
+
+  async function generate(){
+    if(!orgName.trim()) return
+    setLoading(true); setDraft('')
+    try {
+      const r = await fetch('/api/aliya-admin/linkbuilding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'outreach_email',orgName,orgType,contactName})})
+      const d = await r.json(); setDraft(d.email||'')
+    } finally { setLoading(false) }
+  }
+
+  async function save(status='drafted'){
+    setSaving(true)
+    try {
+      await fetch('/api/aliya-admin/linkbuilding',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save_outreach',orgName,orgType,contactEmail,platform:'email',status,notes:draft})})
+      setSaved(true); setTimeout(()=>setSaved(false),2000); loadRecords()
+    } finally { setSaving(false) }
+  }
+
+  function copy(){ navigator.clipboard.writeText(draft); setCopied(true); setTimeout(()=>setCopied(false),2000) }
+
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+      {/* Left — drafter */}
+      <div>
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:16}}>
+          <div style={{fontWeight:800,fontSize:15,color:'#111',marginBottom:8}}>🤝 Community Outreach Email</div>
+          <p style={{fontSize:13,color:'#6b7280',margin:'0 0 16px',lineHeight:1.6}}>Draft personalised outreach emails to Jewish organisations to get AliyaToday.com listed in their resources.</p>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            <div>
+              <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Organisation Name *</div>
+              <input value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder="e.g. Chabad of Manhattan"
+                style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+            </div>
+            <div>
+              <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Organisation Type</div>
+              <select value={orgType} onChange={e=>setOrgType(e.target.value)}
+                style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',background:'#fff',boxSizing:'border-box'}}>
+                {ORG_TYPES.map(t=><option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Contact Name</div>
+                <input value={contactName} onChange={e=>setContactName(e.target.value)} placeholder="Rabbi Smith (optional)"
+                  style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:5}}>Contact Email</div>
+                <input value={contactEmail} onChange={e=>setContactEmail(e.target.value)} placeholder="contact@org.com"
+                  style={{width:'100%',padding:'10px 14px',borderRadius:8,border:'1px solid #d1d5db',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+              </div>
+            </div>
+            <button onClick={generate} disabled={loading||!orgName.trim()}
+              style={{background:'#c47d1a',color:'#fff',border:'none',padding:'12px 20px',borderRadius:10,fontWeight:800,fontSize:13,cursor:'pointer',opacity:(loading||!orgName.trim())?0.6:1,fontFamily:'Inter,sans-serif'}}>
+              {loading?'✍️ Drafting...':'✍️ Draft Email'}
+            </button>
+          </div>
+        </div>
+
+        {draft && (
+          <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px'}}>
+            <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+              <button onClick={copy} style={{background:copied?'#16a34a':'#f3f4f6',color:copied?'#fff':'#374151',border:'none',padding:'8px 14px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                {copied?'✅ Copied':'📋 Copy'}
+              </button>
+              <button onClick={()=>save('sent')} disabled={saving}
+                style={{background:'#1a56b0',color:'#fff',border:'none',padding:'8px 14px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer',opacity:saving?0.7:1}}>
+                {saving?'Saving...':saved?'✅ Saved':'📤 Mark as Sent'}
+              </button>
+              <button onClick={()=>save('drafted')} disabled={saving}
+                style={{background:'#f3f4f6',color:'#374151',border:'none',padding:'8px 14px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                💾 Save Draft
+              </button>
+            </div>
+            <pre style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'14px',fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap',fontFamily:'Georgia,serif',color:'#111',margin:0,maxHeight:400,overflow:'auto'}}>
+              {draft}
+            </pre>
+          </div>
+        )}
+      </div>
+
+      {/* Right — CRM tracker */}
+      <div>
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+            <div style={{fontWeight:800,fontSize:15,color:'#111'}}>📋 Outreach Tracker</div>
+            <button onClick={loadRecords} style={{background:'#f3f4f6',color:'#374151',border:'none',padding:'6px 12px',borderRadius:8,fontWeight:700,fontSize:11,cursor:'pointer'}}>↻ Refresh</button>
+          </div>
+          {/* Stats row */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+            {(['sent','replied','linked','declined'] as const).map(s=>(
+              <div key={s} style={{textAlign:'center',padding:'10px 8px',background:'#f9fafb',borderRadius:8,border:'1px solid #e5e7eb'}}>
+                <div style={{fontSize:18,fontWeight:900,color:STATUS_COLORS[s]}}>{records.filter(r=>r.status===s).length}</div>
+                <div style={{fontSize:10,color:'#9ca3af',textTransform:'capitalize'}}>{s}</div>
+              </div>
+            ))}
+          </div>
+          {recLoading ? (
+            <div style={{textAlign:'center',padding:'20px',color:'#9ca3af',fontSize:13}}>Loading...</div>
+          ) : records.length === 0 ? (
+            <div style={{textAlign:'center',padding:'20px',color:'#9ca3af',fontSize:13}}>No outreach tracked yet. Draft and save emails to track them here.</div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:8,maxHeight:500,overflow:'auto'}}>
+              {records.map((r:any,i:number)=>(
+                <div key={i} style={{padding:'12px 14px',background:'#f9fafb',borderRadius:8,border:'1px solid #e5e7eb'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:13,color:'#111'}}>{r.org_name}</div>
+                      <div style={{fontSize:11,color:'#9ca3af'}}>{r.org_type} {r.contact_email?`· ${r.contact_email}`:''}</div>
+                    </div>
+                    <span style={{background:STATUS_COLORS[r.status]+'20',color:STATUS_COLORS[r.status],padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700,textTransform:'capitalize',whiteSpace:'nowrap'}}>
+                      {r.status}
+                    </span>
+                  </div>
+                  <div style={{fontSize:11,color:'#9ca3af',marginTop:4}}>{new Date(r.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
