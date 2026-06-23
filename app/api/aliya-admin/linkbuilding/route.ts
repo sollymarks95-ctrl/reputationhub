@@ -13,7 +13,6 @@ const SUBREDDITS = [
   { name: 'aliyah',            label: 'r/aliyah' },
   { name: 'MovingToIsrael',    label: 'r/MovingToIsrael' },
   { name: 'israelexpatriates', label: 'r/israelexpatriates' },
-  { name: 'Israel',            label: 'r/Israel' },
   { name: 'living_in_israel',  label: 'r/living_in_israel' },
   { name: 'olim',              label: 'r/olim' },
 ]
@@ -125,14 +124,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Keyword filter — only posts relevant to aliyah, Israel living, Jewish relocation
+    // Strict filter — must be about MOVING TO / LIVING IN Israel, not news/politics
     const ALIYAH_KEYWORDS = [
-      'aliyah','aliya','israel','oleh','olim','absorption','klita','sal klita',
-      'nbsn','nbn','nefesh','moving to israel','reloc','immigrat','making aliyah',
-      'kupat holim','bituach','misrad','teudat','ulpan','jerusalem','tel aviv',
-      'ashdod','netanya','haifa','beer sheva','rehovot','jewish','diaspora',
-      'passport','citizenship','visa','bank account','arnona','apartment','rent',
-      'housing','school','education','health','insurance','work permit','job',
-      'language','hebrew','community','synagogue','shul','shabbat','kosher'
+      'aliyah','aliya','oleh','olim','making aliyah','move to israel','moving to israel',
+      'immigrat','nbn','nefesh','absorption','klita','sal klita',
+      'kupat holim','bituach leumi','misrad haklita','teudat zehut','teudat oleh',
+      'ulpan','arnona','bank account','bank hapoalim','bank leumi','discount bank',
+      'health fund','health insurance','bituach','driving licence','driving license',
+      'apartment','rent','housing','mortgage','mashkanta','property','real estate',
+      'work permit','work visa','freelance israel','tax exemption','mas hachnasa',
+      'first year','second year','absorption basket','shipping','lift','container',
+      'school israel','education israel','childcare','gan','kindergarten',
+      'cost of living','salary israel','minimum wage israel','living in israel',
+      'citizenship','passport','return','law of return','nbsn'
     ]
     function isRelevant(post: any): boolean {
       const text = (post.title + ' ' + post.selftext).toLowerCase()
