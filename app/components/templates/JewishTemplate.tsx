@@ -356,8 +356,29 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
 function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
   const [cat, setCat] = React.useState('All')
   const P = '#c47d1a'
-  const cats = ['All','Process','Housing','Ulpan','Benefits','Culture','Community','Tips']
-  const filtered = cat === 'All' ? articles : articles.filter((a: any) => a.category?.toLowerCase().includes(cat.toLowerCase()))
+
+  // CATEGORY MAP — maps user-friendly tab names to keywords that appear in
+  // article titles, excerpts, or categories. Based on the actual 63 articles
+  // published so far. 'All' is always first.
+  const CAT_KEYWORDS: Record<string, string[]> = {
+    'All':       [],
+    'Process':   ['process','application','nefesh','jewish agency','step by step','checklist','visa','law of return','citizenship','registration','apply','approval','how to make aliyah','bureauc','misrad','document'],
+    'Benefits':  ['benefit','sal klita','klita','bituach','arnona','allowance','grant','stipend','tax exempt','pension','child','national insurance','nbn grants','absorption basket'],
+    'Housing':   ['housing','apartment','real estate','rental','rent','property','absorption center','home','buy','purchase','mortgage','bedroom'],
+    'Finance':   ['cost','money','finance','bank account','currency','tax','income','capital','fund','invest','expense','budget','breakdown','fee','shekel'],
+    'Ulpan':     ['ulpan','hebrew','language','learning'],
+    'Security':  ['security','safe','iran','war','ceasefire','risk','geopolit','military','idf','attack'],
+    'Jobs':      ['work','employ','job','career','profession','salary','earning','income','license','driving'],
+  }
+  const cats = Object.keys(CAT_KEYWORDS)
+
+  function matchesCat(a: any, c: string) {
+    if (c === 'All') return true
+    const haystack = `${a.title} ${a.excerpt || ''} ${a.category || ''}`.toLowerCase()
+    return CAT_KEYWORDS[c].some(kw => haystack.includes(kw))
+  }
+
+  const filtered = articles.filter((a: any) => matchesCat(a, cat))
   const hero = filtered[0]
   const rest = filtered.filter((a: any) => a.id !== hero?.id)
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
