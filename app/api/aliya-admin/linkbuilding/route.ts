@@ -43,15 +43,33 @@ async function markPostUsed(postId: string, postTitle: string, subreddit: string
   await db().from('reddit_used_posts').upsert({ post_id: postId, post_title: postTitle, subreddit, used_at: new Date().toISOString() }, { onConflict: 'post_id' })
 }
 
-// Fetch Reddit posts via RSS — works from Vercel servers
+// Fetch Reddit posts — JSON API first, RSS fallback
 async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25) {
+  const hdrs = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    'Accept': 'application/json',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Cache-Control': 'no-cache',
+  }
+  // Try JSON API first
+  try {
+    const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.json?limit=${limit}&raw_json=1&t=week`, {
+      headers: hdrs, signal: AbortSignal.timeout(12000)
+    })
+    if (r.ok) {
+      const d = await r.json()
+      const posts = (d?.data?.children || []).map((p: any) => {
+        const pd = p.data
+        return { id: pd.id, title: pd.title||'', url: `https://www.reddit.com${pd.permalink}`, selftext: (pd.selftext||'').slice(0,500), subreddit: sub, author: pd.author||'', score: pd.score||0, comments: pd.num_comments||0, created: pd.created_utc||0, is_question: (pd.title||'').includes('?')||(pd.selftext||'').includes('?') }
+      }).filter((p: any) => p.id && p.title && !p.title.includes('[deleted]'))
+      if (posts.length > 0) return posts
+    }
+  } catch(e) {}
+  // RSS fallback
   try {
     const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.rss?limit=${limit}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
-      },
-      signal: AbortSignal.timeout(12000)
+      headers: { ...hdrs, 'Accept': 'application/rss+xml, */*' },
+      signal: AbortSignal.timeout(10000)
     })
     if (!r.ok) return []
     const xml = await r.text()
@@ -60,20 +78,16 @@ async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25
     let match
     while ((match = entryRegex.exec(xml)) !== null && entries.length < limit) {
       const entry = match[1]
-      const title   = (/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s.exec(entry)?.[1] || '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').trim()
+      const title   = (/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s.exec(entry)?.[1] || '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim()
       const link    = /<link[^>]*href="([^"]+)"/.exec(entry)?.[1] || ''
-      const author  = (/<name>(.*?)<\/name>/.exec(entry)?.[1] || '').trim()
       const content = (/<content[^>]*>([\s\S]*?)<\/content>/.exec(entry)?.[1] || '').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,400).trim()
       const id      = link.split('/comments/')?.[1]?.split('/')?.[0] || ''
-      if (title && link && id && !title.toLowerCase().includes('submitted by /u/')) {
-        entries.push({ id, title, url: link, score: 0, comments: 0, selftext: content, created: Date.now()/1000, subreddit: sub, author, is_question: title.includes('?') || content.includes('?') })
+      if (title && link && id && !title.toLowerCase().includes('submitted by')) {
+        entries.push({ id, title, url: link, selftext: content, subreddit: sub, author: '', score: 0, comments: 0, created: Date.now()/1000, is_question: title.includes('?')||content.includes('?') })
       }
     }
     return entries
-  } catch (e: any) {
-    console.error(`Reddit fetch failed r/${sub}:`, e.message)
-    return []
-  }
+  } catch(e: any) { return [] }
 }
 
 // Find the best matching article for a post
@@ -145,11 +159,14 @@ export async function POST(req: NextRequest) {
       'citizenship','passport','return','law of return','nbsn'
     ]
     function isRelevant(post: any): boolean {
+      // Posts from aliyah-specific subs are always relevant
+      const alwaysRelevantSubs = ['aliyah', 'MovingToIsrael', 'israelexpatriates', 'olim', 'living_in_israel']
+      if (alwaysRelevantSubs.includes(post.subreddit)) return true
+      // For general subs, require keyword match
       const text = (post.title + ' ' + post.selftext).toLowerCase()
       return ALIYAH_KEYWORDS.some(kw => text.includes(kw))
     }
     const relevantPosts = allPosts.filter(isRelevant)
-    // If 0 relevant posts after filtering, return empty rather than off-topic junk
     const postsToUse = relevantPosts
 
     // Generate tailored replies using Claude — topic-specific + correct article link
