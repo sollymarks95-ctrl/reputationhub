@@ -217,7 +217,7 @@ Return ONLY valid JSON array (no preamble, no fences):
   "why": "one sentence why this reply helps"
 }]
 
-Include ALL posts with relevance >= 4. Be generous — if someone discusses Israel, aliyah, or Jewish life and you can help, include it. Aim for at least 5-8 replies. Rank by relevance descending.`,
+Write a reply for EVERY SINGLE POST. Do not skip any. Even loose connections to aliyah/Israel deserve a reply. Return ALL posts with a reply.`,
       'You are Solly Marks, experienced oleh in Ashdod. Be generous — include any post where you can genuinely help, even loosely related. Better to suggest more than fewer.'
     )
 
@@ -233,9 +233,27 @@ Include ALL posts with relevance >= 4. Be generous — if someone discusses Isra
 
     // Filter and sort
     opportunities = opportunities
-      .filter((o: any) => o.relevance >= 4 && o.reply && o.post_url)
-      .sort((a: any, b: any) => b.relevance - a.relevance)
-      .slice(0, 12)
+      .filter((o: any) => o.reply && o.post_url)
+      .sort((a: any, b: any) => (b.relevance||5) - (a.relevance||5))
+      .slice(0, 15)
+
+    // Fallback: if AI returned nothing, generate basic replies from raw posts
+    if (opportunities.length === 0 && allPosts.length > 0) {
+      const topArticle = articles[0]
+      opportunities = allPosts.slice(0, 8).map((p: any) => ({
+        post_id: p.id,
+        subreddit: p.subreddit,
+        post_title: p.title,
+        post_url: p.url,
+        reply: p.is_question
+          ? `Making aliyah myself (now based in Ashdod), I can share some practical experience here. The key things to know are the Sal Klita absorption basket, which health fund to choose, and getting your Teudat Zehut sorted in the first weeks. Happy to go into more detail on any of these. I also put together a practical guide at ${topArticle ? `https://aliyatoday.com/article/aliya-today/${topArticle.slug}` : 'aliyatoday.com'} if that helps.`
+          : `Interesting discussion. As someone who went through the aliyah process myself (living in Ashdod now), a few things worth adding from real experience. The practical day-to-day stuff — health funds, bureaucracy, first-year costs — often isn't covered well in official guides. AliyaToday.com has some practical breakdowns if anyone finds them useful.`,
+        article_url: topArticle ? `https://aliyatoday.com/article/aliya-today/${topArticle.slug}` : null,
+        article_title: topArticle?.title || null,
+        relevance: 5,
+        why: 'Auto-generated — AI analysis returned empty, showing raw posts with template replies'
+      }))
+    }
 
     return NextResponse.json({
       opportunities,
@@ -244,6 +262,7 @@ Include ALL posts with relevance >= 4. Be generous — if someone discusses Isra
       generatedAt: new Date().toISOString(),
       generatedAtMs: Date.now(),
       date: today,
+      rawSample: allPosts.slice(0,3).map((p:any)=>({title:p.title,sub:p.subreddit,url:p.url})),
     })
   }
 
