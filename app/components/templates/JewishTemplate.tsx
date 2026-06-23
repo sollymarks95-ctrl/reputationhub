@@ -55,20 +55,27 @@ function SubscribeForm({ siteSlug, siteName, accent }: { siteSlug: string; siteN
 // ─── Jewish News Now ─── Bold breaking-news daily paper
 
 // ── IAN MARKS REAL ESTATE BANNER (homepage sidebar) ──────────────────────────
-function IanMarksBanner({ siteUrl }: { siteUrl: string }) {
+function IanMarksBanner({ siteUrl, accentColor }: { siteUrl: string; accentColor?: string }) {
   const msg = encodeURIComponent(`Hi, I got to you through ${siteUrl} — I am looking for a property in Israel`)
+  const accent = accentColor || '#888'
   return (
-    <a href={`https://wa.me/972522569995?text=${msg}`} target="_blank" rel="noopener noreferrer"
-      style={{ display:'block', textDecoration:'none', cursor:'pointer', overflow:'hidden' }}>
-      <img src="/ian-marks-banner.jpg" alt="Ian Marks Real Estate — Buy Property in Israel"
-        style={{ width:'100%', display:'block' }} loading="lazy" />
-    </a>
+    <div style={{ fontFamily: 'Arial, sans-serif' }}>
+      <div style={{ fontSize: 9, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em',
+        textAlign: 'center', marginBottom: 4 }}>Advertisement</div>
+      <a href={`https://wa.me/972522569995?text=${msg}`} target="_blank" rel="noopener noreferrer"
+        style={{ display:'block', textDecoration:'none', cursor:'pointer',
+          border: `1px solid #e0e0e0`, borderRadius: 4, overflow:'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+        <img src="/ian-marks-banner.jpg" alt="Ian Marks Real Estate — Buy Property in Israel"
+          style={{ width:'100%', display:'block' }} loading="lazy" />
+      </a>
+    </div>
   )
 }
 
 // 3-column layout: ad rail | content | ad rail
 // Blends naturally into the page — no fixed/absolute positioning
-function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; siteUrl: string; bg?: string }) {
+function WithBanners({ children, siteUrl, bg, accentColor }: { children: React.ReactNode; siteUrl: string; bg?: string; accentColor?: string }) {
   return (
     <>
       <style>{`
@@ -97,7 +104,7 @@ function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; sit
       <div className="ian-outer" style={{ '--ian-bg': bg || 'transparent' } as React.CSSProperties}>
         <div className="ian-rail ian-rail-left">
           <div className="ian-sticky">
-            <IanMarksBanner siteUrl={siteUrl} />
+            <IanMarksBanner siteUrl={siteUrl} accentColor={accentColor} />
           </div>
         </div>
         <div className="ian-content">
@@ -105,7 +112,7 @@ function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; sit
         </div>
         <div className="ian-rail ian-rail-right">
           <div className="ian-sticky">
-            <IanMarksBanner siteUrl={siteUrl} />
+            <IanMarksBanner siteUrl={siteUrl} accentColor={accentColor} />
           </div>
         </div>
       </div>
@@ -182,7 +189,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </div>
 
-    <WithBanners siteUrl="https://jewishnewsnow.com" bg="#fff">
+    <WithBanners siteUrl="https://jewishnewsnow.com" bg="#fff" accentColor="#1a56b0">
     <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px', paddingTop:24, paddingBottom:60 }}>
         {/* Hero — newspaper front page layout */}
         {hero && (
@@ -318,7 +325,7 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
       </div>
     </header>
 
-    <WithBanners siteUrl="https://jewishpropertyreport.com" bg="#f7f9f7">
+    <WithBanners siteUrl="https://jewishpropertyreport.com" bg="#f7f9f7" accentColor="#2d7a4f">
     <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 24px', paddingTop:28, paddingBottom:60 }}>
       {/* Featured property articles */}
       {hero && (
@@ -599,7 +606,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </header>
 
-    <WithBanners siteUrl="https://aliyatoday.com" bg="#f3f3f0">
+    <WithBanners siteUrl="https://aliyatoday.com" bg="#f3f3f0" accentColor="#c97c2e">
     <div style={{ maxWidth:1180, margin:'0 auto', padding:'0 20px', paddingTop:32, paddingBottom:60 }}>
       {/* Hero — full width with warm overlay */}
       {hero && (
