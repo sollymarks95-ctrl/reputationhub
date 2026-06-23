@@ -97,16 +97,48 @@ async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25
   } catch(e: any) { return [] }
 }
 
-// Find the best matching article for a post
+// Find the best matching article for a post — weighted scoring
 function findBestArticle(post: any, arts: any[]) {
-  const text = (post.title + ' ' + post.selftext).toLowerCase()
+  const postText = (post.title + ' ' + post.selftext).toLowerCase()
+  const postWords = postText.split(/\W+/).filter((w: string) => w.length > 4)
+
   const scored = arts.map((a: any) => {
-    const aText = ((a.title||'') + ' ' + (a.excerpt||'')).toLowerCase()
-    const words = aText.split(/\W+/).filter((w: string) => w.length > 4)
-    const hits  = words.filter((w: string) => text.includes(w)).length
-    return { ...a, _hits: hits }
-  }).sort((a: any, b: any) => b._hits - a._hits)
-  return scored[0] || arts[0] || null
+    const titleText = (a.title||'').toLowerCase()
+    const excerptText = (a.excerpt||'').toLowerCase()
+    const categoryText = (a.category||'').toLowerCase()
+
+    let score = 0
+    // Title word matches are worth 3x
+    postWords.forEach((w: string) => {
+      if (titleText.includes(w)) score += 3
+      if (excerptText.includes(w)) score += 1
+      if (categoryText.includes(w)) score += 2
+    })
+
+    // Topic keyword boosts
+    const topicMap: Record<string, string[]> = {
+      'cost': ['cost','price','expensive','cheap','afford','budget','money','salary','wage'],
+      'health': ['health','kupat','hospital','doctor','insurance','medical','sick','bituach'],
+      'housing': ['apartment','rent','housing','flat','home','property','buy','mortgage','mashkanta'],
+      'bank': ['bank','account','transfer','money','finance','payment'],
+      'school': ['school','education','children','kids','gan','kindergarten','university'],
+      'driving': ['driving','licence','license','car','vehicle','transport'],
+      'tax': ['tax','exemption','mas','income','salary','freelance','work'],
+      'ulpan': ['ulpan','hebrew','language','learn'],
+      'klita': ['klita','absorption','sal','basket','benefits'],
+      'citizenship': ['citizen','passport','return','identity','teudat'],
+    }
+    Object.values(topicMap).forEach(kws => {
+      if (kws.some(k => postText.includes(k)) && kws.some(k => (titleText+excerptText).includes(k))) {
+        score += 5
+      }
+    })
+
+    return { ...a, _score: score }
+  }).sort((a: any, b: any) => b._score - a._score)
+
+  // Return best match if it has any relevance, otherwise first article
+  return (scored[0]?._score > 0 ? scored[0] : arts[0]) || null
 }
 
 function buildReply(post: any, art: any | null): string {
@@ -127,7 +159,7 @@ export async function POST(req: NextRequest) {
 
   // ── REDDIT: Get fresh opportunities ─────────────────────────────────────────
   if (action === 'reddit_daily') {
-    const [articles, usedIds] = await Promise.all([getTopArticles(25), getUsedPostIds()])
+    const [articles, usedIds] = await Promise.all([getTopArticles(50), getUsedPostIds()])
 
     // Fetch all subreddits in parallel (hot only to keep it fast)
     // Fetch hot + new from core subreddits to maximise post count
@@ -190,20 +222,22 @@ Someone posted this on Reddit r/${post.subreddit}:
 TITLE: "${post.title}"
 CONTENT: "${post.selftext || '(no body text)'}"
 
-${art ? `You have a relevant AliyaToday article to naturally reference:
+${art ? `You wrote a relevant article on your AliyaToday.com blog that directly supports this topic:
 Title: "${art.title}"
 URL: ${articleUrl}
-Excerpt: ${art.excerpt || ''}` : 'No specific article to link — give a helpful reply without a link.'}
+Summary: ${art.excerpt || ''}
+
+IMPORTANT: Mention this article naturally in your reply as something YOU wrote/researched. E.g. "I actually covered this in depth on my site" or "I put together a full guide on this at AliyaToday.com"` : 'No specific article — give a helpful reply based on your personal experience only.'}
 
 Write a genuine, helpful Reddit reply (120-180 words) that:
-1. DIRECTLY addresses the specific question/topic they asked about
-2. Shares real practical experience from your own aliyah (Ashdod, South Africa background)
-3. Gives 2-3 specific, concrete tips that actually answer THEIR question
-4. If you have an article above, naturally mention it once at the end: "I wrote about this in detail here: [url]"
-5. Ends with a genuine offer to answer follow-up questions
-6. Sounds human and conversational — NOT a generic template
+1. DIRECTLY addresses "${post.title}" — answer the SPECIFIC question asked
+2. Draws on your own aliyah experience (South African oleh, Ashdod, practical knowledge)
+3. Gives 2-3 concrete, specific tips relevant to THEIR exact question
+4. If you have an article above, weave it in naturally once: reference what you wrote/researched
+5. Ends conversationally — invite follow-up if needed
+6. Reads like a real helpful person, NOT a bot or generic template
 
-CRITICAL: Your reply must actually address "${post.title}" specifically. Do NOT give generic aliyah advice that ignores their actual question.
+NEVER give generic aliyah advice that ignores their actual question.
 
 Return ONLY the reply text, no preamble.`,
         'You are Solly Marks, oleh from South Africa, living in Ashdod. Write genuine, specific Reddit replies that actually answer the question asked.'
