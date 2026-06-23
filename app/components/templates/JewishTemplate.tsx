@@ -128,7 +128,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         "description": "Breaking Jewish and Israel news daily"
       })}} />}
     <style>{`
-      *{box-sizing:border-box;margin:0;padding:0}body{background:#fff;font-family:'Times New Roman',Georgia,serif}
+      *{box-sizing:border-box;margin:0;padding:0}body{background:#fff;font-family:'Times New Roman',Georgia,serif}button{outline:none!important}
       .jnn-wrap{max-width:1200px;margin:0 auto;padding:0 20px}
       .jnn-mob{display:none}.jnn-desk{display:block}
       a{text-decoration:none;color:inherit}a:hover{color:${P}}
@@ -151,7 +151,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         <div className="jnn-desk" style={{ display: 'flex', justifyContent: 'center', gap: 0, borderBottom: '1px solid #000', marginBottom: 0 }}>
           {cats.map(c => (
             <button key={c} onClick={() => setCat(c)}
-              style={{ background: cat === c ? '#000' : 'transparent', color: cat === c ? '#fff' : '#000', border: 'none', padding: '7px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '.04em', textTransform: 'uppercase', fontFamily: 'Georgia, serif' }}>
+              style={{ background: cat === c ? '#000' : 'transparent', color: cat === c ? '#fff' : '#000', border: 'none', outline: 'none', padding: '7px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '.04em', textTransform: 'uppercase', fontFamily: 'Georgia, serif' }}>
               {c}
             </button>
           ))}
@@ -160,7 +160,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         <div className="jnn-mob" style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '8px 0', borderBottom: '1px solid #000' }}>
           {cats.map(c => (
             <button key={c} onClick={() => setCat(c)}
-              style={{ background: cat === c ? '#000' : '#f5f5f5', color: cat === c ? '#fff' : '#000', border: 'none', padding: '6px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderRadius: 3, whiteSpace: 'nowrap' }}>
+              style={{ background: cat === c ? '#000' : '#f5f5f5', color: cat === c ? '#fff' : '#000', border: 'none', outline: 'none', padding: '6px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', borderRadius: 3, whiteSpace: 'nowrap' }}>
               {c}
             </button>
           ))}
@@ -270,7 +270,7 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
   return (<>
     <TrackView siteSlug="jewish-property-report" siteDomain="jewishpropertyreport.com" />
     <style>{`
-      *{box-sizing:border-box;margin:0;padding:0}body{background:#f7f9f7;font-family:'Inter',system-ui,sans-serif}
+      *{box-sizing:border-box;margin:0;padding:0}body{background:#f7f9f7;font-family:'Inter',system-ui,sans-serif}button{outline:none!important}
       .jpr-wrap{max-width:1200px;margin:0 auto;padding:0 24px}
       .jpr-mob{display:none}.jpr-desk{display:block}
       a{text-decoration:none;color:inherit}
@@ -291,7 +291,7 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
           <div className="jpr-desk" style={{ display: 'flex', gap: 6 }}>
             {cats.slice(1, 6).map(c => (
               <button key={c} onClick={() => setCat(c === cat ? 'All' : c)}
-                style={{ background: cat === c ? P : 'transparent', color: cat === c ? '#fff' : '#555', border: `1px solid ${cat === c ? P : '#e0e0e0'}`, padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                style={{ background: cat === c ? P : 'transparent', color: cat === c ? '#fff' : '#555', border: `1px solid ${cat === c ? P : '#e0e0e0'}`, outline: 'none', padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {c}
               </button>
             ))}
@@ -480,7 +480,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
   return (<>
     <TrackView siteSlug="aliya-today" siteDomain="aliyatoday.com" />
     <style>{`
-      *{box-sizing:border-box;margin:0;padding:0}body{background:#fff8f0;font-family:'Georgia',serif}
+      *{box-sizing:border-box;margin:0;padding:0}button{outline:none!important}body{background:#fff8f0;font-family:'Georgia',serif}
       .at-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
       .at-mob{display:none}.at-desk{display:block}
       a{text-decoration:none;color:inherit}a:hover{opacity:.85}
@@ -532,7 +532,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             {cats.map(c => (
               <button key={c} onClick={() => setCat(c)}
-                style={{ background: 'transparent', border: 'none', borderBottom: cat === c ? `3px solid ${P}` : '3px solid transparent', color: cat === c ? '#fff' : 'rgba(255,255,255,.5)', padding: '12px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
+                style={{ background: 'transparent', border: 'none', outline: 'none', borderBottom: cat === c ? `3px solid ${P}` : '3px solid transparent', color: cat === c ? '#fff' : 'rgba(255,255,255,.5)', padding: '12px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
                 {c}
               </button>
             ))}
