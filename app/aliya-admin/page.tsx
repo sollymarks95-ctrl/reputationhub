@@ -812,6 +812,12 @@ function LinkBuildingTab() {
   const [orgType, setOrgType]           = useState('Synagogue')
   const [contactName, setContactName]   = useState('')
   const [contactEmail, setContactEmail] = useState('')
+  const [resendStatus, setResendStatus]   = useState<null|{ok:boolean,message?:string,error?:string}>(null)
+  
+  React.useEffect(() => {
+    fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'check_resend'}) })
+      .then(r=>r.json()).then(d=>setResendStatus(d)).catch(()=>{})
+  }, [])
   const [emailLoading, setEmailLoading] = useState(false)
   const [emailDraft, setEmailDraft]     = useState('')
   const [emailCopied, setEmailCopied]   = useState(false)
@@ -1113,6 +1119,23 @@ ${o.article_url}` : ''))}
           </div>
           <AutoOutreachButton onDone={loadCRM} />
         </div>
+        {resendStatus && !resendStatus.ok && (
+          <div style={{background:'#fef3c7',borderBottom:'1px solid #fcd34d',padding:'10px 20px',display:'flex',alignItems:'center',gap:10}}>
+            <span style={{fontSize:18}}>⚠️</span>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#92400e'}}>Resend not connected — email sending disabled</div>
+              <div style={{fontSize:12,color:'#92400e',marginTop:2}}>
+                Go to <strong>vercel.com → reputationhub → Settings → Environment Variables</strong> → add <code style={{background:'#fde68a',padding:'1px 4px',borderRadius:3}}>RESEND_API_KEY</code> = your Resend API key (starts with <code style={{background:'#fde68a',padding:'1px 4px',borderRadius:3}}>re_</code>)
+                {resendStatus.error ? ` · Error: ${resendStatus.error}` : ''}
+              </div>
+            </div>
+          </div>
+        )}
+        {resendStatus?.ok && (
+          <div style={{background:'#f0fdf4',borderBottom:'1px solid #bbf7d0',padding:'8px 20px',fontSize:12,color:'#166534'}}>
+            ✅ Resend connected {resendStatus.message}
+          </div>
+        )}
         <div style={{padding:'16px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
           {/* Left: composer */}
           <div>

@@ -370,5 +370,22 @@ Return ONLY the email.`,
     return NextResponse.json({ records: data || [] })
   }
 
+  // ── CHECK RESEND KEY STATUS ─────────────────────────────────────────────────
+  if (action === 'check_resend') {
+    const key = process.env.RESEND_API_KEY || ''
+    if (!key) return NextResponse.json({ ok: false, error: 'RESEND_API_KEY is not set in Vercel environment variables' })
+    // Test the key with a dry-run by hitting Resend domains endpoint
+    try {
+      const r = await fetch('https://api.resend.com/domains', {
+        headers: { 'Authorization': `Bearer ${key}` }
+      })
+      const d = await r.json()
+      if (r.ok) return NextResponse.json({ ok: true, message: 'Resend connected ✅', domains: d.data?.map((x:any)=>x.name) })
+      return NextResponse.json({ ok: false, error: `Resend API error: ${d.message || r.status}` })
+    } catch(e:any) {
+      return NextResponse.json({ ok: false, error: `Network error: ${e.message}` })
+    }
+  }
+
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }
