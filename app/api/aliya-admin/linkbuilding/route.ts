@@ -163,20 +163,31 @@ export async function POST(req: NextRequest) {
     const article = articles[idx]
     if (!article) return NextResponse.json({ error:'No articles' }, { status:400 })
     const draft = await claude(
-      `Write a 500-word personal blog post for the Times of Israel as Solly Marks — Israeli entrepreneur, former media buyer, made aliyah and living in Ashdod.
+      `Write a 450-550 word personal blog post for the Times of Israel Blogs platform as Solly Marks.
 
-Base it on this AliyaToday article: "${article.title}"
-Excerpt: ${article.excerpt || '(no excerpt)'}
-Link to include: https://aliyatoday.com/article/aliya-today/${article.slug}
+Solly is an Israeli entrepreneur and oleh, living in Ashdod. He writes from personal experience about Israel and aliyah.
 
-The post should:
-- Feel personal and authentic — share real experience from Ashdod
-- Be useful to English-speaking Jews considering or doing aliyah
-- Include the AliyaToday link naturally once, not as main point
-- End with a genuine invitation to connect
+Topic to write about: "${article.title}"
+Background context: ${article.excerpt || ''}
 
-Return ONLY the blog post text, starting with a title on the first line.`,
-      'You are Solly Marks writing a personal Times of Israel blog post. Warm, authentic, practical.'
+TIMES OF ISRAEL EDITORIAL GUIDELINES (strictly follow all):
+1. Topic must relate to Israel, the Middle East, or Jewish life — this topic qualifies.
+2. Civil and respectful tone throughout — no incitement, no hatred, constructive language only.
+3. Factually accurate — do not exaggerate, mislead, or make unsupported claims.
+4. NOT a marketing vehicle — mention AliyaToday.com at most once, only if genuinely natural. No affiliate links, no keyword stuffing, no SEO tactics.
+5. High writing quality — clear, engaging English. Personal voice, well-structured, no technical errors.
+6. Original content — not a repost or summary of another article. Fresh personal perspective.
+7. One working link only — https://aliyatoday.com/article/aliya-today/${article.slug} — include only if it adds genuine reader value.
+
+STRUCTURE:
+- Title: specific, honest, not clickbait
+- Opening: personal hook from Solly's perspective (Ashdod / his aliyah experience)
+- Body (3-4 paragraphs): practical insights, real experience, honest observations
+- Conclusion: thoughtful, invites reader discussion
+- Natural (optional) mention: "I explore this further at AliyaToday.com" — only if it genuinely fits
+
+Return ONLY the blog post. Title on first line. No preamble.`,
+      'You are Solly Marks, an oleh living in Ashdod, writing for the Times of Israel Blogs. Follow TOI guidelines strictly: genuine personal voice, no promotion, accurate, civil, quality English.'
     )
     return NextResponse.json({ draft, article })
   }

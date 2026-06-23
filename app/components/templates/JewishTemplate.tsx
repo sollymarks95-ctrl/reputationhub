@@ -191,7 +191,6 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
         <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>The day's most important Jewish and Israel news, curated and delivered before 8am.</p>
         <SubscribeForm siteSlug="jewish-news-now" siteName="Jewish News Now" accent="#1a56b0" />
       </div>
-    </div>
 
     {/* Facebook Community Banner — all 3 Jewish sites */}
     <a
