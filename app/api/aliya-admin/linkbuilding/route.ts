@@ -42,7 +42,37 @@ async function getTopArticles(limit = 20) {
 }
 
 async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25) {
-  // Use RSS feed — works from Vercel servers (JSON API gets blocked by datacenter IP detection)
+  // Try JSON API first with browser-like headers, fall back to RSS
+  try {
+    const jsonR = await fetch(`https://www.reddit.com/r/${sub}/${sort}.json?limit=${limit}&raw_json=1`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+      },
+      signal: AbortSignal.timeout(10000)
+    })
+    if (jsonR.ok) {
+      const d = await jsonR.json()
+      const posts = (d.data?.children || [])
+        .filter((c: any) => !c.data.stickied)
+        .map((c: any) => ({
+          id: c.data.id,
+          title: c.data.title,
+          url: `https://reddit.com${c.data.permalink}`,
+          score: c.data.score,
+          comments: c.data.num_comments,
+          selftext: (c.data.selftext || '').slice(0, 600),
+          created: c.data.created_utc,
+          subreddit: sub,
+          author: c.data.author,
+          is_question: c.data.title.includes('?') || (c.data.selftext||'').includes('?'),
+        }))
+      if (posts.length > 0) return posts
+    }
+  } catch {}
+  // RSS fallback
   try {
     const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.rss?limit=${limit}`, {
       headers: {
@@ -187,8 +217,8 @@ Return ONLY valid JSON array (no preamble, no fences):
   "why": "one sentence why this reply helps"
 }]
 
-Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance descending.`,
-      'You are an experienced oleh helping Solly Marks identify Reddit posts where he can genuinely help people with aliyah knowledge. Quality over quantity. Only real helpful replies.'
+Include ALL posts with relevance >= 4. Be generous — if someone discusses Israel, aliyah, or Jewish life and you can help, include it. Aim for at least 5-8 replies. Rank by relevance descending.`,
+      'You are Solly Marks, experienced oleh in Ashdod. Be generous — include any post where you can genuinely help, even loosely related. Better to suggest more than fewer.'
     )
 
     let opportunities: any[] = []
@@ -203,9 +233,9 @@ Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance d
 
     // Filter and sort
     opportunities = opportunities
-      .filter((o: any) => o.relevance >= 5 && o.reply && o.post_url)
+      .filter((o: any) => o.relevance >= 4 && o.reply && o.post_url)
       .sort((a: any, b: any) => b.relevance - a.relevance)
-      .slice(0, 10)
+      .slice(0, 12)
 
     return NextResponse.json({
       opportunities,
