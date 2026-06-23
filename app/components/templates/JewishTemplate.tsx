@@ -207,7 +207,6 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
           ))}
         </div>
       </div>
-    </div>
     </WithBanners>
 
     {/* Newsletter */}
