@@ -14,8 +14,8 @@ const SUBREDDITS = [
   { name: 'MovingToIsrael',    label: 'r/MovingToIsrael' },
   { name: 'israelexpatriates', label: 'r/israelexpatriates' },
   { name: 'Israel',            label: 'r/Israel' },
-  { name: 'Jewish',            label: 'r/Jewish' },
-  { name: 'expats',            label: 'r/expats' },
+  { name: 'living_in_israel',  label: 'r/living_in_israel' },
+  { name: 'olim',              label: 'r/olim' },
 ]
 
 function db() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||ANON) }
@@ -139,7 +139,8 @@ export async function POST(req: NextRequest) {
       return ALIYAH_KEYWORDS.some(kw => text.includes(kw))
     }
     const relevantPosts = allPosts.filter(isRelevant)
-    const postsToUse = relevantPosts.length > 0 ? relevantPosts : allPosts
+    // If 0 relevant posts after filtering, return empty rather than off-topic junk
+    const postsToUse = relevantPosts
 
     // Generate tailored replies using Claude — topic-specific + correct article link
     const TOP_POSTS = postsToUse.slice(0, 12)
