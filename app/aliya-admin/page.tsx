@@ -20,7 +20,7 @@ function fmt(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'nume
 function fmtDate(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) }
 
 export default function AliyaAdmin() {
-  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'>('overview')
+  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'|'api'>('overview')
   const [auth, setAuth] = useState(false)
   const [pw, setPw] = useState('')
   const [pwErr, setPwErr] = useState(false)
@@ -94,7 +94,7 @@ export default function AliyaAdmin() {
     </div>
   )
 
-  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'}]
+  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'},{id:'api' as const,label:'API & RSS',icon:'🔌'}]
 
   return (
     <div style={{display:'flex',minHeight:'100vh',fontFamily:'Inter,sans-serif',background:'#f8fafc'}}>
@@ -556,7 +556,190 @@ Ask questions. Share your story. Help each other home. 🕍`}
             )}
           </>
         )}
+
+        {/* ── API & RSS Tab ───────────────────────────────────────────────── */}
+        {tab==='api' && (
+          <APITab />
+        )}
       </main>
+    </div>
+  )
+}
+
+const API_KEY = 'AT-live-9f2e4b7c3a1d8e6f5b0c2a4d7e9f1b3c'
+const BASE    = 'https://aliyatoday.com'
+
+function CopyBox({ label, value, mono=true }: { label:string; value:string; mono?:boolean }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <div style={{marginBottom:16}}>
+      <div style={{fontSize:11,fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{label}</div>
+      <div style={{display:'flex',gap:8,alignItems:'stretch'}}>
+        <div style={{flex:1,background:'#1e293b',borderRadius:8,padding:'12px 16px',fontSize:13,color:'#e2e8f0',fontFamily:mono?'monospace':'inherit',wordBreak:'break-all',lineHeight:1.5}}>
+          {value}
+        </div>
+        <button onClick={()=>{ navigator.clipboard.writeText(value); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
+          style={{flexShrink:0,background:copied?'#10b981':'#c47d1a',color:'#fff',border:'none',borderRadius:8,padding:'0 16px',fontWeight:700,fontSize:12,cursor:'pointer',transition:'background .2s'}}>
+          {copied?'✓ Copied':'Copy'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function EndpointBlock({ method, path, desc, params, example }: { method:string; path:string; desc:string; params:{name:string;type:string;desc:string}[]; example:string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{border:'1px solid #e5e7eb',borderRadius:10,overflow:'hidden',marginBottom:12}}>
+      <div onClick={()=>setOpen(o=>!o)} style={{display:'flex',gap:12,alignItems:'center',padding:'14px 18px',cursor:'pointer',background:'#fff'}}>
+        <span style={{background:'#10b981',color:'#fff',borderRadius:4,padding:'2px 8px',fontWeight:800,fontSize:11,letterSpacing:'.05em'}}>{method}</span>
+        <span style={{fontFamily:'monospace',fontWeight:700,fontSize:13,color:'#111',flex:1}}>{path}</span>
+        <span style={{fontSize:12,color:'#6b7280'}}>{desc}</span>
+        <span style={{fontSize:14,color:'#9ca3af'}}>{open?'▲':'▼'}</span>
+      </div>
+      {open && (
+        <div style={{background:'#f9fafb',borderTop:'1px solid #e5e7eb',padding:'16px 18px'}}>
+          {params.length>0 && (
+            <div style={{marginBottom:14}}>
+              <div style={{fontWeight:700,fontSize:12,color:'#374151',marginBottom:8}}>Parameters</div>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead><tr style={{background:'#f3f4f6'}}>
+                  <th style={{padding:'6px 10px',textAlign:'left',fontWeight:700,color:'#6b7280',borderRadius:4}}>Name</th>
+                  <th style={{padding:'6px 10px',textAlign:'left',fontWeight:700,color:'#6b7280'}}>Type</th>
+                  <th style={{padding:'6px 10px',textAlign:'left',fontWeight:700,color:'#6b7280'}}>Description</th>
+                </tr></thead>
+                <tbody>
+                  {params.map(p=>(
+                    <tr key={p.name} style={{borderTop:'1px solid #e5e7eb'}}>
+                      <td style={{padding:'7px 10px',fontFamily:'monospace',fontWeight:700,color:'#c47d1a'}}>{p.name}</td>
+                      <td style={{padding:'7px 10px',color:'#6b7280'}}>{p.type}</td>
+                      <td style={{padding:'7px 10px',color:'#374151'}}>{p.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <div style={{fontWeight:700,fontSize:12,color:'#374151',marginBottom:6}}>Example Response</div>
+          <pre style={{background:'#1e293b',color:'#e2e8f0',borderRadius:8,padding:'14px',fontSize:11,overflow:'auto',maxHeight:280,margin:0}}>{example}</pre>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function APITab() {
+  return (
+    <div>
+      {/* Header */}
+      <div style={{background:'linear-gradient(135deg,#2d1a00,#1a0f00)',borderRadius:12,padding:'24px 28px',marginBottom:24,color:'#fff'}}>
+        <div style={{fontSize:22,fontWeight:900,marginBottom:6}}>🔌 AliyaToday API & RSS</div>
+        <div style={{fontSize:13,color:'rgba(255,255,255,.6)'}}>Connect AliyaToday content to any 3rd-party tool — Zapier, Make, n8n, CMS, custom apps.</div>
+      </div>
+
+      {/* API Key */}
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:4}}>🔑 Your API Key</div>
+        <div style={{fontSize:12,color:'#6b7280',marginBottom:14}}>Include this in every request as a Bearer token or query param. Keep it private.</div>
+        <CopyBox label="API Key" value={API_KEY} />
+        <CopyBox label="Authorization Header" value={`Authorization: Bearer ${API_KEY}`} />
+      </div>
+
+      {/* Endpoints */}
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:16}}>📡 REST Endpoints</div>
+
+        <EndpointBlock
+          method="GET"
+          path={`${BASE}/api/v1/aliya-today/articles`}
+          desc="Fetch latest articles"
+          params={[
+            {name:'limit',   type:'number',  desc:'Results per page (1–100, default 20)'},
+            {name:'page',    type:'number',  desc:'Page number, 1-indexed (default 1)'},
+            {name:'category',type:'string',  desc:'Filter by category e.g. Housing, Ulpan, Process'},
+            {name:'q',       type:'string',  desc:'Keyword search in title + excerpt'},
+            {name:'from',    type:'ISO date',desc:'Published on or after (e.g. 2026-06-01)'},
+            {name:'to',      type:'ISO date',desc:'Published on or before'},
+            {name:'full',    type:'0|1',     desc:'Pass 1 to include full article body (default: excerpt only)'},
+          ]}
+          example={`{
+  "ok": true,
+  "total": 842,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 43,
+  "articles": [
+    {
+      "id": "...",
+      "slug": "2026-06-22-buying-apartment-israel-guide",
+      "title": "Buying an Apartment in Israel: The 2026 Complete Guide",
+      "excerpt": "Step-by-step walkthrough of the buying process...",
+      "category": "Housing",
+      "tags": ["real estate","housing","mortgage"],
+      "author": "Solly Marks",
+      "published_at": "2026-06-22T07:02:11.000Z",
+      "read_time_minutes": 8,
+      "cover_image_url": "https://...",
+      "url": "https://aliyatoday.com/article/aliya-today/2026-06-22-buying-apartment-israel-guide"
+    }
+  ]
+}`}
+        />
+
+        <div style={{marginTop:12}}>
+          <CopyBox label="Quick test (latest 5 articles)" value={`${BASE}/api/v1/aliya-today/articles?api_key=${API_KEY}&limit=5`} />
+          <CopyBox label="Filter by category" value={`${BASE}/api/v1/aliya-today/articles?api_key=${API_KEY}&category=Housing&limit=10`} />
+          <CopyBox label="Keyword search" value={`${BASE}/api/v1/aliya-today/articles?api_key=${API_KEY}&q=ulpan&limit=10`} />
+          <CopyBox label="With full body" value={`${BASE}/api/v1/aliya-today/articles?api_key=${API_KEY}&limit=5&full=1`} />
+        </div>
+      </div>
+
+      {/* RSS Feed */}
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:4}}>📰 RSS Feed</div>
+        <div style={{fontSize:12,color:'#6b7280',marginBottom:14}}>Standard RSS 2.0 feed — use in any RSS reader, aggregator, or tool that supports feeds (Feedly, Zapier, Make, n8n, WordPress, etc). No auth required.</div>
+        <CopyBox label="RSS Feed URL" value={`${BASE}/feed.xml`} />
+        <a href={`${BASE}/feed.xml`} target="_blank" rel="noopener"
+          style={{display:'inline-flex',alignItems:'center',gap:6,background:'#f97316',color:'#fff',borderRadius:8,padding:'10px 18px',textDecoration:'none',fontWeight:700,fontSize:12,marginTop:4}}>
+          📡 Open Live Feed
+        </a>
+      </div>
+
+      {/* Integration snippets */}
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px'}}>
+        <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:16}}>⚙️ Integration Examples</div>
+
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>JavaScript / Node.js</div>
+          <pre style={{background:'#1e293b',color:'#e2e8f0',borderRadius:8,padding:'14px',fontSize:11,overflow:'auto',margin:0}}>{`const res = await fetch('${BASE}/api/v1/aliya-today/articles?limit=10', {
+  headers: { 'Authorization': 'Bearer ${API_KEY}' }
+})
+const { articles } = await res.json()
+articles.forEach(a => console.log(a.title, a.url))`}</pre>
+        </div>
+
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Python</div>
+          <pre style={{background:'#1e293b',color:'#e2e8f0',borderRadius:8,padding:'14px',fontSize:11,overflow:'auto',margin:0}}>{`import requests
+r = requests.get(
+    '${BASE}/api/v1/aliya-today/articles',
+    headers={'Authorization': 'Bearer ${API_KEY}'},
+    params={'limit': 10, 'category': 'Housing'}
+)
+for a in r.json()['articles']:
+    print(a['title'], a['url'])`}</pre>
+        </div>
+
+        <div>
+          <div style={{fontSize:12,fontWeight:700,color:'#374151',marginBottom:6}}>Zapier / Make / n8n — HTTP Request node</div>
+          <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'14px',fontSize:12,color:'#374151',lineHeight:1.7}}>
+            <b>URL:</b> <code style={{background:'#e5e7eb',padding:'1px 6px',borderRadius:4}}>{BASE}/api/v1/aliya-today/articles</code><br/>
+            <b>Method:</b> GET<br/>
+            <b>Headers:</b> <code style={{background:'#e5e7eb',padding:'1px 6px',borderRadius:4}}>Authorization: Bearer {API_KEY}</code><br/>
+            <b>Query params:</b> <code style={{background:'#e5e7eb',padding:'1px 6px',borderRadius:4}}>limit=20</code> (add category, q, from/to as needed)
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
