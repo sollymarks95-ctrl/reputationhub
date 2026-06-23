@@ -561,6 +561,7 @@ Ask questions. Share your story. Help each other home. 🕍`}
         {tab==='api' && (
           <APITab />
         )}
+        {tab==='linkbuilding' && <LinkBuildingTab />}
       </main>
     </div>
   )
@@ -627,8 +628,6 @@ function EndpointBlock({ method, path, desc, params, example }: { method:string;
     </div>
   )
 }
-
-{tab==='linkbuilding' && <LinkBuildingTab />}
 
 function APITab() {
   return (
