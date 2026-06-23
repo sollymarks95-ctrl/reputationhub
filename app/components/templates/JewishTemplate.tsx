@@ -59,11 +59,43 @@ function IanMarksBanner({ siteUrl }: { siteUrl: string }) {
   const msg = encodeURIComponent(`Hi, I got to you through ${siteUrl} — I am looking for a property in Israel`)
   return (
     <a href={`https://wa.me/972522569995?text=${msg}`} target="_blank" rel="noopener noreferrer"
-      style={{ display:'block', textDecoration:'none', cursor:'pointer', borderRadius:8, overflow:'hidden',
-        boxShadow:'0 2px 12px rgba(0,0,0,.12)', flexShrink:0, width:220 }}>
+      style={{ display:'block', textDecoration:'none', cursor:'pointer', overflow:'hidden' }}>
       <img src="/ian-marks-banner.jpg" alt="Ian Marks Real Estate — Buy Property in Israel"
         style={{ width:'100%', display:'block' }} loading="lazy" />
     </a>
+  )
+}
+
+// Wrapper that places banners on left + right gutters alongside content
+function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; siteUrl: string; bg?: string }) {
+  return (
+    <>
+      <style>{`
+        @media(max-width:1100px){ .ian-gutter{ display:none!important } }
+      `}</style>
+      <div style={{ position:'relative', background: bg || 'transparent' }}>
+        {/* Left gutter banner */}
+        <div className="ian-gutter" style={{
+          position:'absolute', left:0, top:0, width:160,
+          paddingTop:24, paddingLeft:8
+        }}>
+          <div style={{ position:'sticky', top:20 }}>
+            <IanMarksBanner siteUrl={siteUrl} />
+          </div>
+        </div>
+        {/* Right gutter banner */}
+        <div className="ian-gutter" style={{
+          position:'absolute', right:0, top:0, width:160,
+          paddingTop:24, paddingRight:8
+        }}>
+          <div style={{ position:'sticky', top:20 }}>
+            <IanMarksBanner siteUrl={siteUrl} />
+          </div>
+        </div>
+        {/* Actual content */}
+        {children}
+      </div>
+    </>
   )
 }
 
@@ -136,9 +168,8 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </div>
 
-    {/* Main content + right banner */}
-    <div style={{ display:'flex', gap:24, maxWidth:1260, margin:'0 auto', padding:'0 20px', paddingTop:24, paddingBottom:60, alignItems:'flex-start' }}>
-      <div style={{ flex:1, minWidth:0 }}>
+    <WithBanners siteUrl="https://jewishnewsnow.com" bg="#fff">
+    <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 20px', paddingTop:24, paddingBottom:60 }}>
         {/* Hero — newspaper front page layout */}
         {hero && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 340px', gap: '0 24px', marginBottom: 32, paddingBottom: 32, borderBottom: '2px solid #000' }}>
@@ -176,11 +207,8 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
           ))}
         </div>
       </div>
-      {/* Ian Marks banner — right sticky column */}
-      <div style={{ position:'sticky', top:20, alignSelf:'start', width:220, flexShrink:0 }}>
-        <IanMarksBanner siteUrl="https://jewishnewsnow.com" />
-      </div>
     </div>
+    </WithBanners>
 
     {/* Newsletter */}
     <div style={{ background: '#f5f5f5', borderTop: '3px solid #000', padding: '40px 0' }}>
@@ -277,8 +305,8 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
       </div>
     </header>
 
-    <div style={{ display:'flex', gap:24, maxWidth:1260, margin:'0 auto', padding:'0 24px', alignItems:'flex-start' }}>
-      <div style={{ flex:1, minWidth:0, paddingTop:28, paddingBottom:60 }}>
+    <WithBanners siteUrl="https://jewishpropertyreport.com" bg="#f7f9f7">
+    <div style={{ maxWidth:1260, margin:'0 auto', padding:'0 24px', paddingTop:28, paddingBottom:60 }}>
       {/* Featured property articles */}
       {hero && (
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 36, paddingBottom: 36, borderBottom: `3px solid ${P}` }}>
@@ -326,11 +354,8 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
           </a>
         ))}
       </div>
-      </div>{/* end main content */}
-      <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:28 }}>
-        <IanMarksBanner siteUrl="https://jewishpropertyreport.com" />
-      </div>
     </div>
+    </WithBanners>
 
     {/* Newsletter Banner */}
     <div style={{ background: '#f0faf5', borderTop: '3px solid #0a7c4e', padding: '40px 0' }}>
@@ -561,8 +586,8 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </header>
 
-    <div style={{ display:'flex', gap:24, maxWidth:1400, margin:'0 auto', padding:'0 20px', alignItems:'flex-start' }}>
-      <div style={{ flex:1, minWidth:0, paddingTop:32, paddingBottom:60 }}>
+    <WithBanners siteUrl="https://aliyatoday.com" bg="#f3f3f0">
+    <div style={{ maxWidth:1180, margin:'0 auto', padding:'0 20px', paddingTop:32, paddingBottom:60 }}>
       {/* Hero — full width with warm overlay */}
       {hero && (
         <div style={{ marginBottom: 40 }}>
@@ -632,11 +657,8 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
           </div>
         </div>
       )}
-      </div>{/* end main */}
-      <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:32 }}>
-        <IanMarksBanner siteUrl="https://aliyatoday.com" />
-      </div>
     </div>
+    </WithBanners>
 
     {/* Newsletter Banner */}
     <div style={{ background: '#fff8f0', borderTop: '3px solid #c47d1a', padding: '40px 0' }}>
