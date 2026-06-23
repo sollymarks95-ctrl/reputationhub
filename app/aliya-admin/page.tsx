@@ -950,7 +950,7 @@ function LinkBuildingTab() {
             </div>
           )}
           {data?.opportunities?.length === 0 && (
-            <div style={{textAlign:'center',padding:'24px',color:'#6b7280',fontSize:13'}}>
+            <div style={{textAlign:'center',padding:'24px',color:'#6b7280',fontSize:13}}>
               {data.totalScanned === 0 || data.totalScanned === undefined ? (
                 <div>
                   <div style={{fontSize:20,marginBottom:8}}>⏳</div>

@@ -258,9 +258,7 @@ CRITICAL: Respond to "${post.title}" SPECIFICALLY. Return ONLY the reply text.`,
       // Guarantee the URL is in the reply — append if Claude dropped it
       let replyText = rawReply
       if (articleUrl && rawReply && !rawReply.includes(articleUrl)) {
-        replyText = rawReply.trimEnd() + \`
-
-p.s. Full guide on this topic: \${articleUrl}\`
+        replyText = rawReply.trimEnd() + '\n\np.s. Full guide on this topic: ' + articleUrl
       }
 
       return {
