@@ -437,16 +437,25 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.6)', marginTop: 3, fontStyle: 'italic' }}>Your Complete Guide to Making Aliya</div>
             </div>
           </a>
-          {/* Facebook Community button */}
-          <a
-            className="at-desk"
-            href="https://www.facebook.com/groups/1620082289091191"
-            target="_blank" rel="noopener"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1877f2', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(24,119,242,.4)', letterSpacing: '.01em' }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-            Join Our Community
-          </a>
+          {/* Facebook + YouTube buttons */}
+          <div className="at-desk" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <a
+              href="https://www.facebook.com/groups/1620082289091191"
+              target="_blank" rel="noopener"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1877f2', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(24,119,242,.4)', letterSpacing: '.01em' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+              Join Our Community
+            </a>
+            <a
+              href="https://www.youtube.com/@aliyatodaytoisrael"
+              target="_blank" rel="noopener"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#ff0000', color: '#fff', borderRadius: 8, padding: '10px 18px', textDecoration: 'none', fontSize: 13, fontWeight: 800, boxShadow: '0 2px 8px rgba(255,0,0,.35)', letterSpacing: '.01em' }}
+            >
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.582 2.186A2.506 2.506 0 0 0 17.82.418C16.254 0 10 0 10 0S3.746 0 2.18.418A2.506 2.506 0 0 0 .418 2.186C0 3.754 0 7 0 7s0 3.246.418 4.814a2.506 2.506 0 0 0 1.762 1.768C3.746 14 10 14 10 14s6.254 0 7.82-.418a2.506 2.506 0 0 0 1.762-1.768C20 10.246 20 7 20 7s0-3.246-.418-4.814zM7.955 9.955V4.045L13.182 7l-5.227 2.955z"/></svg>
+              Follow on YouTube
+            </a>
+          </div>
         </div>
         {/* Category nav + Search */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,.1)', flexWrap: 'wrap' }}>
@@ -586,15 +595,25 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
         <h2 style={{ fontSize: 24, fontWeight: 900, color: '#1a0f00', marginBottom: 8, fontFamily: 'Georgia, serif' }}>The Aliya Newsletter — For Serious Olim</h2>
         <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>Step-by-step guides, new benefits, housing tips and community updates — weekly for those planning their move.</p>
         <SubscribeForm siteSlug="aliya-today" siteName="Aliya Today" accent="#c47d1a" />
-        {/* Facebook Community CTA */}
-        <a
-          href="https://www.facebook.com/groups/1620082289091191"
-          target="_blank" rel="noopener"
-          style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#1877f2', color: '#fff', borderRadius: 9, padding: '13px 24px', textDecoration: 'none', fontSize: 14, fontWeight: 800, boxShadow: '0 4px 14px rgba(24,119,242,.35)' }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-          👥 Join Our Aliyah Community on Facebook
-        </a>
+        {/* Social CTAs */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+          <a
+            href="https://www.facebook.com/groups/1620082289091191"
+            target="_blank" rel="noopener"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#1877f2', color: '#fff', borderRadius: 9, padding: '13px 24px', textDecoration: 'none', fontSize: 14, fontWeight: 800, boxShadow: '0 4px 14px rgba(24,119,242,.35)' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+            👥 Join Our Aliyah Community on Facebook
+          </a>
+          <a
+            href="https://www.youtube.com/@aliyatodaytoisrael"
+            target="_blank" rel="noopener"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#ff0000', color: '#fff', borderRadius: 9, padding: '13px 24px', textDecoration: 'none', fontSize: 14, fontWeight: 800, boxShadow: '0 4px 14px rgba(255,0,0,.3)' }}
+          >
+            <svg width="22" height="16" viewBox="0 0 20 14" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.582 2.186A2.506 2.506 0 0 0 17.82.418C16.254 0 10 0 10 0S3.746 0 2.18.418A2.506 2.506 0 0 0 .418 2.186C0 3.754 0 7 0 7s0 3.246.418 4.814a2.506 2.506 0 0 0 1.762 1.768C3.746 14 10 14 10 14s6.254 0 7.82-.418a2.506 2.506 0 0 0 1.762-1.768C20 10.246 20 7 20 7s0-3.246-.418-4.814zM7.955 9.955V4.045L13.182 7l-5.227 2.955z"/></svg>
+            ▶ Follow Us on YouTube
+          </a>
+        </div>
       </div>
     </div>
     <footer style={{ background: '#2d1a00', color: '#888', padding: '32px 0 20px' }}>
