@@ -751,7 +751,7 @@ function LinkBuildingTab() {
   const A = '#c47d1a'
   const [loading, setLoading]           = useState(false)
   const [data, setData]                 = useState<any>(null)
-  const [done, setDone]                 = useState<Set<string>>>(new Set())
+  const [done, setDone]                 = useState<Set<string>>(new Set())
   const [copied, setCopied]             = useState<string|null>(null)
   const [toiLoading, setToiLoading]     = useState(false)
   const [toiDraft, setToiDraft]         = useState<any>(null)
