@@ -9,93 +9,241 @@ const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 const ANTH  = process.env.ANTHROPIC_API_KEY || ''
 const ALIYA_SITE_ID = '9cfd54a9-5e1c-414c-8fe1-12b779013fca'
 
+// Subreddits to monitor — ordered by relevance
+const SUBREDDITS = [
+  { name: 'aliyah',            label: 'r/aliyah',            priority: 1 },
+  { name: 'Israel',            label: 'r/Israel',            priority: 2 },
+  { name: 'Jewish',            label: 'r/Jewish',            priority: 3 },
+  { name: 'israelexpatriates', label: 'r/israelexpatriates', priority: 2 },
+  { name: 'MovingToIsrael',    label: 'r/MovingToIsrael',    priority: 1 },
+  { name: 'expats',            label: 'r/expats',            priority: 3 },
+]
+
 function db() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||ANON) }
 
 async function claude(prompt: string, system: string): Promise<string> {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type':'application/json','x-api-key':ANTH,'anthropic-version':'2023-06-01' },
-    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:2000, system, messages:[{role:'user',content:prompt}] })
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:3000, system, messages:[{role:'user',content:prompt}] })
   })
   const d = await r.json()
   return d.content?.[0]?.text || ''
 }
 
-async function getTopArticles(limit=5) {
+async function getTopArticles(limit = 20) {
   const { data } = await db().from('news_articles')
-    .select('title,slug,excerpt,category,published_at,views')
+    .select('title,slug,excerpt,category,tags,views')
     .eq('news_site_id', ALIYA_SITE_ID)
     .eq('status','published')
-    .order('views',{ascending:false})
+    .order('views', { ascending: false })
     .limit(limit)
   return data || []
 }
 
-async function getRedditPosts() {
+async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25) {
   try {
-    const r = await fetch('https://www.reddit.com/r/aliyah/hot.json?limit=20', {
-      headers:{'User-Agent':'AliyaToday/1.0'},
+    const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.json?limit=${limit}`, {
+      headers: { 'User-Agent': 'AliyaToday-Research/1.0' },
       signal: AbortSignal.timeout(8000)
     })
+    if (!r.ok) return []
     const d = await r.json()
-    return (d.data?.children||[]).map((c:any) => ({
-      id: c.data.id,
-      title: c.data.title,
-      url: `https://reddit.com${c.data.permalink}`,
-      score: c.data.score,
-      comments: c.data.num_comments,
-      selftext: (c.data.selftext||'').slice(0,400),
-    }))
+    return (d.data?.children || [])
+      .filter((c: any) => !c.data.stickied && !c.data.is_self === false || c.data.is_self)
+      .map((c: any) => ({
+        id:       c.data.id,
+        title:    c.data.title,
+        url:      `https://reddit.com${c.data.permalink}`,
+        score:    c.data.score,
+        comments: c.data.num_comments,
+        flair:    c.data.link_flair_text || '',
+        selftext: (c.data.selftext || '').slice(0, 600),
+        created:  c.data.created_utc,
+        subreddit: sub,
+        author:   c.data.author,
+        is_question: c.data.title.includes('?') || (c.data.selftext||'').includes('?'),
+      }))
   } catch { return [] }
+}
+
+// Get already-used post IDs to avoid repeats
+async function getUsedPostIds(): Promise<Set<string>> {
+  const { data } = await db().from('reddit_used_posts').select('post_id').limit(500)
+  return new Set((data||[]).map((r:any) => r.post_id))
+}
+
+async function markPostUsed(postId: string, postTitle: string, subreddit: string) {
+  await db().from('reddit_used_posts').upsert(
+    { post_id: postId, post_title: postTitle, subreddit, used_at: new Date().toISOString() },
+    { onConflict: 'post_id' }
+  ).catch(() => {})
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const { action } = body
 
+  // ── REDDIT: Get fresh opportunities ───────────────────────────────────────
+  if (action === 'reddit_daily') {
+    const [articles, usedIds] = await Promise.all([
+      getTopArticles(25),
+      getUsedPostIds()
+    ])
+
+    // Fetch from all subreddits in parallel
+    const allFetches = await Promise.all([
+      ...SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 25)),
+      fetchSubreddit('aliyah', 'new', 15),  // also check new posts in r/aliyah
+    ])
+
+    // Flatten, dedupe by id, filter already used
+    const seen = new Set<string>()
+    const allPosts = allFetches.flat()
+      .filter((p: any) => {
+        if (seen.has(p.id) || usedIds.has(p.id)) return false
+        seen.add(p.id)
+        return true
+      })
+      // Prioritise questions and posts with engagement
+      .sort((a: any, b: any) => {
+        const aScore = (a.is_question ? 30 : 0) + Math.min(a.comments * 2, 40) + Math.min(a.score / 10, 30)
+        const bScore = (b.is_question ? 30 : 0) + Math.min(b.comments * 2, 40) + Math.min(b.score / 10, 30)
+        return bScore - aScore
+      })
+      .slice(0, 30)
+
+    if (!allPosts.length) return NextResponse.json({ opportunities: [], message: 'No new posts found' })
+
+    const articleList = articles.map((a: any) =>
+      `"${a.title}" [${a.category}] → https://aliyatoday.com/article/aliya-today/${a.slug}\nExcerpt: ${a.excerpt||''}`
+    ).join('\n\n')
+
+    const postList = allPosts.map((p: any, i: number) =>
+      `POST ${i+1} [r/${p.subreddit}] [${p.is_question?'QUESTION':'DISCUSSION'}]
+Title: "${p.title}"
+Body: ${p.selftext || '(link post / no body)'}
+Engagement: ${p.score} upvotes, ${p.comments} comments
+URL: ${p.url}`
+    ).join('\n\n---\n\n')
+
+    const today = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+
+    const analysis = await claude(
+      `Today is ${today}. You are helping Solly Marks — Israeli entrepreneur, experienced oleh living in Ashdod, founder of AliyaToday.com.
+
+Here are fresh Reddit posts from Jewish/Israel/Aliyah subreddits:
+
+${postList}
+
+Here are AliyaToday articles that could help:
+
+${articleList}
+
+YOUR TASK:
+For each Reddit post where Solly can genuinely add value with a helpful comment, create a reply. Prioritise posts where:
+1. Someone is asking a question about aliyah, moving to Israel, or Israeli life
+2. Someone is confused about bureaucracy, costs, health system, housing, etc.
+3. The discussion is about a topic AliyaToday covers well
+
+For each opportunity, write a reply that:
+- STARTS by directly answering or helping — not with "I" or "Great question"
+- Sounds like a real experienced oleh who has been through it
+- Is 80-160 words — conversational, not an essay
+- If an AliyaToday article directly helps, include the URL naturally at the END only — like "I wrote a full breakdown of this at [url] if helpful" — never as the main point
+- DO NOT include a link if no article directly covers it — answer from experience instead
+- Never say "AliyaToday" or "my site" in an obviously promotional way
+
+Return ONLY valid JSON array (no preamble, no fences):
+[{
+  "post_id": "reddit post id",
+  "subreddit": "subreddit name",
+  "post_title": "full title",
+  "post_url": "full reddit url",
+  "reply": "full reply text ready to paste",
+  "article_url": "full article url or null if no article used",
+  "article_title": "article title or null",
+  "relevance": 1-10,
+  "why": "one sentence why this reply helps"
+}]
+
+Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance descending.`,
+      'You are an experienced oleh helping Solly Marks identify Reddit posts where he can genuinely help people with aliyah knowledge. Quality over quantity. Only real helpful replies.'
+    )
+
+    let opportunities: any[] = []
+    try {
+      const clean = analysis.replace(/```json|```/g, '').trim()
+      opportunities = JSON.parse(clean)
+    } catch {
+      // Try to extract JSON array if wrapped in text
+      const match = analysis.match(/\[[\s\S]+\]/)
+      if (match) { try { opportunities = JSON.parse(match[0]) } catch { opportunities = [] } }
+    }
+
+    // Filter and sort
+    opportunities = opportunities
+      .filter((o: any) => o.relevance >= 7 && o.reply && o.post_url)
+      .sort((a: any, b: any) => b.relevance - a.relevance)
+      .slice(0, 8)
+
+    return NextResponse.json({
+      opportunities,
+      totalScanned: allPosts.length,
+      subreddits: SUBREDDITS.map(s => s.label),
+      generatedAt: new Date().toISOString(),
+      date: today,
+    })
+  }
+
+  // ── REDDIT: Mark post as done (used) ──────────────────────────────────────
+  if (action === 'reddit_mark_done') {
+    const { postId, postTitle, subreddit } = body
+    await markPostUsed(postId, postTitle, subreddit)
+    return NextResponse.json({ ok: true })
+  }
+
+  // ── REDDIT: Get history of used posts ─────────────────────────────────────
+  if (action === 'reddit_history') {
+    const { data } = await db().from('reddit_used_posts')
+      .select('*').order('used_at', { ascending: false }).limit(100)
+    return NextResponse.json({ history: data || [] })
+  }
+
+  // ── TOI Blog Post Drafter ──────────────────────────────────────────────────
   if (action === 'draft_toi') {
     const articles = await getTopArticles(5)
     const picked = articles[body.articleIndex ?? 0] || articles[0]
-    if (!picked) return NextResponse.json({error:'No articles'},{status:400})
+    if (!picked) return NextResponse.json({ error:'No articles' }, { status:400 })
     const url = `https://aliyatoday.com/article/aliya-today/${picked.slug}`
     const draft = await claude(
-      `Write a Times of Israel blog post based on this AliyaToday article.\n\nTitle: ${picked.title}\nExcerpt: ${picked.excerpt}\nCategory: ${picked.category}\nURL: ${url}\n\nRequirements:\n- 450-600 words\n- First person as Solly Marks, oleh in Ashdod\n- Open with personal hook about aliyah experience\n- Practical insights for diaspora Jews\n- Link to AliyaToday.com naturally once\n- Warm, personal, not promotional\n- Byline at end: "Solly Marks is an Israeli entrepreneur and founder of AliyaToday.com"\n\nReturn ONLY the post text with a Subject/Title line first.`,
-      'You ghostwrite authentic personal content for Solly Marks for the Times of Israel blog. Human voice, no marketing language.'
+      `Write a Times of Israel blog post based on:\nTitle: ${picked.title}\nExcerpt: ${picked.excerpt}\nURL: ${url}\n\n- 450-600 words\n- First person as Solly Marks, oleh in Ashdod\n- Personal hook, practical insights for diaspora Jews\n- Link to AliyaToday.com once naturally\n- Byline: "Solly Marks is an Israeli entrepreneur and founder of AliyaToday.com"\n\nReturn title first, then post body.`,
+      'Ghostwrite authentic personal content for Solly Marks for the Times of Israel blog. Human voice, no marketing.'
     )
     return NextResponse.json({ draft, article: picked, articleUrl: url, submitUrl: 'https://blogs.timesofisrael.com/wp-login.php', topArticles: articles })
   }
 
-  if (action === 'reddit_opportunities') {
-    const [posts, articles] = await Promise.all([getRedditPosts(), getTopArticles(15)])
-    const articleList = articles.map((a:any) => `"${a.title}" → https://aliyatoday.com/article/aliya-today/${a.slug}`).join('\n')
-    const postList = posts.slice(0,12).map((p:any,i:number) => `${i+1}. "${p.title}" (${p.score} upvotes)\nURL: ${p.url}${p.selftext ? '\nContext: '+p.selftext : ''}`).join('\n\n')
-    const analysis = await claude(
-      `Hot posts on r/aliyah right now:\n\n${postList}\n\nAliyaToday articles available:\n${articleList}\n\nFor posts where an article genuinely helps (score 7+), write a Reddit reply (80-140 words) that:\n- Answers directly and helpfully first\n- Links the article naturally only if it truly adds value\n- Sounds like an experienced oleh, not a marketer\n\nReturn ONLY JSON array: [{"post_title":"...","post_url":"...","reply":"...","article_url":"...","score":1-10}]\nOnly include score >= 7.`,
-      'Experienced oleh helping people on Reddit. Only share links when genuinely useful. Never promotional.'
-    )
-    let opportunities: any[] = []
-    try { opportunities = JSON.parse(analysis.replace(/```json|```/g,'').trim()) } catch { opportunities = [] }
-    return NextResponse.json({ opportunities, totalPosts: posts.length })
-  }
-
+  // ── HARO Pitch ────────────────────────────────────────────────────────────
   if (action === 'haro_draft') {
     const { query, publication, deadline } = body
     const draft = await claude(
-      `Write a HARO media pitch for this query:\n\nQuery: "${query}"\nPublication: ${publication||'Unknown'}\nDeadline: ${deadline||'ASAP'}\n\nPitch as Solly Marks:\n- Israeli entrepreneur, oleh, Ashdod\n- Founder AliyaToday.com — leading English aliyah resource\n- Expert: aliyah process, Israeli immigration, expat life in Israel\n\nRequirements: 150-250 words, lead with most relevant credential, 2-3 specific insights, mention AliyaToday.com as platform, end with [your@email.com] / aliyatoday.com\n\nReturn ONLY the pitch text.`,
+      `Write a HARO pitch for:\nQuery: "${query}"\nPublication: ${publication||'Unknown'}\nDeadline: ${deadline||'ASAP'}\n\nAs Solly Marks — Israeli entrepreneur, oleh in Ashdod, founder AliyaToday.com.\n150-250 words, expert credential first, 2-3 specific insights, end with [your@email.com] / aliyatoday.com\n\nReturn ONLY the pitch text.`,
       'Write expert HARO pitches for Solly Marks. Direct, credible, no fluff.'
     )
     return NextResponse.json({ draft, query, publication })
   }
 
+  // ── Outreach Email ─────────────────────────────────────────────────────────
   if (action === 'outreach_email') {
     const { orgName, orgType, contactName } = body
     const email = await claude(
-      `Write outreach email from Solly Marks to ${orgName} (${orgType||'Jewish organisation'}).\n${contactName?'Contact: '+contactName:''}\n\nGoal: Get them to link to AliyaToday.com in their newsletter or resources page.\n\nRequirements:\n- 150-200 words max\n- Acknowledge their work genuinely\n- Describe AliyaToday briefly (practical English aliyah guides, updated daily)\n- Offer one specific resource relevant to their community\n- Simple ask: add AliyaToday.com to their resources\n- Sign: Solly Marks, Founder — AliyaToday.com | Ashdod, Israel\n\nReturn Subject line first, then email body.`,
+      `Outreach email from Solly Marks to ${orgName} (${orgType||'Jewish organisation'}).\n${contactName?'Contact: '+contactName:''}\nGoal: Get them to link AliyaToday.com in their newsletter or resources.\n150-200 words, genuine, simple ask, sign as Solly Marks Founder AliyaToday.com Ashdod Israel.\nReturn Subject line first then email.`,
       'Write genuine community outreach for Solly Marks. Brief, helpful, not salesy.'
     )
     return NextResponse.json({ email, orgName })
   }
 
+  // ── Save outreach ──────────────────────────────────────────────────────────
   if (action === 'save_outreach') {
     const { orgName, orgType, contactEmail, platform, status, notes } = body
     const { error } = await db().from('link_building_outreach').upsert({
@@ -103,15 +251,16 @@ export async function POST(req: NextRequest) {
       platform: platform||'email', status: status||'drafted',
       notes: notes||'', updated_at: new Date().toISOString()
     }, { onConflict: 'org_name,platform' })
-    if (error) return NextResponse.json({error:error.message},{status:500})
+    if (error) return NextResponse.json({ error: error.message }, { status:500 })
     return NextResponse.json({ ok: true })
   }
 
+  // ── Get outreach CRM ───────────────────────────────────────────────────────
   if (action === 'get_outreach') {
     const { data } = await db().from('link_building_outreach')
-      .select('*').order('updated_at',{ascending:false}).limit(200)
-    return NextResponse.json({ records: data||[] })
+      .select('*').order('updated_at', { ascending: false }).limit(200)
+    return NextResponse.json({ records: data || [] })
   }
 
-  return NextResponse.json({ error:'Unknown action' },{status:400})
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }

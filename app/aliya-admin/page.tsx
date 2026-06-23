@@ -860,67 +860,159 @@ function RedditTab() {
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<any>(null)
   const [copied, setCopied] = useState<string|null>(null)
+  const [done, setDone] = useState<Set<string>>(new Set())
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<any[]>([])
+  const A = '#c47d1a'
 
   async function scan() {
     setLoading(true); setData(null)
     try {
-      const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'reddit_opportunities'}) })
+      const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'reddit_daily'}) })
       setData(await r.json())
     } finally { setLoading(false) }
   }
 
-  function copy(id:string,text:string){ navigator.clipboard.writeText(text); setCopied(id); setTimeout(()=>setCopied(null),2000) }
+  async function markDone(o: any) {
+    setDone(prev => new Set([...prev, o.post_id]))
+    await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'reddit_mark_done', postId:o.post_id, postTitle:o.post_title, subreddit:o.subreddit}) })
+  }
+
+  async function loadHistory() {
+    const r = await fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'reddit_history'}) })
+    const d = await r.json(); setHistory(d.history||[])
+  }
+
+  function copy(id: string, text: string) { navigator.clipboard.writeText(text); setCopied(id); setTimeout(()=>setCopied(null), 2500) }
+
+  const PRIORITY_COLOR: Record<string,string> = { aliyah:'#ff4500', MovingToIsrael:'#ff6b35', israelexpatriates:'#e85d04', Israel:'#1a56b0', Jewish:'#2563eb', expats:'#6b7280' }
 
   return (
     <div>
+      {/* Header */}
       <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
-        <div style={{fontWeight:800,fontSize:15,color:'#111',marginBottom:8}}>👾 Reddit r/aliyah Opportunities</div>
-        <p style={{fontSize:13,color:'#6b7280',margin:'0 0 16px',lineHeight:1.6}}>
-          Scans live hot posts from r/aliyah, matches against your AliyaToday articles, and drafts genuine helpful replies. Only shows posts where a link actually adds value (score 7+).
-        </p>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+          <div>
+            <div style={{fontWeight:900,fontSize:16,color:'#111',marginBottom:4}}>👾 Daily Reddit Briefing</div>
+            <div style={{fontSize:13,color:'#6b7280',lineHeight:1.5}}>
+              Scans <strong>r/aliyah · r/MovingToIsrael · r/israelexpatriates · r/Israel · r/Jewish · r/expats</strong> for posts where you can help and earn a natural backlink. Fresh posts only — already-replied posts are skipped automatically.
+            </div>
+          </div>
+          <button onClick={()=>{setShowHistory(!showHistory); if(!showHistory) loadHistory()}}
+            style={{background:'#f3f4f6',color:'#374151',border:'none',padding:'8px 14px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer',whiteSpace:'nowrap',marginLeft:16}}>
+            {showHistory ? '← Back' : '📋 History'}
+          </button>
+        </div>
         <button onClick={scan} disabled={loading}
-          style={{background:'#ff4500',color:'#fff',border:'none',padding:'12px 24px',borderRadius:10,fontWeight:800,fontSize:14,cursor:'pointer',opacity:loading?0.7:1,fontFamily:'Inter,sans-serif'}}>
-          {loading ? '🔍 Scanning r/aliyah...' : '🔍 Scan r/aliyah Now'}
+          style={{background:'#ff4500',color:'#fff',border:'none',padding:'14px 32px',borderRadius:10,fontWeight:900,fontSize:15,cursor:'pointer',opacity:loading?0.7:1,fontFamily:'Inter,sans-serif',display:'flex',alignItems:'center',gap:10}}>
+          {loading ? <><span style={{display:'inline-block',width:16,height:16,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />Scanning all subreddits + drafting replies...</> : '🔍 Get Today's Opportunities'}
         </button>
+        {data && (
+          <div style={{marginTop:12,fontSize:12,color:'#9ca3af'}}>
+            Last scan: {new Date(data.generatedAt).toLocaleTimeString()} · Scanned {data.totalScanned} posts · {data.opportunities?.length||0} opportunities found
+          </div>
+        )}
       </div>
 
-      {data?.opportunities?.length === 0 && (
-        <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:12,padding:'24px',textAlign:'center',color:'#6b7280',fontSize:13}}>
-          No high-relevance opportunities right now (score &lt; 7). Check back later or after new articles publish.
-        </div>
-      )}
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
-      {data?.opportunities?.map((o:any,i:number) => (
-        <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
-            <div>
-              <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:4}}>{o.post_title}</div>
-              <div style={{display:'flex',gap:12,fontSize:12,color:'#9ca3af'}}>
-                <span style={{background:'#fef3c7',color:'#92400e',padding:'2px 8px',borderRadius:20,fontWeight:700}}>Relevance: {o.score}/10</span>
-                <a href={o.post_url} target="_blank" rel="noopener" style={{color:'#ff4500',fontWeight:700}}>View on Reddit →</a>
-              </div>
-            </div>
-            <button onClick={()=>copy(`r${i}`,o.reply)}
-              style={{background:copied===`r${i}`?'#16a34a':'#f3f4f6',color:copied===`r${i}`?'#fff':'#374151',border:'none',padding:'8px 16px',borderRadius:8,fontWeight:700,fontSize:12,cursor:'pointer',whiteSpace:'nowrap'}}>
-              {copied===`r${i}`?'✅ Copied!':'📋 Copy Reply'}
-            </button>
-          </div>
-          <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:8,padding:'14px',fontSize:13,lineHeight:1.7,color:'#374151',fontFamily:'system-ui'}}>
-            {o.reply}
-          </div>
-          {o.article_url && (
-            <div style={{marginTop:8,fontSize:12,color:'#9ca3af'}}>
-              Links to: <a href={o.article_url} target="_blank" rel="noopener" style={{color:'#c47d1a'}}>{o.article_url}</a>
+      {/* History view */}
+      {showHistory && (
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'20px 24px',marginBottom:20}}>
+          <div style={{fontWeight:800,fontSize:14,color:'#111',marginBottom:12}}>Posts You've Already Replied To</div>
+          {history.length === 0 ? (
+            <div style={{color:'#9ca3af',fontSize:13}}>No history yet. Start replying to posts and mark them done.</div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {history.map((h:any,i:number) => (
+                <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 14px',background:'#f9fafb',borderRadius:8,border:'1px solid #e5e7eb'}}>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:600,color:'#374151'}}>{h.post_title}</div>
+                    <div style={{fontSize:11,color:'#9ca3af'}}>r/{h.subreddit} · {new Date(h.used_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+                  </div>
+                  <span style={{fontSize:11,background:'#dcfce7',color:'#16a34a',padding:'3px 10px',borderRadius:20,fontWeight:700}}>✓ Done</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      ))}
+      )}
 
-      {data && (
-        <div style={{fontSize:12,color:'#9ca3af',textAlign:'center',padding:'8px'}}>
-          Scanned {data.totalPosts} live posts · {data.opportunities?.length||0} high-relevance opportunities found
+      {/* No results */}
+      {data?.opportunities?.length === 0 && !showHistory && (
+        <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:12,padding:'32px',textAlign:'center'}}>
+          <div style={{fontSize:32,marginBottom:12}}>🎉</div>
+          <div style={{fontWeight:700,fontSize:15,color:'#374151',marginBottom:4}}>All caught up!</div>
+          <div style={{fontSize:13,color:'#9ca3af'}}>No new high-relevance posts right now. Check back in a few hours.</div>
         </div>
       )}
+
+      {/* Opportunity cards */}
+      {!showHistory && data?.opportunities?.map((o:any, i:number) => {
+        const isDone = done.has(o.post_id)
+        return (
+          <div key={o.post_id} style={{background: isDone ? '#f9fafb' : '#fff', border:`1px solid ${isDone?'#e5e7eb':'#d1d5db'}`, borderRadius:12, padding:'20px 24px', marginBottom:16, opacity:isDone?0.6:1, transition:'opacity 0.3s'}}>
+
+            {/* Post header */}
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+              <div style={{flex:1,marginRight:16}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                  <span style={{background: (PRIORITY_COLOR[o.subreddit]||'#6b7280')+'20', color: PRIORITY_COLOR[o.subreddit]||'#6b7280', padding:'3px 10px',borderRadius:20,fontSize:12,fontWeight:700}}>
+                    r/{o.subreddit}
+                  </span>
+                  <span style={{background:'#fef3c7',color:'#92400e',padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700}}>
+                    Relevance {o.relevance}/10
+                  </span>
+                  {o.article_url && (
+                    <span style={{background:'#dcfce7',color:'#16a34a',padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:700}}>
+                      🔗 Link included
+                    </span>
+                  )}
+                </div>
+                <div style={{fontWeight:800,fontSize:15,color:'#111',lineHeight:1.4,marginBottom:4}}>{o.post_title}</div>
+                <div style={{fontSize:12,color:'#9ca3af'}}>{o.why}</div>
+              </div>
+              <a href={o.post_url} target="_blank" rel="noopener"
+                style={{background:'#ff4500',color:'#fff',padding:'10px 18px',borderRadius:8,fontWeight:700,fontSize:13,textDecoration:'none',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:6}}>
+                Open Post →
+              </a>
+            </div>
+
+            {/* Reply box */}
+            <div style={{background:'#f8f9fa',border:'1px solid #e5e7eb',borderRadius:10,padding:'16px',marginBottom:12,position:'relative'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',marginBottom:8,textTransform:'uppercase',letterSpacing:0.5}}>Your Reply — ready to paste</div>
+              <div style={{fontSize:14,lineHeight:1.8,color:'#1f2937',whiteSpace:'pre-wrap',fontFamily:'system-ui'}}>{o.reply}</div>
+              {o.article_url && (
+                <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #e5e7eb',fontSize:12,color:'#9ca3af'}}>
+                  Links to: <a href={o.article_url} target="_blank" rel="noopener" style={{color:'#c47d1a',fontWeight:600}}>{o.article_title || o.article_url}</a>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button onClick={()=>copy(`reply-${o.post_id}`, o.reply)}
+                style={{background: copied===`reply-${o.post_id}` ? '#16a34a' : A, color:'#fff',border:'none',padding:'10px 20px',borderRadius:8,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
+                {copied===`reply-${o.post_id}` ? '✅ Copied!' : '📋 Copy Reply'}
+              </button>
+              <a href={o.post_url} target="_blank" rel="noopener"
+                style={{background:'#f3f4f6',color:'#374151',border:'none',padding:'10px 20px',borderRadius:8,fontWeight:700,fontSize:13,cursor:'pointer',textDecoration:'none',display:'inline-flex',alignItems:'center'}}>
+                💬 Open Thread
+              </a>
+              {!isDone && (
+                <button onClick={()=>markDone(o)}
+                  style={{background:'#dcfce7',color:'#16a34a',border:'1px solid #bbf7d0',padding:'10px 20px',borderRadius:8,fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:'Inter,sans-serif',marginLeft:'auto'}}>
+                  ✓ Mark as Posted
+                </button>
+              )}
+              {isDone && (
+                <span style={{padding:'10px 16px',fontSize:13,color:'#16a34a',fontWeight:700,marginLeft:'auto'}}>✅ Posted</span>
+              )}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
