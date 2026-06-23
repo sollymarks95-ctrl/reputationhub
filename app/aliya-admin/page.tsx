@@ -881,6 +881,7 @@ function LinkBuildingTab() {
         body:JSON.stringify({action:'send_email', to:contactEmail, subject, text:body, html:`<pre style="font-family:sans-serif;white-space:pre-wrap">${body}</pre>`, orgName, orgType}) })
       const d = await r.json()
       if (d.ok) { setSent(true); loadCRM(); setTimeout(()=>setSent(false),3000) }
+      else { alert('Send failed: ' + (d.error || 'Unknown error. Check RESEND_API_KEY in Vercel env vars.')) }
     } finally { setSending(false) }
   }
 
@@ -982,6 +983,15 @@ function LinkBuildingTab() {
                         style={{background:copied===`r${o.post_id}`?'#16a34a':A,color:'#fff',border:'none',padding:'8px 16px',borderRadius:7,fontWeight:700,fontSize:12,cursor:'pointer'}}>
                         {copied===`r${o.post_id}`?'✅ Copied!':'📋 Copy Reply'}
                       </button>
+                      {o.article_url && (
+                        <button onClick={()=>copy(`full${o.post_id}`, o.reply + (o.article_url ? `
+
+📖 Article I mentioned: ${o.article_title||''}
+${o.article_url}` : ''))}
+                          style={{background:copied===`full${o.post_id}`?'#16a34a':'#1a56b0',color:'#fff',border:'none',padding:'8px 16px',borderRadius:7,fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                          {copied===`full${o.post_id}`?'✅ Copied!':'📋 Copy Reply + Article'}
+                        </button>
+                      )}
                       <a href={o.post_url} target="_blank" rel="noopener"
                         style={{background:'#f3f4f6',color:'#374151',padding:'8px 16px',borderRadius:7,fontWeight:700,fontSize:12,textDecoration:'none',display:'inline-flex',alignItems:'center'}}>
                         💬 Open Thread

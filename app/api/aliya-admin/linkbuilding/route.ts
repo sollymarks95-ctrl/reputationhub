@@ -124,16 +124,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ opportunities: [], totalScanned: 0, generatedAtMs: Date.now(), message: 'Reddit returned 0 posts — may be rate limited, try again in a few minutes' })
     }
 
-    // Build opportunities for all posts — no AI, no threshold
-    const opportunities = allPosts.slice(0, 15).map((post: any) => {
+    // Keyword filter — only posts relevant to aliyah, Israel living, Jewish relocation
+    const ALIYAH_KEYWORDS = [
+      'aliyah','aliya','israel','oleh','olim','absorption','klita','sal klita',
+      'nbsn','nbn','nefesh','moving to israel','reloc','immigrat','making aliyah',
+      'kupat holim','bituach','misrad','teudat','ulpan','jerusalem','tel aviv',
+      'ashdod','netanya','haifa','beer sheva','rehovot','jewish','diaspora',
+      'passport','citizenship','visa','bank account','arnona','apartment','rent',
+      'housing','school','education','health','insurance','work permit','job',
+      'language','hebrew','community','synagogue','shul','shabbat','kosher'
+    ]
+    function isRelevant(post: any): boolean {
+      const text = (post.title + ' ' + post.selftext).toLowerCase()
+      return ALIYAH_KEYWORDS.some(kw => text.includes(kw))
+    }
+    const relevantPosts = allPosts.filter(isRelevant)
+    const postsToUse = relevantPosts.length > 0 ? relevantPosts : allPosts
+
+    // Build opportunities for relevant posts only
+    const opportunities = postsToUse.slice(0, 15).map((post: any) => {
       const art = findBestArticle(post, articles)
+      const articleUrl = art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null
+      const replyText = buildReply(post, art)
       return {
         post_id:       post.id,
         subreddit:     post.subreddit,
         post_title:    post.title,
         post_url:      post.url,
-        reply:         buildReply(post, art),
-        article_url:   art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null,
+        reply:         replyText,
+        article_url:   articleUrl,
         article_title: art?.title || null,
         relevance:     post.is_question ? 8 : 6,
         why:           post.is_question ? 'Question — direct helpful reply' : 'Discussion — adds oleh perspective',
