@@ -103,6 +103,81 @@ async function getAnthropicKey(db: ReturnType<typeof getDb>): Promise<string> {
   return data?.key_value || process.env.ANTHROPIC_API_KEY || ''
 }
 
+async function getSearchApiKey(db: ReturnType<typeof getDb>): Promise<string> {
+  const k = process.env.SEARCHAPI_KEY || process.env.SERPAPI_KEY
+  if (k) return k
+  const { data } = await db.from('system_api_keys')
+    .select('key_value').in('key_name', ['SEARCHAPI_KEY', 'SERPAPI_KEY'])
+    .eq('is_active', true).limit(1).single()
+  return data?.key_value || ''
+}
+
+// Seed queries per site — what we ask SearchAPI to get real PAA + Related Searches for
+const SEARCHAPI_SEEDS: Record<string, string[]> = {
+  'aliya-today':            ['making aliyah 2026', 'how to make aliyah', 'aliyah process step by step'],
+  'jewish-news-now':        ['jewish news today', 'israel news 2026', 'antisemitism latest news'],
+  'jewish-property-report': ['israel real estate 2026', 'buy apartment israel', 'tel aviv property market'],
+}
+
+// Fetch real Google People Also Ask + Related Searches for a site's seed queries.
+// These are the EXACT phrases people type into Google — the highest-quality signal for
+// what content to write and rank. Each query is scored by position (PAA #1 = 95 pts,
+// Related Search #1 = 80 pts, etc) so getTrendingFromDB naturally picks the most
+// searched topics first when ordering by score.
+async function fetchRealSearchQueries(
+  siteSlug: string,
+  apiKey: string
+): Promise<{ topic: string; score: number; source: string }[]> {
+  const seeds = SEARCHAPI_SEEDS[siteSlug]
+  if (!seeds || !apiKey) return []
+
+  const results: { topic: string; score: number; source: string }[] = []
+
+  await Promise.allSettled(seeds.map(async (seed, seedIdx) => {
+    try {
+      const params = new URLSearchParams({
+        engine: 'google', q: seed, api_key: apiKey,
+        gl: 'us', hl: 'en', num: '10',
+      })
+      const r = await fetch(`https://www.searchapi.io/api/v1/search?${params}`, {
+        signal: AbortSignal.timeout(12000),
+      })
+      if (!r.ok) return
+      const data = await r.json()
+
+      // People Also Ask — highest intent (score 95 down to 65)
+      ;(data.related_questions || []).forEach((paa: any, i: number) => {
+        if (paa.question) {
+          results.push({
+            topic: paa.question,
+            score: Math.max(95 - i * 10 - seedIdx * 5, 50),
+            source: 'google_paa',
+          })
+        }
+      })
+
+      // Related Searches — high-volume adjacent queries (score 80 down to 50)
+      ;(data.related_searches || []).forEach((rs: any, i: number) => {
+        if (rs.query) {
+          results.push({
+            topic: rs.query,
+            score: Math.max(80 - i * 5 - seedIdx * 3, 40),
+            source: 'google_related_searches',
+          })
+        }
+      })
+    } catch { /* individual seed failure is non-fatal */ }
+  }))
+
+  // Dedupe by topic (keep highest score)
+  const seen = new Map<string, { topic: string; score: number; source: string }>()
+  for (const r of results) {
+    const key = r.topic.toLowerCase().trim()
+    if (!seen.has(key) || seen.get(key)!.score < r.score) seen.set(key, r)
+  }
+  return [...seen.values()]
+}
+
 async function generateTopicsWithAI(
   rawTopics: {title:string;source:string;score?:number}[],
   siteSlug: string,
@@ -164,9 +239,10 @@ export async function GET(req: NextRequest) {
   const expected = process.env.CRON_SECRET ?? ''
   if (expected && secret !== expected) return NextResponse.json({ error:'Unauthorized' },{ status:401 })
 
-  const db      = getDb()
-  const apiKey  = await getAnthropicKey(db)
-  const today   = new Date().toISOString().split('T')[0]
+  const db       = getDb()
+  const apiKey   = await getAnthropicKey(db)
+  const searchKey = await getSearchApiKey(db)
+  const today    = new Date().toISOString().split('T')[0]
   const results: Record<string, any> = {}
 
   // 1. Fetch all raw topics from feeds in parallel
@@ -197,7 +273,30 @@ export async function GET(req: NextRequest) {
   const JEWISH_SITES = ['jewish-news-now', 'jewish-property-report', 'aliya-today']
 
   for (const siteSlug of JEWISH_SITES) {
-    // Filter relevant raw topics for this site
+    // ── A. Inject real Google search intent first ────────────────────────────
+    // Fetch People Also Ask + Related Searches from SearchAPI — these are the
+    // EXACT queries people type into Google, scored by position. Saved with
+    // high scores so getTrendingFromDB picks them first, ensuring articles are
+    // written about what's actually being searched, not just what's in the news.
+    let searchSaved = 0
+    if (searchKey && SEARCHAPI_SEEDS[siteSlug]) {
+      const searchQueries = await fetchRealSearchQueries(siteSlug, searchKey)
+      for (const sq of searchQueries) {
+        const { error } = await db.from('trending_topics').upsert({
+          site_slug: siteSlug,
+          topic: sq.topic,
+          source: sq.source,
+          score: sq.score,        // real position-based score: 40–95
+          date: today,
+          discovered_at: new Date().toISOString(),
+        }, { onConflict: 'site_slug,topic,date', ignoreDuplicates: false })
+        // Use ignoreDuplicates: false so if same topic arrives with higher score today, it updates
+        if (!error) searchSaved++
+      }
+      console.log(`[cron-trends] ${siteSlug}: saved ${searchSaved} real Google search queries`)
+    }
+
+    // ── B. Filter feed topics and generate AI angles ─────────────────────────
     const relevant = allRaw.filter(t => isRelevant(t.title, siteSlug))
     console.log(`[cron-trends] ${siteSlug}: ${relevant.length} relevant raw topics`)
 
@@ -212,7 +311,8 @@ export async function GET(req: NextRequest) {
 
     const allTopics = [...new Set([...aiTopics, ...directTopics])]
 
-    // Save to DB — upsert to avoid duplicates
+    // Save feed/AI topics with score 0 — they rank below real search queries
+    // (score 40–95) so the cron always writes about most-searched content first
     let saved = 0
     for (const topic of allTopics) {
       const sourceItem = allRaw.find(r => r.title === topic)
@@ -220,20 +320,26 @@ export async function GET(req: NextRequest) {
         site_slug: siteSlug,
         topic,
         source: sourceItem?.source || 'ai_generated',
-        score: (sourceItem as any)?.score || 0,
+        score: (sourceItem as any)?.score || 0,  // feed items score 0, below real search queries
         date: today,
         discovered_at: new Date().toISOString(),
       }, { onConflict: 'site_slug,topic,date', ignoreDuplicates: true })
       if (!error) saved++
     }
 
-    results[siteSlug] = { relevant: relevant.length, ai_topics: aiTopics.length, saved }
+    results[siteSlug] = {
+      real_search_queries: searchSaved,
+      relevant_feed_topics: relevant.length,
+      ai_topics: aiTopics.length,
+      feed_topics_saved: saved,
+    }
   }
 
   return NextResponse.json({
     ok: true,
     date: today,
     raw_fetched: allRaw.length,
+    note: 'Real Google PAA+Related Searches (score 40-95) rank above feed/AI topics (score 0) so most-searched content gets written first',
     results
   })
 }
