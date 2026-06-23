@@ -193,20 +193,51 @@ export async function GET(req: NextRequest) {
     apiKey ? fetchRealSearchQueries(siteSlug, apiKey) : Promise.resolve([]),
   ])
 
-  // ── Score every article, filter to universal guides only, pick top 1 ────────
+  // ── Score every article, filter to universal guides only ────────────────────
   const scored = (articles || [])
-    .filter((a: any) => isUniversalGuide(a))   // only evergreen practical guides
+    .filter((a: any) => isUniversalGuide(a))
     .map((a: any) => {
       const intentPts  = searchIntentScore(a, realQueries)
       const viewPts    = viewScore(a.views || 0)
       const freshPts   = freshnessScore(a.published_at)
       return { ...a, _score: intentPts + viewPts + freshPts, _intentPts: intentPts, _viewPts: viewPts, _freshPts: freshPts }
     })
-
-  // Sort by score, take only the single best article
-  const top1 = scored
     .sort((a: any, b: any) => b._score - a._score)
-    .slice(0, 1)
+
+  // ── Rotation: track which articles have been sent, skip them ─────────────────
+  // Every API call gets a DIFFERENT article — never repeats until the pool is
+  // exhausted, then resets. Sent article IDs are stored in feed_sent_articles.
+  // We read the sent list, skip those, serve the next best one, then mark it.
+  const { data: sentRows } = await db.from('feed_sent_articles')
+    .select('article_id')
+    .eq('site_slug', siteSlug)
+    .order('sent_at', { ascending: false })
+    .limit(200)
+
+  const sentIds = new Set((sentRows || []).map((r: any) => r.article_id))
+
+  // Pick the highest-scored article not yet sent
+  let pick = scored.find((a: any) => !sentIds.has(a.id))
+
+  if (!pick && scored.length > 0) {
+    // Pool exhausted — reset and start again from the top
+    await db.from('feed_sent_articles').delete().eq('site_slug', siteSlug)
+    pick = scored[0]
+  }
+
+  if (!pick) pick = scored[0] // final fallback
+
+  // Mark as sent
+  if (pick) {
+    await db.from('feed_sent_articles').insert({
+      site_slug: siteSlug,
+      article_id: pick.id,
+      article_slug: pick.slug,
+      sent_at: new Date().toISOString(),
+    }).select()
+  }
+
+  const top1 = pick ? [pick] : []
 
   // ── Build RSS ──────────────────────────────────────────────────────────────
   const escape    = (s: string) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
@@ -264,7 +295,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(rss, {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=1800, s-maxage=1800',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
     }
   })
 }
