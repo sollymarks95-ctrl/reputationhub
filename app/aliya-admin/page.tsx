@@ -45,6 +45,13 @@ export default function AliyaAdmin() {
   function login(){ if(pw==='Mini95!!'){ sessionStorage.setItem('aliya_admin','ok'); document.cookie='aliya_admin_session=1;path=/;max-age=31536000;SameSite=Lax'; setAuth(true) } else { setPwErr(true); setTimeout(()=>setPwErr(false),2000) } }
 
   // Stats
+  // Read tab from URL hash on load (e.g. /aliya-admin#linkbuilding)
+  React.useEffect(() => {
+    const hash = window.location.hash.replace('#','')
+    const validTabs = ['overview','articles','posts','links','analytics','api','linkbuilding']
+    if (hash && validTabs.includes(hash)) setTab(hash as any)
+  }, [])
+
   const loadStats = useCallback(async()=>{ setStatsLoading(true); try{ const r=await fetch('/api/aliya-admin/stats'); setStats(await r.json()) }finally{ setStatsLoading(false) } },[])
   useEffect(()=>{ if(auth) loadStats() },[auth,loadStats])
 
