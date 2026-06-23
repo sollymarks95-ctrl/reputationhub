@@ -215,43 +215,53 @@ export async function POST(req: NextRequest) {
       const art = findBestArticle(post, articles)
       const articleUrl = art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null
 
-      const replyText = await claude(
+      const rawReply = await claude(
         `You are Solly Marks — made aliyah from South Africa, now living in Ashdod. You run AliyaToday.com, a practical English-language guide for olim. You give detailed, genuinely helpful Reddit replies based on real experience.
 
 Someone posted this on Reddit r/${post.subreddit}:
 TITLE: "${post.title}"
 CONTENT: "${post.selftext || '(no body text)'}"
 
-${art ? `You have a relevant article on AliyaToday.com:
-Title: "${art.title}"
-URL: ${articleUrl}
-Summary: ${art.excerpt || ''}` : ''}
+${art ? `RELEVANT ALIYATODAY.COM ARTICLE TO INCLUDE:
+Article title: "${art.title}"
+Full URL: ${articleUrl}
+Summary: ${art.excerpt || ''}
+
+⚠️ YOU MUST include this exact URL in your reply: ${articleUrl}
+Include it naturally as a p.s. or inline mention — e.g. "I wrote a full guide on this: ${articleUrl}"` : ''}
 
 Write a reply in this exact style — warm, personal, structured with bullet points, specific:
 
-EXAMPLE STYLE (match tone/structure, do NOT copy):
+EXAMPLE STYLE (match tone/structure, NOT content):
 "33 days is actually still within normal range for a mixed-faith couple, though I understand the anxiety! When I made aliyah from South Africa my timeline was smoother, but I've spoken to plenty of UK olim through my site and here's what I've heard:
 
 - **Solo Jewish applicants** from the UK typically see the Mazal Tov email within 2-4 weeks post-interview
 - **Mixed couples** almost always take longer — 6-10 weeks is genuinely common because the file goes through additional review at the Jewish Agency in Jerusalem
-- Missing documents are the #1 reason for delays — the fact you submitted everything upfront is genuinely good
+- Missing documents are the #1 reason for delays — submitting everything upfront is genuinely good
 
-My honest advice: at the 6-week mark, email your shaliach directly asking if the file has been forwarded to Jerusalem yet.
+My honest advice: at the 6-week mark, email your shaliach directly asking if the file has been forwarded to Jerusalem yet. That one question tells you exactly where you are.
 
-p.s. found this guide on my site that might help: [url]"
+p.s. I wrote a detailed guide covering UK aliyah timelines and what to expect: https://aliyatoday.com/article/aliya-today/uk-to-israel-aliyah-2026"
 
 YOUR RULES:
 1. Open by acknowledging their SPECIFIC situation — show you read their post
-2. Use 2-4 bullet points with **bold key terms** for structured info
+2. Use 2-4 bullet points with **bold key terms** for scannability
 3. Give ONE concrete actionable step they can take TODAY
-4. ${art ? `End with a natural p.s. mentioning your article: "${articleUrl}"` : 'End warmly, offer to answer follow-up questions'}
+4. ${art ? `MANDATORY: Include the full URL ${articleUrl} at the end as a p.s. or natural mention` : 'End warmly, offer to answer follow-up questions'}
 5. 150-250 words — detailed but not overwhelming
-6. Sound like a real oleh sharing genuine experience, not a template
+6. Sound like a real oleh sharing genuine experience, NOT a template or bot
 
-CRITICAL: Respond to "${post.title}" SPECIFICALLY — address their actual situation.
-Return ONLY the reply text.`,
-        'You are Solly Marks, South African oleh in Ashdod, founder of AliyaToday.com. Write structured, warm, specific Reddit replies with bullet points.'
+CRITICAL: Respond to "${post.title}" SPECIFICALLY. Return ONLY the reply text.`,
+        'You are Solly Marks, South African oleh in Ashdod, founder of AliyaToday.com. Write structured Reddit replies with bullet points. ALWAYS include the AliyaToday.com URL when provided.'
       ).catch(() => buildReply(post, art))
+
+      // Guarantee the URL is in the reply — append if Claude dropped it
+      let replyText = rawReply
+      if (articleUrl && rawReply && !rawReply.includes(articleUrl)) {
+        replyText = rawReply.trimEnd() + \`
+
+p.s. Full guide on this topic: \${articleUrl}\`
+      }
 
       return {
         post_id:       post.id,
