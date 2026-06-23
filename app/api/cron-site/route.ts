@@ -49,7 +49,56 @@ const CORE_SITES: Record<string, any> = {
   'aliya-today': {
     id: '9cfd54a9-5e1c-414c-8fe1-12b779013fca', name: 'Aliya Today', shortName: 'AliyaToday',
     author: 'Solly Marks', domain: 'aliyatoday.com',
-    topics: ['how to make aliya step by step 2026','aliya process from USA complete guide','cost of making aliya 2026 breakdown','sal klita benefits how much 2026','nefesh bnefesh aliya application guide','misrad haklita first steps olim','ulpan free israel how to register','kupat holim which one is best for olim','best cities to make aliya families 2026','aliya tax exemptions new immigrant guide','israel driving license conversion olim','aliya checklist 2026 complete list','what to do first week in israel aliya','israel bank account olim how to open','aliya from UK to Israel guide 2026','aliya from France to Israel 2026','aliya from South Africa to Israel','olim housing rights Israel 2026','Hebrew learning before aliya guide','Israel army service olim rules','arnona municipal tax olim exemption','Israel child benefits olim 2026','school system Israel olim children','working in Israel as new olim','Israel pension rights olim','Bituach Leumi olim guide 2026','Nefesh BNefesh vs Jewish Agency aliya','olim absorption center vs private rental','Israel mortgage olim first home','Israel citizenship rights olim guide'],
+    topics: [
+      // Core process — highest search volume
+      'how to make aliyah step by step 2026','aliyah process from USA complete guide','cost of making aliyah 2026 breakdown',
+      'sal klita benefits how much 2026','nefesh bnefesh aliyah application guide','misrad haklita first steps olim',
+      'ulpan free israel how to register 2026','kupat holim which one is best for olim 2026','aliyah checklist 2026 complete list',
+      'what to do first week in israel aliyah','israel bank account olim how to open','aliyah tax exemptions new immigrant guide',
+      'israel driving license conversion olim guide','arnona municipal tax olim exemption 2026','bituach leumi olim guide 2026',
+      // Country-specific (huge search volume from each diaspora)
+      'aliyah from USA to Israel guide 2026','aliyah from UK to Israel guide 2026','aliyah from France to Israel 2026',
+      'aliyah from South Africa to Israel','aliyah from Canada to Israel guide 2026','aliyah from Australia to Israel 2026',
+      'aliyah from Argentina to Israel 2026','aliyah from Russia to Israel guide 2026','aliyah from Ukraine to Israel 2026',
+      'aliyah from Brazil to Israel guide 2026','aliyah from Germany to Israel 2026','aliyah from Mexico to Israel guide',
+      // City guides — where to live
+      'best cities to make aliyah families 2026','aliyah to Tel Aviv guide 2026','aliyah to Jerusalem guide 2026',
+      'aliyah to Netanya guide 2026','aliyah to Haifa guide 2026','aliyah to Beer Sheva guide 2026',
+      'aliyah to Ra anana guide expats 2026','aliyah to Modi in guide families 2026','aliyah to Herzliya guide 2026',
+      'aliyah to Ashdod guide 2026','aliyah to Ashkelon guide 2026','aliyah to Eilat guide 2026',
+      // Life stage specific
+      'aliyah with children school guide 2026','aliyah with young children tips','aliyah as a single person guide 2026',
+      'aliyah retirement guide 2026','aliyah for students university Israel 2026','aliyah with elderly parents guide',
+      'aliyah with pets guide Israel 2026','aliyah as a professional doctor lawyer 2026','aliyah converting to judaism guide',
+      // Financial deep dives
+      'israel 10 year tax exemption olim full guide 2026','us israel double tax treaty olim 2026',
+      'fbar israel resident requirements 2026','fatca israel olim obligations 2026','olim mortgage mashkanta guide 2026',
+      'israel pension rights new olim 2026','israel child benefits olim 2026 amounts','cost of living israel vs usa 2026',
+      'shipping belongings to israel aliyah cost 2026','customs free import israel olim list 2026',
+      // Health system
+      'kupat holim clalit vs maccabi vs meuhedet 2026','bituach mashlim supplemental insurance worth it',
+      'health insurance israel olim 90 day rule','tourist health plan israel before aliyah',
+      'dental care israel olim guide 2026','mental health services israel english speakers',
+      // Housing
+      'renting apartment israel as oleh 2026','buying property israel as oleh guide 2026',
+      'olim absorption center pros cons guide','israel rental market 2026 olim guide',
+      'israel lease contract guide english 2026','guarantor arnon israel olim apartment',
+      // Work and career
+      'working in israel as new olim 2026','find job israel english speaker 2026',
+      'israel work visa olim rights 2026','start business israel as oleh 2026',
+      'israel hi tech jobs olim 2026','freelance israel olim tax guide 2026',
+      // Government and bureaucracy
+      'teudat zehut process new olim 2026','misrad hapnim olim appointment guide',
+      'israel social security number olim','olim rights complete list 2026',
+      'nefesh bnefesh vs jewish agency differences 2026','aliyah application rejection what to do',
+      // Hebrew and integration
+      'hebrew learning before aliyah guide','best ulpan programs israel 2026',
+      'hebrew level needed for aliyah work','israeli culture shock guide olim',
+      // Practical daily life
+      'israel army service olim rules 2026','school system israel olim children 2026',
+      'israel driving test olim english 2026','israel electricity gas utilities setup olim',
+      'internet israel best provider olim','kosher food guide new olim israel',
+    ],
   },
   'rephuby-intelligence': {
     id: '35579979-ca5e-476f-bd75-9be5910fe29b', name: 'RepHuby Intelligence', shortName: 'RepHuby',
@@ -568,9 +617,16 @@ const TOPIC_CLUSTERS: Record<string, string[][]> = {
     ['OPEC Oil Production 2026','Oil price forecast 2026','OPEC cut impact on markets','Energy sector trade flows','Oil supply demand balance','Petrodollar future 2026','Energy transition trade routes','Oil price inflation link'],
   ],
   'aliya-today': [
-    ['Aliyah Cost Breakdown 2026','Sal Klita 2026 amounts','Shipping to Israel cost','Israel apartment deposit rules','Oleh mortgage guide 2026','Arnona exemption how to claim','Customs free import Israel','Aliyah buffer fund planning'],
+    // Pillar 1: Aliyah Cost & Finance (highest search intent)
+    ['Aliyah Cost Breakdown 2026','Sal Klita 2026 amounts','Shipping to Israel cost','Israel apartment deposit rules','Oleh mortgage mashkanta guide 2026','Arnona exemption how to claim','Customs free import Israel','Aliyah buffer fund planning'],
+    // Pillar 2: Health System (every oleh needs this on day 1)
     ['Kupat Holim Guide 2026','Clalit vs Maccabi 2026','90 day health rule Israel','Meuhedet Anglo community','Leumit membership review','Bituach mashlim worth it','Health fund transfer process','Tourist plan Israel health'],
+    // Pillar 3: Tax Planning (high-value evergreen — olim search this for years)
     ['Israel Tax For Olim 2026','10 year tax exemption Israel','Income disclosure 2026 Israel','Yoetz mas Israel find one','US Israeli dual taxation','Exit tax home country aliyah','FBAR for Israeli residents','Capital gains Israel oleh'],
+    // Pillar 4: Housing & Daily Life (massive search volume, practical intent)
+    ['Renting Apartment Israel Oleh 2026','Israel lease contract guide English','Arnona municipal tax full guide','Electricity gas setup Israel olim','Internet providers Israel English','Israel driving license olim guide','Teudat Zehut process new olim','Israel bank account oleh how to open'],
+    // Pillar 5: Work, Career & Integration (career olim — growing search trend)
+    ['Working Israel English Speaker Guide 2026','Find Job Israel Hi Tech Olim','Israel work rights new olim','Start business Israel as oleh','Hebrew level needed to work Israel','Ulpan programs Israel best 2026','Israeli culture tips new olim','Social security bituach leumi work Israel'],
   ],
   'jewish-news-now': [
     ['Israel Gaza Ceasefire 2026','Gaza hostage deal 2026','Israel Hamas ceasefire terms','International pressure Israel 2026','Qatar mediation Israel Gaza','Ceasefire violations 2026','Post war Gaza governance','Gaza aid corridor 2026'],
@@ -1257,6 +1313,15 @@ Required structure:
         })
       } catch { /* non-critical */ }
     }
+
+    // IndexNow — ping Bing/Google immediately on publish (sub-second indexing latency)
+    try {
+      const articleUrl = `https://${site.domain}/article/${siteSlug}/${slug}`
+      const indexNowKey = process.env.INDEXNOW_KEY || 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'
+      await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`, {
+        method: 'GET', signal: AbortSignal.timeout(3000)
+      }).catch(() => {})
+    } catch {}
 
     await new Promise(r => setTimeout(r, 400))
   }

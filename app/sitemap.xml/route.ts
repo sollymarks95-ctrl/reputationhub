@@ -54,7 +54,18 @@ export async function GET(req: NextRequest) {
       .select('slug,published_at,category').eq('news_site_id',site.id)
       .eq('status','published').order('published_at',{ascending:false}).limit(5000)
 
+    const isJewishSite = ['aliyatoday.com','jewishnewsnow.com','jewishpropertyreport.com'].includes(host)
+
     const entries = [u(`${base}/`, 'daily', '1.0', today)]
+
+    // Author page — Jewish sites have named author (Solly Marks), helps E-E-A-T
+    if (isJewishSite) {
+      entries.push(u(`${base}/author/solly-marks`, 'monthly', '0.8', today))
+    }
+
+    // About page
+    entries.push(u(`${base}/about`, 'monthly', '0.7'))
+
     // Category pages — topical hubs for SEO
     const cats = [...new Set((arts||[]).map((a: any) => a.category).filter(Boolean))]
     for (const cat of cats) {
