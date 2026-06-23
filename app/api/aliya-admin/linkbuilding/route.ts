@@ -162,13 +162,13 @@ export async function POST(req: NextRequest) {
     const [articles, usedIds] = await Promise.all([getTopArticles(50), getUsedPostIds()])
 
     // Fetch all subreddits in parallel (hot only to keep it fast)
-    // Fetch hot + new from core subreddits to maximise post count
-    const hotFetch = Promise.all(SUBREDDITS.map(s => fetchSubreddit(s.name, 'hot', 20)))
-    const newFetch = Promise.all(
-      ['aliyah','MovingToIsrael'].map(s => fetchSubreddit(s, 'new', 15))
-    )
-    const [hotResults, newResults] = await Promise.all([hotFetch, newFetch])
-    const fetched = [...hotResults, ...newResults]
+    // Fetch NEW (latest timeline) from all aliyah subs + HOT from broader subs
+    // NEW = latest posts in chronological order — fresh every scan
+    // HOT = top posts by votes — broader subs only to catch popular discussions
+    const newFetch  = Promise.all(SUBREDDITS.slice(0,5).map(s => fetchSubreddit(s.name, 'new', 25)))
+    const hotFetch  = Promise.all(SUBREDDITS.slice(5).map(s => fetchSubreddit(s.name, 'hot', 15)))
+    const [newResults, hotResults] = await Promise.all([newFetch, hotFetch])
+    const fetched = [...newResults, ...hotResults]
 
     // Deduplicate and filter already-used
     const seen = new Set<string>()
