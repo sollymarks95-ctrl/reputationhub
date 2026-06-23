@@ -124,7 +124,20 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
   const [cat, setCat] = React.useState('All')
   const P = '#1a56b0'
   const cats = ['All','Israel','Diaspora','Community','Culture','World','Opinion']
-  const filtered = cat === 'All' ? articles : articles.filter((a: any) => a.category?.toLowerCase().includes(cat.toLowerCase()))
+  const JNN_KEYWORDS: Record<string,string[]> = {
+    'Israel':    ['israel','tel aviv','jerusalem','haifa','knesset','idf','netanya','gaza','west bank','negev','galilee'],
+    'Diaspora':  ['diaspora','jewish community','american jewish','uk jewish','french jewish','south african jewish','canada','australia','europe','usa','united states','britain','france'],
+    'Community': ['community','synagogue','rabbi','jewish life','shul','congregation','jewish school','day school','yeshiva','jewish organization','federation'],
+    'Culture':   ['culture','holiday','festival','purim','passover','rosh','yom kippur','chanukah','art','music','film','book','literature','jewish tradition','heritage','food','cuisine'],
+    'World':     ['world','global','international','antisemit','bds','un ','united nations','europe','germany','poland','argentina','iran','middle east'],
+    'Opinion':   ['opinion','view','perspective','argue','believe','should','must','commentary','editorial','analysis','think','feel','concern'],
+  }
+  function matchJNN(a: any, c: string) {
+    if (c === 'All') return true
+    const hay = `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase()
+    return (JNN_KEYWORDS[c]||[]).some(kw => hay.includes(kw))
+  }
+  const filtered = cat === 'All' ? articles : articles.filter((a: any) => matchJNN(a, cat))
   const hero = filtered[0]
   const rest = filtered.filter((a: any) => a.id !== hero?.id)
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -275,7 +288,21 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
   const [cat, setCat] = React.useState('All')
   const P = '#0a7c4e'
   const cats = ['All','Tel Aviv','Jerusalem','Haifa','Market','Investing','Guides','Legal']
-  const filtered = cat === 'All' ? articles : articles.filter((a: any) => a.category?.toLowerCase().includes(cat.toLowerCase()))
+  const JPR_KEYWORDS: Record<string,string[]> = {
+    'Tel Aviv':   ['tel aviv','tlv','jaffa','ramat gan','givatayim','petah tikva','gush dan','center israel'],
+    'Jerusalem':  ['jerusalem','jlem','the capital','holy city','har nof','rehavia','katamon','baka','german colony','malcha'],
+    'Haifa':      ['haifa','carmel','tirat carmel','kiryat','bat galim','hadar','haifa bay'],
+    'Market':     ['market','price','average price','per sqm','apartment price','property price','real estate market','housing market','sale price','cost','valuation','appreciation','depreciation'],
+    'Investing':  ['invest','yield','return','rental yield','roi','buy to let','property investment','portfolio','opportunity','profitability','capital gain','foreign investor','overseas buyer','diaspora buyer'],
+    'Guides':     ['guide','how to','step','process','explained','tips','advice','checklist','what you need','foreigner','olim','tama','zoning','permit','arnona','tabu','registry'],
+    'Legal':      ['legal','law','tax','purchase tax','mas rechisha','lawyer','notary','contract','ownership','inheritance','registration','teudat zehut','foreign national','regulation','municipality'],
+  }
+  function matchJPR(a: any, c: string) {
+    if (c === 'All') return true
+    const hay = `${a.title} ${a.excerpt||''} ${a.category||''}`.toLowerCase()
+    return (JPR_KEYWORDS[c]||[]).some(kw => hay.includes(kw))
+  }
+  const filtered = cat === 'All' ? articles : articles.filter((a: any) => matchJPR(a, cat))
   const hero = filtered[0]
   const rest = filtered.filter((a: any) => a.id !== hero?.id)
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
