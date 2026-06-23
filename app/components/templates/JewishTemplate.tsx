@@ -71,28 +71,28 @@ function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; sit
   return (
     <>
       <style>{`
-        @media(max-width:1100px){ .ian-gutter{ display:none!important } }
+        .ian-gutter-left, .ian-gutter-right {
+          position: fixed;
+          top: 120px;
+          width: 180px;
+          z-index: 10;
+        }
+        .ian-gutter-left { left: 8px; }
+        .ian-gutter-right { right: 8px; }
+        @media(max-width:1400px){
+          .ian-gutter-left, .ian-gutter-right { width: 140px; }
+        }
+        @media(max-width:1280px){
+          .ian-gutter-left, .ian-gutter-right { display: none !important; }
+        }
       `}</style>
-      <div style={{ position:'relative', background: bg || 'transparent' }}>
-        {/* Left gutter banner */}
-        <div className="ian-gutter" style={{
-          position:'absolute', left:0, top:0, width:160,
-          paddingTop:24, paddingLeft:8
-        }}>
-          <div style={{ position:'sticky', top:20 }}>
-            <IanMarksBanner siteUrl={siteUrl} />
-          </div>
-        </div>
-        {/* Right gutter banner */}
-        <div className="ian-gutter" style={{
-          position:'absolute', right:0, top:0, width:160,
-          paddingTop:24, paddingRight:8
-        }}>
-          <div style={{ position:'sticky', top:20 }}>
-            <IanMarksBanner siteUrl={siteUrl} />
-          </div>
-        </div>
-        {/* Actual content */}
+      <div className="ian-gutter-left">
+        <IanMarksBanner siteUrl={siteUrl} />
+      </div>
+      <div className="ian-gutter-right">
+        <IanMarksBanner siteUrl={siteUrl} />
+      </div>
+      <div style={{ background: bg || 'transparent' }}>
         {children}
       </div>
     </>
