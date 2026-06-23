@@ -123,6 +123,36 @@ function freshnessScore(publishedAt: string): number {
   return 0
 }
 
+// Universal guide filter — keeps only evergreen practical guides relevant to
+// ANY olim, not niche audiences. Rejects: country-specific articles (French,
+// South African, UK, North American, USA), geopolitical/security/war news,
+// financial market analysis, and one-off news events.
+// Keeps: cost breakdowns, sal klita, ulpan, process guides, benefits, housing,
+// bank accounts, health funds, checklists, step-by-step guides.
+const UNIVERSAL_KEYWORDS = [
+  'cost','breakdown','checklist','guide','how to','step by step','sal klita',
+  'ulpan','bank account','kupat holim','health fund','nbn grant','nefesh',
+  'benefits','arnona','driving licen','bituach','pension','absorption grant',
+  'citizenship','law of return','misrad','application','free','enrol',
+  'shipping','convert','open','first week','what to expect','how much',
+]
+
+const NICHE_REJECT_KEYWORDS = [
+  'french','south african','uk aliyah','british','north american','usa olim',
+  'american olim','iranian','iran','war','ceasefire','geopolit','attack plot',
+  'friction','portfolio framework','capital flight','rand','inflection',
+  'cyclical surge','structural shift','asset allocation','capital allocation',
+  'market share','power shift','integration gap','school system',
+]
+
+function isUniversalGuide(article: any): boolean {
+  const text = `${article.title} ${article.excerpt || ''}`.toLowerCase()
+  // Reject if it's niche/news/geopolitical
+  if (NICHE_REJECT_KEYWORDS.some(kw => text.includes(kw))) return false
+  // Keep if it has universal guide keywords
+  return UNIVERSAL_KEYWORDS.some(kw => text.includes(kw))
+}
+
 export async function GET(req: NextRequest) {
   const host = (req.headers.get('host') || '').replace(':3000','').replace('www.','')
 
@@ -163,17 +193,20 @@ export async function GET(req: NextRequest) {
     apiKey ? fetchRealSearchQueries(siteSlug, apiKey) : Promise.resolve([]),
   ])
 
-  // ── Score every article ────────────────────────────────────────────────────
-  const scored = (articles || []).map((a: any) => {
-    const intentPts  = searchIntentScore(a, realQueries)
-    const viewPts    = viewScore(a.views || 0)
-    const freshPts   = freshnessScore(a.published_at)
-    return { ...a, _score: intentPts + viewPts + freshPts, _intentPts: intentPts, _viewPts: viewPts, _freshPts: freshPts }
-  })
+  // ── Score every article, filter to universal guides only, pick top 1 ────────
+  const scored = (articles || [])
+    .filter((a: any) => isUniversalGuide(a))   // only evergreen practical guides
+    .map((a: any) => {
+      const intentPts  = searchIntentScore(a, realQueries)
+      const viewPts    = viewScore(a.views || 0)
+      const freshPts   = freshnessScore(a.published_at)
+      return { ...a, _score: intentPts + viewPts + freshPts, _intentPts: intentPts, _viewPts: viewPts, _freshPts: freshPts }
+    })
 
-  const top10 = scored
+  // Sort by score, take only the single best article
+  const top1 = scored
     .sort((a: any, b: any) => b._score - a._score)
-    .slice(0, 10)
+    .slice(0, 1)
 
   // ── Build RSS ──────────────────────────────────────────────────────────────
   const escape    = (s: string) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
@@ -181,7 +214,7 @@ export async function GET(req: NextRequest) {
 
   const queryPreview = realQueries.slice(0, 5).map(q => escape(q)).join('; ')
 
-  const items = top10.map((a: any) => {
+  const items = top1.map((a: any) => {
     const url      = `${base}/article/${siteSlug}/${a.slug}`
     const desc     = escape(a.excerpt || stripHtml(a.body || '').slice(0, 300))
     const fullBody = (a.body || '').replace(/]]>/g, ']]]]><![CDATA[>')
@@ -209,9 +242,9 @@ export async function GET(req: NextRequest) {
   xmlns:atom="http://www.w3.org/2005/Atom"
   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>${escape(meta.name)} — Most Searched Now</title>
+    <title>${escape(meta.name)} — Top Aliyah Guide Now</title>
     <link>${base}</link>
-    <description>Top ${top10.length} articles ranked by what people are actually searching on Google right now — real People Also Ask + Related Searches matched to content. ${escape(meta.desc)}</description>
+    <description>The single most relevant practical aliyah guide right now — evergreen, universal content (cost breakdowns, sal klita, ulpan, step-by-step guides) ranked by what people are actually searching on Google. ${escape(meta.desc)}</description>
     <language>en-GB</language>
     <category>${escape(meta.category)}</category>
     <atom:link href="${base}/feed.xml" rel="self" type="application/rss+xml"/>
