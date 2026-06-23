@@ -141,11 +141,38 @@ export async function POST(req: NextRequest) {
     const relevantPosts = allPosts.filter(isRelevant)
     const postsToUse = relevantPosts.length > 0 ? relevantPosts : allPosts
 
-    // Build opportunities for relevant posts only
-    const opportunities = postsToUse.slice(0, 15).map((post: any) => {
+    // Generate tailored replies using Claude — topic-specific + correct article link
+    const TOP_POSTS = postsToUse.slice(0, 12)
+    const opportunities = await Promise.all(TOP_POSTS.map(async (post: any) => {
       const art = findBestArticle(post, articles)
       const articleUrl = art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null
-      const replyText = buildReply(post, art)
+
+      const replyText = await claude(
+        `You are Solly Marks, an Israeli entrepreneur who made aliyah from South Africa and now lives in Ashdod. You run AliyaToday.com — a practical guide for English-speaking olim.
+
+Someone posted this on Reddit r/${post.subreddit}:
+TITLE: "${post.title}"
+CONTENT: "${post.selftext || '(no body text)'}"
+
+${art ? `You have a relevant AliyaToday article to naturally reference:
+Title: "${art.title}"
+URL: ${articleUrl}
+Excerpt: ${art.excerpt || ''}` : 'No specific article to link — give a helpful reply without a link.'}
+
+Write a genuine, helpful Reddit reply (120-180 words) that:
+1. DIRECTLY addresses the specific question/topic they asked about
+2. Shares real practical experience from your own aliyah (Ashdod, South Africa background)
+3. Gives 2-3 specific, concrete tips that actually answer THEIR question
+4. If you have an article above, naturally mention it once at the end: "I wrote about this in detail here: [url]"
+5. Ends with a genuine offer to answer follow-up questions
+6. Sounds human and conversational — NOT a generic template
+
+CRITICAL: Your reply must actually address "${post.title}" specifically. Do NOT give generic aliyah advice that ignores their actual question.
+
+Return ONLY the reply text, no preamble.`,
+        'You are Solly Marks, oleh from South Africa, living in Ashdod. Write genuine, specific Reddit replies that actually answer the question asked.'
+      ).catch(() => buildReply(post, art)) // fallback if Claude fails
+
       return {
         post_id:       post.id,
         subreddit:     post.subreddit,
@@ -157,7 +184,7 @@ export async function POST(req: NextRequest) {
         relevance:     post.is_question ? 8 : 6,
         why:           post.is_question ? 'Question — direct helpful reply' : 'Discussion — adds oleh perspective',
       }
-    })
+    }))
 
     return NextResponse.json({ opportunities, totalScanned: allPosts.length, generatedAt: new Date().toISOString(), generatedAtMs: Date.now() })
   }
