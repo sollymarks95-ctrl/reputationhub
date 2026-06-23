@@ -1205,20 +1205,35 @@ ${o.article_url}` : ''))}
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:6,maxHeight:360,overflow:'auto'}}>
               {records.length === 0 && <div style={{color:'#9ca3af',fontSize:12,textAlign:'center',padding:'20px'}}>No outreach tracked yet</div>}
-              {records.map((r:any,i:number) => (
-                <div key={i} style={{padding:'10px 12px',background:'#f9fafb',borderRadius:8,border:'1px solid #e5e7eb'}}>
+              {records.map((r:any,i:number) => {
+                const events = r.events || []
+                const opened  = events.some((e:any) => e.event_type === 'email.opened')
+                const clicked = events.some((e:any) => e.event_type === 'email.clicked')
+                const bounced = events.some((e:any) => e.event_type === 'email.bounced')
+                const replied = r.status === 'replied'
+                return (
+                <div key={i} style={{padding:'10px 12px',background:'#f9fafb',borderRadius:8,border:`1px solid ${bounced?'#fca5a5':opened?'#86efac':'#e5e7eb'}`}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-                    <div>
+                    <div style={{flex:1,minWidth:0}}>
                       <div style={{fontWeight:700,fontSize:13,color:'#111'}}>{r.org_name}</div>
                       <div style={{fontSize:11,color:'#9ca3af'}}>{r.org_type}{r.contact_email?` · ${r.contact_email}`:''}</div>
                     </div>
-                    <span style={{background:(STATUS_COLOR[r.status]||'#9ca3af')+'20',color:STATUS_COLOR[r.status]||'#9ca3af',padding:'2px 8px',borderRadius:20,fontSize:10,fontWeight:700,textTransform:'capitalize',whiteSpace:'nowrap'}}>
+                    <span style={{background:(STATUS_COLOR[r.status]||'#9ca3af')+'20',color:STATUS_COLOR[r.status]||'#9ca3af',padding:'2px 8px',borderRadius:20,fontSize:10,fontWeight:700,textTransform:'capitalize',whiteSpace:'nowrap',marginLeft:8}}>
                       {r.status}
                     </span>
                   </div>
+                  {/* Email tracking signals */}
+                  <div style={{display:'flex',gap:6,marginTop:6,flexWrap:'wrap'}}>
+                    {opened  && <span style={{fontSize:10,background:'#f0fdf4',color:'#16a34a',padding:'2px 6px',borderRadius:4,fontWeight:600}}>👁 Opened</span>}
+                    {clicked && <span style={{fontSize:10,background:'#eff6ff',color:'#1d4ed8',padding:'2px 6px',borderRadius:4,fontWeight:600}}>🔗 Clicked</span>}
+                    {replied && <span style={{fontSize:10,background:'#faf5ff',color:'#7c3aed',padding:'2px 6px',borderRadius:4,fontWeight:600}}>💬 Replied</span>}
+                    {bounced && <span style={{fontSize:10,background:'#fef2f2',color:'#dc2626',padding:'2px 6px',borderRadius:4,fontWeight:600}}>⚠️ Bounced</span>}
+                    {!opened && !bounced && r.status==='sent' && <span style={{fontSize:10,color:'#d1d5db',padding:'2px 6px'}}>No opens yet</span>}
+                  </div>
                   <div style={{fontSize:10,color:'#d1d5db',marginTop:3}}>{new Date(r.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>

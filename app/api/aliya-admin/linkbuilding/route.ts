@@ -449,10 +449,37 @@ Return ONLY the email.`,
     return NextResponse.json({ ok: true, sent, total: results.length, results })
   }
 
-  // ── GET OUTREACH CRM ─────────────────────────────────────────────────────────
+  // ── GET OUTREACH CRM (with email tracking events) ────────────────────────────
   if (action === 'get_outreach') {
     const { data } = await db().from('link_building_outreach').select('*').order('updated_at', { ascending:false }).limit(50)
-    return NextResponse.json({ records: data || [] })
+    const records = data || []
+    // Attach email events to each record for tracking signals
+    if (records.length > 0) {
+      const orgNames = records.map((r:any) => r.org_name).filter(Boolean)
+      const { data: events } = await db()
+        .from('resend_email_events')
+        .select('email_id,event_type,org_name,created_at')
+        .in('org_name', orgNames)
+        .order('created_at', { ascending: false })
+      const byOrg: Record<string,any[]> = {}
+      ;(events||[]).forEach((e:any) => {
+        if (!byOrg[e.org_name]) byOrg[e.org_name] = []
+        byOrg[e.org_name].push(e)
+      })
+      records.forEach((r:any) => { r.events = byOrg[r.org_name] || [] })
+    }
+    return NextResponse.json({ records })
+  }
+
+  // ── GET EMAIL EVENTS FOR ONE ORG ─────────────────────────────────────────────
+  if (action === 'get_email_events') {
+    const { data } = await db()
+      .from('resend_email_events')
+      .select('*')
+      .eq('org_name', body.org_name || '')
+      .order('created_at', { ascending: false })
+      .limit(50)
+    return NextResponse.json({ events: data || [] })
   }
 
   // ── CHECK RESEND KEY STATUS ─────────────────────────────────────────────────

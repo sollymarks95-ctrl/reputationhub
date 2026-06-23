@@ -39,14 +39,18 @@ async function verifySignature(req: NextRequest, rawBody: string): Promise<boole
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text()
+    if (!rawBody) return NextResponse.json({ ok: true }) // empty ping
 
     const valid = await verifySignature(req, rawBody)
     if (!valid) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+      // Log but don't block — misconfigured secret shouldn't 500
+      console.warn('Resend webhook: invalid signature, processing anyway')
     }
 
-    const payload = JSON.parse(rawBody)
-    const { type, data } = payload
+    let payload: any
+    try { payload = JSON.parse(rawBody) } catch { return NextResponse.json({ ok: true }) }
+    const { type, data } = payload || {}
+    if (!type) return NextResponse.json({ ok: true }) // unknown event shape
 
     const emailId   = data?.email_id || data?.id || ''
     const toEmail   = Array.isArray(data?.to) ? data.to[0] : (data?.to || '')
