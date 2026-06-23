@@ -262,5 +262,42 @@ Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance d
     return NextResponse.json({ records: data || [] })
   }
 
+
+  // ── Send outreach email via Resend ────────────────────────────────────────
+  if (action === 'send_email') {
+    const { to, subject, html, orgName, orgType } = body
+    const RESEND_KEY = process.env.RESEND_API_KEY || ''
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set' }, { status: 500 })
+
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
+      body: JSON.stringify({
+        from: 'Solly Marks <solly@aliyatoday.com>',
+        to: [to],
+        subject,
+        html: html || `<p>${body.text?.replace(/\n/g,'<br>')}</p>`,
+        tags: [
+          { name: 'org_name', value: (orgName||'').slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
+          { name: 'org_type', value: (orgType||'outreach').slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
+          { name: 'campaign', value: 'link_building' },
+        ]
+      })
+    })
+    const result = await r.json()
+    if (!r.ok) return NextResponse.json({ error: result.message || 'Send failed' }, { status: 400 })
+
+    // Mark as sent in CRM
+    if (orgName) {
+      await db().from('link_building_outreach').upsert({
+        org_name: orgName, org_type: orgType||'', contact_email: to,
+        platform: 'email', status: 'sent',
+        notes: subject, updated_at: new Date().toISOString()
+      }, { onConflict: 'org_name,platform' }).catch(() => {})
+    }
+
+    return NextResponse.json({ ok: true, id: result.id })
+  }
+
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }

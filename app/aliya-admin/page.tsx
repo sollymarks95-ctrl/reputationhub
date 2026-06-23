@@ -906,7 +906,7 @@ function RedditTab() {
         </div>
         <button onClick={scan} disabled={loading}
           style={{background:'#ff4500',color:'#fff',border:'none',padding:'14px 32px',borderRadius:10,fontWeight:900,fontSize:15,cursor:'pointer',opacity:loading?0.7:1,fontFamily:'Inter,sans-serif',display:'flex',alignItems:'center',gap:10}}>
-          {loading ? <><span style={{display:'inline-block',width:16,height:16,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />Scanning all subreddits + drafting replies...</> : '🔍 Get Today's Opportunities'}
+          {loading ? <><span style={{display:'inline-block',width:16,height:16,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />Scanning all subreddits + drafting replies...</> : '🔍 Get Today&apos;s Opportunities'}
         </button>
         {data && (
           <div style={{marginTop:12,fontSize:12,color:'#9ca3af'}}>
