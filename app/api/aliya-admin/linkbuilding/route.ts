@@ -380,7 +380,7 @@ Return ONLY the email.`,
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
-      body: JSON.stringify({ from:'Solly Marks <solly@aliyatoday.com>', to:[to], subject, html: html || `<pre style="font-family:Georgia,serif;white-space:pre-wrap">${text}</pre>`, tags:[{name:'org_name',value:(orgName||'').slice(0,50).replace(/[^a-zA-Z0-9_-]/g,'_')}] })
+      body: JSON.stringify({ from:'Solly Marks <onboarding@resend.dev>', to:[to], subject, html: html || `<pre style="font-family:Georgia,serif;white-space:pre-wrap">${text}</pre>`, tags:[{name:'org_name',value:(orgName||'').slice(0,50).replace(/[^a-zA-Z0-9_-]/g,'_')}] })
     })
     const result = await r.json()
     if (r.ok) {
@@ -428,7 +428,7 @@ Return ONLY the email.`,
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
           body: JSON.stringify({
-            from: 'Solly Marks <solly@aliyatoday.com>',
+            from: 'Solly Marks <onboarding@resend.dev>',
             to: [org.email],
             subject,
             html: `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#111;max-width:600px">${bodyText.split('\n').map((p:string) => p.trim() ? `<p>${p}</p>` : '').join('')}</div>`,

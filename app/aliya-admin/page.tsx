@@ -1152,7 +1152,7 @@ ${o.article_url}` : ''))}
         )}
         {resendStatus?.ok && (
           <div style={{background:'#f0fdf4',borderBottom:'1px solid #bbf7d0',padding:'8px 20px',fontSize:12,color:'#166534'}}>
-            ✅ Resend connected {resendStatus.message}
+            ✅ Resend connected — email sending active
           </div>
         )}
         <div style={{padding:'16px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
