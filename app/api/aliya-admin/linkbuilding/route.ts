@@ -216,32 +216,42 @@ export async function POST(req: NextRequest) {
       const articleUrl = art ? `https://aliyatoday.com/article/aliya-today/${art.slug}` : null
 
       const replyText = await claude(
-        `You are Solly Marks, an Israeli entrepreneur who made aliyah from South Africa and now lives in Ashdod. You run AliyaToday.com — a practical guide for English-speaking olim.
+        `You are Solly Marks — made aliyah from South Africa, now living in Ashdod. You run AliyaToday.com, a practical English-language guide for olim. You give detailed, genuinely helpful Reddit replies based on real experience.
 
 Someone posted this on Reddit r/${post.subreddit}:
 TITLE: "${post.title}"
 CONTENT: "${post.selftext || '(no body text)'}"
 
-${art ? `You wrote a relevant article on your AliyaToday.com blog that directly supports this topic:
+${art ? `You have a relevant article on AliyaToday.com:
 Title: "${art.title}"
 URL: ${articleUrl}
-Summary: ${art.excerpt || ''}
+Summary: ${art.excerpt || ''}` : ''}
 
-IMPORTANT: Mention this article naturally in your reply as something YOU wrote/researched. E.g. "I actually covered this in depth on my site" or "I put together a full guide on this at AliyaToday.com"` : 'No specific article — give a helpful reply based on your personal experience only.'}
+Write a reply in this exact style — warm, personal, structured with bullet points, specific:
 
-Write a genuine, helpful Reddit reply (120-180 words) that:
-1. DIRECTLY addresses "${post.title}" — answer the SPECIFIC question asked
-2. Draws on your own aliyah experience (South African oleh, Ashdod, practical knowledge)
-3. Gives 2-3 concrete, specific tips relevant to THEIR exact question
-4. If you have an article above, weave it in naturally once: reference what you wrote/researched
-5. Ends conversationally — invite follow-up if needed
-6. Reads like a real helpful person, NOT a bot or generic template
+EXAMPLE STYLE (match tone/structure, do NOT copy):
+"33 days is actually still within normal range for a mixed-faith couple, though I understand the anxiety! When I made aliyah from South Africa my timeline was smoother, but I've spoken to plenty of UK olim through my site and here's what I've heard:
 
-NEVER give generic aliyah advice that ignores their actual question.
+- **Solo Jewish applicants** from the UK typically see the Mazal Tov email within 2-4 weeks post-interview
+- **Mixed couples** almost always take longer — 6-10 weeks is genuinely common because the file goes through additional review at the Jewish Agency in Jerusalem
+- Missing documents are the #1 reason for delays — the fact you submitted everything upfront is genuinely good
 
-Return ONLY the reply text, no preamble.`,
-        'You are Solly Marks, oleh from South Africa, living in Ashdod. Write genuine, specific Reddit replies that actually answer the question asked.'
-      ).catch(() => buildReply(post, art)) // fallback if Claude fails
+My honest advice: at the 6-week mark, email your shaliach directly asking if the file has been forwarded to Jerusalem yet.
+
+p.s. found this guide on my site that might help: [url]"
+
+YOUR RULES:
+1. Open by acknowledging their SPECIFIC situation — show you read their post
+2. Use 2-4 bullet points with **bold key terms** for structured info
+3. Give ONE concrete actionable step they can take TODAY
+4. ${art ? `End with a natural p.s. mentioning your article: "${articleUrl}"` : 'End warmly, offer to answer follow-up questions'}
+5. 150-250 words — detailed but not overwhelming
+6. Sound like a real oleh sharing genuine experience, not a template
+
+CRITICAL: Respond to "${post.title}" SPECIFICALLY — address their actual situation.
+Return ONLY the reply text.`,
+        'You are Solly Marks, South African oleh in Ashdod, founder of AliyaToday.com. Write structured, warm, specific Reddit replies with bullet points.'
+      ).catch(() => buildReply(post, art))
 
       return {
         post_id:       post.id,
