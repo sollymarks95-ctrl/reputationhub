@@ -41,17 +41,23 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
   const article = await getArticle(site.id, slug)
   if (!article) return {}
   const domainMap: Record<string,string> = {
-    'global-trade-wire':  'https://nex-wire.com',
-    'finance-terminal':   'https://finvexx.com',
-    'business-pulse':     'https://bizplezx.com',
-    'gold-markets-today': 'https://aurexhq.com',
-    'trust-score':        'https://verivex.co',
-    'invest-data':        'https://invexhuby.com',
-    'market-radar':       'https://signalixx.com',
-    'executive-network':  'https://execvex.com',
-    'crypto-hub':         'https://cryptoxos.com',
-    'fx-vexx':            'https://fxvexx.com',
-    'trade-hub-iq':       'https://tradehubiq.com',
+    'global-trade-wire':      'https://nex-wire.com',
+    'finance-terminal':       'https://finvexx.com',
+    'business-pulse':         'https://bizplezx.com',
+    'gold-markets-today':     'https://aurexhq.com',
+    'trust-score':            'https://verivex.co',
+    'invest-data':            'https://invexhuby.com',
+    'market-radar':           'https://signalixx.com',
+    'executive-network':      'https://execvex.com',
+    'crypto-hub':             'https://cryptoxos.com',
+    'fx-vexx':                'https://fxvexx.com',
+    'trade-hub-iq':           'https://tradehubiq.com',
+    'aliya-today':            'https://aliyatoday.com',
+    'jewish-news-now':        'https://jewishnewsnow.com',
+    'jewish-property-report': 'https://jewishpropertyreport.com',
+    'copy-trade-iq':          'https://copyvexx.com',
+    'expat-invest-iq':        'https://expatinvestiq.com',
+    'rephuby-intelligence':   'https://rephuby.com',
   }
   const BASE = domainMap[siteSlug] || 'https://rephuby.com'
   const canonicalUrl = `${BASE}/article/${siteSlug}/${slug}`
