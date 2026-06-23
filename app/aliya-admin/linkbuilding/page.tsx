@@ -1,15 +1,14 @@
 'use client'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
-export default function LinkBuildingRedirect() {
-  const router = useRouter()
+export default function LinkBuildingPage() {
   useEffect(() => {
-    router.replace('/aliya-admin#linkbuilding')
-  }, [router])
+    // Navigate to aliya-admin with hash to trigger tab switch
+    window.location.href = '/aliya-admin#linkbuilding'
+  }, [])
   return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'Inter,sans-serif',color:'#111'}}>
-      Redirecting to Link Building Hub...
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'Inter,sans-serif',background:'#111',color:'#fff',fontSize:14}}>
+      Loading Link Building Hub...
     </div>
   )
 }

@@ -46,7 +46,7 @@ export default function AliyaAdmin() {
 
   // Stats
   // Read tab from URL hash on load (e.g. /aliya-admin#linkbuilding)
-  React.useEffect(() => {
+  useEffect(() => {
     const hash = window.location.hash.replace('#','')
     const validTabs = ['overview','articles','posts','links','analytics','api','linkbuilding']
     if (hash && validTabs.includes(hash)) setTab(hash as any)
@@ -821,7 +821,7 @@ function LinkBuildingTab() {
   const [contactEmail, setContactEmail] = useState('')
   const [resendStatus, setResendStatus]   = useState<null|{ok:boolean,message?:string,error?:string}>(null)
   
-  React.useEffect(() => {
+  useEffect(() => {
     fetch('/api/aliya-admin/linkbuilding', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'check_resend'}) })
       .then(r=>r.json()).then(d=>setResendStatus(d)).catch(()=>{})
   }, [])
