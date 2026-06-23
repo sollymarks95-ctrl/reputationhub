@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
   const items = (articles || []).map(a => {
     const url = `${base}/article/${siteSlug}/${a.slug}`
     const desc = escape(a.excerpt || stripHtml(a.body || '').slice(0, 300))
+    const fullBody = (a.body || '').replace(/]]>/g, ']]]]><![CDATA[>') // escape any CDATA close sequences in the body
     const cats = [a.category, ...(a.tags || [])].filter(Boolean).slice(0,3)
     return `
     <item>
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <description>${desc}</description>
+      <content:encoded><![CDATA[${fullBody}]]></content:encoded>
       <pubDate>${new Date(a.published_at).toUTCString()}</pubDate>
       <author>contact@${meta.domain} (${escape(a.author_name || 'Solly Marks')})</author>
       ${cats.map(c => `<category>${escape(c)}</category>`).join('')}
