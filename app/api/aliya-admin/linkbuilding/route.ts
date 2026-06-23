@@ -10,11 +10,18 @@ const ANTH  = process.env.ANTHROPIC_API_KEY || ''
 const ALIYA_SITE_ID = '9cfd54a9-5e1c-414c-8fe1-12b779013fca'
 
 const SUBREDDITS = [
-  { name: 'aliyah',            label: 'r/aliyah' },
-  { name: 'MovingToIsrael',    label: 'r/MovingToIsrael' },
-  { name: 'israelexpatriates', label: 'r/israelexpatriates' },
-  { name: 'living_in_israel',  label: 'r/living_in_israel' },
-  { name: 'olim',              label: 'r/olim' },
+  // Core aliyah subs — all posts accepted
+  { name: 'aliyah',              label: 'r/aliyah' },
+  { name: 'MovingToIsrael',      label: 'r/MovingToIsrael' },
+  { name: 'israelexpatriates',   label: 'r/israelexpatriates' },
+  { name: 'living_in_israel',    label: 'r/living_in_israel' },
+  { name: 'olim',                label: 'r/olim' },
+  // Broader Jewish/Israel lifestyle — keyword filtered
+  { name: 'JewishLiving',        label: 'r/JewishLiving' },
+  { name: 'Jewish',              label: 'r/Jewish' },
+  { name: 'IsraelTourism',       label: 'r/IsraelTourism' },
+  { name: 'Tel_Aviv',            label: 'r/Tel_Aviv' },
+  { name: 'Jerusalem',           label: 'r/Jerusalem' },
 ]
 
 function db() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||ANON) }
@@ -144,23 +151,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Keyword filter — only posts relevant to aliyah, Israel living, Jewish relocation
-    // Strict filter — must be about MOVING TO / LIVING IN Israel, not news/politics
+    // Keywords for broader subs — must relate to moving/living in Israel
     const ALIYAH_KEYWORDS = [
       'aliyah','aliya','oleh','olim','making aliyah','move to israel','moving to israel',
-      'immigrat','nbn','nefesh','absorption','klita','sal klita',
+      'immigrat','nbn','nefesh','absorption','klita','sal klita','jewish agency',
       'kupat holim','bituach leumi','misrad haklita','teudat zehut','teudat oleh',
       'ulpan','arnona','bank account','bank hapoalim','bank leumi','discount bank',
       'health fund','health insurance','bituach','driving licence','driving license',
-      'apartment','rent','housing','mortgage','mashkanta','property','real estate',
-      'work permit','work visa','freelance israel','tax exemption','mas hachnasa',
-      'first year','second year','absorption basket','shipping','lift','container',
-      'school israel','education israel','childcare','gan','kindergarten',
-      'cost of living','salary israel','minimum wage israel','living in israel',
-      'citizenship','passport','return','law of return','nbsn'
+      'apartment israel','rent israel','housing israel','mortgage israel','mashkanta',
+      'property israel','real estate israel','work permit','work visa israel',
+      'freelance israel','tax exemption','mas hachnasa','first year israel',
+      'absorption basket','shipping to israel','lift to israel',
+      'school in israel','cost of living israel','salary israel','living in israel',
+      'citizenship israel','passport israel','law of return','making aliyah',
+      'relocat','expat israel','foreign national israel','overseas buyer'
     ]
     function isRelevant(post: any): boolean {
       // Posts from aliyah-specific subs are always relevant
-      const alwaysRelevantSubs = ['aliyah', 'MovingToIsrael', 'israelexpatriates', 'olim', 'living_in_israel']
+      const alwaysRelevantSubs = ['aliyah', 'MovingToIsrael', 'israelexpatriates', 'olim', 'living_in_israel', 'JewishLiving']
       if (alwaysRelevantSubs.includes(post.subreddit)) return true
       // For general subs, require keyword match
       const text = (post.title + ' ' + post.selftext).toLowerCase()

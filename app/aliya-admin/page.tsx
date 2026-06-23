@@ -929,7 +929,7 @@ function LinkBuildingTab() {
         <div style={{background:'#ff4500',padding:'16px 24px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
             <div style={{fontWeight:900,fontSize:16,color:'#fff'}}>👾 Reddit Daily Opportunities</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>r/aliyah · r/MovingToIsrael · r/israelexpatriates · r/living_in_israel · r/olim</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>r/aliyah · r/MovingToIsrael · r/israelexpatriates · r/living_in_israel · r/olim · r/JewishLiving · r/Tel_Aviv · r/Jerusalem</div>
           </div>
           <button onClick={scanReddit} disabled={loading}
             style={{background:'#fff',color:'#ff4500',border:'none',padding:'10px 20px',borderRadius:8,fontWeight:800,fontSize:13,cursor:'pointer',opacity:loading?0.7:1,whiteSpace:'nowrap'}}>
