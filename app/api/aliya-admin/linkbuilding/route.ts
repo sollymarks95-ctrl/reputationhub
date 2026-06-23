@@ -298,8 +298,15 @@ Return ONLY the email.`,
 
   // ── SEND SINGLE EMAIL ────────────────────────────────────────────────────────
   if (action === 'send_email') {
-    const RESEND_KEY = process.env.RESEND_API_KEY || ''
-    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set in Vercel env vars' }, { status: 500 })
+    let RESEND_KEY = process.env.RESEND_API_KEY || ''
+    if (!RESEND_KEY) {
+      // Fallback: read from Supabase system_api_keys table
+      try {
+        const { data } = await db().from('system_api_keys').select('key_value').eq('key_name','RESEND_API_KEY').single()
+        RESEND_KEY = data?.key_value || ''
+      } catch(e) {}
+    }
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set in Vercel env vars or Supabase system_api_keys' }, { status: 500 })
     const { to, subject, text, html, orgName, orgType } = body
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -315,8 +322,14 @@ Return ONLY the email.`,
 
   // ── AUTO-OUTREACH: Send to 10 Jewish orgs ───────────────────────────────────
   if (action === 'auto_outreach') {
-    const RESEND_KEY = process.env.RESEND_API_KEY || ''
-    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set in Vercel env vars — go to Vercel dashboard > Settings > Environment Variables and add it' }, { status: 500 })
+    let RESEND_KEY = process.env.RESEND_API_KEY || ''
+    if (!RESEND_KEY) {
+      try {
+        const { data } = await db().from('system_api_keys').select('key_value').eq('key_name','RESEND_API_KEY').single()
+        RESEND_KEY = data?.key_value || ''
+      } catch(e) {}
+    }
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not configured. Add it to Vercel env vars or Supabase system_api_keys table.' }, { status: 500 })
 
     const TARGETS = [
       { name: "Nefesh B'Nefesh", type:'Aliyah Organisation', email:'info@nbn.org.il', angle:'As the leading aliyah facilitation org, your olim would benefit from our practical post-arrival guides.' },
@@ -382,8 +395,14 @@ Return ONLY the email.`,
 
   // ── CHECK RESEND KEY STATUS ─────────────────────────────────────────────────
   if (action === 'check_resend') {
-    const key = process.env.RESEND_API_KEY || ''
-    if (!key) return NextResponse.json({ ok: false, error: 'RESEND_API_KEY is not set in Vercel environment variables' })
+    let key = process.env.RESEND_API_KEY || ''
+    if (!key) {
+      try {
+        const { data } = await db().from('system_api_keys').select('key_value').eq('key_name','RESEND_API_KEY').single()
+        key = data?.key_value || ''
+      } catch(e) {}
+    }
+    if (!key) return NextResponse.json({ ok: false, error: 'RESEND_API_KEY is not set in Vercel environment variables or Supabase' })
     // Test the key with a dry-run by hitting Resend domains endpoint
     try {
       const r = await fetch('https://api.resend.com/domains', {
