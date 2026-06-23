@@ -894,7 +894,7 @@ function LinkBuildingTab() {
             </div>
           )}
           {data && <div style={{fontSize:11,color:'#9ca3af',marginBottom:12}}>
-            {new Date(data.generatedAt).toLocaleTimeString()} · Scanned {data.totalScanned} posts · {data.opportunities?.length||0} opportunities
+            {data.generatedAtMs ? new Date(data.generatedAtMs).toLocaleTimeString() : 'Just now'} · Scanned {data.totalScanned||'?'} posts · {data.opportunities?.length||0} opportunities found
           </div>}
 
           <div style={{display:'flex',flexDirection:'column',gap:16}}>

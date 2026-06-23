@@ -42,29 +42,49 @@ async function getTopArticles(limit = 20) {
 }
 
 async function fetchSubreddit(sub: string, sort: 'hot'|'new' = 'hot', limit = 25) {
+  // Use RSS feed — works from Vercel servers (JSON API gets blocked by datacenter IP detection)
   try {
-    const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.json?limit=${limit}`, {
-      headers: { 'User-Agent': 'AliyaToday-Research/1.0' },
-      signal: AbortSignal.timeout(8000)
+    const r = await fetch(`https://www.reddit.com/r/${sub}/${sort}.rss?limit=${limit}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; AliyaToday/1.0; +https://aliyatoday.com)',
+        'Accept': 'application/rss+xml, application/xml, text/xml',
+      },
+      signal: AbortSignal.timeout(12000)
     })
     if (!r.ok) return []
-    const d = await r.json()
-    return (d.data?.children || [])
-      .filter((c: any) => !c.data.stickied && !c.data.is_self === false || c.data.is_self)
-      .map((c: any) => ({
-        id:       c.data.id,
-        title:    c.data.title,
-        url:      `https://reddit.com${c.data.permalink}`,
-        score:    c.data.score,
-        comments: c.data.num_comments,
-        flair:    c.data.link_flair_text || '',
-        selftext: (c.data.selftext || '').slice(0, 600),
-        created:  c.data.created_utc,
-        subreddit: sub,
-        author:   c.data.author,
-        is_question: c.data.title.includes('?') || (c.data.selftext||'').includes('?'),
-      }))
-  } catch { return [] }
+    const xml = await r.text()
+    // Parse RSS <entry> tags
+    const entries: any[] = []
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g
+    let match
+    while ((match = entryRegex.exec(xml)) !== null) {
+      const entry = match[1]
+      const title  = (/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s.exec(entry)?.[1] || '').trim()
+      const link   = /<link[^>]*href="([^"]+)"/.exec(entry)?.[1] || ''
+      const author = /<name>(.*?)<\/name>/.exec(entry)?.[1] || ''
+      const content = (/<content[^>]*>([\s\S]*?)<\/content>/.exec(entry)?.[1] || '').replace(/<[^>]+>/g,'').slice(0,500).trim()
+      const id = link.split('/comments/')?.[1]?.split('/')?.[0] || Math.random().toString(36).slice(2)
+      if (title && link && !title.toLowerCase().includes('submitted by')) {
+        entries.push({
+          id,
+          title,
+          url: link,
+          score: 1,
+          comments: 0,
+          flair: '',
+          selftext: content,
+          created: Date.now() / 1000,
+          subreddit: sub,
+          author,
+          is_question: title.includes('?') || content.includes('?'),
+        })
+      }
+    }
+    return entries.slice(0, limit)
+  } catch (e: any) {
+    console.error(`Reddit RSS fetch failed for r/${sub}:`, e.message)
+    return []
+  }
 }
 
 // Get already-used post IDs to avoid repeats
@@ -183,15 +203,16 @@ Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance d
 
     // Filter and sort
     opportunities = opportunities
-      .filter((o: any) => o.relevance >= 7 && o.reply && o.post_url)
+      .filter((o: any) => o.relevance >= 5 && o.reply && o.post_url)
       .sort((a: any, b: any) => b.relevance - a.relevance)
-      .slice(0, 8)
+      .slice(0, 10)
 
     return NextResponse.json({
       opportunities,
       totalScanned: allPosts.length,
       subreddits: SUBREDDITS.map(s => s.label),
       generatedAt: new Date().toISOString(),
+      generatedAtMs: Date.now(),
       date: today,
     })
   }
