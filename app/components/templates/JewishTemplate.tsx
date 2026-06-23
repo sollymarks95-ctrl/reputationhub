@@ -136,61 +136,61 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </div>
 
-    {/* Main content */}
+    {/* Main content + right banner */}
     <div style={{ display:'flex', gap:24, maxWidth:1260, margin:'0 auto', padding:'0 20px', paddingTop:24, paddingBottom:60, alignItems:'flex-start' }}>
       <div style={{ flex:1, minWidth:0 }}>
-      {/* Hero — newspaper front page layout */}
-      {hero && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 340px', gap: '0 24px', marginBottom: 32, paddingBottom: 32, borderBottom: '2px solid #000' }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>{hero.category || 'Israel'}</div>
-            <a href={`/article/jewish-news-now/${hero.slug}`}>
-              <h2 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.1, color: '#000', marginBottom: 12 }}>{hero.title}</h2>
-            </a>
-            {hero.excerpt && <p style={{ fontSize: 15, color: '#333', lineHeight: 1.7, marginBottom: 12, borderLeft: `4px solid ${P}`, paddingLeft: 12 }}>{hero.excerpt?.slice(0, 200)}</p>}
-            <div style={{ fontSize: 11, color: '#666' }}>By {hero.author_name || 'Staff Reporter'} · {fmt(hero.published_at)}</div>
-          </div>
-          <div style={{ background: '#000' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {rest.slice(0, 4).map((a: any, i: number) => (
-              <a key={a.id} href={`/article/jewish-news-now/${a.slug}`}
-                style={{ paddingBottom: 16, borderBottom: i < 3 ? '1px solid #ddd' : 'none' }}>
-                <div style={{ fontSize: 9, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>{a.category || cats[1 + i]}</div>
-                <div style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.3, color: '#000' }}>{a.title}</div>
-                <div style={{ fontSize: 10, color: '#888', marginTop: 4 }}>{fmt(a.published_at)}</div>
+        {/* Hero — newspaper front page layout */}
+        {hero && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 340px', gap: '0 24px', marginBottom: 32, paddingBottom: 32, borderBottom: '2px solid #000' }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 8 }}>{hero.category || 'Israel'}</div>
+              <a href={`/article/jewish-news-now/${hero.slug}`}>
+                <h2 style={{ fontSize: 38, fontWeight: 900, lineHeight: 1.1, color: '#000', marginBottom: 12 }}>{hero.title}</h2>
               </a>
-            ))}
+              {hero.excerpt && <p style={{ fontSize: 15, color: '#333', lineHeight: 1.7, marginBottom: 12, borderLeft: `4px solid ${P}`, paddingLeft: 12 }}>{hero.excerpt?.slice(0, 200)}</p>}
+              <div style={{ fontSize: 11, color: '#666' }}>By {hero.author_name || 'Staff Reporter'} · {fmt(hero.published_at)}</div>
+            </div>
+            <div style={{ background: '#000' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {rest.slice(0, 4).map((a: any, i: number) => (
+                <a key={a.id} href={`/article/jewish-news-now/${a.slug}`}
+                  style={{ paddingBottom: 16, borderBottom: i < 3 ? '1px solid #ddd' : 'none' }}>
+                  <div style={{ fontSize: 9, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>{a.category || cats[1 + i]}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.3, color: '#000' }}>{a.title}</div>
+                  <div style={{ fontSize: 10, color: '#888', marginTop: 4 }}>{fmt(a.published_at)}</div>
+                </a>
+              ))}
+            </div>
           </div>
+        )}
+        {/* 3-column grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0 32px' }}>
+          {rest.slice(4, 19).map((a: any, i: number) => (
+            <a key={a.id} href={`/article/jewish-news-now/${a.slug}`}
+              style={{ display: 'block', paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid #ddd' }}>
+              <img src={img(a, i+2)} alt="" style={{ width: '100%', height: 140, objectFit: 'cover', marginBottom: 10 }} />
+              <div style={{ fontSize: 9, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 5 }}>{a.category || cats[1 + (i % 5)]}</div>
+              <div style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.3, color: '#000', marginBottom: 6 }}>{a.title}</div>
+              <div style={{ fontSize: 10, color: '#888' }}>{a.author_name} · {fmt(a.published_at)}</div>
+            </a>
+          ))}
         </div>
-      )}
-
-      {/* 3-column grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0 32px' }}>
-        {rest.slice(4, 19).map((a: any, i: number) => (
-          <a key={a.id} href={`/article/jewish-news-now/${a.slug}`}
-            style={{ display: 'block', paddingBottom: 20, marginBottom: 20, borderBottom: '1px solid #ddd' }}>
-            <img src={img(a, i+2)} alt="" style={{ width: '100%', height: 140, objectFit: 'cover', marginBottom: 10 }} />
-            <div style={{ fontSize: 9, fontWeight: 900, color: P, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 5 }}>{a.category || cats[1 + (i % 5)]}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.3, color: '#000', marginBottom: 6 }}>{a.title}</div>
-            <div style={{ fontSize: 10, color: '#888' }}>{a.author_name} · {fmt(a.published_at)}</div>
-          </a>
-        ))}
+      </div>
+      {/* Ian Marks banner — right sticky column */}
+      <div style={{ position:'sticky', top:20, alignSelf:'start', width:220, flexShrink:0 }}>
+        <IanMarksBanner siteUrl="https://jewishnewsnow.com" />
       </div>
     </div>
 
-    {/* Newsletter Banner */}
+    {/* Newsletter */}
     <div style={{ background: '#f5f5f5', borderTop: '3px solid #000', padding: '40px 0' }}>
-        </div>{/* end main content */}
-      <div style={{ position:'sticky', top:20, alignSelf:'start' }}>
-        <IanMarksBanner siteUrl="https://jewishnewsnow.com" />
-      </div>
-    </div>{/* end flex wrapper */}
-    <div className="jnn-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+      <div className="jnn-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontSize: 10, fontWeight: 900, color: '#1a56b0', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 8 }}>✉ Daily Newsletter</div>
         <h2 style={{ fontSize: 24, fontWeight: 900, color: '#000', marginBottom: 8, fontFamily: 'Georgia, serif' }}>Jewish World Briefing — Every Morning</h2>
         <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>The day's most important Jewish and Israel news, curated and delivered before 8am.</p>
         <SubscribeForm siteSlug="jewish-news-now" siteName="Jewish News Now" accent="#1a56b0" />
       </div>
+    </div>{/* end newsletter */}
 
     {/* Facebook Community Banner — all 3 Jewish sites */}
     <a
