@@ -772,3 +772,4 @@ export default function JewishTemplate({ site, articles }: { site: any; articles
   if (slug === 'aliya-today')            return <AliyaToday site={site} articles={articles} />
   return <JewishNewsNow site={site} articles={articles} />
 }
+// deployed Tue Jun 23 16:28:22 UTC 2026
