@@ -746,6 +746,53 @@ for a in r.json()['articles']:
 }
 
 // ── LINK BUILDING TAB ────────────────────────────────────────────────────────
+// ── AUTO OUTREACH BUTTON ─────────────────────────────────────────────────────
+function AutoOutreachButton({ onDone }: { onDone: () => void }) {
+  const [state, setState] = useState<'idle'|'running'|'done'|'error'>('idle')
+  const [results, setResults] = useState<any>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  async function run() {
+    setShowConfirm(false); setState('running')
+    try {
+      const r = await fetch('/api/aliya-admin/linkbuilding', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action: 'auto_outreach' })
+      })
+      const d = await r.json()
+      setResults(d); setState(d.ok ? 'done' : 'error')
+      if (d.ok) onDone()
+    } catch { setState('error') }
+  }
+
+  if (showConfirm) return (
+    <div style={{background:'rgba(0,0,0,.3)',borderRadius:10,padding:'12px 16px',display:'flex',gap:10,alignItems:'center'}}>
+      <span style={{color:'#fff',fontSize:13,fontWeight:600}}>Send to 10 Jewish orgs?</span>
+      <button onClick={run} style={{background:'#fff',color:'#c47d1a',border:'none',padding:'6px 14px',borderRadius:6,fontWeight:800,fontSize:12,cursor:'pointer'}}>Yes, Send All</button>
+      <button onClick={()=>setShowConfirm(false)} style={{background:'transparent',color:'rgba(255,255,255,.7)',border:'1px solid rgba(255,255,255,.4)',padding:'6px 12px',borderRadius:6,fontSize:12,cursor:'pointer'}}>Cancel</button>
+    </div>
+  )
+
+  if (state === 'running') return (
+    <div style={{background:'rgba(0,0,0,.3)',borderRadius:10,padding:'10px 16px',color:'#fff',fontSize:13}}>
+      ✉️ Sending... {results?.sent||0}/10
+    </div>
+  )
+
+  if (state === 'done') return (
+    <div style={{background:'rgba(0,0,0,.3)',borderRadius:10,padding:'10px 16px',color:'#fff',fontSize:13,fontWeight:700}}>
+      ✅ {results?.sent} emails sent! Check CRM →
+    </div>
+  )
+
+  return (
+    <button onClick={()=>setShowConfirm(true)}
+      style={{background:'#fff',color:'#c47d1a',border:'none',padding:'10px 18px',borderRadius:8,fontWeight:800,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>
+      🚀 Auto-Send to 10 Jewish Orgs
+    </button>
+  )
+}
+
 // ── UNIFIED LINK BUILDING TOOL ───────────────────────────────────────────────
 function LinkBuildingTab() {
   const A = '#c47d1a'
@@ -1049,9 +1096,12 @@ function LinkBuildingTab() {
 
       {/* ── SECTION 4: OUTREACH ── */}
       <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,overflow:'hidden'}}>
-        <div style={{background:'#c47d1a',padding:'16px 24px'}}>
-          <div style={{fontWeight:900,fontSize:16,color:'#fff'}}>🤝 Community Outreach</div>
-          <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>Email synagogues, Chabads, JCCs · Sent via Resend · Auto-tracked in CRM</div>
+        <div style={{background:'#c47d1a',padding:'16px 24px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div>
+            <div style={{fontWeight:900,fontSize:16,color:'#fff'}}>🤝 Community Outreach</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.8)',marginTop:2}}>Email Jewish orgs · Sent via Resend · Auto-tracked in CRM</div>
+          </div>
+          <AutoOutreachButton onDone={loadCRM} />
         </div>
         <div style={{padding:'16px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
           {/* Left: composer */}

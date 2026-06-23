@@ -320,5 +320,102 @@ Include only posts with relevance >= 7. Max 8 opportunities. Rank by relevance d
     return NextResponse.json({ ok: true, id: result.id })
   }
 
+
+  // ── AUTO OUTREACH — draft + send to all target orgs ─────────────────────
+  if (action === 'auto_outreach') {
+    const RESEND_KEY = process.env.RESEND_API_KEY || ''
+    if (!RESEND_KEY) return NextResponse.json({ error: 'RESEND_API_KEY not set' }, { status: 500 })
+
+    const TARGET_ORGS = [
+      { name: "Nefesh B'Nefesh", type: 'Aliyah Organisation', email: 'info@nbn.org.il',
+        angle: 'As the leading aliyah facilitation organisation, your community would benefit from our practical day-to-day oleh guides covering Sal Klita, Kupat Holim, and bureaucracy navigation.' },
+      { name: 'Jewish Agency Aliyah', type: 'Aliyah Organisation', email: 'aliyah@jafi.org',
+        angle: 'Our practical English-language guides complement your official aliyah resources — specifically covering post-arrival life, health funds, tax planning, and housing that olim need help with immediately.' },
+      { name: 'Times of Israel', type: 'Jewish Media', email: 'editorial@timesofisrael.com',
+        angle: 'As a daily publisher covering Israel for the English-speaking Jewish world, you may find our aliyah data and oleh insights useful for your readership.' },
+      { name: 'Aish.com', type: 'Jewish Community', email: 'info@aish.com',
+        angle: 'Your readers who are considering aliyah or have family in Israel would find our practical cost breakdowns and step-by-step guides extremely useful.' },
+      { name: 'Chabad.org', type: 'Chabad House', email: 'info@chabad.org',
+        angle: 'Many in your global community consider or make aliyah. Our practical guides — covering Sal Klita amounts, Kupat Holim comparison, and first-year costs — would be a valuable resource to share.' },
+      { name: 'Jewish Federations of North America', type: 'Jewish Federation', email: 'info@jewishfederations.org',
+        angle: 'Your 150+ member federations serve communities where Israel connection and aliyah are significant topics. AliyaToday.com could be a valuable resource for your Israel engagement programs.' },
+      { name: 'MyIsrael', type: 'Aliyah Organisation', email: 'info@myisrael.org.il',
+        angle: 'As an organisation helping Jews connect with Israel, our practical post-aliyah guides on Kupat Holim, Bituach Leumi, and daily life could complement your pre-aliyah programs.' },
+      { name: 'Israel Forever Foundation', type: 'Jewish Organisation', email: 'info@israelforever.org',
+        angle: 'Your mission of deepening the connection between diaspora Jews and Israel aligns perfectly with our content helping people understand and navigate life in Israel.' },
+      { name: 'WIZO', type: 'Jewish Organisation', email: 'wizo@wizo.org',
+        angle: 'Your work supporting women and families in Israel means many in your network would benefit from our guides on health funds, child benefits, and absorption support for new olim.' },
+      { name: 'Honest Reporting', type: 'Jewish Media', email: 'contact@honestreporting.com',
+        angle: 'Your English-speaking pro-Israel audience includes many who are considering or have made aliyah — our practical resource could be useful to share with your community.' },
+    ]
+
+    const results: any[] = []
+
+    for (const org of TARGET_ORGS) {
+      try {
+        // Draft email via Claude
+        const draftResp = await claude(
+          `Write a short outreach email from Solly Marks to ${org.name} (${org.type}).
+
+Angle: ${org.angle}
+
+Requirements:
+- 120-160 words MAXIMUM — keep it short, they get hundreds of emails
+- Subject line first on its own line starting with "Subject: "
+- Warm, genuine, not salesy
+- One specific AliyaToday resource to mention (pick the most relevant: Sal Klita guide, Kupat Holim comparison, 10-year tax exemption guide, or aliyah checklist 2026)
+- Simple ask: "Would you consider adding AliyaToday.com to your resources / sharing with your community?"
+- Sign off: Solly Marks, Founder — AliyaToday.com | Ashdod, Israel
+
+Return ONLY the email (subject line first, then body). No preamble.`,
+          'Write concise, genuine outreach emails for Solly Marks. Short and human. Never salesy.'
+        )
+
+        const lines = draftResp.trim().split('\n')
+        const subjectLine = lines.find((l: string) => l.toLowerCase().startsWith('subject:')) || lines[0]
+        const subject = subjectLine.replace(/^subject:\s*/i, '').trim()
+        const bodyLines = lines.filter((l: string) => !l.toLowerCase().startsWith('subject:'))
+        const body = bodyLines.join('\n').trim()
+        const htmlBody = `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#111;max-width:600px">${body.split('\n').map((p: string) => p ? `<p>${p}</p>` : '').join('')}</div>`
+
+        // Send via Resend
+        const sendResp = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
+          body: JSON.stringify({
+            from: 'Solly Marks <solly@aliyatoday.com>',
+            to: [org.email],
+            subject,
+            html: htmlBody,
+            tags: [
+              { name: 'org_name', value: org.name.slice(0,50).replace(/[^a-zA-Z0-9_\-]/g,'_') },
+              { name: 'campaign', value: 'auto_outreach_v1' },
+            ]
+          })
+        })
+        const sendResult = await sendResp.json()
+
+        // Save to CRM
+        await db().from('link_building_outreach').upsert({
+          org_name: org.name, org_type: org.type, contact_email: org.email,
+          platform: 'email', status: sendResp.ok ? 'sent' : 'drafted',
+          notes: `${subject}\n\n${body}`,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'org_name,platform' }).catch(() => {})
+
+        results.push({ org: org.name, email: org.email, ok: sendResp.ok, id: sendResult.id, subject })
+        
+        // Small delay between sends to avoid rate limits
+        await new Promise(r => setTimeout(r, 800))
+
+      } catch (err: any) {
+        results.push({ org: org.name, email: org.email, ok: false, error: err.message })
+      }
+    }
+
+    const sent = results.filter(r => r.ok).length
+    return NextResponse.json({ ok: true, sent, total: results.length, results })
+  }
+
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
 }
