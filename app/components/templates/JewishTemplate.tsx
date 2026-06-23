@@ -66,34 +66,48 @@ function IanMarksBanner({ siteUrl }: { siteUrl: string }) {
   )
 }
 
-// Wrapper that places banners on left + right gutters alongside content
+// 3-column layout: ad rail | content | ad rail
+// Blends naturally into the page — no fixed/absolute positioning
 function WithBanners({ children, siteUrl, bg }: { children: React.ReactNode; siteUrl: string; bg?: string }) {
   return (
     <>
       <style>{`
-        .ian-gutter-left, .ian-gutter-right {
-          position: fixed;
-          top: 120px;
-          width: 180px;
-          z-index: 10;
+        .ian-outer {
+          display: grid;
+          grid-template-columns: 160px 1fr 160px;
+          gap: 0;
+          background: var(--ian-bg, transparent);
+          align-items: start;
         }
-        .ian-gutter-left { left: 8px; }
-        .ian-gutter-right { right: 8px; }
-        @media(max-width:1400px){
-          .ian-gutter-left, .ian-gutter-right { width: 140px; }
+        .ian-rail {
+          padding: 20px 8px 20px 8px;
         }
-        @media(max-width:1280px){
-          .ian-gutter-left, .ian-gutter-right { display: none !important; }
+        .ian-rail-left { padding-left: 12px; }
+        .ian-rail-right { padding-right: 12px; }
+        .ian-sticky { position: sticky; top: 16px; }
+        .ian-content { min-width: 0; }
+        @media(max-width:1340px){
+          .ian-outer { grid-template-columns: 130px 1fr 130px; }
+        }
+        @media(max-width:1160px){
+          .ian-outer { grid-template-columns: 1fr; }
+          .ian-rail { display: none; }
         }
       `}</style>
-      <div className="ian-gutter-left">
-        <IanMarksBanner siteUrl={siteUrl} />
-      </div>
-      <div className="ian-gutter-right">
-        <IanMarksBanner siteUrl={siteUrl} />
-      </div>
-      <div style={{ background: bg || 'transparent' }}>
-        {children}
+      <div className="ian-outer" style={{ '--ian-bg': bg || 'transparent' } as React.CSSProperties}>
+        <div className="ian-rail ian-rail-left">
+          <div className="ian-sticky">
+            <IanMarksBanner siteUrl={siteUrl} />
+          </div>
+        </div>
+        <div className="ian-content">
+          {children}
+        </div>
+        <div className="ian-rail ian-rail-right">
+          <div className="ian-sticky">
+            <IanMarksBanner siteUrl={siteUrl} />
+          </div>
+        </div>
       </div>
     </>
   )
