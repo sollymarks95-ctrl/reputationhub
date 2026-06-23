@@ -53,6 +53,20 @@ function SubscribeForm({ siteSlug, siteName, accent }: { siteSlug: string; siteN
 }
 
 // ─── Jewish News Now ─── Bold breaking-news daily paper
+
+// ── IAN MARKS REAL ESTATE BANNER (homepage sidebar) ──────────────────────────
+function IanMarksBanner({ siteUrl }: { siteUrl: string }) {
+  const msg = encodeURIComponent(`Hi, I got to you through ${siteUrl} — I am looking for a property in Israel`)
+  return (
+    <a href={`https://wa.me/972522569995?text=${msg}`} target="_blank" rel="noopener noreferrer"
+      style={{ display:'block', textDecoration:'none', cursor:'pointer', borderRadius:8, overflow:'hidden',
+        boxShadow:'0 2px 12px rgba(0,0,0,.12)', flexShrink:0, width:220 }}>
+      <img src="/ian-marks-banner.jpg" alt="Ian Marks Real Estate — Buy Property in Israel"
+        style={{ width:'100%', display:'block' }} loading="lazy" />
+    </a>
+  )
+}
+
 function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
   const [cat, setCat] = React.useState('All')
   const P = '#1a56b0'
@@ -123,7 +137,8 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
     </div>
 
     {/* Main content */}
-    <div className="jnn-wrap" style={{ paddingTop: 24, paddingBottom: 60 }}>
+    <div style={{ display:'flex', gap:24, maxWidth:1260, margin:'0 auto', padding:'0 20px', paddingTop:24, paddingBottom:60, alignItems:'flex-start' }}>
+      <div style={{ flex:1, minWidth:0 }}>
       {/* Hero — newspaper front page layout */}
       {hero && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 340px', gap: '0 24px', marginBottom: 32, paddingBottom: 32, borderBottom: '2px solid #000' }}>
@@ -165,7 +180,12 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
 
     {/* Newsletter Banner */}
     <div style={{ background: '#f5f5f5', borderTop: '3px solid #000', padding: '40px 0' }}>
-      <div className="jnn-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        </div>{/* end main content */}
+      <div style={{ position:'sticky', top:20, alignSelf:'start' }}>
+        <IanMarksBanner siteUrl="https://jewishnewsnow.com" />
+      </div>
+    </div>{/* end flex wrapper */}
+    <div className="jnn-wrap" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontSize: 10, fontWeight: 900, color: '#1a56b0', textTransform: 'uppercase', letterSpacing: '.15em', marginBottom: 8 }}>✉ Daily Newsletter</div>
         <h2 style={{ fontSize: 24, fontWeight: 900, color: '#000', marginBottom: 8, fontFamily: 'Georgia, serif' }}>Jewish World Briefing — Every Morning</h2>
         <p style={{ fontSize: 13, color: '#555', marginBottom: 20, lineHeight: 1.6 }}>The day's most important Jewish and Israel news, curated and delivered before 8am.</p>
@@ -258,7 +278,8 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
       </div>
     </header>
 
-    <div className="jpr-wrap" style={{ paddingTop: 28, paddingBottom: 60 }}>
+    <div style={{ display:'flex', gap:24, maxWidth:1260, margin:'0 auto', padding:'0 24px', alignItems:'flex-start' }}>
+      <div style={{ flex:1, minWidth:0, paddingTop:28, paddingBottom:60 }}>
       {/* Featured property articles */}
       {hero && (
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 36, paddingBottom: 36, borderBottom: `3px solid ${P}` }}>
@@ -307,6 +328,12 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
         ))}
       </div>
     </div>
+
+      </div>{/* end main content */}
+      <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:28 }}>
+        <IanMarksBanner siteUrl="https://jewishpropertyreport.com" />
+      </div>
+    </div>{/* end flex */}
 
     {/* Newsletter Banner */}
     <div style={{ background: '#f0faf5', borderTop: '3px solid #0a7c4e', padding: '40px 0' }}>
@@ -537,7 +564,8 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
       </div>
     </header>
 
-    <div className="at-wrap" style={{ paddingTop: 32, paddingBottom: 60 }}>
+    <div style={{ display:'flex', gap:24, maxWidth:1400, margin:'0 auto', padding:'0 20px', alignItems:'flex-start' }}>
+      <div style={{ flex:1, minWidth:0, paddingTop:32, paddingBottom:60 }}>
       {/* Hero — full width with warm overlay */}
       {hero && (
         <div style={{ marginBottom: 40 }}>
@@ -607,7 +635,11 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
           </div>
         </div>
       )}
-    </div>
+      </div>{/* end main */}
+      <div style={{ position:'sticky', top:20, alignSelf:'start', paddingTop:32 }}>
+        <IanMarksBanner siteUrl="https://aliyatoday.com" />
+      </div>
+    </div>{/* end flex */}
 
     {/* Newsletter Banner */}
     <div style={{ background: '#fff8f0', borderTop: '3px solid #c47d1a', padding: '40px 0' }}>
