@@ -253,7 +253,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const sameCategory = allArticles.filter((a: any) => a.slug !== slug && a.category === articleCategory)
   const otherArticles = allArticles.filter((a: any) => a.slug !== slug && a.category !== articleCategory)
   const related = [...sameCategory, ...otherArticles].slice(0, 8)
-  const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 8)
+  const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 12)
   // Normalize body: handle both real newlines and literal \n from DB
   const rawBody = (article.body || '')
     .replace(/\\n/g, '\n')   // literal \n → real newline
@@ -755,7 +755,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {/* NEWSLETTER */}
             <div style={{ background:`linear-gradient(135deg,${p},#1e293b)`, borderRadius:6, padding:18, marginBottom:14, color:'#fff', fontFamily:'sans-serif' }}>
               <div style={{ fontWeight:900, fontSize:16, marginBottom:6 }}>📧 Free Daily Briefing</div>
-              <p style={{ fontSize:12, opacity:0.85, lineHeight:1.6, marginBottom:14 }}>Top stories from {site.name} every morning. 50,000+ subscribers.</p>
+              <p style={{ fontSize:12, opacity:0.85, lineHeight:1.6, marginBottom:14 }}>Top stories from {site.name} every morning, straight to your inbox.</p>
               <NewsletterInlineDark siteId={site.id} siteName={site.name} p={p} />
             </div>
 

@@ -453,23 +453,30 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
   const [cat, setCat] = React.useState('All')
   const P = '#c47d1a'
 
-  // CATEGORY MAP — maps user-friendly tab names to keywords that appear in
-  // article titles, excerpts, or categories. Based on the actual 63 articles
-  // published so far. 'All' is always first.
+  // CATEGORY MAP — tab labels now match the real `category` values stored on
+  // each article in Supabase (cleaned up July 2026 from the old generic
+  // Finance/Guide/Markets tagging). Matching checks the exact category first;
+  // the keyword list is a fallback only, for any older/mistagged articles.
   const CAT_KEYWORDS: Record<string, string[]> = {
-    'All':       [],
-    'Process':   ['process','application','nefesh','jewish agency','step by step','checklist','visa','law of return','citizenship','registration','apply','approval','how to make aliyah','bureauc','misrad','document'],
-    'Benefits':  ['benefit','sal klita','klita','bituach','arnona','allowance','grant','stipend','tax exempt','pension','child','national insurance','nbn grants','absorption basket'],
-    'Housing':   ['housing','apartment','real estate','rental','rent','property','absorption center','home','buy','purchase','mortgage','bedroom'],
-    'Finance':   ['cost','money','finance','bank account','currency','tax','income','capital','fund','invest','expense','budget','breakdown','fee','shekel'],
-    'Ulpan':     ['ulpan','hebrew','language','learning'],
-    'Security':  ['security','safe','iran','war','ceasefire','risk','geopolit','military','idf','attack'],
-    'Jobs':      ['work','employ','job','career','profession','salary','earning','income','license','driving'],
+    'All':            [],
+    'Start Here':     ['how to make aliyah','step-by-step guide','complete step-by-step','roadmap'],
+    'Process':        ['process','application','nefesh','jewish agency','step by step','checklist','visa','law of return','citizenship','registration','apply','approval','bureauc','misrad haklita'],
+    'Documents':      ['teudat zehut','teudat oleh','driving lic','driving test','driving licence','social security number','misrad hapnim','document'],
+    'Benefits':       ['benefit','sal klita','klita','bituach leumi','arnona','allowance','grant','stipend','tax exempt','pension','child benefit','national insurance','nbn grants','absorption basket'],
+    'Money':          ['cost','money','bank account','currency','tax','income','capital','fund','invest','expense','budget','breakdown','fee','shekel'],
+    'Housing':        ['housing','apartment','real estate','rental','rent','property','absorption center','home','buy','purchase','mortgage','bedroom','lease'],
+    'Ulpan':          ['ulpan','hebrew','language','learning'],
+    'Health':         ['kupat holim','health fund','clalit','maccabi','meuhedet','leumit','dental','mental health','insurance'],
+    'Jobs':           ['work in israel','working in israel','employ','job','career','profession','salary','earning','income','license','osek','self-employ','remote work','idf service','army service'],
+    'Security':       ['security','safe','iran','war','ceasefire','risk','geopolit','military','idf','attack'],
+    'Community':      ['best cities','school system','school capacity','culture shock','community','moving to','new oleh'],
+    'Country Guides': ['aliyah from','western aliyah','north american aliyah','french aliyah','south african aliyah','uk aliyah','usa olim'],
   }
   const cats = Object.keys(CAT_KEYWORDS)
 
   function matchesCat(a: any, c: string) {
     if (c === 'All') return true
+    if ((a.category || '').toLowerCase() === c.toLowerCase()) return true
     const haystack = `${a.title} ${a.excerpt || ''} ${a.category || ''}`.toLowerCase()
     return CAT_KEYWORDS[c].some(kw => haystack.includes(kw))
   }
@@ -583,6 +590,10 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
                 {c}
               </button>
             ))}
+            <a href="/guides"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, borderBottom: '3px solid transparent', color: P, padding: '12px 16px', fontSize: 12, fontWeight: 800, textDecoration: 'none', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
+              📚 All Guides
+            </a>
             <a href="/calculators"
               style={{ display: 'flex', alignItems: 'center', gap: 6, borderBottom: '3px solid transparent', color: P, padding: '12px 16px', fontSize: 12, fontWeight: 800, textDecoration: 'none', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
               🧮 Calculators

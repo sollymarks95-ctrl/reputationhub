@@ -98,8 +98,8 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       'article:section': site?.category || 'Finance',
       // AI engine hints
-      'ai-content-type': 'financial-news',
-      'ai-update-frequency': 'hourly',
+      'ai-content-type': isJewish ? 'immigration-guide' : 'financial-news',
+      'ai-update-frequency': 'daily',
       'ai-language': 'en',
     },
   }
