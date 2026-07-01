@@ -583,6 +583,10 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
                 {c}
               </button>
             ))}
+            <a href="/calculators"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, borderBottom: '3px solid transparent', color: P, padding: '12px 16px', fontSize: 12, fontWeight: 800, textDecoration: 'none', fontFamily: 'Georgia, serif', letterSpacing: '.02em' }}>
+              🧮 Calculators
+            </a>
           </div>
           <div ref={searchBoxRef} style={{ position: 'relative' }}>
             <form action="/search" method="GET" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '8px 16px' }}>

@@ -1,6 +1,123 @@
 import type { JSX } from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
+
+// Jewish/Aliyah portals are informational publishers, not financial-trading
+// publishers. They previously inherited the shared RepHuby/FCA legal content
+// wholesale (wrong entity name, wrong registered address, irrelevant trading
+// risk disclosures). This map gives each of them correct, site-aware legal
+// copy without touching the finance-portal legal content below.
+const JEWISH_SITES: Record<string, { name: string; domain: string; email: string }> = {
+  'aliyatoday.com':               { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com' },
+  'www.aliyatoday.com':           { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com' },
+  'jewishnewsnow.com':            { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com' },
+  'www.jewishnewsnow.com':        { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com' },
+  'jewishpropertyreport.com':     { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com' },
+  'www.jewishpropertyreport.com': { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com' },
+}
+
+function jewishLegalContent(page: string, site: { name: string; domain: string; email: string }): { title: string; content: () => JSX.Element } | null {
+  const today = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
+  const MAP: Record<string, { title: string; content: () => JSX.Element }> = {
+    privacy: {
+      title: 'Privacy Policy',
+      content: () => (
+        <>
+          <p><strong>Last updated:</strong> {today}</p>
+          <h2>1. Who We Are</h2>
+          <p>{site.name} ("we", "our", "us") is an independent editorial publication at {site.domain}, operated from Israel by Solly Marks, providing information for people considering or making Aliyah.</p>
+          <h2>2. What Information We Collect</h2>
+          <ul>
+            <li><strong>Newsletter subscribers:</strong> Email address and date of subscription.</li>
+            <li><strong>Website visitors:</strong> IP address, browser type, pages visited, and referring URL, collected through standard analytics cookies.</li>
+            <li><strong>Contact form submissions:</strong> Name, email address, and message content.</li>
+          </ul>
+          <h2>3. How We Use Your Information</h2>
+          <ul>
+            <li>To send the newsletter and guides you subscribed to;</li>
+            <li>To improve the quality and relevance of our content;</li>
+            <li>To analyse website traffic using anonymised analytics data;</li>
+            <li>To respond to your enquiries.</li>
+          </ul>
+          <h2>4. Data Retention</h2>
+          <p>We retain newsletter subscriber data for the duration of your subscription plus 2 years. Website analytics data is retained for 26 months. You may request deletion of your personal data at any time.</p>
+          <h2>5. Your Rights</h2>
+          <p>Depending on your location, you may have the right to access, correct, delete, or export your personal data, and to object to or restrict its processing.</p>
+          <h2>6. Cookies</h2>
+          <p>We use cookies to improve your browsing experience and analyse website traffic. See our Cookie Policy for details.</p>
+          <h2>7. Third-Party Services</h2>
+          <p>We use the following third-party services that may process your personal data: Supabase (database hosting), Vercel (website hosting), Google Analytics (anonymised analytics), and Resend (email delivery). Each has its own privacy policy.</p>
+          <h2>8. Contact Us</h2>
+          <p>For privacy-related enquiries, contact us at <strong>{site.email}</strong>.</p>
+        </>
+      )
+    },
+    terms: {
+      title: 'Terms of Use',
+      content: () => (
+        <>
+          <p><strong>Last updated:</strong> {today}</p>
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing and using {site.name} ("Services"), you accept and agree to be bound by these Terms of Use. If you do not agree, please do not use the Services.</p>
+          <h2>2. Nature of the Service</h2>
+          <p>{site.name} provides information, guides, and commentary about Aliyah, immigration, housing, and community life in Israel for informational purposes only. Content does not constitute legal, tax, immigration, or financial advice. Always confirm details with the relevant official authority (Misrad Haklita, Nefesh B'Nefesh, the Jewish Agency, Misrad Hapnim, Bituach Leumi, or the Israel Tax Authority) before making decisions.</p>
+          <h2>3. Accuracy of Information</h2>
+          <p>While we make reasonable efforts to keep content accurate and current, government programs, benefits, and requirements change over time. We make no warranty as to completeness or timeliness of any information published.</p>
+          <h2>4. Intellectual Property</h2>
+          <p>All content on {site.name}, including text, graphics, and data compilations, is the property of {site.name} or its content providers. You may not reproduce or redistribute our content without permission.</p>
+          <h2>5. Prohibited Uses</h2>
+          <p>You agree not to scrape or systematically extract data from this site, interfere with its operation, or misrepresent the source of its content.</p>
+          <h2>6. Limitation of Liability</h2>
+          <p>To the maximum extent permitted by law, {site.name} is not liable for damages arising from your use of, or reliance on, information provided through the Services.</p>
+          <h2>7. Changes to Terms</h2>
+          <p>We may update these Terms from time to time. Continued use of the Services after changes constitutes acceptance of the updated terms.</p>
+        </>
+      )
+    },
+    cookies: {
+      title: 'Cookie Policy',
+      content: () => (
+        <>
+          <p><strong>Last updated:</strong> {today}</p>
+          <h2>What Are Cookies</h2>
+          <p>Cookies are small text files placed on your device to help websites function and to collect anonymised usage data.</p>
+          <h2>How {site.name} Uses Cookies</h2>
+          <ul>
+            <li><strong>Essential cookies:</strong> required for the site to function correctly.</li>
+            <li><strong>Analytics cookies:</strong> help us understand how visitors use the site, so we can improve it.</li>
+          </ul>
+          <h2>Managing Cookies</h2>
+          <p>You can control or delete cookies through your browser settings. Disabling cookies may affect site functionality.</p>
+          <h2>Contact</h2>
+          <p>Questions about this policy can be sent to <strong>{site.email}</strong>.</p>
+        </>
+      )
+    },
+    about: {
+      title: `About ${site.name}`,
+      content: () => (
+        <>
+          <h2>Our Mission</h2>
+          <p>{site.name} exists to be a practical, trustworthy guide for people making Aliyah — covering the process, costs, housing, healthcare, work, and community life in Israel.</p>
+          <h2>Editorial Standards</h2>
+          <p>Guides are written and reviewed by Solly Marks, an oleh living in Ashdod, Israel, and are checked against official sources including Misrad Haklita, Nefesh B'Nefesh, the Jewish Agency, Bituach Leumi, and the Israel Tax Authority where relevant. Information is provided for general guidance only — always confirm specifics with the relevant official body before making decisions.</p>
+          <h2>Contact</h2>
+          <p>Email: <strong>{site.email}</strong></p>
+        </>
+      )
+    },
+    contact: {
+      title: 'Contact',
+      content: () => (
+        <>
+          <p>For general enquiries, corrections, or partnership requests, email us at <strong>{site.email}</strong>. We aim to respond within one business day.</p>
+        </>
+      )
+    },
+  }
+  return MAP[page] || null
+}
 
 const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
   privacy: {
@@ -222,6 +339,20 @@ const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
   const { page } = await params
+  const headersList = await headers()
+  const host = (headersList.get('host') || '').split(':')[0]
+  const jewishSite = JEWISH_SITES[host]
+
+  if (jewishSite) {
+    const legal = jewishLegalContent(page, jewishSite)
+    if (!legal) return { title: `Legal | ${jewishSite.name}` }
+    return {
+      title: `${legal.title} | ${jewishSite.name}`,
+      description: `${jewishSite.name} ${legal.title}`,
+      robots: 'noindex, nofollow',
+    }
+  }
+
   const legal = LEGAL[page]
   if (!legal) return { title: 'Legal | RepHuby Intelligence' }
   return {
@@ -233,6 +364,83 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
 
 export default async function LegalPage({ params }: { params: Promise<{ page: string }> }) {
   const { page } = await params
+  const headersList = await headers()
+  const host = (headersList.get('host') || '').split(':')[0]
+  const jewishSite = JEWISH_SITES[host]
+
+  if (jewishSite) {
+    const legal = jewishLegalContent(page, jewishSite)
+    const jewishNav = [
+      { slug:'privacy', label:'Privacy Policy' },
+      { slug:'terms', label:'Terms of Use' },
+      { slug:'cookies', label:'Cookie Policy' },
+      { slug:'about', label:'About Us' },
+      { slug:'contact', label:'Contact' },
+    ]
+
+    if (!legal) {
+      return (
+        <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'sans-serif', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ textAlign:'center', padding:40 }}>
+            <div style={{ fontSize:48, marginBottom:16 }}>📄</div>
+            <h1 style={{ fontSize:24, fontWeight:900, marginBottom:12 }}>Page Not Found</h1>
+            <Link href="/legal/about" style={{ color:'#3b82f6' }}>Go to About Us →</Link>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'sans-serif' }}>
+        <style>{`
+          *{box-sizing:border-box;margin:0;padding:0}
+          a{color:#3b82f6;text-decoration:none}
+          a:hover{text-decoration:underline}
+          h2{font-size:18px;font-weight:800;color:#111;margin:1.5em 0 0.6em;padding-bottom:6px;border-bottom:2px solid #e5e7eb}
+          p{font-size:14px;line-height:1.8;color:#374151;margin-bottom:0.8em}
+          ul,ol{margin:0.5em 0 1em 1.5em;font-size:14px;line-height:1.8;color:#374151}
+          li{margin-bottom:0.3em}
+          strong{color:#111}
+        `}</style>
+        <header style={{ background:'#c47d1a', padding:'14px 24px', display:'flex', alignItems:'center', gap:16, justifyContent:'space-between' }}>
+          <Link href="/">
+            <div style={{ fontWeight:900, fontSize:20, color:'#fff' }}>{jewishSite.name}</div>
+          </Link>
+          <span style={{ color:'rgba(255,255,255,0.75)', fontSize:12 }}>Legal & Policies</span>
+        </header>
+        <div style={{ maxWidth:1100, margin:'0 auto', padding:'28px 20px', display:'grid', gridTemplateColumns:'220px 1fr', gap:28 }}>
+          <nav style={{ alignSelf:'start', position:'sticky', top:20 }}>
+            <div style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', overflow:'hidden' }}>
+              <div style={{ background:'#1e293b', color:'#fff', padding:'12px 16px', fontWeight:800, fontSize:13, textTransform:'uppercase', letterSpacing:'0.06em' }}>Legal Pages</div>
+              {jewishNav.map(p => (
+                <Link key={p.slug} href={`/legal/${p.slug}`}>
+                  <div style={{ padding:'11px 16px', borderBottom:'1px solid #f3f4f6', fontSize:13, fontWeight:p.slug===page?800:500, color:p.slug===page?'#c47d1a':'#374151', background:p.slug===page?'#fff7ed':'transparent', cursor:'pointer', borderLeft:p.slug===page?'3px solid #c47d1a':'3px solid transparent' }}>
+                    {p.label}
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', padding:14, marginTop:14, fontSize:12, color:'#6b7280' }}>
+              <div style={{ fontWeight:700, color:'#374151', marginBottom:6 }}>{jewishSite.name}</div>
+              <div>{jewishSite.domain}</div>
+              <div style={{ marginTop:8 }}><a href={`mailto:${jewishSite.email}`}>{jewishSite.email}</a></div>
+            </div>
+          </nav>
+          <main style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', padding:'28px 36px' }}>
+            <div style={{ marginBottom:20, paddingBottom:16, borderBottom:'3px solid #1e293b' }}>
+              <div style={{ fontSize:12, color:'#9ca3af', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.06em' }}>Legal</div>
+              <h1 style={{ fontSize:28, fontWeight:900, color:'#111' }}>{legal.title}</h1>
+            </div>
+            {legal.content()}
+            <div style={{ marginTop:32, paddingTop:20, borderTop:'1px solid #e5e7eb', fontSize:12, color:'#9ca3af' }}>
+              © {new Date().getFullYear()} {jewishSite.name} · All rights reserved
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
+
   const legal = LEGAL[page]
 
   const NAV_PAGES = [

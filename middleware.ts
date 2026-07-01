@@ -78,6 +78,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/podcasts') ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/portal') ||
+    pathname.startsWith('/calculators') ||
     pathname.startsWith('/api/cron-monitor') ||
     pathname === '/feed.xml' ||
     pathname === '/rss.xml' ||
