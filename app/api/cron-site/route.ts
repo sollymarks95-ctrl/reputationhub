@@ -238,6 +238,22 @@ const ANGLES = [
   'Structural shift angle — is this a temporary blip or a long-term inflection point.',
 ]
 
+// Angles for the Jewish/Aliyah portals — these sites serve individual olim
+// planning a move, not investors or traders. Using the finance ANGLES above
+// on this content produced articles like "Investor-Olim" and "portfolio
+// allocation" framing on an immigration guide site — genuinely wrong content,
+// not just a tone mismatch. This set stays in an olim-practical register.
+const ANGLES_ALIYAH = [
+  'Lead with a specific number or timeline that challenges what people assume (e.g. how long something really takes, what it really costs).',
+  'Frame through common mistakes — what new olim get wrong here and how to avoid it.',
+  'Take a before/after comparison angle — how this process or benefit has changed in recent years.',
+  'Focus on who this is best for vs. who should consider alternatives.',
+  'Lead with a step-by-step practical walkthrough of exactly what to do.',
+  'Family-planning angle — how this differs for singles, couples, and families with kids.',
+  'Geographic lens — how this differs by city or region within Israel.',
+  'Myth-busting angle — a common misconception about this topic, corrected with the real process.',
+]
+
 // Portal-specific article FORMATS — prevents every article looking identical
 // Each portal has distinct structural DNA
 // ─── UPGRADED FORMATS ───────────────────────────────────────────────────────
@@ -768,7 +784,8 @@ async function writeArticle(site: any, topic: string, brandNote: string, isJewis
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
   const persona = SITE_PERSONA[site.slug] || 'Authoritative financial journalist. Factual, data-driven.'
-  const angle   = ANGLES[Math.floor(Math.random() * ANGLES.length)]
+  const angleSet = isJewishPortal ? ANGLES_ALIYAH : ANGLES
+  const angle   = angleSet[Math.floor(Math.random() * angleSet.length)]
   const format  = SITE_FORMAT[site.slug] || 'FORMAT: Comprehensive analysis. 1,400-1,600 words. H2 sections, comparison table, 4 FAQ questions.'
 
   // PILLAR MODE — triggered for pillar articles (every 7th, starting at index 0 per day)
@@ -1283,10 +1300,10 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: article.category || 'Markets',
+      category: article.category || (isJewishPortal ? 'Process' : 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
-      cover_image_url: getArticleImage(article.category || 'Markets', slug, site.domain || ''),
+      cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),
       status: 'published',
       published_at: new Date().toISOString(),
       is_featured: i === 0 && batch === 0,
@@ -1561,10 +1578,10 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: article.category || 'Markets',
+      category: article.category || (isJewishPortal ? 'Process' : 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
-      cover_image_url: getArticleImage(article.category || 'Markets', slug, site.domain || ''),
+      cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),
       status: 'published',
       published_at: new Date().toISOString(),
       is_featured: i === 0 && batch === 0,
