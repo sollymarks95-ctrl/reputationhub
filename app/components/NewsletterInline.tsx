@@ -22,6 +22,7 @@ export default function NewsletterInline({ siteId, siteName, primaryColor, dark,
   const [pushState, setPushState] = useState<'unknown'|'supported'|'denied'|'granted'>('unknown')
   const p = primaryColor
   const slug = siteSlug || siteId
+  const isJewish = ['aliya-today', 'jewish-news-now', 'jewish-property-report'].includes(slug)
 
   useEffect(() => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
@@ -135,7 +136,9 @@ export default function NewsletterInline({ siteId, siteName, primaryColor, dark,
         📧 Get the Daily Briefing from {siteName} {pushBadge}
       </div>
       <p style={{ fontSize:13, color:'#6b7280', marginBottom:14, lineHeight:1.6 }}>
-        Our editors curate the most important stories every morning. Join 50,000+ professionals who start their day with {siteName}.
+        {isJewish
+          ? `Join ${siteName} for weekly practical guides on benefits, housing, documents, and life in Israel.`
+          : `Our editors curate the most important stories every morning, delivered straight to your inbox.`}
         {pushState === 'supported' && ' Enable push alerts to get breaking news instantly.'}
       </p>
       <form onSubmit={submit} style={{ display:'flex', gap:8, flexWrap:'wrap' }}>

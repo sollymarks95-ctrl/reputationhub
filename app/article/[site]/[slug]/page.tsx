@@ -532,7 +532,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         <div style={{ display:'flex', gap:14 }}>
           <a href={`${homeUrl}`} style={{ cursor:'pointer', color:'#64748b', textDecoration:'none', fontSize:11 }}>🏠 Home</a>
           <Link href={homeUrl}><span style={{ cursor:'pointer', color:'#64748b' }}>Home</span></Link>
-          <Link href={`${homeUrl}?category=Markets`}><span style={{ cursor:'pointer', color:'#64748b' }}>Markets</span></Link>
+          {articleCategory && (
+            <Link href={`${homeUrl}?category=${encodeURIComponent(articleCategory)}`}><span style={{ cursor:'pointer', color:'#64748b' }}>{articleCategory}</span></Link>
+          )}
         </div>
       </div>
 
@@ -688,7 +690,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             )}
 
             {/* NEWSLETTER INLINE */}
-            <NewsletterInline siteId={site.id} siteName={site.name} primaryColor={p} />
+            <NewsletterInline siteId={site.id} siteName={site.name} primaryColor={p} siteSlug={siteSlug} />
 
             {/* AUTHOR BIO — NO AVATAR IMAGE, JUST INITIAL */}
             <div style={{ background:bgHeader, border:`2px solid ${p}20`, borderLeft:`4px solid ${p}`, borderRadius:4, padding:'20px 24px', marginTop:20, fontFamily:'sans-serif' }}>
@@ -756,7 +758,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             <div style={{ background:`linear-gradient(135deg,${p},#1e293b)`, borderRadius:6, padding:18, marginBottom:14, color:'#fff', fontFamily:'sans-serif' }}>
               <div style={{ fontWeight:900, fontSize:16, marginBottom:6 }}>📧 Free Daily Briefing</div>
               <p style={{ fontSize:12, opacity:0.85, lineHeight:1.6, marginBottom:14 }}>Top stories from {site.name} every morning, straight to your inbox.</p>
-              <NewsletterInlineDark siteId={site.id} siteName={site.name} p={p} />
+              <NewsletterInlineDark siteId={site.id} siteName={site.name} p={p} siteSlug={siteSlug} />
             </div>
 
             {/* LATEST */}
@@ -880,7 +882,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 }
 
 // Sidebar newsletter (dark version) — server-safe wrapper
-function NewsletterInlineDark({ siteId, siteName, p }: { siteId: string; siteName: string; p: string }) {
-  return <NewsletterInline siteId={siteId} siteName={siteName} primaryColor={p} dark />
+function NewsletterInlineDark({ siteId, siteName, p, siteSlug }: { siteId: string; siteName: string; p: string; siteSlug?: string }) {
+  return <NewsletterInline siteId={siteId} siteName={siteName} primaryColor={p} dark siteSlug={siteSlug} />
 }
 // light theme enforced Sat Jun  6 21:22:48 UTC 2026
