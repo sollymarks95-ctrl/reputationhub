@@ -234,6 +234,7 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
     return {
       title: `${legal.title} | ${jewishSite.name}`,
       description: `${jewishSite.name} ${legal.title}`,
+      keywords: 'aliyah, making aliyah, moving to israel, immigration to israel',
       robots: 'noindex, nofollow',
       openGraph: { title: `${legal.title} | ${jewishSite.name}`, siteName: jewishSite.name, type: 'website' },
       twitter: { card: 'summary', title: `${legal.title} | ${jewishSite.name}` },
