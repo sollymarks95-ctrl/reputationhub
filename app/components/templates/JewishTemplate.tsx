@@ -469,7 +469,8 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
     'Health':         ['kupat holim','health fund','clalit','maccabi','meuhedet','leumit','dental','mental health','insurance'],
     'Jobs':           ['work in israel','working in israel','employ','job','career','profession','salary','earning','income','license','osek','self-employ','remote work','idf service','army service'],
     'Security':       ['security','safe','iran','war','ceasefire','risk','geopolit','military','idf','attack'],
-    'Community':      ['best cities','school system','school capacity','culture shock','community','moving to','new oleh'],
+    'City Guides':    ['moving to','best city','best cities'],
+    'Community':      ['school system','school capacity','culture shock','community'],
     'Country Guides': ['aliyah from','western aliyah','north american aliyah','french aliyah','south african aliyah','uk aliyah','usa olim'],
   }
   const cats = Object.keys(CAT_KEYWORDS)

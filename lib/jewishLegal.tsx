@@ -5,16 +5,16 @@ import type { JSX } from 'react'
 // wholesale (wrong entity name, wrong registered address, irrelevant trading
 // risk disclosures). This map gives each of them correct, site-aware legal
 // copy without touching the finance-portal legal content below.
-export const JEWISH_SITES: Record<string, { name: string; domain: string; email: string }> = {
-  'aliyatoday.com':               { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com' },
-  'www.aliyatoday.com':           { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com' },
-  'jewishnewsnow.com':            { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com' },
-  'www.jewishnewsnow.com':        { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com' },
-  'jewishpropertyreport.com':     { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com' },
-  'www.jewishpropertyreport.com': { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com' },
+export const JEWISH_SITES: Record<string, { name: string; domain: string; email: string; contactEmail: string }> = {
+  'aliyatoday.com':               { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com', contactEmail: 'hello@aliyatoday.com' },
+  'www.aliyatoday.com':           { name: 'AliyaToday', domain: 'aliyatoday.com', email: 'privacy@aliyatoday.com', contactEmail: 'hello@aliyatoday.com' },
+  'jewishnewsnow.com':            { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com', contactEmail: 'hello@jewishnewsnow.com' },
+  'www.jewishnewsnow.com':        { name: 'Jewish News Now', domain: 'jewishnewsnow.com', email: 'privacy@jewishnewsnow.com', contactEmail: 'hello@jewishnewsnow.com' },
+  'jewishpropertyreport.com':     { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com', contactEmail: 'hello@jewishpropertyreport.com' },
+  'www.jewishpropertyreport.com': { name: 'Jewish Property Report', domain: 'jewishpropertyreport.com', email: 'privacy@jewishpropertyreport.com', contactEmail: 'hello@jewishpropertyreport.com' },
 }
 
-export function jewishLegalContent(page: string, site: { name: string; domain: string; email: string }): { title: string; content: () => JSX.Element } | null {
+export function jewishLegalContent(page: string, site: { name: string; domain: string; email: string; contactEmail: string }): { title: string; content: () => JSX.Element } | null {
   const today = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })
   const MAP: Record<string, { title: string; content: () => JSX.Element }> = {
     privacy: {
@@ -91,6 +91,22 @@ export function jewishLegalContent(page: string, site: { name: string; domain: s
         </>
       )
     },
+    disclaimer: {
+      title: 'Disclaimer',
+      content: () => (
+        <>
+          <p><strong>Last updated:</strong> {today}</p>
+          <h2>Information Only</h2>
+          <p>{site.name} provides general information about Aliyah, immigration, housing, benefits, and life in Israel for planning purposes only. Nothing on this site constitutes legal, tax, immigration, financial, or medical advice.</p>
+          <h2>Confirm With Official Sources</h2>
+          <p>Government programs, benefit amounts, tax rules, and requirements change over time. Always confirm current details with the relevant official authority — Misrad Haklita, Nefesh B'Nefesh, the Jewish Agency, Bituach Leumi, Misrad Hapnim, or the Israel Tax Authority — before making decisions based on anything published here.</p>
+          <h2>No Guarantee of Outcome</h2>
+          <p>Every Aliyah case is different. Nothing on {site.name} guarantees eligibility for any benefit, visa, or program, or predicts how long any process will take for your specific circumstances.</p>
+          <h2>Contact</h2>
+          <p>Questions about this disclaimer can be sent to <strong>{site.email}</strong>.</p>
+        </>
+      )
+    },
     about: {
       title: `About ${site.name}`,
       content: () => (
@@ -100,7 +116,7 @@ export function jewishLegalContent(page: string, site: { name: string; domain: s
           <h2>Editorial Standards</h2>
           <p>Guides are written and reviewed by Solly Marks, an oleh living in Ashdod, Israel, and are checked against official sources including Misrad Haklita, Nefesh B'Nefesh, the Jewish Agency, Bituach Leumi, and the Israel Tax Authority where relevant. Information is provided for general guidance only — always confirm specifics with the relevant official body before making decisions.</p>
           <h2>Contact</h2>
-          <p>Email: <strong>{site.email}</strong></p>
+          <p>Email: <strong>{site.contactEmail}</strong></p>
         </>
       )
     },
@@ -108,7 +124,7 @@ export function jewishLegalContent(page: string, site: { name: string; domain: s
       title: 'Contact',
       content: () => (
         <>
-          <p>For general enquiries, corrections, or partnership requests, email us at <strong>{site.email}</strong>. We aim to respond within one business day.</p>
+          <p>For general enquiries, corrections, or partnership requests, email us at <strong>{site.contactEmail}</strong>. For privacy-specific requests, use <strong>{site.email}</strong> instead. We aim to respond within one business day.</p>
         </>
       )
     },

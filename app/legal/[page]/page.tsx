@@ -261,6 +261,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
     const jewishNav = [
       { slug:'privacy', label:'Privacy Policy' },
       { slug:'terms', label:'Terms of Use' },
+      { slug:'disclaimer', label:'Disclaimer' },
       { slug:'cookies', label:'Cookie Policy' },
       { slug:'about', label:'About Us' },
       { slug:'contact', label:'Contact' },
@@ -311,7 +312,7 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
             <div style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', padding:14, marginTop:14, fontSize:12, color:'#6b7280' }}>
               <div style={{ fontWeight:700, color:'#374151', marginBottom:6 }}>{jewishSite.name}</div>
               <div>{jewishSite.domain}</div>
-              <div style={{ marginTop:8 }}><a href={`mailto:${jewishSite.email}`}>{jewishSite.email}</a></div>
+              <div style={{ marginTop:8 }}><a href={`mailto:${jewishSite.contactEmail}`}>{jewishSite.contactEmail}</a></div>
             </div>
           </nav>
           <main style={{ background:'#fff', borderRadius:6, border:'1px solid #e5e7eb', padding:'28px 36px' }}>

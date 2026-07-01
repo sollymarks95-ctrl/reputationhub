@@ -253,7 +253,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const sameCategory = allArticles.filter((a: any) => a.slug !== slug && a.category === articleCategory)
   const otherArticles = allArticles.filter((a: any) => a.slug !== slug && a.category !== articleCategory)
   const related = [...sameCategory, ...otherArticles].slice(0, 8)
-  const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 12)
+  const cats = [...new Set(allArticles.map((a: any) => a.category).filter(Boolean))].slice(0, 13)
   // Normalize body: handle both real newlines and literal \n from DB
   const rawBody = (article.body || '')
     .replace(/\\n/g, '\n')   // literal \n → real newline
@@ -827,7 +827,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
             {[
               { title:'Coverage', links: cats.slice(0,5).map((c: string) => ({ label:c, href:`/${route}/${siteSlug}?category=${encodeURIComponent(c)}` })) },
               { title:'Company', links:[{label:'About Us',href:'/legal/about'},{label:'Our Team',href:'/legal/about'},{label:'Contact Us',href:'/legal/contact'},{label:'Advertise',href:'/legal/advertise'}] },
-              { title:'Legal', links:[{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Risk Warning',href:'/legal/risk-warning'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}] }
+              { title:'Legal', links: ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+                ? [{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Disclaimer',href:'/legal/disclaimer'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}]
+                : [{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Risk Warning',href:'/legal/risk-warning'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}] }
             ].map(col => (
               <div key={col.title}>
                 <div style={{ fontWeight:700, fontSize:11, color:'#64748b', marginBottom:12, textTransform:'uppercase', letterSpacing:'0.08em' }}>{col.title}</div>
@@ -870,7 +872,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:'1px solid #1e293b', paddingTop:14, flexWrap:'wrap', gap:8 }}>
             <span style={{ fontSize:12, color:'#334155' }}>© {new Date().getFullYear()} {site.name} · All Rights Reserved</span>
             <div style={{ display:'flex', gap:14 }}>
-              {[{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Risk Warning',h:'/legal/risk-warning'},{l:'Cookies',h:'/legal/cookies'},{l:'Sitemap',h:'/sitemap.xml'}].map(({l,h}) => (
+              {(['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+                ? [{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Disclaimer',h:'/legal/disclaimer'},{l:'Cookies',h:'/legal/cookies'},{l:'Sitemap',h:'/sitemap.xml'}]
+                : [{l:'Privacy',h:'/legal/privacy'},{l:'Terms',h:'/legal/terms'},{l:'Risk Warning',h:'/legal/risk-warning'},{l:'Cookies',h:'/legal/cookies'},{l:'Sitemap',h:'/sitemap.xml'}]
+              ).map(({l,h}) => (
                 <Link key={l} href={h}><span style={{ fontSize:11, color:'#334155', cursor:'pointer' }}>{l}</span></Link>
               ))}
             </div>

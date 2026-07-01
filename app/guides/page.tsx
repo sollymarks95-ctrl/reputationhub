@@ -63,8 +63,8 @@ export default async function GuidesHub() {
     byTopic[cat] = all.filter(a => a.category === cat)
   }
 
-  const cityGuides = byTopic['Community'].filter(a => a.title.toLowerCase().startsWith('moving to'))
-  const communityOther = byTopic['Community'].filter(a => !a.title.toLowerCase().startsWith('moving to'))
+  const cityGuides = all.filter(a => a.category === 'City Guides')
+  const communityOther = byTopic['Community']
 
   return (
     <div style={{ minHeight: '100vh', background: '#f6f2ea', fontFamily: 'Georgia, serif', color: '#1a0f00' }}>
