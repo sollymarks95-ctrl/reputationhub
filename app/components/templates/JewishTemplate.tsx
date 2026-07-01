@@ -465,12 +465,10 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
     'Benefits':       ['benefit','sal klita','klita','bituach leumi','arnona','allowance','grant','stipend','tax exempt','pension','child benefit','national insurance','nbn grants','absorption basket'],
     'Money':          ['cost','money','bank account','currency','tax','income','capital','fund','invest','expense','budget','breakdown','fee','shekel'],
     'Housing':        ['housing','apartment','real estate','rental','rent','property','absorption center','home','buy','purchase','mortgage','bedroom','lease'],
-    'Ulpan':          ['ulpan','hebrew','language','learning'],
     'Health':         ['kupat holim','health fund','clalit','maccabi','meuhedet','leumit','dental','mental health','insurance'],
+    'Ulpan':          ['ulpan','hebrew','language','learning'],
     'Jobs':           ['work in israel','working in israel','employ','job','career','profession','salary','earning','income','license','osek','self-employ','remote work','idf service','army service'],
-    'Security':       ['security','safe','iran','war','ceasefire','risk','geopolit','military','idf','attack'],
-    'City Guides':    ['moving to','best city','best cities'],
-    'Community':      ['school system','school capacity','culture shock','community'],
+    'City Guides':    ['moving to','best city','best cities','school system','school capacity','culture shock','community'],
     'Country Guides': ['aliyah from','western aliyah','north american aliyah','french aliyah','south african aliyah','uk aliyah','usa olim'],
   }
   const cats = Object.keys(CAT_KEYWORDS)
@@ -478,6 +476,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
   function matchesCat(a: any, c: string) {
     if (c === 'All') return true
     if ((a.category || '').toLowerCase() === c.toLowerCase()) return true
+    if (c === 'City Guides' && ['security','community'].includes((a.category||'').toLowerCase())) return true
     const haystack = `${a.title} ${a.excerpt || ''} ${a.category || ''}`.toLowerCase()
     return CAT_KEYWORDS[c].some(kw => haystack.includes(kw))
   }

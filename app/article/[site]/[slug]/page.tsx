@@ -1,5 +1,5 @@
 import { getNewsSite, getArticle, getLatestArticles, timeAgo } from '@/lib/news'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import ArticleImage from '@/app/components/ArticleImage'
 import ArticleViewTracker from '@/app/components/ArticleViewTracker'
@@ -178,7 +178,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     getArticle(site.id, slug),
     getLatestArticles(site.id, 24)
   ])
-  if (!article) notFound()
+  if (!article) {
+    // Many aliya-today article slugs were unpublished during a July 2026
+    // content-quality pass (duplicate pages, fabricated citations). Rather
+    // than a bare 404 for every one of those URLs, send visitors somewhere
+    // genuinely useful — the full guides directory — since a 1:1 replacement
+    // page doesn't exist for most of them.
+    if (siteSlug === 'aliya-today') redirect('/guides')
+    notFound()
+  }
 
   // Auto cross-portal: find articles on OTHER portals that share tags or mention same brands
   const { createClient } = await import('@supabase/supabase-js')
@@ -630,6 +638,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
                 <span style={{ fontSize:12, color:textMuted }}>· {(article.body||'').split(' ').length} words</span>
               </div>
             </div>
+
+            {/* LAST REVIEWED — Jewish/Aliyah sites only, real updated_at timestamp */}
+            {isJewishSite && (
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:18, padding:'10px 14px', background:`${p}0d`, border:`1px solid ${p}30`, borderRadius:6, fontFamily:'sans-serif', fontSize:12.5, color:textSecondary }}>
+                <span>✓</span>
+                <span><strong style={{ color:headingText }}>Last reviewed:</strong> {formatShort(article.updated_at || article.published_at)} · Checked against official sources including Misrad Haklita, Nefesh B&apos;Nefesh, the Jewish Agency and Bituach Leumi where relevant.</span>
+              </div>
+            )}
 
             {/* COVER IMAGE */}
             {article.cover_image_url && (
