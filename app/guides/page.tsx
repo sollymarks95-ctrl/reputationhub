@@ -15,7 +15,21 @@ function getDb() {
 export const metadata: Metadata = {
   title: 'All Aliyah Guides — Browse by Topic, Country & City',
   description: 'Every AliyaToday guide organized in one place: the Start Here roadmap, country-specific guides (USA, UK, Canada, France, South Africa, Australia), city guides, and topic guides (Process, Documents, Benefits, Money, Housing, Ulpan, Health, Jobs, Security).',
+  keywords: 'aliyah guides, moving to israel guide, aliyah checklist, best cities for olim, aliyah from usa, aliyah from uk, aliyah from south africa',
   robots: 'index,follow',
+  openGraph: {
+    title: 'All Aliyah Guides | AliyaToday',
+    description: 'Every AliyaToday guide organized by topic, country and city — Start Here roadmap, country guides, city guides and more.',
+    siteName: 'AliyaToday',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'All Aliyah Guides | AliyaToday',
+    description: 'Every AliyaToday guide organized by topic, country and city.',
+    site: '@aliyatoday',
+  },
 }
 
 const TOPIC_ORDER = ['Start Here', 'Process', 'Documents', 'Benefits', 'Money', 'Housing', 'Ulpan', 'Health', 'Jobs', 'Security', 'Community']
