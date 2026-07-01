@@ -4,7 +4,21 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: { default: 'Aliyah Calculators & Tools', template: '%s | AliyaToday' },
   description: 'Free interactive tools for planning your Aliyah: cost calculator, Sal Klita calculator, and best-city quiz.',
+  keywords: 'aliyah cost calculator, sal klita calculator, best city for olim, aliyah budget, moving to israel calculator',
   robots: 'index,follow',
+  openGraph: {
+    title: 'Aliyah Calculators & Tools | AliyaToday',
+    description: 'Free interactive tools for planning your Aliyah: cost calculator, Sal Klita calculator, and best-city quiz.',
+    siteName: 'AliyaToday',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Aliyah Calculators & Tools | AliyaToday',
+    description: 'Free interactive tools for planning your Aliyah.',
+    site: '@aliyatoday',
+  },
 }
 
 const P = '#c47d1a'
