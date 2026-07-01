@@ -639,6 +639,20 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               </figure>
             )}
 
+            {/* START HERE BANNER — links every AliyaToday article back to the pillar roadmap */}
+            {siteSlug === 'aliya-today' && slug !== '2026-07-01-how-to-make-aliyah-2026-complete-step-by-step-guide' && (
+              <Link href="/article/aliya-today/2026-07-01-how-to-make-aliyah-2026-complete-step-by-step-guide" style={{ textDecoration:'none' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:14, background:'#2d1a00', border:'1px solid #c47d1a', borderRadius:8, padding:'16px 20px', marginBottom:22 }}>
+                  <div style={{ fontSize:26 }}>🗺️</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:10, fontWeight:900, color:'#c47d1a', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:3 }}>Start Here</div>
+                    <div style={{ fontSize:14, fontWeight:800, color:'#fff' }}>How to Make Aliyah in 2026: The Complete Step-by-Step Roadmap</div>
+                  </div>
+                  <div style={{ fontSize:13, fontWeight:800, color:'#c47d1a', whiteSpace:'nowrap' }}>Read →</div>
+                </div>
+              </Link>
+            )}
+
             {/* ARTICLE BODY */}
             <div className="body" style={{ background:bgHeader, padding:'28px 32px', borderRadius:4, marginBottom:4 }}>
               {(() => {
