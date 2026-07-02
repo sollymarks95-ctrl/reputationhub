@@ -78,8 +78,53 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/article/aliya-today/2026-06-24-kupat-holim-clalit-vs-maccabi-vs-meuhedet-2026-olim-hmo-selection-shifts',
-        destination: '/article/aliya-today/2026-06-14-kupat-holim-choice-2026-which-health-fund-fits-your-oleh-financial-profile',
+        source: '/article/aliya-today/2026-06-17-converting-your-foreign-driving-licence-to-israeli-2026',
+        destination: '/article/aliya-today/2026-06-30-israel-driving-license-conversion-for-olim-regional-processing-times-costs-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-24-teudat-zehut-processing-overhaul-2026-olim-documentation-bottleneck',
+        destination: '/article/aliya-today/2026-07-01-how-to-get-your-teudat-zehut-israeli-id-card-in-2026-complete-timeline',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-29-usa-to-israel-aliyah-process-2026-financial-compliance-framework-for-olim',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-the-usa-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-23-uk-to-israel-aliyah-2026-currency-risk-and-tax-trap-exposure',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-the-uk-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-19-uk-aliyah-to-israel-2026-tax-compliance-and-currency-risk-management',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-the-uk-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-23-usa-olim-aliyah-process-2026-financial-winners-and-losers-mapped',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-the-usa-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-french-aliyah-2026-economic-winners-and-losers-emerge',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-france-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-pre-aliyah-hebrew-learning-portfolio-allocation-strategy-for-language-investment',
+        destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-19-hebrew-learning-before-aliyah-structural-shift-or-seasonal-necessity-2026',
+        destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-18-hebrew-learning-before-aliyah-how-2026-compares-to-2016',
+        destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
         permanent: true,
       },
     ]
