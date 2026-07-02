@@ -123,6 +123,86 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/article/aliya-today/2026-06-28-best-ulpan-programs-2026-cost-benefit-analysis-for-winners-and-losers',
+        destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-free-ulpan-registration-israel-4-risk-exposures-olim-miss',
+        destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-26-teudat-zehut-processing-delays-portfolio-implications-for-2026-olim',
+        destination: '/article/aliya-today/2026-07-01-how-to-get-your-teudat-zehut-israeli-id-card-in-2026-complete-timeline',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-22-israeli-driving-license-conversion-olim-temporary-friction-or-structural-inflect',
+        destination: '/article/aliya-today/2026-06-30-israel-driving-license-conversion-for-olim-regional-processing-times-costs-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-israeli-driving-license-conversion-olim-portfolio-timing-and-financial-implicati',
+        destination: '/article/aliya-today/2026-06-30-israel-driving-license-conversion-for-olim-regional-processing-times-costs-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-07-01-israeli-driving-license-conversion-structural-shift-toward-expedited-integration',
+        destination: '/article/aliya-today/2026-06-30-israel-driving-license-conversion-for-olim-regional-processing-times-costs-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-kupat-holim-for-olim-2026-portfolio-allocation-and-healthcare-cost-reality',
+        destination: '/article/aliya-today/2026-06-14-kupat-holim-choice-2026-which-health-fund-fits-your-oleh-financial-profile',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-23-kupat-holim-for-olim-2026-regional-winners-across-israel-s-health-systems',
+        destination: '/article/aliya-today/2026-06-14-kupat-holim-choice-2026-which-health-fund-fits-your-oleh-financial-profile',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-20-israel-bank-account-for-olim-winners-losers-2026-integration-costs',
+        destination: '/article/aliya-today/2026-06-17-how-to-open-an-israeli-bank-account-as-a-new-oleh-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-19-french-aliyah-to-israel-2026-asset-allocation-signals-in-western-migration-surge',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-france-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-18-french-aliyah-to-israel-2026-inflection-point-or-cyclical-spike',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-france-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-22-french-aliyah-2026-inflection-point-or-cyclical-surge',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-france-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-18-south-african-aliyah-2026-portfolio-rebalancing-for-emerging-israeli-residents',
+        destination: '/article/aliya-today/2026-07-01-aliyah-from-south-africa-to-israel-the-complete-2026-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-20-first-week-in-israel-risk-exposure-for-new-olim-2026',
+        destination: '/article/aliya-today/2026-06-19-first-week-in-israel-aliyah-regional-execution-playbook-2026',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-14-aliyah-checklist-2026-disclosure-timeline-splits-winners-losers',
+        destination: '/article/aliya-today/2026-07-01-how-to-make-aliyah-2026-complete-step-by-step-guide',
+        permanent: true,
+      },
+      {
+        source: '/article/aliya-today/2026-06-21-aliyah-step-by-step-2026-hidden-risk-exposure-in-documentation-financial-and-com',
+        destination: '/article/aliya-today/2026-07-01-how-to-make-aliyah-2026-complete-step-by-step-guide',
+        permanent: true,
+      },
+      {
         source: '/article/aliya-today/2026-06-18-hebrew-learning-before-aliyah-how-2026-compares-to-2016',
         destination: '/article/aliya-today/2026-06-17-free-ulpan-for-new-olim-2026-how-to-enrol',
         permanent: true,

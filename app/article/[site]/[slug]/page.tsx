@@ -1,5 +1,5 @@
 import { getNewsSite, getArticle, getLatestArticles, timeAgo } from '@/lib/news'
-import { notFound, redirect } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Link from 'next/link'
 import ArticleImage from '@/app/components/ArticleImage'
 import ArticleViewTracker from '@/app/components/ArticleViewTracker'
@@ -184,7 +184,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
     // than a bare 404 for every one of those URLs, send visitors somewhere
     // genuinely useful — the full guides directory — since a 1:1 replacement
     // page doesn't exist for most of them.
-    if (siteSlug === 'aliya-today') redirect('/guides')
+    if (siteSlug === 'aliya-today') permanentRedirect('/guides')
     notFound()
   }
 
