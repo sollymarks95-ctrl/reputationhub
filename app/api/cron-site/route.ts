@@ -226,6 +226,31 @@ const SITE_PERSONA: Record<string, string> = {
   'rephuby-intelligence':   'Senior digital reputation strategist with 15 years managing online brands for regulated financial institutions. Former head of reputation at a top-10 FCA regulated broker. Direct, authoritative, data-driven. Writes as an expert practitioner who has managed real reputation crises for forex brokers and crypto exchanges — not a theorist.',
 }
 
+const ALIYAH_CATEGORIES = ['Start Here', 'Process', 'Documents', 'Benefits', 'Money', 'Housing', 'Health', 'Ulpan', 'Jobs', 'City Guides', 'Country Guides', 'Community']
+
+// Jewish portals kept getting AI-invented categories like 'Financial Guide',
+// 'News', 'Finance & Aliyah' — the earlier category fallback only caught
+// missing values, not bad freeform ones the AI still chose to output. This
+// forces the category into the actual site taxonomy so the nav/homepage
+// tabs can't get re-polluted by future cron runs.
+function normalizeAliyahCategory(raw: string | undefined): string {
+  const c = (raw || '').trim()
+  if (ALIYAH_CATEGORIES.some(x => x.toLowerCase() === c.toLowerCase())) {
+    return ALIYAH_CATEGORIES.find(x => x.toLowerCase() === c.toLowerCase())!
+  }
+  const lower = c.toLowerCase()
+  if (/ulpan|hebrew/.test(lower)) return 'Ulpan'
+  if (/health|kupat holim|medical/.test(lower)) return 'Health'
+  if (/job|work|career|employ/.test(lower)) return 'Jobs'
+  if (/housing|rent|apartment|real estate/.test(lower)) return 'Housing'
+  if (/money|cost|bank|budget|financ/.test(lower)) return 'Money'
+  if (/benefit|sal klita|bituach leumi/.test(lower)) return 'Benefits'
+  if (/document|teudat|licen[cs]e/.test(lower)) return 'Documents'
+  if (/city|moving to|netanya|tel aviv|jerusalem|haifa|ashdod|raanana|modiin|beit shemesh|beer sheva/.test(lower)) return 'City Guides'
+  if (/country|aliyah from|usa|uk |canada|france|south africa|australia/.test(lower)) return 'Country Guides'
+  return 'Process'
+}
+
 // Journalistic angles — rotated per article to prevent structural repetition
 const ANGLES = [
   'Lead with a specific data point or statistic that challenges conventional wisdom.',
@@ -815,18 +840,18 @@ This article must be more comprehensive than ANYTHING currently ranking for this
     ? `\nALREADY PUBLISHED (do NOT repeat these angles or perspectives — write something genuinely different):\n${recentTitles.slice(0,20).map(t => `- ${t}`).join('\n')}\n`
     : ''
 
-  const prompt = `You are a senior financial journalist at ${site.name}. Write a news article. Today: ${today}. ID:${uniqueId}
+  const prompt = `You are ${isJewishPortal ? `a practical Aliyah help-center writer at ${site.name}, writing for real people planning to move to Israel` : `a senior financial journalist at ${site.name}`}. Write ${isJewishPortal ? 'a practical guide article' : 'a news article'}. Today: ${today}. ID:${uniqueId}
 ${recentBlock}
 
 EDITORIAL VOICE FOR ${site.name}: ${persona}
 ANGLE FOR THIS ARTICLE: ${angle}
 ${format}
 ${pillarInstruction}
-CRITICAL: Follow the FORMAT above EXACTLY — it defines this portal's structural DNA. Do not use generic financial news language.
+CRITICAL: Follow the FORMAT above EXACTLY — it defines this portal's structural DNA. ${isJewishPortal ? 'Use clear, warm, practical, direct language — never generic financial-news language.' : 'Do not use generic financial news language.'}
 
 TOPIC: ${topic}
 ${brandNote}
-${isBrandArticle ? '' : 'ENTITY REQUIREMENT: You MUST mention at least 4 real named institutions in this article. Choose from: Federal Reserve, ECB, Bank of England, JPMorgan Chase, Goldman Sachs, BlackRock, Vanguard, Fidelity, Morgan Stanley, Citigroup, HSBC, Deutsche Bank, UBS, Barclays, Wells Fargo, Berkshire Hathaway, Bridgewater Associates, IMF, World Bank, BIS, OPEC, WTO. Name them naturally throughout the article as sources, actors, or analysts. This signals to Google that this is expert financial content.'}
+${isJewishPortal ? 'DO NOT cite or name any financial institutions, banks, investment firms, or market-research organizations (no JPMorgan, Goldman Sachs, BlackRock, Federal Reserve, etc.) — this is an immigration help site, not a finance site, and inventing citations to firms that never published anything on this topic is a real accuracy problem. If you reference an official source, only use real bodies that plausibly cover Aliyah: Misrad Haklita, Nefesh B\'Nefesh, the Jewish Agency, Bituach Leumi, or Gov.il — and only in general terms (e.g. "confirm with Misrad Haklita"), never inventing a specific study, report, or statistic attributed to them.' : (isBrandArticle ? '' : 'ENTITY REQUIREMENT: You MUST mention at least 4 real named institutions in this article. Choose from: Federal Reserve, ECB, Bank of England, JPMorgan Chase, Goldman Sachs, BlackRock, Vanguard, Fidelity, Morgan Stanley, Citigroup, HSBC, Deutsche Bank, UBS, Barclays, Wells Fargo, Berkshire Hathaway, Bridgewater Associates, IMF, World Bank, BIS, OPEC, WTO. Name them naturally throughout the article as sources, actors, or analysts. This signals to Google that this is expert financial content.')}
 
 SEO + AI ENGINE REQUIREMENTS (critical — follow exactly):
 - Title: 6-12 words, front-load primary keyword, avoid clickbait
@@ -855,14 +880,16 @@ Your article must contain at least ONE piece of unique value that competing arti
 KEYWORD CANNIBALIZATION PREVENTION:
 The already-published titles listed above cover related angles. Make sure this article targets a DISTINCT keyword angle — a different user intent, a different time frame, a different geographic focus, or a different audience. Do not write an article that would compete with your own published content for the same exact search query.
 
-ENTITY MENTIONS — CRITICAL FOR E-E-A-T (include naturally, not forced):
-Mention at least 3 real named entities per article: real institutions (Federal Reserve, IMF, BlackRock, Goldman Sachs, JPMorgan, ECB, Bank of England, OPEC, WTO), real people (Jerome Powell, Christine Lagarde, Warren Buffett, Ray Dalio), or real publications (Reuters, Bloomberg, Financial Times, Wall Street Journal). Entity mentions signal to Google that this is a real, knowledgeable source.
+${isJewishPortal ? '' : `ENTITY MENTIONS — CRITICAL FOR E-E-A-T (include naturally, not forced):
+Mention at least 3 real named entities per article: real institutions (Federal Reserve, IMF, BlackRock, Goldman Sachs, JPMorgan, ECB, Bank of England, OPEC, WTO), real people (Jerome Powell, Christine Lagarde, Warren Buffett, Ray Dalio), or real publications (Reuters, Bloomberg, Financial Times, Wall Street Journal). Entity mentions signal to Google that this is a real, knowledgeable source.`}
 
 INTERNAL LINKS — 2 per article minimum:
 Naturally reference 1-2 related topics that ${site.name} covers. Phrase as: "As we covered in our analysis of [related topic]..." or "For traders watching [related market], [site domain] tracks..." — never as raw URLs in the body text. These signal topical authority to Google.
 
 EXTERNAL AUTHORITY LINKS — 1 per article:
-Link out to one authoritative source cited in the article: Reuters, Bloomberg, Federal Reserve (federalreserve.gov), IMF, World Bank, SEC. Format: <a href="[URL]" target="_blank" rel="noopener">[anchor text]</a>. Outbound authority links improve credibility signals.
+${isJewishPortal
+  ? 'Link out to one real, official Aliyah-relevant source where genuinely relevant: Nefesh B\'Nefesh (nbn.org.il), the Jewish Agency (jewishagency.org), or Gov.il. Only include a link if you are confident of the correct URL; otherwise mention the organization by name without a link. Format: <a href="[URL]" target="_blank" rel="noopener">[anchor text]</a>.'
+  : 'Link out to one authoritative source cited in the article: Reuters, Bloomberg, Federal Reserve (federalreserve.gov), IMF, World Bank, SEC. Format: <a href="[URL]" target="_blank" rel="noopener">[anchor text]</a>. Outbound authority links improve credibility signals.'}
 
 Body HTML format: follow the FORMAT template for this portal — do NOT use a generic structure.
 Use semantic HTML: <p>, <h2>, <h3>, <ul><li>, <table> as appropriate for your format.
@@ -1300,7 +1327,7 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: article.category || (isJewishPortal ? 'Process' : 'Markets'),
+      category: isJewishPortal ? normalizeAliyahCategory(article.category) : (article.category || 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
       cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),
@@ -1578,7 +1605,7 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: article.category || (isJewishPortal ? 'Process' : 'Markets'),
+      category: isJewishPortal ? normalizeAliyahCategory(article.category) : (article.category || 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
       cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),
