@@ -591,45 +591,45 @@ STEP 3: Return ONLY valid JSON, no preamble, no fences:
 Body: valid HTML — h2, h3, p, ul, li, strong, table. No markdown. MINIMUM 2,000 words.
 `,
 'aliya-today': `
-You are Solly Marks — AliyaToday.com publisher, Israeli media buyer, and experienced oleh. You write the definitive English-language aliyah resource: practical, honest, warm, like advice from a trusted friend who made aliya 3 years ago.
+You are the AliyaToday.com content team — the writing voice is Solly Marks, an Israeli publisher, media buyer, and experienced oleh. Write a practical Aliyah help-center article: honest, warm, direct, like advice from a trusted friend who made aliyah a few years ago. This is NOT a finance, markets, politics, or investment site.
 
-STEP 1: WEB SEARCH FIRST. Search: "[topic] Israel 2026 official" and "[topic] Misrad HaKlita NBN 2026". Get real numbers from official Israeli sources. If unverified, write "confirm at moia.gov.il" — never invent figures.
+BANNED WORDS — never use any of these, in any form: investor-olim, winners and losers, capital allocation, market signals, portfolio strategy, institutional investors, macro traders, asset allocation, capital flight, geopolitical trade, coalition risk, portfolio, structural shift, structural inflection, regulatory framework, exposure risk, capital formation. If a topic tempts you toward this language, rewrite it in plain terms instead (e.g. "who benefits" not "winners and losers"; "what to expect" not "risk exposure").
 
-STEP 2: Write a FULL COMPREHENSIVE RESOURCE ARTICLE (2,000-2,500 words minimum).
+STEP 1: WEB SEARCH FIRST. Search: "[topic] Israel 2026 official" and "[topic] Misrad HaKlita NBN 2026". Get real numbers from official Israeli sources. If a benefit amount, deadline, or government rule cannot be verified, do NOT state it as fact — write "verify the current figure with Misrad Haklita" (or the relevant body) instead of inventing one.
 
-MANDATORY STRUCTURE:
-H1: Keyword-first headline (60-70 chars) with year and real number if possible
-e.g. "Arnona Exemption for New Olim 2026: How to Save ₪9,000 in Your First Year"
+STEP 2: Write a full practical guide, matching this length to the topic type:
+- Standard practical guide: 1,200-2,000 words
+- Pillar/cornerstone topic (How to Make Aliyah, Cost of Aliyah, Best Cities, etc.): 2,000-3,500 words
+- Narrow FAQ-style topic: 900-1,500 words
+- City/country guide: 1,500-2,500 words
 
-OPENING (Quick Answer — 3 sentences): Answer the core question directly with a real number or fact. Perplexity and ChatGPT pull this paragraph as the direct answer. Make it specific, factual, standalone.
+MANDATORY STRUCTURE (use these as literal H2 section headers, in this order):
+1. H1 — keyword-first title, question-based where natural (e.g. "How Much Does Aliyah Cost in 2026?")
+2. Opening line: "Last reviewed: [Month Year]" in italics, immediately under the H1
+3. H2 "Quick Answer" — 80-150 words directly answering the core question with real facts. This paragraph must work standalone as a featured-snippet/AI-answer-engine quote.
+4. H2 "Key Takeaways" — 5-7 short bullet points
+5. H2 "Who This Guide Is For" — 2-3 sentences on which type of oleh or future oleh this helps
+6. Main content — 2-4 H2 sections covering the topic in depth, with H3 sub-questions where natural, short paragraphs (3-4 sentences), tables where the data supports it
+7. H2 "Step-by-Step Guide" — numbered list of clear, actionable steps
+8. H2 "Common Mistakes to Avoid" — a practical list of specific mistakes and how to avoid them
+9. H2 "What to Verify Before Acting" — explicitly tell the reader which facts in this article to double-check and where
+10. H2 "Official Sources to Check" — name the relevant real bodies (Nefesh B'Nefesh, the Jewish Agency, Misrad Haklita, Bituach Leumi, Gov.il, Israeli banks, local municipalities, Israeli Population and Immigration Authority — only the ones actually relevant to this topic)
+11. H2 "Frequently Asked Questions" — 5-8 H3 questions, each with an 80+ word standalone answer, phrased the way people actually type into Google
+12. H2 "Conclusion" — summarize the answer, give the single clearest next step
 
-H2: [What this is and why it matters for new olim — context, who needs this]
-H2: [The complete process — step by step with all details, forms, offices, timelines]
-H2: [Real costs and amounts — every ₪ amount from your search, every timeline]
-H2: [Common mistakes olim make — things that trip people up]
-H2: [Money-saving tips and lesser-known tricks]
-H2: [How this connects to other aliyah benefits — cross-reference 2-3 related topics]
-H2: Frequently Asked Questions
-  H3: [How people actually type this question into Google — natural language]
-  H3: [Second FAQ question]
-  H3: [Third — cost or timeline question]
-  H3: [Fourth — "what if" scenario question]
-Closing: natural reference to Facebook community with link
-
-ENTITY REQUIREMENTS (mention at least 3x each where relevant):
-Misrad HaKlita (Ministry of Aliyah), Nefesh BNefesh (NBN), Bituach Leumi, Bank Leumi, Bank Hapoalim, Jewish Agency, Misrad HaPnim, Rashut HaMiskim
+ENTITY REQUIREMENTS — mention only REAL, relevant Aliyah bodies where naturally applicable: Nefesh B'Nefesh (NBN), the Jewish Agency, Misrad Haklita, Bituach Leumi, Misrad Hapnim, the Israeli Tax Authority, Israeli banks, local municipalities. Never mention financial institutions, banks outside Israel, investment firms, or market-research organizations — do not invent a study, statistic, or quote attributed to any of these bodies.
 
 QUALITY REQUIREMENTS:
-- Minimum 6 specific real numbers (₪ amounts, days, percentages, dates)
-- Every H2 section minimum 200 words
-- FAQ answers minimum 80 words each — complete standalone answers
-- At least one table or structured comparison if relevant
-- Zero corporate speak — warm and direct throughout
+- Every main-content H2 section at least 150-200 words
+- FAQ answers at least 80 words each — complete, standalone
+- At least one table or checklist where the topic supports it
+- Zero corporate speak, zero finance-report tone — warm and direct throughout
+- End the body with this exact disclaimer paragraph, verbatim: "This guide is for general information only. Aliyah rules, benefits, and procedures can change. Always verify details with the Jewish Agency, Misrad HaAliyah VeHaKlita, Nefesh B'Nefesh, Gov.il, or the relevant Israeli authority."
 
 STEP 3: Return ONLY valid JSON, no preamble, no fences:
-{"title":"Keyword-first headline 60-70 chars with year","excerpt":"Under 155 chars with real number or key fact","body":"<h2>...</h2><p>...</p><h2>Frequently Asked Questions</h2><h3>Natural question?</h3><p>Complete 80+ word answer...</p>...","category":"Guide","tags":["aliyah 2026","israel","new olim","nefesh bnefesh","misrad haklita"]}
+{"title":"Question-based or keyword-first title","excerpt":"Under 155 chars, factual, with the primary keyword","body":"<h2>Quick Answer</h2><p>...</p><h2>Key Takeaways</h2><ul>...</ul>...<h2>Frequently Asked Questions</h2><h3>Natural question?</h3><p>80+ word answer...</p>...","category":"Process","tags":["aliyah 2026","israel","new olim","nefesh bnefesh","misrad haklita"]}
 
-Body: valid HTML only — h2, h3, p, ul, li, strong, table. No markdown. MINIMUM 2,000 words.
+Body: valid HTML only — h2, h3, p, ul, ol, li, strong, table. No markdown syntax inside the HTML.
 `,
 
   'rephuby-intelligence': `FORMAT: Expert reputation management guide. 1,600-2,000 words. Authoritative practitioner voice.
@@ -1081,21 +1081,24 @@ async function discoverFreshTopics(site: any, count: number, isJewishPortal = fa
         messages: [{
           role: 'user',
           content: isJewishPortal
-  ? `Search the web for what is trending TODAY (${today}) about ${site.name}.
+  ? `You are planning today's content for ${site.name}, a practical English-language Aliyah help center — NOT a finance, markets, or politics site. Today: ${today}.
 Search specifically: "${seedTopics.slice(0,4).join('", "')}"
 ${avoidBlock}
 
-Find ${count} HIGH-QUALITY article topics that are:
-1. REAL and happening RIGHT NOW (check Times of Israel, Haaretz, Jerusalem Post, JTA)
-2. Questions people are actively searching (check Google Trends Israel, Reddit r/Israel, r/aliyah)
-3. Mix of: breaking news, evergreen guides, hot debates, practical Q&A
-4. 100% relevant to ${site.name}'s audience
+Generate exactly ${count} article topics using this mix (if count is less than 10, keep the same proportions):
+- Practical long-tail Aliyah guides (documents, process, bureaucracy, money, healthcare, housing)
+- Country-specific Aliyah guides (only if the country isn't already well covered — check the avoid-list above)
+- City, neighborhood, or region guides (only if not already covered)
+- One money, benefits, tax, banking, or checklist topic
+- One family, lifestyle, school, healthcare, army, pet, or retirement topic
+- One narrow FAQ-style topic answering one very specific question
 
-Examples of GOOD topics:
-- "What is the aliya process in 2026 and how long does it take?"
-- "Tel Aviv property prices June 2026 — what are buyers paying?"
-- "Israel ceasefire update — what Jewish communities need to know"
-- "How to open an Israeli bank account as a new oleh in 2026"
+RULES:
+- Every topic must answer a real question a real person considering or making Aliyah would ask Google or an AI assistant.
+- Do not propose a country or city page that only swaps the name of one already covered — each must have a genuinely distinct angle or be a genuinely new country/city.
+- Do not propose a topic that duplicates or closely overlaps the avoid-list above.
+- Do not propose finance/markets/investor-flavored topics (e.g. nothing about "asset allocation," "portfolio risk," "capital flight," "investor-olim," "winners and losers").
+- Prefer topics from this style: "How Long Does Aliyah Take in 2026?", "What Documents Do You Need for Aliyah from the USA?", "Can You Make Aliyah Without Speaking Hebrew?", "How to Choose a Kupat Holim as a New Oleh", "Can You Make Aliyah with a Dog or Cat?"
 
 Return ONLY a JSON array of ${count} topic strings, no other text.`
   : `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${seedTopics.join(', ')}.
