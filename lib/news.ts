@@ -100,6 +100,7 @@ export async function getArticle(siteId: string, slug: string) {
     .select('*')
     .eq('news_site_id', siteId)
     .eq('slug', slug)
+    .eq('status', 'published')
     .single()
   return data
 }

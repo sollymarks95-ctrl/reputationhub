@@ -199,7 +199,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
 
   // Find cross-portal articles — same tags OR same brand mentions
   let crossPortalArticles: any[] = []
-  if (tags.length > 0 || bodyLowerFull.includes('etoro')) {
+  if (!isJewishSite && (tags.length > 0 || bodyLowerFull.includes('etoro'))) {
     const { data: crossData } = await sb.from('news_articles')
       .select('title, slug, news_site_id')
       .neq('news_site_id', site.id)
