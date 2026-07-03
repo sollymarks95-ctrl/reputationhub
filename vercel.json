@@ -9,24 +9,16 @@
       "schedule": "30 6 * * *"
     },
     {
-      "path": "/api/run?job=articles&batch=1",
-      "schedule": "0 18 * * *"
-    },
-    {
-      "path": "/api/cron-gsc-ping",
-      "schedule": "30 18 * * *"
-    },
-    {
       "path": "/api/run?job=questions",
-      "schedule": "0 2 * * *"
+      "schedule": "0 2 */2 * *"
     },
     {
       "path": "/api/run?job=reviews",
-      "schedule": "0 9 * * *"
+      "schedule": "0 9 */2 * *"
     },
     {
       "path": "/api/run?job=companies",
-      "schedule": "0 6 * * *"
+      "schedule": "0 6 */2 * *"
     },
     {
       "path": "/api/run?job=backlinks",
@@ -38,7 +30,7 @@
     },
     {
       "path": "/api/run?job=trends",
-      "schedule": "30 6 * * *"
+      "schedule": "30 6 */2 * *"
     },
     {
       "path": "/api/cron-cannibal",
