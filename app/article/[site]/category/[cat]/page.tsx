@@ -103,11 +103,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ site:
           </div>
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))', gap:24 }}>
+            <style>{`.cat-card{transition:box-shadow .2s}.cat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.1)}`}</style>
             {articles.map((a: any) => (
-              <Link key={a.id} href={`${BASE}/article/${siteSlug}/${a.slug}`}
-                style={{ background:'#fff', borderRadius:12, overflow:'hidden', border:'1px solid #e8e8e8', display:'block', textDecoration:'none', color:'inherit', transition:'box-shadow 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)')}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}
+              <Link key={a.id} href={`${BASE}/article/${siteSlug}/${a.slug}`} className="cat-card"
+                style={{ background:'#fff', borderRadius:12, overflow:'hidden', border:'1px solid #e8e8e8', display:'block', textDecoration:'none', color:'inherit' }}
               >
                 {a.cover_image_url && (
                   <div style={{ height:180, overflow:'hidden' }}>
