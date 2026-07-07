@@ -66,6 +66,12 @@ export default async function GuidesHub() {
   const cityGuides = all.filter(a => a.category === 'City Guides')
   const communityOther = byTopic['Community']
 
+  // Catch-all: any published guide whose category isn't rendered in a section
+  // above must still appear here, so new guides (e.g. a new country guide) are
+  // never silently dropped from All Guides regardless of how they're categorised.
+  const SHOWN = new Set<string>(['Country Guides', 'City Guides', ...TOPIC_ORDER])
+  const otherGuides = all.filter(a => !SHOWN.has((a.category || '').trim()))
+
   return (
     <div style={{ minHeight: '100vh', background: '#f6f2ea', fontFamily: 'Georgia, serif', color: '#1a0f00' }}>
       <header style={{ background: 'linear-gradient(135deg, #2d1a00 0%, #1a0f00 100%)', padding: '18px 20px' }}>
@@ -105,6 +111,9 @@ export default async function GuidesHub() {
         ))}
 
         {communityOther.length > 0 && <Section title="👥 Community" articles={communityOther} />}
+
+        {/* CATCH-ALL: any guide not shown above (future-proofs new categories) */}
+        {otherGuides.length > 0 && <Section title="📚 More Guides" articles={otherGuides} />}
 
         {/* CALCULATORS CROSS-LINK */}
         <div style={{ background: '#2d1a00', borderRadius: 12, padding: 24, marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
