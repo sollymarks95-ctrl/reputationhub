@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
+// Revalidate every 5 min so newly published guides (e.g. a new country guide)
+// appear on All Guides automatically without waiting for a redeploy.
+export const revalidate = 300
+
 const SITE_ID = '9cfd54a9-5e1c-414c-8fe1-12b779013fca'
 const P = '#c47d1a'
 
