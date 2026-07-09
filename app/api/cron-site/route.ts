@@ -233,7 +233,11 @@ const ALIYAH_CATEGORIES = ['Start Here', 'Process', 'Documents', 'Benefits', 'Mo
 // missing values, not bad freeform ones the AI still chose to output. This
 // forces the category into the actual site taxonomy so the nav/homepage
 // tabs can't get re-polluted by future cron runs.
-function normalizeAliyahCategory(raw: string | undefined): string {
+function normalizeAliyahCategory(raw: string | undefined, title?: string): string {
+  // Any "Aliyah from <country>" article is a Country Guide, regardless of what
+  // category the model returned. Without this, these landed in 'Process' and
+  // never appeared under "Aliyah From Your Country" on /guides.
+  if (title && /^\s*aliyah from\b/i.test(title)) return 'Country Guides'
   const c = (raw || '').trim()
   if (ALIYAH_CATEGORIES.some(x => x.toLowerCase() === c.toLowerCase())) {
     return ALIYAH_CATEGORIES.find(x => x.toLowerCase() === c.toLowerCase())!
@@ -1330,7 +1334,7 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: isJewishPortal ? normalizeAliyahCategory(article.category) : (article.category || 'Markets'),
+      category: isJewishPortal ? normalizeAliyahCategory(article.category, article.title) : (article.category || 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
       cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),
@@ -1608,7 +1612,7 @@ Required structure:
       slug,
       excerpt: article.excerpt || '',
       body: article.body || '',
-      category: isJewishPortal ? normalizeAliyahCategory(article.category) : (article.category || 'Markets'),
+      category: isJewishPortal ? normalizeAliyahCategory(article.category, article.title) : (article.category || 'Markets'),
       tags: Array.isArray(article.tags) ? article.tags : [],
       author_name: getAuthor(siteSlug || ''),
       cover_image_url: getArticleImage(article.category || (isJewishPortal ? 'Process' : 'Markets'), slug, site.domain || ''),

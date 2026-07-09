@@ -4,6 +4,13 @@ const nextConfig = {
   images: { unoptimized: true },
   async redirects() {
     return [
+      // duplicate country articles -> canonical country guide (July 2026)
+      { source: '/article/aliya-today/2026-07-07-aliyah-from-argentina-to-israel-2026-the-real-currency-and-timeline-breakdown', destination: '/article/aliya-today/2026-07-07-aliyah-from-argentina-to-israel-the-complete-2026-guide', permanent: true },
+      { source: '/article/aliya-today/2026-07-02-aliyah-from-australia-to-israel-2026-the-real-24-month-timeline', destination: '/article/aliya-today/2026-07-01-aliyah-from-australia-to-israel-the-complete-2026-guide', permanent: true },
+      { source: '/article/aliya-today/2026-07-02-aliyah-from-brazil-to-israel-2026-the-real-currency-tax-timeline', destination: '/article/aliya-today/2026-07-07-aliyah-from-brazil-to-israel-the-complete-2026-guide', permanent: true },
+      { source: '/article/aliya-today/2026-07-02-aliyah-from-france-to-israel-2026-regional-settlement-breakdown', destination: '/article/aliya-today/2026-07-01-aliyah-from-france-to-israel-the-complete-2026-guide', permanent: true },
+      { source: '/article/aliya-today/2026-07-07-aliyah-from-russia-to-israel-2026-regional-settlement-guide', destination: '/article/aliya-today/2026-07-07-aliyah-from-russia-to-israel-the-complete-2026-guide', permanent: true },
+      { source: '/article/aliya-today/2026-07-06-aliyah-from-south-africa-to-israel-2026-regional-cost-and-timeline-guide', destination: '/article/aliya-today/2026-07-01-aliyah-from-south-africa-to-israel-the-complete-2026-guide', permanent: true },
       // jewishnewsnow + jewishpropertyreport — finance-jargon slugs cleaned July 2026, 308 to clean slug
       { source: '/article/jewish-news-now/2026-06-19-israeli-music-culture-2026-winners-in-streaming-losers-in-live-performance-reven', destination: '/article/jewish-news-now/2026-06-19-israeli-music-2026-streaming-growth-and-live-performance-squeeze', permanent: true },
       { source: '/article/jewish-news-now/2026-06-20-abraham-accords-2026-trade-surge-demands-portfolio-rebalancing-now', destination: '/article/jewish-news-now/2026-06-20-abraham-accords-2026-israel-gulf-trade-surge', permanent: true },
