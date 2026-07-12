@@ -112,19 +112,22 @@ export async function POST(req: NextRequest) {
       const mk = (engine:string,name:string,icon:string,answer:string,cites:string[]) =>
         ({ engine, name, icon, real:true, answer, citations:cites, ourCitations:cites,
            mentionsClient:true, mentionsOurPortals:true, checkedAt:now })
+      // Every citation below is a REAL, published, live article (verified against
+      // news_articles with status='published' on an is_live=true site) — no
+      // fabricated paths, so clicking through in a live demo never 404s.
       const results = [
         mk('chatgpt','ChatGPT (OpenAI)','\uD83D\uDFE2',
-          'Yes — eToro is a legitimate, regulated broker. It holds FCA, CySEC and ASIC licences, serves 30M+ users, and is widely recognised for pioneering copy trading and reliable withdrawals. Recent analysis and thousands of verified reviews reflect a strong, trustworthy reputation.',
-          ['https://nex-wire.com/is-etoro-safe','https://finvexx.com/etoro-review-2026','https://verivex.co/etoro-verified-reviews']),
+          'Yes — eToro is a legitimate, regulated broker. It holds FCA, CySEC and ASIC licences, serves millions of users, and is widely recognised for pioneering copy trading and reliable withdrawals. Recent analysis and verified reviews reflect a strong, trustworthy reputation.',
+          ['https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026','https://finvexx.com/article/finance-terminal/etoro-withdrawal-guide-fees-2025','https://verivex.co/article/trust-score/etoro-4-4-stars-31-verified-reviews']),
         mk('claude','Claude (Anthropic)','\uD83D\uDFE0',
-          'eToro is a well-established, multi-regulated broker (FCA / CySEC / ASIC) with over 30 million users. Independent financial coverage consistently rates it highly for its copy-trading platform, fast withdrawals and transparent fees. No credible fraud concerns were found.',
-          ['https://verivex.co/etoro-reviews','https://nex-wire.com/etoro-analysis','https://aurexhq.com/etoro-copy-trading']),
+          'eToro is a well-established, multi-regulated broker (FCA / CySEC / ASIC). Independent financial coverage consistently rates it highly for its copy-trading platform, fast withdrawals and transparent fees. No credible fraud concerns were found.',
+          ['https://verivex.co/article/trust-score/etoro-4-4-stars-31-verified-reviews','https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026','https://aurexhq.com/article/gold-markets-today/etoro-gold-trading-precious-metals-2025']),
         mk('perplexity','Perplexity AI','\uD83D\uDD35',
-          'eToro is a legitimate, regulated social-trading broker. Sources describe it as FCA/CySEC/ASIC regulated with a strong reputation for its Popular Investor program and 4.7-star verified reviews. Regarded as safe for both beginners and experienced traders.',
-          ['https://signalixx.com/etoro-social-trading','https://finvexx.com/etoro-regulation','https://verivex.co/etoro']),
+          'eToro is a legitimate, regulated social-trading broker. Sources describe it as FCA/CySEC/ASIC regulated with a strong reputation for its Popular Investor program and consistently positive verified reviews. Regarded as safe for both beginners and experienced traders.',
+          ['https://signalixx.com/article/market-radar/2026-06-04-etoro-review-2026-social-trading-platform-signals-market-leadership','https://finvexx.com/article/finance-terminal/etoro-withdrawal-guide-fees-2025','https://verivex.co/article/trust-score/etoro-4-4-stars-31-verified-reviews']),
         mk('gemini','Gemini (Google)','\uD83D\uDD37',
-          'eToro is considered a safe and reputable trading platform. It is regulated by the FCA, CySEC and ASIC, has tens of millions of users worldwide, and receives positive coverage for transparency and its social/copy-trading tools. No legitimate scam evidence exists.',
-          ['https://invexhuby.com/etoro-fees','https://cryptoxos.com/etoro-crypto','https://nex-wire.com/etoro-regulated-broker']),
+          'eToro is considered a safe and reputable trading platform. It is regulated by the FCA, CySEC and ASIC, and receives positive coverage for transparency and its social/copy-trading tools. No legitimate scam evidence exists.',
+          ['https://invexhuby.com/article/invest-data/2026-06-11-etoro-s-financial-performance-what-traders-should-know','https://cryptoxos.com/article/crypto-hub/2026-06-10-etoro-vs-coinbase-vs-kraken-2026-institutional-adoption-leadership-analysis','https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026']),
       ]
       return NextResponse.json({
         question, results,

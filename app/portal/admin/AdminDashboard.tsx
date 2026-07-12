@@ -193,7 +193,22 @@ function PodcastLibraryCard({ ep, clients, onStatusChange }: any) {
 
           {/* Audio player or generate button */}
           {audioUrl ? (
-            <audio controls src={audioUrl} style={{width:'100%',maxWidth:500,height:28}} preload="none"/>
+            <div>
+              <audio controls src={audioUrl} style={{width:'100%',maxWidth:500,height:28}} preload="none"/>
+              {isPublished && (
+                <div style={{display:'flex',gap:6,marginTop:8,alignItems:'center'}}>
+                  <span style={{fontSize:9,color:'#475569',fontWeight:600,textTransform:'uppercase',letterSpacing:'.06em'}}>Published on</span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:10,fontWeight:700,color:'#f1f5f9',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:20,padding:'3px 9px'}}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.7 0 12 0zm5.7 17.5c-.2.4-.7.5-1.1.3-3-1.8-6.8-2.2-11.2-1.2-.4.1-.9-.2-1-.6-.1-.4.2-.9.6-1 4.8-1.1 8.9-.6 12.2 1.4.4.2.5.7.3 1.1zm1.4-3.2c-.3.4-.8.6-1.3.3-3.4-2.1-8.6-2.7-12.6-1.5-.5.2-1-.2-1.2-.6-.2-.5.2-1 .6-1.2 4.6-1.4 10.3-.7 14.2 1.7.4.3.6.9.3 1.3zm.1-3.3C15.3 8.7 8.9 8.5 5.2 9.6c-.6.2-1.2-.2-1.4-.7-.2-.6.2-1.2.7-1.4 4.3-1.3 11.4-1 15.8 1.6.5.3.7 1 .4 1.5-.3.5-1 .7-1.5.4z"/></svg>
+                    Spotify
+                  </span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:10,fontWeight:700,color:'#f1f5f9',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:20,padding:'3px 9px'}}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.7 14.6c-.2.3-.5.4-.8.2-2.2-1.3-5-1.6-8.3-.9-.3.1-.6-.1-.7-.4-.1-.3.1-.6.4-.7 3.6-.8 6.7-.5 9.1 1 .3.1.4.5.3.8zm1.1-2.5c-.2.4-.6.5-1 .3-2.5-1.5-6.3-2-9.3-1.1-.4.1-.8-.1-.9-.5-.1-.4.1-.8.5-.9 3.4-1 7.6-.5 10.5 1.2.3.2.5.7.2 1zm.1-2.6C14.6 9.7 8.9 9.5 5.6 10.5c-.5.1-1-.2-1.1-.6-.1-.5.2-1 .6-1.1 3.8-1.1 10.1-.9 13.9 1.4.4.3.6.8.3 1.3-.2.4-.8.6-1.4.3z"/></svg>
+                    Apple Podcasts
+                  </span>
+                </div>
+              )}
+            </div>
           ) : (
             <button onClick={generateAudio} disabled={generating}
               style={{padding:'6px 14px',background:generating?'#1e293b':'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:6,color:generating?'#475569':'#818cf8',fontWeight:600,fontSize:11,cursor:generating?'default':'pointer',display:'inline-flex',alignItems:'center',gap:6}}>

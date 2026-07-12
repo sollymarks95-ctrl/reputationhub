@@ -8,6 +8,8 @@ function db() {
 const CLIENT_ID = 'a1b2c3d4-0000-0000-0000-000000000001'
 
 
+export const maxDuration = 30
+
 export async function GET(req: NextRequest) {
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const since30 = new Date(Date.now() - 30 * 86400000).toISOString()
@@ -32,6 +34,10 @@ export async function GET(req: NextRequest) {
       .select('site_slug, created_at, device')
       .gte('created_at', since30),
   ])
+
+  if (brandArticles.error) console.error('analytics brandArticles error:', brandArticles.error.message)
+  if (recentMentions.error) console.error('analytics recentMentions error:', recentMentions.error.message)
+  if (pageViews.error) console.error('analytics pageViews error:', pageViews.error.message)
 
   const ba = brandArticles.data || []
   const rm = recentMentions.data || []

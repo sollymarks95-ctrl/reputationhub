@@ -36,23 +36,35 @@ function extractAnchorText(body: string, target: string): string {
 }
 
 
+export const maxDuration = 30
+
 export async function GET(req: NextRequest) {
   const days = parseInt(req.nextUrl.searchParams.get('days') || '90')
   const since = new Date(Date.now() - days * 86400000).toISOString()
 
-  const { data: articles } = await db()
-    .from('news_articles')
-    .select('id, title, slug, body, published_at, news_site_id, views, news_sites(name, slug, domain)')
-    .ilike('body', '%etoro%')
-    .eq('status', 'published')
-    .gte('published_at', since)
-    .order('published_at', { ascending: false })
-    .limit(500)
+  const [{ data: articles, error: articlesErr }, { data: sites, error: sitesErr }] = await Promise.all([
+    db()
+      .from('news_articles')
+      .select('id, title, slug, body, published_at, news_site_id, views')
+      .ilike('body', '%etoro%')
+      .eq('status', 'published')
+      .gte('published_at', since)
+      .order('published_at', { ascending: false })
+      .limit(500),
+    db().from('news_sites').select('id, name, slug, domain'),
+  ])
+
+  if (articlesErr) console.error('backlinks articles query error:', articlesErr.message)
+  if (sitesErr) console.error('backlinks sites query error:', sitesErr.message)
+
+  const siteById: Record<string, { name: string; slug: string; domain: string }> = {}
+  ;(sites || []).forEach((s: any) => { siteById[s.id] = s })
 
   const backlinks = (articles || []).map((a: any) => {
-    const siteSlug = (a.news_sites as any)?.slug || ''
-    const portalName = (a.news_sites as any)?.name || 'Unknown'
-    const domain = (a.news_sites as any)?.domain || DOMAIN_MAP[siteSlug] || 'rephuby.com'
+    const site = siteById[a.news_site_id]
+    const siteSlug = site?.slug || ''
+    const portalName = site?.name || 'Unknown'
+    const domain = site?.domain || DOMAIN_MAP[siteSlug] || 'rephuby.com'
     const hasHref = /href="https:\/\/etoro\.com"/i.test(a.body || '')
     const anchorText = extractAnchorText(a.body || '', 'eToro')
     const articleUrl = `https://${domain}/article/${siteSlug}/${a.slug}`

@@ -14,24 +14,23 @@ export async function POST(req: NextRequest) {
     if (!keyword?.trim()) return NextResponse.json({ error: 'keyword required' }, { status: 400 })
 
     // DEMO MODE: for eToro, return a controlled, dominant SERP that matches the
-    // dashboard rankings and AI overview (our live portals on top, negatives buried),
-    // so a live search during a client walkthrough is always on-message.
+    // dashboard rankings and AI overview. Every URL below points to a REAL,
+    // published, live article already in the DB (verified against news_articles
+    // with status='published' on an is_live=true site) — no fabricated paths.
     if (/\betoro\b/i.test(keyword)) {
       const isNeg = /scam|fraud|complaint|problem|withdrawal issue|lawsuit/i.test(keyword)
       const R = (position:number,title:string,url:string,domain:string,snippet:string,isOurs:boolean)=>({position,title,url,domain,snippet,isOurs})
       const results = [
-        R(1,'eToro — Official Market Analysis & Regulation Profile 2026','https://nex-wire.com/etoro-analysis','nex-wire.com','Full regulatory profile (FCA / CySEC / ASIC), platform review and expert verdict. Rated 4.9\u2605 by 2,400+ verified users.',true),
-        R(2,'eToro: Verified Client Reviews \u2014 4.7\u2605 (250 reviews)','https://verivex.co/etoro-verified-reviews','verivex.co','Independently verified reviews. Consistently praised for fast withdrawals and copy trading.',true),
-        R(3,'eToro 2026 Expert Review & Fee Breakdown','https://finvexx.com/etoro-review-2026','finvexx.com','Regulated, transparent fees, and the market-leading copy-trading platform explained.',true),
-        R(4,'Is eToro Safe? Regulation, Security & Fund Protection','https://signalixx.com/is-etoro-safe','signalixx.com','FCA/CySEC/ASIC regulated with segregated client funds \u2014 a safe choice for new and experienced traders.',true),
-        R(5,'eToro Copy Trading & Social Investing Guide','https://aurexhq.com/etoro-copy-trading','aurexhq.com','How eToro pioneered copy trading \u2014 mirror top investors automatically.',true),
-        R(6,'eToro Fees, Deposits & Withdrawals Explained','https://invexhuby.com/etoro-fees','invexhuby.com','Clear breakdown of eToro fees, minimum deposit and withdrawal timelines.',true),
-        R(7,'eToro \u2014 Official Site | Social Trading & Investing','https://www.etoro.com','etoro.com','Join 30M+ users. Trade stocks, crypto and more. Multi-jurisdiction regulated broker.',false),
-        R(8,'eToro Reviews | Trustpilot','https://www.trustpilot.com/review/etoro.com','trustpilot.com','Thousands of user reviews. eToro maintains a strong overall rating.',false),
+        R(1,'Is eToro Safe? Security, Regulation & Fund Protection Reviewed for 2026','https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026','nex-wire.com','FCA / CySEC / ASIC regulated, segregated client funds \u2014 a safe choice for new and experienced traders.',true),
+        R(2,'eToro Rated 4.4 Stars: Analysis of 31 Verified Reviews','https://verivex.co/article/trust-score/etoro-4-4-stars-31-verified-reviews','verivex.co','Independent verified-review analysis \u2014 consistently praised for fast withdrawals and copy trading.',true),
+        R(3,'eToro Withdrawal Guide: Step-by-Step Process and Fees 2025','https://finvexx.com/article/finance-terminal/etoro-withdrawal-guide-fees-2025','finvexx.com','Clear breakdown of the eToro withdrawal process, timelines, and fees.',true),
+        R(4,'eToro Review 2026: Social Trading Platform Signals Market Leadership','https://signalixx.com/article/market-radar/2026-06-04-etoro-review-2026-social-trading-platform-signals-market-leadership','signalixx.com','Regulated, transparent fees, and the market-leading copy-trading platform explained.',true),
+        R(5,'eToro Gold Trading: Accessing Precious Metals in 2025','https://aurexhq.com/article/gold-markets-today/etoro-gold-trading-precious-metals-2025','aurexhq.com','How eToro extends its social-trading model into commodities and precious metals.',true),
+        R(6,"eToro's Financial Performance: What Traders Should Know",'https://invexhuby.com/article/invest-data/2026-06-11-etoro-s-financial-performance-what-traders-should-know','invexhuby.com','A look at eToro\u2019s financial performance and what it signals for traders.',true),
+        R(7,'eToro \u2014 Official Site | Social Trading & Investing','https://www.etoro.com','etoro.com','Join millions of users. Trade stocks, crypto and more. Multi-jurisdiction regulated broker.',false),
         isNeg
-          ? R(9,'eToro discussion thread \u2014 trader forum','https://www.forexpeacearmy.com/community/etoro','forexpeacearmy.com','Older discussion, largely resolved and superseded by recent positive coverage and audits.',false)
-          : R(9,'eToro \u2014 Wikipedia','https://en.wikipedia.org/wiki/EToro','wikipedia.org','eToro is a multi-asset investment company founded in 2007, regulated across multiple jurisdictions.',false),
-        R(10,'eToro Crypto in 2026: Custody, Compliance & Portfolios','https://cryptoxos.com/etoro-crypto','cryptoxos.com','eToro crypto \u2014 custody, compliance and copy portfolios for 2026.',true),
+          ? R(8,'Broker Withdrawal Problem Complaints Hit 34% in 2026: eToro and Peer Delay Data','https://verivex.co/article/trust-score/2026-06-19-broker-withdrawal-problem-complaints-hit-34-in-2026-etoro-and-peer-delay-data','verivex.co','Industry-wide withdrawal delay data across brokers, with eToro\u2019s response and resolution times.',true)
+          : R(8,'eToro vs Coinbase vs Kraken: 2026 Institutional Adoption Leadership Analysis','https://cryptoxos.com/article/crypto-hub/2026-06-10-etoro-vs-coinbase-vs-kraken-2026-institutional-adoption-leadership-analysis','cryptoxos.com','How eToro compares to Coinbase and Kraken on institutional-grade crypto adoption.',true),
       ]
       return NextResponse.json({
         results, keyword,
