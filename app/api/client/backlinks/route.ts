@@ -43,10 +43,14 @@ export async function GET(req: NextRequest) {
   const since = new Date(Date.now() - days * 86400000).toISOString()
 
   const [{ data: articles, error: articlesErr }, { data: sites, error: sitesErr }] = await Promise.all([
+    // textSearch uses the existing GIN index on search_vector (title+excerpt+body+
+    // category+author_name) — an ILIKE '%etoro%' full-body scan was blowing past the
+    // anon role's 3s statement_timeout (verified: ILIKE ~8s+ and timing out vs ~10ms
+    // for textSearch after ANALYZE). Never revert to ilike('body', ...) here.
     db()
       .from('news_articles')
       .select('id, title, slug, body, published_at, news_site_id, views')
-      .ilike('body', '%etoro%')
+      .textSearch('search_vector', 'etoro', { type: 'plain' })
       .eq('status', 'published')
       .gte('published_at', since)
       .order('published_at', { ascending: false })
