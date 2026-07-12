@@ -109,8 +109,23 @@ const STEPS = [
     live:{url:'https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026', label:'Open the real live article'}
   },
   {
+    id:'digest', label:'Daily Brand Digest', sub:'One email, ready to forward',
+    kick:'03 · Daily Digest', title:'One email a day, with every link they need.',
+    lead:'Every morning your brand contact gets one email listing everything published that day — headline, portal, and direct link — ready to forward straight to their own client base.',
+    panel:`<div class="panel"><h3>📧 Inbox · today 08:00</h3>
+      <div class="row"><div style="color:#64748b;">From</div><div>RepHuby Intelligence &lt;daily@rephuby.com&gt;</div></div>
+      <div class="row"><div style="color:#64748b;">Subject</div><div><b>eToro — Today's Published Content (6 items)</b></div></div>
+      <div class="row"><div><span class="tag">Finvexx</span> eToro's FCA Edge: How Regulation Became a Growth Engine</div><div class="pos">● LIVE</div></div>
+      <div class="row"><div><span class="tag">Verivex</span> Inside eToro's Trust Score: Why 30M Users Stay</div><div class="pos">● LIVE</div></div>
+      <div class="row"><div><span class="tag">CryptoXos</span> eToro Crypto in 2026: Custody, Compliance &amp; Copy Portfolios</div><div class="pos">● LIVE</div></div>
+      <div style="margin-top:10px;font-size:11px;color:#94a3b8;">▸ Forward to your clients — one tap, today's coverage lands in their inbox.</div>
+      </div>`,
+    checklist:['Sent daily, every published item for that day in one email','Each line links straight to the real live article or episode','Built to forward as-is — no editing needed before it reaches a client'],
+    live:{url:BASE+'?tab=articles', label:'See the content this email links to'}
+  },
+  {
     id:'podcasts', label:'Podcasts', sub:'4 real episodes, real audio',
-    kick:'03 · Podcasts', title:'Real scripts. Real ElevenLabs audio.',
+    kick:'04 · Podcasts', title:'Real scripts. Real ElevenLabs audio.',
     lead:'Not placeholders — 4 genuinely unique AI-written dialogue scripts, each converted to real audio and publicly playable.',
     panel:`<div class="panel"><h3>🎙 4 Episodes Across 4 Portals <span class="badge-live">● GENERATED TONIGHT</span></h3>
       <div class="row"><div>Inside eToro's Trust Score: Why 30M Users Stay</div><div class="tag">Verivex</div></div>
@@ -123,7 +138,7 @@ const STEPS = [
   },
   {
     id:'ai', label:'AI Answer Control', sub:'ChatGPT / Claude / Perplexity / Gemini',
-    kick:'04 · AI Overview', title:'When they ask AI — we control the answer.',
+    kick:'05 · AI Overview', title:'When they ask AI — we control the answer.',
     lead:'Every major AI assistant returns a consistent, positive verdict citing our own live articles as sources.',
     panel:`<div class="panel"><h3>🤖 Ask: "is eToro safe?"</h3>
       <div class="ans"><b>Yes — eToro is a legitimate, regulated broker.</b> FCA, CySEC and ASIC licensed, strong verified reviews, no credible fraud concerns.</div>
@@ -135,7 +150,7 @@ const STEPS = [
   },
   {
     id:'rankings', label:'Live Search', sub:'Real-time SERP check',
-    kick:'05 · Rankings', title:'Type a keyword. Watch us dominate it.',
+    kick:'06 · Rankings', title:'Type a keyword. Watch us dominate it.',
     lead:'A genuinely live search box in the dashboard — type any eToro keyword and see the ranked results update in real time.',
     panel:`<div class="panel"><h3>🔍 google.com/search?q=etoro review</h3>
       <div class="row"><div>#1 · Is eToro Safe? — nex-wire.com</div><div class="pos">OURS</div></div>
@@ -147,7 +162,7 @@ const STEPS = [
   },
   {
     id:'backlinks', label:'Backlinks', sub:'Fixed tonight — was showing 0',
-    kick:'06 · Backlinks', title:'Every mention, tracked and counted.',
+    kick:'07 · Backlinks', title:'Every mention, tracked and counted.',
     lead:'Was stuck at zero due to a database timeout — fixed tonight. Now shows real backlink and mention counts across the network.',
     panel:`<div class="panel"><h3>🔗 All Brand Backlinks <span class="badge-live">● FIXED TONIGHT</span></h3>
       <div class="kpi-row">
@@ -159,7 +174,7 @@ const STEPS = [
   },
   {
     id:'reviews', label:'Reviews', sub:'250 verified, 4.7★',
-    kick:'07 · Reviews', title:'A trust profile you can point to.',
+    kick:'08 · Reviews', title:'A trust profile you can point to.',
     lead:'250 verified reviews averaging 4.7 stars, visible and browsable in the dashboard.',
     panel:`<div class="panel"><h3>⭐ Verivex Verified Reviews</h3>
       <div class="row"><div>"Best platform for copy trading" — James T., London</div><div class="pos">★★★★★</div></div>
@@ -170,7 +185,7 @@ const STEPS = [
   },
   {
     id:'coverage', label:'Coverage', sub:'11 live portals',
-    kick:'08 · Coverage', title:'11 live portals, one brand.',
+    kick:'09 · Coverage', title:'11 live portals, one brand.',
     lead:'Every portal covering eToro is a genuinely live, indexed domain — not a placeholder network.',
     panel:`<div class="panel"><h3>🌐 Active Portal Coverage</h3>
       <div class="row"><div>nex-wire.com</div><div>64 articles</div></div>
@@ -183,7 +198,7 @@ const STEPS = [
   },
   {
     id:'close', label:'Close the Deal', sub:'PDF deck + pitch',
-    kick:'09 · Close', title:'Everything, in one deck.',
+    kick:'10 · Close', title:'Everything, in one deck.',
     lead:'The full sales-pitch PDF — dashboard tour, AI overview, pros &amp; cons, and the ask — ready to send or present.',
     panel:`<div class="panel"><h3>🎬 eToro × RepHuby Demo Deck</h3>
       <div class="checklist">
