@@ -15,6 +15,7 @@ const PORTALS = [
 ]
 
 const NAV = [
+  { icon:'🧭', label:'Interactive Demo', id:'walkthrough', external:'/etoro-walkthrough.html' },
   { icon:'⚡', label:'Overview', id:'overview' },
   { icon:'📰', label:'Articles', id:'articles' },
   { icon:'📊', label:'Analytics', id:'analytics' },
@@ -242,9 +243,15 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
         </div>
         <nav style={{ flex:1, padding:'12px 8px', overflowY:'auto' }}>
           {NAV.map(n => (
-            <button key={n.id} className={`nav-b${tab===n.id?' on':''}`} onClick={() => setTab(n.id)}>
+            <button
+              key={n.id}
+              className={`nav-b${!n.external && tab===n.id?' on':''}`}
+              onClick={() => n.external ? window.open(n.external, '_blank', 'noopener') : setTab(n.id)}
+              style={n.external ? { color:'#b7902f', fontWeight:700, borderBottom:`1px solid ${BORDER}`, marginBottom:6, paddingBottom:14 } : undefined}
+            >
               <span style={{ fontSize:15 }}>{n.icon}</span>
               {n.label}
+              {n.external && <span style={{ marginLeft:'auto', fontSize:11 }}>&#8599;</span>}
             </button>
           ))}
         </nav>
