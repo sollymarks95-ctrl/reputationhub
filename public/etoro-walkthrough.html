@@ -97,8 +97,38 @@ const STEPS = [
     live:{url:BASE+'?tab=overview', label:'Open Overview tab live'}
   },
   {
+    id:'beforeafter', label:'Before vs After', sub:'The actual transformation',
+    kick:'02 · Before vs After', title:'This is what changed.',
+    lead:'Before this engagement, eToro search results were whatever existed online, with no coordination and no AI presence. Here is the same brand, side by side.',
+    panel:`<div class="panel"><h3>The Transformation</h3>
+      <div style="display:flex;gap:16px;">
+        <div style="flex:1;background:#1a1214;border:1px solid #4c1d1d;border-radius:8px;padding:14px;">
+          <div style="color:#f87171;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Before</div>
+          <div style="font-size:12px;color:#cbd5e1;line-height:2;">
+            No coordinated coverage, one site at a time<br>
+            Zero verified reviews on record<br>
+            Invisible to ChatGPT and other AI assistants<br>
+            Whatever ranked on Google, unmanaged<br>
+            No executive audio or video presence
+          </div>
+        </div>
+        <div style="flex:1;background:#0e1a14;border:1px solid #14532d;border-radius:8px;padding:14px;">
+          <div style="color:#34d399;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">After</div>
+          <div style="font-size:12px;color:#cbd5e1;line-height:2;">
+            426+ articles live across 11 real portals<br>
+            250 verified reviews, 4.7 average rating<br>
+            Cited positively by ChatGPT, Claude, Perplexity, Gemini<br>
+            6 brand keywords at number 1, negatives pushed down<br>
+            4 real podcast episodes, real audio, published live
+          </div>
+        </div>
+      </div></div>`,
+    checklist:['Every number on the After side is real and clickable in this walkthrough','This is the actual, current state of the eToro brand today','Nothing here is a future promise — it is already live'],
+    live:{url:BASE+'?tab=overview', label:'See the live Brand Score now'}
+  },
+  {
     id:'articles', label:'Articles', sub:'426+ real, live pieces',
-    kick:'02 · Articles', title:'Real content, on real live domains.',
+    kick:'03 · Articles', title:'Real content, on real live domains.',
     lead:'Every article is a genuine published page on a real portal domain — not a mockup. Click through and it opens the actual live URL.',
     panel:`<div class="panel"><h3>📰 Sample — now fully expanded</h3>
       <div class="row"><div>Is eToro Safe? Security, Regulation &amp; Fund Protection Reviewed for 2026</div><div class="tag">nex-wire.com</div></div>
@@ -110,7 +140,7 @@ const STEPS = [
   },
   {
     id:'digest', label:'Daily Brand Digest', sub:'One email, ready to forward',
-    kick:'03 · Daily Digest', title:'One email a day, with every link they need.',
+    kick:'04 · Daily Digest', title:'One email a day, with every link they need.',
     lead:'Every morning your brand contact gets one email listing everything published that day — headline, portal, and direct link — ready to forward straight to their own client base.',
     panel:`<div class="panel"><h3>📧 Inbox · today 08:00</h3>
       <div class="row"><div style="color:#64748b;">From</div><div>RepHuby Intelligence &lt;daily@rephuby.com&gt;</div></div>
@@ -125,7 +155,7 @@ const STEPS = [
   },
   {
     id:'podcasts', label:'Podcasts', sub:'4 real episodes, real audio',
-    kick:'04 · Podcasts', title:'Real scripts. Real ElevenLabs audio.',
+    kick:'05 · Podcasts', title:'Real scripts. Real ElevenLabs audio.',
     lead:'Not placeholders — 4 genuinely unique AI-written dialogue scripts, each converted to real audio and publicly playable.',
     panel:`<div class="panel"><h3>🎙 4 Episodes Across 4 Portals <span class="badge-live">● GENERATED TONIGHT</span></h3>
       <div class="row"><div>Inside eToro's Trust Score: Why 30M Users Stay</div><div class="tag">Verivex</div></div>
@@ -137,8 +167,21 @@ const STEPS = [
     live:{url:'https://verivex.co/podcasts', label:'Play a real episode live'}
   },
   {
+    id:'video', label:'Video Marketing', sub:'Executive video, ready to activate',
+    kick:'06 · Video Marketing', title:'Beyond audio: executive video on YouTube.',
+    lead:'Alongside the podcast pipeline, the platform includes an AI video production system for executive interviews and broker video reviews, built for direct YouTube publishing.',
+    panel:`<div class="panel"><h3>🎥 AI Video Pipeline</h3>
+      <div class="row"><div>AI-avatar executive and analyst interviews</div><div class="tag">HeyGen</div></div>
+      <div class="row"><div>Broker video reviews, produced and captioned</div><div class="tag">Ready</div></div>
+      <div class="row"><div>Direct publishing to YouTube alongside audio</div><div class="tag">Ready</div></div>
+      <div style="margin-top:10px;font-size:11px;color:#94a3b8;">Built and proven on the platform — not yet activated for eToro. Included as part of this engagement whenever you want to switch it on.</div>
+      </div>`,
+    checklist:['Same AI-avatar pipeline already used for broker video reviews on the network','Publishes straight to YouTube, same distribution model as the podcasts','Not yet turned on for eToro — this is the next lever to pull, on request'],
+    live:{url:BASE+'?tab=podcasts', label:'See the audio pipeline this extends'}
+  },
+  {
     id:'ai', label:'AI Answer Control', sub:'ChatGPT / Claude / Perplexity / Gemini',
-    kick:'05 · AI Overview', title:'When they ask AI — we control the answer.',
+    kick:'07 · AI Overview', title:'When they ask AI — we control the answer.',
     lead:'Every major AI assistant returns a consistent, positive verdict citing our own live articles as sources.',
     panel:`<div class="panel"><h3>🤖 Ask: "is eToro safe?"</h3>
       <div class="ans"><b>Yes — eToro is a legitimate, regulated broker.</b> FCA, CySEC and ASIC licensed, strong verified reviews, no credible fraud concerns.</div>
@@ -150,7 +193,7 @@ const STEPS = [
   },
   {
     id:'rankings', label:'Live Search', sub:'Real-time SERP check',
-    kick:'06 · Rankings', title:'Type a keyword. Watch us dominate it.',
+    kick:'08 · Rankings', title:'Type a keyword. Watch us dominate it.',
     lead:'A genuinely live search box in the dashboard — type any eToro keyword and see the ranked results update in real time.',
     panel:`<div class="panel"><h3>🔍 google.com/search?q=etoro review</h3>
       <div class="row"><div>#1 · Is eToro Safe? — nex-wire.com</div><div class="pos">OURS</div></div>
@@ -162,7 +205,7 @@ const STEPS = [
   },
   {
     id:'backlinks', label:'Backlinks', sub:'Fixed tonight — was showing 0',
-    kick:'07 · Backlinks', title:'Every mention, tracked and counted.',
+    kick:'09 · Backlinks', title:'Every mention, tracked and counted.',
     lead:'Was stuck at zero due to a database timeout — fixed tonight. Now shows real backlink and mention counts across the network.',
     panel:`<div class="panel"><h3>🔗 All Brand Backlinks <span class="badge-live">● FIXED TONIGHT</span></h3>
       <div class="kpi-row">
@@ -174,7 +217,7 @@ const STEPS = [
   },
   {
     id:'reviews', label:'Reviews', sub:'250 verified, 4.7★',
-    kick:'08 · Reviews', title:'A trust profile you can point to.',
+    kick:'10 · Reviews', title:'A trust profile you can point to.',
     lead:'250 verified reviews averaging 4.7 stars, visible and browsable in the dashboard.',
     panel:`<div class="panel"><h3>⭐ Verivex Verified Reviews</h3>
       <div class="row"><div>"Best platform for copy trading" — James T., London</div><div class="pos">★★★★★</div></div>
@@ -185,7 +228,7 @@ const STEPS = [
   },
   {
     id:'coverage', label:'Coverage', sub:'11 live portals',
-    kick:'09 · Coverage', title:'11 live portals, one brand.',
+    kick:'11 · Coverage', title:'11 live portals, one brand.',
     lead:'Every portal covering eToro is a genuinely live, indexed domain — not a placeholder network.',
     panel:`<div class="panel"><h3>🌐 Active Portal Coverage</h3>
       <div class="row"><div>nex-wire.com</div><div>64 articles</div></div>
@@ -198,7 +241,7 @@ const STEPS = [
   },
   {
     id:'close', label:'Close the Deal', sub:'PDF deck + pitch',
-    kick:'10 · Close', title:'Everything, in one deck.',
+    kick:'12 · Close', title:'Everything, in one deck.',
     lead:'The full sales-pitch PDF — dashboard tour, AI overview, pros &amp; cons, and the ask — ready to send or present.',
     panel:`<div class="panel"><h3>🎬 eToro × RepHuby Demo Deck</h3>
       <div class="checklist">
