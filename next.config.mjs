@@ -320,6 +320,16 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type,Authorization' },
         ],
       },
+      {
+        // The interactive demo walkthrough is a plain static HTML file that
+        // gets edited frequently right up until a live client demo — force
+        // browsers and any CDN edge to always revalidate against origin
+        // instead of serving a stale cached copy of an old version.
+        source: '/etoro-walkthrough.html',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+        ],
+      },
     ]
   },
 }
