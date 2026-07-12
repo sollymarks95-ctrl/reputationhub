@@ -1156,7 +1156,7 @@ async function generateForSite(siteSlug: string, batch: number): Promise<any> {
   if (!site) return { error: 'Unknown site', inserted: 0 }
   const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
-  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 2 : 3)  // 1 run/day → Finance:3/day, Jewish:5/day, Rephuby:2/day (token-minimised)
+  const BATCH_SIZE = isJewishPortal ? 5 : (isRephubySite ? 3 : 7)  // Finance:7 & Rephuby:3 per run (finance product restored); Jewish:5 (kept lean, 1 run/day)
   const batchStart = batch * BATCH_SIZE
   // Self-imposed wall-clock budget — see guard inside the loop below.
   const fnStart = Date.now()

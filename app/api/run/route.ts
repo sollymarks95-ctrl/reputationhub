@@ -18,6 +18,14 @@ const ALL_SITES = [
   'rephuby-intelligence',
 ]
 
+const JEWISH_SITES = ['jewish-news-now','jewish-property-report','aliya-today']
+const FINANCE_SITES = ALL_SITES.filter(s => !JEWISH_SITES.includes(s))
+function sitesForGroup(group: string) {
+  if (group === 'finance') return FINANCE_SITES
+  if (group === 'jewish')  return JEWISH_SITES
+  return ALL_SITES
+}
+
 async function callCron(path: string, secret: string, timeoutMs = 60000) {
   try {
     // Pass secret as BOTH header (for newer routes) AND query param (for legacy routes)
@@ -31,12 +39,13 @@ async function callCron(path: string, secret: string, timeoutMs = 60000) {
   } catch(e:any) { return { error:e.message } }
 }
 
-async function runArticles(batch: number, secret: string) {
+async function runArticles(batch: number, secret: string, group: string = 'all') {
+  const sites = sitesForGroup(group)
   // FIRE AND FORGET — kick off all 14 sites in parallel but do NOT await.
   // Each /api/cron-site runs as its own independent serverless function.
   // Waiting for all 14 responses causes /api/run to 504 at ~20s (Vercel cron timeout).
   // Articles still get inserted because cron-site keeps running after /api/run returns.
-  const promises = ALL_SITES.map(site =>
+  const promises = sites.map(site =>
     fetch(`${BASE}/api/cron-site?site=${site}&batch=${batch}&secret=${encodeURIComponent(secret)}`, {
       headers: { Authorization: `Bearer ${secret}` }
     }).catch(() => null) // swallow errors — fire and forget
@@ -46,7 +55,7 @@ async function runArticles(batch: number, secret: string) {
     Promise.all(promises),
     new Promise(r => setTimeout(r, 3000))
   ])
-  return { batch, status: 'fired', sites: ALL_SITES.length, note: 'cron-site functions running independently' }
+  return { batch, group, status: 'fired', sites: sites.length, note: 'cron-site functions running independently' }
 }
 
 async function runQuestions(secret: string) {
@@ -84,7 +93,7 @@ export async function GET(req: NextRequest) {
   let result: any = { error:'Unknown job' }
 
   if      (job==='trends')    result = await callCron('/api/cron-trends', secret)
-  else if (job==='articles')  result = await runArticles(batch, secret)
+  else if (job==='articles')  result = await runArticles(batch, secret, req.nextUrl.searchParams.get('group') ?? 'all')
   else if (job==='questions') result = await runQuestions(secret)
   else if (job==='reviews')   result = await callCron('/api/cron-reviews', secret)
   else if (job==='companies') result = await callCron('/api/cron-companies', secret)
