@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'application/json', 'x-api-key': anthKey, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: Math.min(targetWords * 6, 8000),
+        max_tokens: Math.max(1024, Math.min((Number(targetWords) || 700) * 6, 8000)),
         system: `You write ultra-realistic podcast scripts that sound like REAL recorded conversations — not scripted, not corporate. Think Joe Rogan, Lex Fridman, How I Built This. Natural human dialogue.`,
         messages: [
           {
@@ -126,7 +126,7 @@ HARD RULES:
           },
           {
             role: 'assistant',
-            content: `${HOST}: `
+            content: `${HOST}:`
           }
         ]
       }),
@@ -142,7 +142,7 @@ HARD RULES:
     const scriptData = await scriptRes.json()
     // Prepend the assistant prefill (HOST: ) since Claude continues from it
     const rawScript = scriptData.content?.[0]?.text?.trim() || ''
-    const script = rawScript.startsWith(`${HOST}:`) ? rawScript : `${HOST}: ${rawScript}`
+    const script = rawScript.startsWith(`${HOST}:`) ? rawScript : `${HOST}: ${rawScript.replace(/^\s+/, '')}`
     if (!script) return NextResponse.json({ error: 'Empty script from Claude' }, { status: 500, headers: CORS })
     console.log(`Script: ${script.split(' ').length} words`)
 
