@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const PORTALS = [
   { slug:'global-trade-wire', name:'Nex-Wire', domain:'nex-wire.com', color:'#0ea5e9' },
@@ -42,7 +42,8 @@ function fmtNum(n: number) {
 
 export default function PortalDashboard({ client, content = [], podcasts = [], reviews = [], coverage = [] }: any) {
   const router = useRouter()
-  const [tab, setTab] = useState('overview')
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState(searchParams?.get('tab') || 'overview')
   const [generatingPodcast, setGeneratingPodcast] = useState<string|null>(null)
   const [podcastResult, setPodcastResult] = useState<Record<string,any>>({})
   const [podcastTarget, setPodcastTarget] = useState<Record<string,string>>({})
@@ -1158,7 +1159,10 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                   <div style={{ fontWeight:800, fontSize:16 }}>🎬 eToro × RepHuby — Demo Deck</div>
                   <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Full walkthrough: dashboard tour, AI overview, pros &amp; cons, and the sales pitch.</div>
                 </div>
-                <a href="/etoro-demo.pdf" target="_blank" rel="noopener" style={{ background:p, color:'#0a0f1e', fontWeight:800, padding:'10px 18px', borderRadius:8, textDecoration:'none', fontSize:13, whiteSpace:'nowrap' }}>Open / Download &#8599;</a>
+                <div style={{ display:'flex', gap:8, flexShrink:0 }}>
+                  <a href="/etoro-walkthrough.html" target="_blank" rel="noopener" style={{ background:'transparent', border:`1px solid ${p}66`, color:p, fontWeight:800, padding:'10px 18px', borderRadius:8, textDecoration:'none', fontSize:13, whiteSpace:'nowrap' }}>🧭 Interactive Walkthrough</a>
+                  <a href="/etoro-demo.pdf" target="_blank" rel="noopener" style={{ background:p, color:'#0a0f1e', fontWeight:800, padding:'10px 18px', borderRadius:8, textDecoration:'none', fontSize:13, whiteSpace:'nowrap' }}>Open / Download &#8599;</a>
+                </div>
               </div>
               <div className="card" style={{ padding:0, overflow:'hidden' }}>
                 <iframe src="/etoro-demo.pdf" title="eToro Demo Deck" style={{ width:'100%', height:'80vh', border:'none', background:'#fff' }} />
