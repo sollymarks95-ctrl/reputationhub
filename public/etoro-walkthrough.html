@@ -6,69 +6,158 @@
 <title>eToro × RepHuby — Interactive Walkthrough</title>
 <style>
   :root{
-    --bg:#0a0f1e; --panel:#0f1623; --panel2:#131c2e; --border:rgba(255,255,255,0.08);
-    --gold:#b7902f; --blue:#0EA5E9; --green:#10b981; --red:#f87171; --txt:#e2e8f0; --mut:#64748b;
+    --bg:#070b16; --panel:#0f1623; --panel2:#131c2e; --border:rgba(255,255,255,0.08);
+    --gold:#c9a13a; --gold2:#e8c66b; --blue:#0EA5E9; --green:#10b981; --red:#f87171;
+    --txt:#e2e8f0; --mut:#64748b;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+    background:
+      radial-gradient(1100px 620px at 14% -8%, rgba(201,161,58,0.10), transparent 55%),
+      radial-gradient(900px 700px at 100% 0%, rgba(14,165,233,0.07), transparent 50%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  ::selection{background:rgba(201,161,58,0.35);}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:8px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2);}
   .wrap{display:flex;min-height:100vh;}
+
   /* SIDEBAR */
-  .side{width:300px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);padding:22px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;}
-  .brand{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#fff;padding:0 8px 18px;border-bottom:1px solid var(--border);margin-bottom:16px;}
-  .brand span{color:var(--gold);}
-  .brand .sub{font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:4px;font-family:-apple-system,Arial,sans-serif;font-weight:600;}
-  .progress-wrap{padding:0 8px 18px;}
-  .progress-bar{height:5px;background:var(--panel2);border-radius:3px;overflow:hidden;}
-  .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e0b854);border-radius:3px;transition:width .3s;}
-  .progress-txt{font-size:10px;color:var(--mut);margin-top:6px;letter-spacing:.5px;}
-  .step{display:flex;gap:10px;align-items:flex-start;padding:11px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background .15s;}
-  .step:hover{background:rgba(255,255,255,0.04);}
-  .step.active{background:rgba(183,144,47,0.13);}
-  .step .num{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--mut);color:var(--mut);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-  .step.active .num{border-color:var(--gold);color:var(--gold);background:rgba(183,144,47,0.15);}
-  .step.done .num{border-color:var(--green);color:var(--green);background:rgba(16,185,129,0.12);}
-  .step .lbl{font-size:13px;color:var(--txt);line-height:1.35;}
+  .side{
+    width:308px;flex-shrink:0;
+    background:linear-gradient(180deg, rgba(19,28,46,0.85), rgba(15,22,35,0.85));
+    backdrop-filter:blur(6px);
+    border-right:1px solid var(--border);
+    padding:26px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .brand{padding:2px 8px 20px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--gold),#8a6a1e);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;font-weight:700;font-size:16px;color:#0a0f1e;
+    box-shadow:0 4px 14px rgba(201,161,58,0.35);
+    margin-right:10px;vertical-align:middle;
+  }
+  .brand .txt{display:inline-block;vertical-align:middle;}
+  .brand .name{font-family:Georgia,serif;font-size:18px;font-weight:700;color:#fff;line-height:1.2;}
+  .brand .name span{color:var(--gold);}
+  .brand .sub{font-size:9.5px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;font-weight:600;}
+
+  .progress-wrap{padding:0 8px 20px;}
+  .progress-bar{height:6px;background:var(--panel2);border-radius:4px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(201,161,58,0.5);}
+  .progress-txt{font-size:10px;color:var(--mut);margin-top:7px;letter-spacing:.5px;font-weight:600;}
+
+  .step{
+    display:flex;gap:11px;align-items:center;padding:10px 10px;border-radius:10px;
+    cursor:pointer;margin-bottom:3px;transition:all .18s ease;
+    border:1px solid transparent;
+  }
+  .step:hover{background:rgba(255,255,255,0.045);transform:translateX(2px);}
+  .step.active{
+    background:linear-gradient(90deg, rgba(201,161,58,0.16), rgba(201,161,58,0.04));
+    border-color:rgba(201,161,58,0.25);
+  }
+  .step .num{
+    width:30px;height:30px;border-radius:9px;flex-shrink:0;
+    background:var(--panel2);border:1.5px solid rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    transition:all .18s ease;
+  }
+  .step.active .num{
+    border-color:var(--gold);background:rgba(201,161,58,0.18);
+    box-shadow:0 0 12px rgba(201,161,58,0.3);
+  }
+  .step.done .num{border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.12);color:var(--green);font-size:13px;font-weight:700;}
+  .step .lbl{font-size:13px;color:#cbd5e1;line-height:1.3;font-weight:500;}
   .step.active .lbl{font-weight:700;color:#fff;}
-  .step .sub{font-size:10.5px;color:var(--mut);margin-top:2px;}
+  .step .sub{font-size:10px;color:var(--mut);margin-top:1px;}
 
   /* MAIN */
-  .main{flex:1;padding:34px 46px;max-width:980px;}
-  .kick{color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;font-size:10px;font-weight:700;}
-  h1{font-family:Georgia,serif;font-size:28px;margin:8px 0 6px;color:#fff;}
-  .lead{color:#94a3b8;font-size:14px;line-height:1.6;max-width:640px;margin-bottom:24px;}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:18px;}
-  .panel h3{margin:0 0 14px;font-size:14px;color:#fff;font-family:Georgia,serif;}
+  .main{flex:1;padding:40px 52px 60px;max-width:1000px;}
+  .fade-enter{animation:fadeSlide .38s cubic-bezier(.16,1,.3,1);}
+  @keyframes fadeSlide{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .kick{
+    color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:10.5px;font-weight:800;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .kick .kicon{font-size:14px;}
+  h1{
+    font-family:Georgia,serif;font-size:32px;line-height:1.15;margin:10px 0 8px;color:#fff;
+    letter-spacing:-.3px;
+  }
+  .lead{color:#9aa7bb;font-size:14.5px;line-height:1.65;max-width:660px;margin-bottom:26px;}
+  .panel{
+    background:linear-gradient(160deg, rgba(19,28,46,0.9), rgba(15,22,35,0.9));
+    border:1px solid var(--border);border-radius:14px;padding:26px;margin-bottom:20px;
+    box-shadow:0 10px 30px -12px rgba(0,0,0,0.5);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .panel:hover{box-shadow:0 14px 38px -12px rgba(0,0,0,0.6);}
+  .panel h3{margin:0 0 16px;font-size:15px;color:#fff;font-family:Georgia,serif;font-weight:700;}
 
   /* mock widgets reused across steps */
   .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:6px;}
-  .kpi{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:13px;}
-  .kpi .n{font-family:Georgia,serif;font-size:24px;font-weight:700;color:#fff;}
-  .kpi .l{font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
-  .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--panel2);font-size:12.5px;}
+  .kpi{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:transform .15s ease;}
+  .kpi:hover{transform:translateY(-2px);border-color:rgba(201,161,58,0.3);}
+  .kpi .n{font-family:Georgia,serif;font-size:25px;font-weight:700;color:#fff;}
+  .kpi .l{font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-top:4px;font-weight:600;}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12.5px;transition:background .15s ease;border-radius:6px;}
+  .row:hover{background:rgba(255,255,255,0.025);}
   .row:last-child{border-bottom:none;}
-  .tag{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,0.15);color:var(--blue);}
+  .tag{display:inline-block;font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:5px;background:rgba(14,165,233,0.15);color:var(--blue);}
   .pos{color:var(--green);font-weight:700;}
   .neg{color:var(--red);font-weight:700;}
-  .cite{display:inline-block;font-size:9px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;padding:2px 7px;margin:4px 5px 0 0;color:#cbd5e1;}
-  .ans{background:rgba(16,185,129,0.08);border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:10px 13px;font-size:12.5px;color:#bbf7d0;margin:8px 0;}
+  .cite{display:inline-block;font-size:9px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:6px;padding:3px 8px;margin:4px 5px 0 0;color:#cbd5e1;}
+  .ans{background:rgba(16,185,129,0.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:12px 14px;font-size:12.5px;color:#bbf7d0;margin:9px 0;line-height:1.55;}
 
   /* buttons */
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
-  .btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none;cursor:pointer;border:none;}
-  .btn-live{background:var(--gold);color:#0a0f1e;}
-  .btn-live:hover{background:#c9a03f;}
-  .btn-ghost{background:transparent;border:1px solid var(--border);color:#cbd5e1;}
-  .btn-ghost:hover{border-color:#475569;}
-  .nav-btns{display:flex;justify-content:space-between;margin-top:30px;padding-top:20px;border-top:1px solid var(--border);}
-  .checklist{font-size:12px;color:#94a3b8;margin-top:4px;}
-  .checklist div{padding:3px 0;}
-  .badge-live{display:inline-block;background:rgba(16,185,129,0.15);color:var(--green);font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;
+    padding:12px 20px;border-radius:10px;text-decoration:none;cursor:pointer;border:none;
+    transition:all .18s ease;
+  }
+  .btn-live{
+    background:linear-gradient(135deg,var(--gold2),var(--gold));color:#0a0f1e;
+    box-shadow:0 6px 18px -4px rgba(201,161,58,0.45);
+  }
+  .btn-live:hover{transform:translateY(-1px);box-shadow:0 8px 22px -4px rgba(201,161,58,0.6);}
+  .btn-ghost{background:rgba(255,255,255,0.03);border:1px solid var(--border);color:#cbd5e1;}
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);}
+  .btn-ghost:disabled{opacity:.3;cursor:default;}
+  .nav-btns{display:flex;justify-content:space-between;margin-top:32px;padding-top:22px;border-top:1px solid var(--border);}
+  .checklist{font-size:12.5px;color:#9aa7bb;margin-top:4px;}
+  .checklist div{padding:5px 0;display:flex;gap:8px;align-items:flex-start;}
+  .checklist div .ck{color:var(--green);font-weight:700;flex-shrink:0;}
+  .badge-live{
+    display:inline-block;background:rgba(16,185,129,0.15);color:var(--green);font-size:9.5px;
+    font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;vertical-align:middle;
+    box-shadow:0 0 0 1px rgba(16,185,129,0.2);
+  }
+  @media (max-width: 900px){
+    .wrap{flex-direction:column;}
+    .side{width:100%;height:auto;position:relative;}
+    .main{padding:28px 22px 50px;}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="side">
-    <div class="brand">Rep<span>Huby</span> × eToro<div class="sub">Interactive Walkthrough</div></div>
+    <div class="brand">
+      <div class="mark">R</div><div class="txt"><div class="name">Rep<span>Huby</span> × eToro</div><div class="sub">Interactive Walkthrough</div></div>
+    </div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="pfill" style="width:11%"></div></div>
       <div class="progress-txt" id="ptxt">Step 1 of 9</div>
@@ -83,7 +172,7 @@
 const BASE = 'https://rephuby.com/portal/dashboard';
 const STEPS = [
   {
-    id:'overview', label:'The Command Center', sub:'Brand Score, live KPIs',
+    icon:'⚡', id:'overview', label:'The Command Center', sub:'Brand Score, live KPIs',
     kick:'01 · Overview', title:'One score for the whole brand.',
     lead:'Every article, review, ranking and podcast rolled into a single live Brand Score — the first thing you or the client sees.',
     panel:`<div class="panel"><h3>⚡ eToro — Reputation Overview <span class="badge-live">● LIVE DATA</span></h3>
@@ -97,7 +186,7 @@ const STEPS = [
     live:{url:BASE+'?tab=overview', label:'Open Overview tab live'}
   },
   {
-    id:'beforeafter', label:'Before vs After', sub:'The actual transformation',
+    icon:'🔄', id:'beforeafter', label:'Before vs After', sub:'The actual transformation',
     kick:'02 · Before vs After', title:'This is what changed.',
     lead:'Before this engagement, eToro search results were whatever existed online, with no coordination and no AI presence. Here is the same brand, side by side.',
     panel:`<div class="panel"><h3>The Transformation</h3>
@@ -127,7 +216,7 @@ const STEPS = [
     live:{url:BASE+'?tab=overview', label:'See the live Brand Score now'}
   },
   {
-    id:'articles', label:'Articles', sub:'426+ real, live pieces',
+    icon:'📰', id:'articles', label:'Articles', sub:'426+ real, live pieces',
     kick:'03 · Articles', title:'Real content, on real live domains.',
     lead:'Every article is a genuine published page on a real portal domain — not a mockup. Click through and it opens the actual live URL.',
     panel:`<div class="panel"><h3>📰 Sample — now fully expanded</h3>
@@ -139,7 +228,7 @@ const STEPS = [
     live:{url:'https://nex-wire.com/article/global-trade-wire/is-etoro-safe-2026', label:'Open the real live article'}
   },
   {
-    id:'digest', label:'Daily Brand Digest', sub:'One email, ready to forward',
+    icon:'📧', id:'digest', label:'Daily Brand Digest', sub:'One email, ready to forward',
     kick:'04 · Daily Digest', title:'One email a day, with every link they need.',
     lead:'Every morning your brand contact gets one email listing everything published that day — headline, portal, and direct link — ready to forward straight to their own client base.',
     panel:`<div class="panel"><h3>📧 Inbox · today 08:00</h3>
@@ -154,7 +243,7 @@ const STEPS = [
     live:{url:BASE+'?tab=articles', label:'See the content this email links to'}
   },
   {
-    id:'podcasts', label:'Podcasts', sub:'4 real episodes, real audio',
+    icon:'🎧', id:'podcasts', label:'Podcasts', sub:'4 real episodes, real audio',
     kick:'05 · Podcasts', title:'Real scripts. Real ElevenLabs audio.',
     lead:'Not placeholders — 4 genuinely unique AI-written dialogue scripts, each converted to real audio and publicly playable.',
     panel:`<div class="panel"><h3>🎙 4 Episodes Across 4 Portals <span class="badge-live">● GENERATED TONIGHT</span></h3>
@@ -167,7 +256,7 @@ const STEPS = [
     live:{url:'https://verivex.co/podcasts', label:'Play a real episode live'}
   },
   {
-    id:'video', label:'Video Marketing', sub:'Executive video, ready to activate',
+    icon:'🎥', id:'video', label:'Video Marketing', sub:'Executive video, ready to activate',
     kick:'06 · Video Marketing', title:'Beyond audio: executive video on YouTube.',
     lead:'Alongside the podcast pipeline, the platform includes an AI video production system for executive interviews and broker video reviews, built for direct YouTube publishing.',
     panel:`<div class="panel"><h3>🎥 AI Video Pipeline</h3>
@@ -180,7 +269,7 @@ const STEPS = [
     live:{url:BASE+'?tab=podcasts', label:'See the audio pipeline this extends'}
   },
   {
-    id:'ai', label:'AI Answer Control', sub:'ChatGPT / Claude / Perplexity / Gemini',
+    icon:'🤖', id:'ai', label:'AI Answer Control', sub:'ChatGPT / Claude / Perplexity / Gemini',
     kick:'07 · AI Overview', title:'When they ask AI — we control the answer.',
     lead:'Every major AI assistant returns a consistent, positive verdict citing our own live articles as sources.',
     panel:`<div class="panel"><h3>🤖 Ask: "is eToro safe?"</h3>
@@ -192,7 +281,7 @@ const STEPS = [
     live:{url:BASE+'?tab=rankings', label:'Try the live AI Overview tab'}
   },
   {
-    id:'rankings', label:'Live Search', sub:'Real-time SERP check',
+    icon:'🔍', id:'rankings', label:'Live Search', sub:'Real-time SERP check',
     kick:'08 · Rankings', title:'Type a keyword. Watch us dominate it.',
     lead:'A genuinely live search box in the dashboard — type any eToro keyword and see the ranked results update in real time.',
     panel:`<div class="panel"><h3>🔍 google.com/search?q=etoro review</h3>
@@ -204,7 +293,7 @@ const STEPS = [
     live:{url:BASE+'?tab=rankings', label:'Open live search yourself'}
   },
   {
-    id:'backlinks', label:'Backlinks', sub:'Fixed tonight — was showing 0',
+    icon:'🔗', id:'backlinks', label:'Backlinks', sub:'Fixed tonight — was showing 0',
     kick:'09 · Backlinks', title:'Every mention, tracked and counted.',
     lead:'Was stuck at zero due to a database timeout — fixed tonight. Now shows real backlink and mention counts across the network.',
     panel:`<div class="panel"><h3>🔗 All Brand Backlinks <span class="badge-live">● FIXED TONIGHT</span></h3>
@@ -216,7 +305,7 @@ const STEPS = [
     live:{url:BASE+'?tab=backlinks', label:'Open Backlinks tab live'}
   },
   {
-    id:'reviews', label:'Reviews', sub:'250 verified, 4.7★',
+    icon:'⭐', id:'reviews', label:'Reviews', sub:'250 verified, 4.7★',
     kick:'10 · Reviews', title:'A trust profile you can point to.',
     lead:'250 verified reviews averaging 4.7 stars, visible and browsable in the dashboard.',
     panel:`<div class="panel"><h3>⭐ Verivex Verified Reviews</h3>
@@ -227,7 +316,7 @@ const STEPS = [
     live:{url:BASE+'?tab=reviews', label:'Open Reviews tab live'}
   },
   {
-    id:'coverage', label:'Coverage', sub:'11 live portals',
+    icon:'🌍', id:'coverage', label:'Coverage', sub:'11 live portals',
     kick:'11 · Coverage', title:'11 live portals, one brand.',
     lead:'Every portal covering eToro is a genuinely live, indexed domain — not a placeholder network.',
     panel:`<div class="panel"><h3>🌐 Active Portal Coverage</h3>
@@ -240,7 +329,7 @@ const STEPS = [
     live:{url:BASE+'?tab=coverage', label:'Open Coverage tab live'}
   },
   {
-    id:'close', label:'Close the Deal', sub:'PDF deck + pitch',
+    icon:'🏁', id:'close', label:'Close the Deal', sub:'PDF deck + pitch',
     kick:'12 · Close', title:'Everything, in one deck.',
     lead:'The full sales-pitch PDF — dashboard tour, AI overview, pros &amp; cons, and the ask — ready to send or present.',
     panel:`<div class="panel"><h3>🎬 eToro × RepHuby Demo Deck</h3>
@@ -261,7 +350,7 @@ function renderSidebar(){
   const el = document.getElementById('steps');
   el.innerHTML = STEPS.map((s,i)=>`
     <div class="step ${i===idx?'active':''} ${doneSet.has(i)?'done':''}" onclick="goTo(${i})">
-      <div class="num">${doneSet.has(i) && i!==idx ? '✓' : i+1}</div>
+      <div class="num">${doneSet.has(i) && i!==idx ? '✓' : s.icon}</div>
       <div><div class="lbl">${s.label}</div><div class="sub">${s.sub}</div></div>
     </div>`).join('');
   document.getElementById('pfill').style.width = Math.round(((idx+1)/STEPS.length)*100)+'%';
@@ -270,21 +359,25 @@ function renderSidebar(){
 
 function renderMain(){
   const s = STEPS[idx];
-  document.getElementById('main').innerHTML = `
-    <div class="kick">${s.kick}</div>
-    <h1>${s.title}</h1>
-    <div class="lead">${s.lead}</div>
-    ${s.panel}
-    <div class="panel">
-      <h3>What's actually been built here</h3>
-      <div class="checklist">${s.checklist.map(c=>`<div>✓ ${c}</div>`).join('')}</div>
-    </div>
-    <div class="actions">
-      <a class="btn btn-live" href="${s.live.url}" target="_blank" rel="noopener">🔴 ${s.live.label}</a>
-    </div>
-    <div class="nav-btns">
-      <button class="btn btn-ghost" onclick="prevStep()" ${idx===0?'disabled style="opacity:.3;cursor:default;"':''}>← Previous</button>
-      <button class="btn btn-live" onclick="nextStep()">${idx===STEPS.length-1?'Restart tour ↺':'Next step →'}</button>
+  const el = document.getElementById('main');
+  el.className = '';
+  el.innerHTML = `
+    <div class="fade-enter">
+      <div class="kick"><span class="kicon">${s.icon}</span>${s.kick}</div>
+      <h1>${s.title}</h1>
+      <div class="lead">${s.lead}</div>
+      ${s.panel}
+      <div class="panel">
+        <h3>What's actually been built here</h3>
+        <div class="checklist">${s.checklist.map(c=>`<div><span class="ck">✓</span> ${c}</div>`).join('')}</div>
+      </div>
+      <div class="actions">
+        <a class="btn btn-live" href="${s.live.url}" target="_blank" rel="noopener">🔴 ${s.live.label}</a>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="prevStep()" ${idx===0?'disabled':''}>← Previous</button>
+        <button class="btn btn-live" onclick="nextStep()">${idx===STEPS.length-1?'Restart tour ↺':'Next step →'}</button>
+      </div>
     </div>
   `;
 }
