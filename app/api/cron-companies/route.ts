@@ -180,13 +180,13 @@ export async function GET(req: NextRequest) {
       category: company.category,
       regulation: company.regulation || 'Varies',
       founded: company.founded || null,
-      hq: company.hq || null,
+      headquarters: company.hq || null,
       website: company.website || null,
       logo_url: logoUrl,
       tagline: company.tagline || null,
       description: company.description || null,
       is_featured: false,
-      is_active: true,
+      is_verified: true,
     })
 
     if (compErr) {
