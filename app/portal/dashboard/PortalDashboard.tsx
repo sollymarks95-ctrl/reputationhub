@@ -245,13 +245,11 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
           {NAV.map(n => (
             <button
               key={n.id}
-              className={`nav-b${!n.external && tab===n.id?' on':''}`}
+              className={`nav-b${tab===n.id?' on':''}`}
               onClick={() => n.external ? window.open(n.external, '_blank', 'noopener') : setTab(n.id)}
-              style={n.external ? { color:'#b7902f', fontWeight:700, borderBottom:`1px solid ${BORDER}`, marginBottom:6, paddingBottom:14 } : undefined}
             >
               <span style={{ fontSize:15 }}>{n.icon}</span>
               {n.label}
-              {n.external && <span style={{ marginLeft:'auto', fontSize:11 }}>&#8599;</span>}
             </button>
           ))}
         </nav>
