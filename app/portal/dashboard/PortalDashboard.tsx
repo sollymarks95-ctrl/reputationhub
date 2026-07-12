@@ -23,6 +23,7 @@ const NAV = [
   { icon:'🔗', label:'Backlinks', id:'backlinks' },
   { icon:'🌐', label:'Coverage', id:'coverage' },
   { icon:'⭐', label:'Reviews', id:'reviews' },
+  { icon:'🎬', label:'Demo', id:'demo' },
 ]
 
 function timeAgo(d: string) {
@@ -1138,6 +1139,21 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                     <div style={{ fontSize:10, color:'#334155', marginTop:4 }}>{timeAgo(r.created_at)}</div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {tab === 'demo' && (
+            <div className="fade">
+              <div className="card" style={{ marginBottom:16, display:'flex', justifyContent:'space-between', alignItems:'center', gap:16 }}>
+                <div>
+                  <div style={{ fontWeight:800, fontSize:16 }}>🎬 eToro × RepHuby — Demo Deck</div>
+                  <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Full walkthrough: dashboard tour, AI overview, pros &amp; cons, and the sales pitch.</div>
+                </div>
+                <a href="/etoro-demo.pdf" target="_blank" rel="noopener" style={{ background:p, color:'#0a0f1e', fontWeight:800, padding:'10px 18px', borderRadius:8, textDecoration:'none', fontSize:13, whiteSpace:'nowrap' }}>Open / Download &#8599;</a>
+              </div>
+              <div className="card" style={{ padding:0, overflow:'hidden' }}>
+                <iframe src="/etoro-demo.pdf" title="eToro Demo Deck" style={{ width:'100%', height:'80vh', border:'none', background:'#fff' }} />
               </div>
             </div>
           )}
