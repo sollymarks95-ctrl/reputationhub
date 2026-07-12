@@ -370,7 +370,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                       <th>Article</th>
                       <th>Portal</th>
                       <th>Published</th>
-                      <th style={{textAlign:'right'}}>Views</th>
+                      {!client?.is_demo && <th style={{textAlign:'right'}}>Views</th>}
                       <th>Link</th>
                     </tr>
                   </thead>
@@ -390,9 +390,11 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                             </span>
                           </td>
                           <td style={{ color:'#64748b', fontSize:12 }}>{fmtDate(c.published_at)}</td>
-                          <td style={{ textAlign:'right', fontWeight:700, color:'#38bdf8' }}>
-                            {c.news_articles?.views || 0}
-                          </td>
+                          {!client?.is_demo && (
+                            <td style={{ textAlign:'right', fontWeight:700, color:'#38bdf8' }}>
+                              {c.news_articles?.views || 0}
+                            </td>
+                          )}
                           <td>
                             <a href={c.article_url} target="_blank" rel="noopener" style={{ fontSize:11, color:p, fontWeight:600 }}>
                               View ↗
@@ -433,24 +435,27 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                   </div>
 
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
-                    {/* Top articles by views */}
-                    <div className="card">
-                      <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Top Articles by Views</div>
-                      {(analytics.topArticles || []).slice(0,8).map((a: any, i: number) => (
-                        <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <a href={a.url} target="_blank" rel="noopener" style={{ fontSize:12, fontWeight:500, color:'#e2e8f0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', display:'block' }}>
-                              {a.title}
-                            </a>
-                            <div style={{ fontSize:10, color:'#475569', marginTop:2 }}>{a.portal}</div>
+                    {/* Top articles by views — hidden for demo accounts */}
+                    {!client?.is_demo && (
+                      <div className="card">
+                        <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Top Articles by Views</div>
+                        {(analytics.topArticles || []).slice(0,8).map((a: any, i: number) => (
+                          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.04)' }}>
+                            <div style={{ flex:1, minWidth:0 }}>
+                              <a href={a.url} target="_blank" rel="noopener" style={{ fontSize:12, fontWeight:500, color:'#e2e8f0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', display:'block' }}>
+                                {a.title}
+                              </a>
+                              <div style={{ fontSize:10, color:'#475569', marginTop:2 }}>{a.portal}</div>
+                            </div>
+                            <span style={{ fontSize:13, fontWeight:700, color:'#38bdf8', marginLeft:12, flexShrink:0 }}>{fmtNum(a.views)}</span>
                           </div>
-                          <span style={{ fontSize:13, fontWeight:700, color:'#38bdf8', marginLeft:12, flexShrink:0 }}>{fmtNum(a.views)}</span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
 
                     <div>
-                      {/* By portal */}
+                      {/* By portal — hidden for demo accounts */}
+                      {!client?.is_demo && (
                       <div className="card" style={{ marginBottom:20 }}>
                         <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>Views by Portal</div>
                         {(analytics.byPortal || []).slice(0,6).map((b: any, i: number) => {
@@ -469,6 +474,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                           )
                         })}
                       </div>
+                      )}
 
                       {/* Devices */}
                       <div className="card">
@@ -1014,7 +1020,7 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                             <th>Type</th>
                             <th>Context / Anchor</th>
                             <th>Published</th>
-                            <th style={{textAlign:'right'}}>Views</th>
+                            {!client?.is_demo && <th style={{textAlign:'right'}}>Views</th>}
                             <th>Link</th>
                           </tr>
                         </thead>
@@ -1052,7 +1058,9 @@ export default function PortalDashboard({ client, content = [], podcasts = [], r
                                   <td style={{ color:'#64748b', fontSize:12, whiteSpace:'nowrap' }}>
                                     {new Date(b.publishedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
                                   </td>
-                                  <td style={{ textAlign:'right', fontWeight:700, color:'#38bdf8' }}>{b.views}</td>
+                                  {!client?.is_demo && (
+                                    <td style={{ textAlign:'right', fontWeight:700, color:'#38bdf8' }}>{b.views}</td>
+                                  )}
                                   <td>
                                     <a href={b.articleUrl} target="_blank" rel="noopener" style={{ fontSize:11, color:p, fontWeight:600 }}>↗</a>
                                   </td>
