@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
     return Array(weight).fill(co)
   })
 
-  // Pick 5 unique companies
+  // Pick 5 unique companies (organic, weighted toward fewer-reviewed)
   const picked: any[] = []
   const seen = new Set<string>()
   for (let i = 0; i < 200 && picked.length < 5; i++) {
@@ -121,11 +121,31 @@ export async function GET(req: NextRequest) {
     if (!seen.has(co.slug)) { picked.push(co); seen.add(co.slug) }
   }
 
+  // GUARANTEED TRICKLE for actively monitored clients (e.g. eToro) — the
+  // weighted-random pick above naturally starves out any company that
+  // already has a lot of reviews (that is the whole point of the weighting),
+  // so a heavily-seeded monitored client would stop getting new reviews
+  // entirely. Every is_active portal_clients brand gets 1-2 reviews/day
+  // regardless of its existing count, on top of (never instead of) the
+  // organic 5 above.
+  const { data: monitoredClients } = await db
+    .from('portal_clients')
+    .select('brand_slug')
+    .eq('is_active', true)
+
+  const guaranteed: any[] = []
+  for (const mc of (monitoredClients as any[]) || []) {
+    if (seen.has(mc.brand_slug)) continue // already getting reviews via the organic pick
+    const co = (companies as any[]).find(c => c.slug === mc.brand_slug)
+    if (co) { guaranteed.push(co); seen.add(co.slug) }
+  }
+
   let totalInserted = 0
   const results: any[] = []
 
-  for (const company of picked) {
-    const reviewsToAdd = randInt(2, 4)
+  const guaranteedSlugs = new Set(guaranteed.map(g => g.slug))
+  for (const company of [...picked, ...guaranteed]) {
+    const reviewsToAdd = guaranteedSlugs.has(company.slug) ? randInt(1, 2) : randInt(2, 4)
     const reviews = await generateReviewsForCompany(company, reviewsToAdd)
     if (reviews.length === 0) continue
 
