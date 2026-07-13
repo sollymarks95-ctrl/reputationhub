@@ -9,11 +9,14 @@ const BASE  = 'https://rephuby.com'
 const ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
 const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 
+// copy-trade-iq (copyvexx.com) and expat-invest-iq (expatinvestiq.com) are
+// deliberately excluded — neither domain is actually live (is_live=false in
+// news_sites), so no generation runs are dispatched to them. cron-site also
+// independently checks is_live as a second guard before generating anything.
 const ALL_SITES = [
   'global-trade-wire','finance-terminal','trust-score','gold-markets-today',
   'invest-data','business-pulse','market-radar','executive-network',
   'crypto-hub','fx-vexx','trade-hub-iq',
-  'copy-trade-iq','expat-invest-iq',
   'jewish-news-now','jewish-property-report','aliya-today',
   'rephuby-intelligence',
 ]
