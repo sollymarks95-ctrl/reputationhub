@@ -926,7 +926,7 @@ Return ONLY valid JSON, no markdown fences:
         messages: [{ role: 'user', content: prompt }],
       } : {
         model: 'claude-haiku-4-5-20251001',  // Only model confirmed available on this API key
-        max_tokens: isPillarArticle || isRephubySite ? 8000 : 3000,
+        max_tokens: isPillarArticle || isRephubySite ? 8000 : 4500,  // was 3000 — caught truncating mid-HTML-tag on articles with a closing CTA/link section
         system: isJewishPortal ? 'You are an expert content writer specialising in Jewish life, Israel, and aliyah. Respond with ONLY a single compact JSON line — no preamble, no web search needed, use your knowledge: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"...","tags":[...]}' : 'You are a financial news writer. Always respond with ONLY valid compact JSON on a SINGLE LINE — no preamble, no explanation, no markdown fences, no newlines inside the JSON. Output must be: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}  The body may contain HTML but the JSON wrapper must be compact single-line.',
         messages: [
           { role: 'user', content: (isJewishPortal ? prompt.replace(/STEP 1: WEB SEARCH FIRST[\s\S]*?STEP 2:/,'STEP 2:').replace(/Use web search for[^.]+\.\s*/g,'') : prompt) + '\n\nOUTPUT: Single compact JSON line, no newlines in the JSON wrapper. The body field contains HTML but the JSON itself must be one line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Guide","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
@@ -945,6 +945,10 @@ Return ONLY valid JSON, no markdown fences:
         return null
       }
       const data = await res.json()
+      if (data.stop_reason === 'max_tokens') {
+        console.error(`[writeArticle] TRUNCATED (stop_reason=max_tokens) site=${site.slug||site.domain||'?'} — skipping rather than publishing incomplete HTML`)
+        return null
+      }
       // For web search: get LAST text block (the article JSON after search results)
       // For regular: join all text blocks (single block anyway)
       const textBlocks = (data.content||[]).filter((b:any)=>b.type==='text').map((b:any)=>b.text)
