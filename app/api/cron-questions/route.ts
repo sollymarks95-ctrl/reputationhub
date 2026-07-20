@@ -263,12 +263,17 @@ export async function GET(req: NextRequest) {
   const db = getDb()
   const today = new Date().toISOString().split('T')[0]
 
+  // Jewish-sites-only, matching the article-generation cron — this job was
+  // still running across all 14 SITE_NICHES entries (11 finance + 3 Jewish)
+  // even after finance article generation was cut, quietly continuing to
+  // burn Claude + web-search tokens on finance sites daily.
+  const JEWISH_ONLY = ['jewish-news-now', 'jewish-property-report', 'aliya-today']
   const { data: sites } = await db
     .from('news_sites')
     .select('id, slug, name, tagline, domain')
     .eq('is_active', true)
     .eq('is_live', true)
-    .in('slug', targetSite ? [targetSite] : Object.keys(SITE_NICHES))
+    .in('slug', targetSite ? [targetSite] : JEWISH_ONLY)
 
   if (!sites?.length) return NextResponse.json({ error: 'No sites found', hint: `Looking for site: ${targetSite}` }, { headers: CORS })
 
