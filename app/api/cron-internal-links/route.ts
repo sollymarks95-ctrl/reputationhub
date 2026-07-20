@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
 
   const { data: sites } = await db.from('news_sites').select('id,slug,name,domain')
     .eq('is_active',true).eq('is_live',true).eq('noindex',false)
+    .in('slug', ['jewish-news-now','jewish-property-report','aliya-today'])  // Jewish sites only
 
   for (const site of (sites||[])) {
     const { data: articles } = await db.from('news_articles')

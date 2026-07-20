@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
 
   const db = getDb()
   const { data: sites } = await db.from('news_sites').select('id,slug').eq('is_live',true)
+    .in('slug', ['jewish-news-now','jewish-property-report','aliya-today'])  // Jewish sites only
   if (!sites) return NextResponse.json({error:'no sites'})
 
   let totalAlerts = 0
