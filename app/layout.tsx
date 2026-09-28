@@ -34,14 +34,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <meta name="theme-color" content="#0f172a" />
       </head>
-      <body style={{ margin: 0, padding: 0 }}>
+      <body style={{ margin: 0, padding: 0, background: '#fff' }}>
         {children}
         <Analytics />
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7010447785244398"
           crossOrigin="anonymous"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         <CookieConsent />
       </body>
