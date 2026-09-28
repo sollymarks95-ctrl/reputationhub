@@ -1,108 +1,55 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
+// ACTIVE DOMAINS — only the 3 Jewish sites + RepHuby intelligence portal.
+// All finance portals (nex-wire, finvexx, verivex, aurexhq, invexhuby,
+// bizplezx, signalixx, execvex, cryptoxos, fxvexx, tradehubiq, copyvexx,
+// expatinvestiq) have been removed. Requests to those domains will fall
+// through to the default Next.js 404 handler.
 const DOMAIN_MAP: Record<string, { route: string; slug: string }> = {
-  'nex-wire.com':             { route:'news',        slug:'global-trade-wire'    },
-  'www.nex-wire.com':         { route:'news',        slug:'global-trade-wire'    },
-  'finvexx.com':              { route:'finance',     slug:'finance-terminal'     },
-  'www.finvexx.com':          { route:'finance',     slug:'finance-terminal'     },
-  'bizplezx.com':             { route:'magazine',    slug:'business-pulse'       },
-  'www.bizplezx.com':         { route:'magazine',    slug:'business-pulse'       },
-  'aurexhq.com':              { route:'commodities', slug:'gold-markets-today'   },
-  'www.aurexhq.com':          { route:'commodities', slug:'gold-markets-today'   },
-  'verivex.co':               { route:'reviews-hub', slug:'trust-score'          },
-  'www.verivex.co':           { route:'reviews-hub', slug:'trust-score'          },
-  'invexhuby.com':            { route:'s', slug:'invest-data'        },
-  'www.invexhuby.com':        { route:'s', slug:'invest-data'        },
-  'signalixx.com':            { route:'s', slug:'market-radar'       },
-  'www.signalixx.com':        { route:'s', slug:'market-radar'       },
-  'execvex.com':              { route:'s', slug:'executive-network'  },
-  'www.execvex.com':          { route:'s', slug:'executive-network'  },
-  'cryptoxos.com':            { route:'s', slug:'crypto-hub'         },
-  'www.cryptoxos.com':        { route:'s', slug:'crypto-hub'         },
-  'fxvexx.com':               { route:'s', slug:'fx-vexx'            },
-  'www.fxvexx.com':           { route:'s', slug:'fx-vexx'            },
-  'tradehubiq.com':           { route:'s', slug:'trade-hub-iq'       },
-  'www.tradehubiq.com':       { route:'s', slug:'trade-hub-iq'       },
-  'jewishnewsnow.com':        { route:'s', slug:'jewish-news-now'    },
-  'www.jewishnewsnow.com':    { route:'s', slug:'jewish-news-now'    },
-  'jewishpropertyreport.com': { route:'s', slug:'jewish-property-report' },
-  'aliyatoday.com':           { route:'s', slug:'aliya-today'        },
-  'www.aliyatoday.com':       { route:'s', slug:'aliya-today'        },
-  'copyvexx.com':             { route:'copytrade', slug:'copy-trade-iq'     },
-  'www.copyvexx.com':         { route:'copytrade', slug:'copy-trade-iq'     },
-  'expatinvestiq.com':        { route:'expat',     slug:'expat-invest-iq'   },
-  'www.expatinvestiq.com':    { route:'expat',     slug:'expat-invest-iq'   },
+  'jewishnewsnow.com':             { route: 's', slug: 'jewish-news-now'      },
+  'www.jewishnewsnow.com':         { route: 's', slug: 'jewish-news-now'      },
+  'jewishpropertyreport.com':      { route: 's', slug: 'jewish-property-report' },
+  'www.jewishpropertyreport.com':  { route: 's', slug: 'jewish-property-report' },
+  'aliyatoday.com':                { route: 's', slug: 'aliya-today'          },
+  'www.aliyatoday.com':            { route: 's', slug: 'aliya-today'          },
+  'rephuby.com':                   { route: '',  slug: 'rephuby-intelligence' },
+  'www.rephuby.com':               { route: '',  slug: 'rephuby-intelligence' },
 }
 
 export function middleware(request: NextRequest) {
   const host     = (request.headers.get('host') || '').replace(':3000','')
   const url      = new URL(request.url)
   const pathname = url.pathname
-  const portal   = DOMAIN_MAP[host]
 
-  // jewishnewsnowcom.com is an accidental duplicate domain registration —
-  // it was serving rephuby.com's homepage with no canonical, causing
-  // "Duplicate without user-selected canonical" in GSC. 301 to the real domain.
-  if (host === 'jewishnewsnowcom.com' || host === 'www.jewishnewsnowcom.com') {
-    return NextResponse.redirect(`https://jewishnewsnow.com${pathname}${url.search}`, 301)
-  }
+  const portal = DOMAIN_MAP[host]
+  if (!portal) return NextResponse.next() // unknown host — pass through
 
-  if (!portal) return NextResponse.next()
-
-  // ── AliyaToday Separate Admin ───────────────────────────────────────────
-  // Must be checked after portal detection (so we know site slug) but BEFORE
-  // the generic /s rewrite — otherwise /admin gets caught by portal route='s'
-  if (portal.slug === 'aliya-today' && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
-    const adminRewrite = new URL(request.url)
-    adminRewrite.pathname = '/aliya-admin' + (pathname === '/admin' ? '' : pathname.slice('/admin'.length))
-    return NextResponse.rewrite(adminRewrite)
-  }
-  if (pathname.startsWith('/aliya-admin')) return NextResponse.next()
-
-  // Old category canonical bug: pages previously declared canonical as
-  // /category/[cat] (a non-existent route, only /article/[site]/category/[cat]
-  // exists). Google indexed that broken URL and now 404s on it. Redirect
-  // it to the real page so Google re-resolves cleanly.
-  const catMatch = pathname.match(/^\/category\/([^/]+)\/?$/)
-  if (catMatch) {
-    return NextResponse.redirect(`https://${host}/article/${portal.slug}/category/${catMatch[1]}`, 301)
-  }
-
+  // Let these paths through without rewriting
   if (
     pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next/') ||
     pathname.startsWith('/article/') ||
     pathname.startsWith('/search') ||
+    pathname.startsWith('/feed.xml') ||
+    pathname.startsWith('/sitemap') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname.startsWith('/legal/') ||
+    pathname.startsWith('/aliya-admin') ||
+    pathname.startsWith('/portal/') ||
     pathname.startsWith('/author/') ||
-    pathname.startsWith('/about') ||
-    pathname.startsWith('/podcasts') ||
-    pathname.startsWith('/legal') ||
-    pathname.startsWith('/portal') ||
-    pathname.startsWith('/calculators') ||
-    pathname.startsWith('/guides') ||
-    pathname.startsWith('/api/cron-monitor') ||
-    pathname === '/feed.xml' ||
-    pathname === '/rss.xml' ||
-    pathname === '/favicon.ico' ||
-    pathname === '/robots.txt' ||
-    pathname === '/sitemap.xml' ||
-    pathname === '/ads.txt' ||
-    pathname.endsWith('.svg') ||
-    pathname.endsWith('.png') ||
-    pathname.endsWith('.ico')
-  ) return NextResponse.next()
-
-  const rewriteUrl  = new URL(request.url)
-
-  if (portal.route === 's') {
-    if (pathname.startsWith('/s')) return NextResponse.next()
-    rewriteUrl.pathname = '/s'
-  } else {
-    if (pathname.startsWith(`/${portal.route}/`)) return NextResponse.next()
-    rewriteUrl.pathname = pathname === '/'
-      ? `/${portal.route}/${portal.slug}`
-      : `/${portal.route}/${portal.slug}${pathname}`
+    pathname.startsWith('/news/') ||
+    pathname.startsWith('/s/') ||
+    pathname.startsWith('/_next/')
+  ) {
+    const res = NextResponse.next()
+    res.headers.set('x-site-slug', portal.slug)
+    return res
   }
+
+  // Rewrite homepage + category pages to the site's template route
+  const rewriteUrl = new URL(request.url)
+  rewriteUrl.pathname = portal.route
+    ? `/${portal.route}/${portal.slug}${pathname === '/' ? '' : pathname}`
+    : `/${portal.slug}${pathname === '/' ? '' : pathname}`
 
   const res = NextResponse.rewrite(rewriteUrl)
   res.headers.set('x-custom-domain', 'true')

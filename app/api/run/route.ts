@@ -13,20 +13,15 @@ const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 // deliberately excluded — neither domain is actually live (is_live=false in
 // news_sites), so no generation runs are dispatched to them. cron-site also
 // independently checks is_live as a second guard before generating anything.
+// Active sites — only the 3 Jewish portals. All finance portals removed.
 const ALL_SITES = [
-  'global-trade-wire','finance-terminal','trust-score','gold-markets-today',
-  'invest-data','business-pulse','market-radar','executive-network',
-  'crypto-hub','fx-vexx','trade-hub-iq',
   'jewish-news-now','jewish-property-report','aliya-today',
-  'rephuby-intelligence',
 ]
 
-const JEWISH_SITES = ['jewish-news-now','jewish-property-report','aliya-today']
-const FINANCE_SITES = ALL_SITES.filter(s => !JEWISH_SITES.includes(s))
+const JEWISH_SITES = ALL_SITES
 function sitesForGroup(group: string) {
-  if (group === 'finance') return FINANCE_SITES
-  if (group === 'jewish')  return JEWISH_SITES
-  return ALL_SITES
+  // Finance group removed — all calls use the Jewish/all sites
+  return JEWISH_SITES
 }
 
 async function callCron(path: string, secret: string, timeoutMs = 60000) {

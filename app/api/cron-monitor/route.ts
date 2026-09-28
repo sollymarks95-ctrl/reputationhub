@@ -8,23 +8,10 @@ const db = createClient(
 
 const TARGET_PER_DAY = 30
 const SITES = [
-  { slug: 'global-trade-wire',      domain: 'nex-wire.com',              type: 'finance' },
-  { slug: 'finance-terminal',       domain: 'finvexx.com',               type: 'finance' },
-  { slug: 'trust-score',            domain: 'verivex.co',                type: 'finance' },
-  { slug: 'gold-markets-today',     domain: 'aurexhq.com',               type: 'finance' },
-  { slug: 'invest-data',            domain: 'invexhuby.com',             type: 'finance' },
-  { slug: 'business-pulse',         domain: 'bizplezx.com',              type: 'finance' },
-  { slug: 'market-radar',           domain: 'signalixx.com',             type: 'finance' },
-  { slug: 'executive-network',      domain: 'execvex.com',               type: 'finance' },
-  { slug: 'crypto-hub',             domain: 'cryptoxos.com',             type: 'finance' },
-  { slug: 'fx-vexx',                domain: 'fxvexx.com',                type: 'finance' },
-  { slug: 'trade-hub-iq',           domain: 'tradehubiq.com',            type: 'finance' },
-  { slug: 'copy-trade-iq',       domain: 'copyvexx.com',      type: 'finance' },
-  { slug: 'expat-invest-iq',     domain: 'expatinvestiq.com',    type: 'finance' },
-  { slug: 'aliya-today',            domain: 'aliyatoday.com',            type: 'jewish' },
-  { slug: 'jewish-news-now',        domain: 'jewishnewsnow.com',         type: 'jewish' },
-  { slug: 'jewish-property-report', domain: 'jewishpropertyreport.com',  type: 'jewish' },
-  { slug: 'rephuby-intelligence',   domain: 'rephuby.com',               type: 'rephuby' },
+  { slug: 'aliya-today',            domain: 'aliyatoday.com',           type: 'jewish'  },
+  { slug: 'jewish-news-now',        domain: 'jewishnewsnow.com',        type: 'jewish'  },
+  { slug: 'jewish-property-report', domain: 'jewishpropertyreport.com', type: 'jewish'  },
+  { slug: 'rephuby-intelligence',   domain: 'rephuby.com',              type: 'rephuby' },
 ]
 
 export async function GET(req: NextRequest) {
@@ -88,7 +75,7 @@ export async function GET(req: NextRequest) {
     generated: new Date().toISOString(),
     summary: {
       totalToday,
-      targetTotal: TARGET_PER_DAY * SITES.length,
+      targetTotal: TARGET_PER_DAY * 3,
       pctOfTarget: Math.round(totalToday / (TARGET_PER_DAY * SITES.length) * 100),
       sitesOnTarget,
       sitesWithArticles,
