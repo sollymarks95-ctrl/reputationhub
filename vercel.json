@@ -39,26 +39,18 @@
     }
   },
   "crons": [
-    {
-      "path": "/api/run?job=articles&group=jewish&batch=0",
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/run?job=articles&group=jewish&batch=1",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/run?job=articles&group=jewish&batch=2",
-      "schedule": "0 13 * * *"
-    },
-    {
-      "path": "/api/run?job=articles&group=jewish&batch=3",
-      "schedule": "0 18 * * *"
-    },
-    {
-      "path": "/api/run?job=articles&group=jewish&batch=4",
-      "schedule": "0 22 * * *"
-    },
+    { "path": "/api/run?job=articles&group=jewish&batch=0",  "schedule": "0 0 * * *"  },
+    { "path": "/api/run?job=articles&group=jewish&batch=1",  "schedule": "0 2 * * *"  },
+    { "path": "/api/run?job=articles&group=jewish&batch=2",  "schedule": "0 4 * * *"  },
+    { "path": "/api/run?job=articles&group=jewish&batch=3",  "schedule": "0 6 * * *"  },
+    { "path": "/api/run?job=articles&group=jewish&batch=4",  "schedule": "0 8 * * *"  },
+    { "path": "/api/run?job=articles&group=jewish&batch=5",  "schedule": "0 10 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=6",  "schedule": "0 12 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=7",  "schedule": "0 14 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=8",  "schedule": "0 16 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=9",  "schedule": "0 18 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=10", "schedule": "0 20 * * *" },
+    { "path": "/api/run?job=articles&group=jewish&batch=11", "schedule": "0 22 * * *" },
     {
       "path": "/api/run?job=questions",
       "schedule": "0 2 * * *"

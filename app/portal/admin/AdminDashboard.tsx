@@ -687,6 +687,8 @@ export default function AdminDashboard({
   const [filterClient, setFilterClient] = useState('')
   const [cronRunning, setCronRunning] = useState(false)
   const [cronMsg, setCronMsg] = useState('')
+  const [backfillRunning, setBackfillRunning] = useState(false)
+  const [backfillMsg, setBackfillMsg] = useState('')
   const [pendingReviews, setPendingReviews] = useState<any[]>(initialPending)
   const [selectedClient, setSelectedClient] = useState<string|null>(null)
   const [showOnboard, setShowOnboard] = useState(false)
@@ -786,6 +788,23 @@ export default function AdminDashboard({
     } catch { setCronMsg('❌ Failed to trigger') } finally { setCronRunning(false) }
   }
 
+  const runBackfill = async (batches = 4) => {
+    setBackfillRunning(true); setBackfillMsg('')
+    try {
+      const r = await fetch('/api/admin/backfill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batches })
+      })
+      const d = await r.json()
+      if (d.ok) {
+        setBackfillMsg(`🚀 Backfill fired — ${d.fired} batch jobs → ~${d.estimatedArticles} articles generating. Check sites in 10-15 min.`)
+      } else {
+        setBackfillMsg(`❌ ${d.error || 'Backfill failed'}`)
+      }
+    } catch { setBackfillMsg('❌ Backfill request failed') } finally { setBackfillRunning(false) }
+  }
+
   const approveReview = async (id:string, status:'approved'|'rejected') => {
     await fetch('/api/admin/moderate-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})})
     setPendingReviews(prev=>prev.filter(r=>r.id!==id))
@@ -869,12 +888,14 @@ export default function AdminDashboard({
                 <div className="syne" style={{fontSize:22,fontWeight:900}}>Business Overview</div>
                 <div style={{fontSize:12,color:'#475569',marginTop:2}}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
               </div>
-              <div style={{display:'flex',gap:8}}>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 <button className="btn b-green" onClick={runCron} disabled={cronRunning}>{cronRunning?<><Spinner/> Running…</>:<>🗞️ Generate Articles Now</>}</button>
+                <button className="btn" style={{background:'#7C3AED',color:'#fff',border:'none'}} onClick={()=>runBackfill(4)} disabled={backfillRunning}>{backfillRunning?<><Spinner/> Backfilling…</>:<>⚡ Backfill All Sites (60 articles)</>}</button>
                 <button className="btn b-ghost" onClick={()=>setTab('clients')}>➕ New Client</button>
               </div>
             </div>
-            {cronMsg&&<div style={{marginBottom:16,padding:'8px 14px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:8,fontSize:12,color:'#10b981'}}>{cronMsg}</div>}
+            {cronMsg&&<div style={{marginBottom:8,padding:'8px 14px',background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',borderRadius:8,fontSize:12,color:'#10b981'}}>{cronMsg}</div>}
+            {backfillMsg&&<div style={{marginBottom:16,padding:'8px 14px',background:'rgba(124,58,237,0.1)',border:'1px solid rgba(124,58,237,0.3)',borderRadius:8,fontSize:12,color:'#a78bfa'}}>{backfillMsg}</div>}
 
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
               <KPI icon="👥" value={clients.filter((c:any)=>c.is_active).length} label="Active Clients" color="#EF4444"/>
