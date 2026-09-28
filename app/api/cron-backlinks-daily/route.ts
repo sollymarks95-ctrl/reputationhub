@@ -316,7 +316,7 @@ export async function GET(req: NextRequest) {
 
   const devToKey         = km.DEV_TO_API_KEY        || process.env.DEV_TO_API_KEY        || 'vzF7cB3o6Tix2orBsaTyyy6t'
   const hashnodeToken    = km.HASHNODE_TOKEN         || process.env.HASHNODE_TOKEN         || 'ee9963f6-3aa4-4e4a-92c3-6cace69e400b'
-  const hashnodePubId    = km.HASHNODE_PUBLICATION_ID || process.env.HASHNODE_PUBLICATION_ID || ''
+  const hashnodePubId    = km.HASHNODE_PUBLICATION_ID || process.env.HASHNODE_PUBLICATION_ID || '6a2432f8e769bc0019df8a84'
   const mediumToken      = km.MEDIUM_TOKEN           || process.env.MEDIUM_TOKEN           || ''
   const mediumUserId     = km.MEDIUM_USER_ID         || process.env.MEDIUM_USER_ID         || ''
   const linkedInToken    = km.LINKEDIN_ACCESS_TOKEN  || process.env.LINKEDIN_ACCESS_TOKEN  || ''
