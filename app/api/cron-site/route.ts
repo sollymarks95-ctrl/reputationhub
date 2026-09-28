@@ -629,6 +629,7 @@ QUALITY REQUIREMENTS:
 - At least one table or checklist where the topic supports it
 - Zero corporate speak, zero finance-report tone — warm and direct throughout
 - End the body with this exact disclaimer paragraph, verbatim: "This guide is for general information only. Aliyah rules, benefits, and procedures can change. Always verify details with the Jewish Agency, Misrad HaAliyah VeHaKlita, Nefesh B'Nefesh, Gov.il, or the relevant Israeli authority."
+- CROSS-SITE LINKS (mandatory — 1-2 per article): If the article covers housing, property, or neighbourhoods, include a natural sentence linking to JewishPropertyReport.com e.g. <a href="https://jewishpropertyreport.com">JewishPropertyReport.com</a> for Israeli property market data. If it covers news or current events, link to JewishNewsNow.com. Make the link natural, not forced — only add it where genuinely relevant.
 
 STEP 3: Return ONLY valid JSON, no preamble, no fences:
 {"title":"Question-based or keyword-first title","excerpt":"Under 155 chars, factual, with the primary keyword","body":"<h2>Quick Answer</h2><p>...</p><h2>Key Takeaways</h2><ul>...</ul>...<h2>Frequently Asked Questions</h2><h3>Natural question?</h3><p>80+ word answer...</p>...","category":"Process","tags":["aliyah 2026","israel","new olim","nefesh bnefesh","misrad haklita"]}

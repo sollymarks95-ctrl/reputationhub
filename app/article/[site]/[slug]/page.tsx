@@ -86,7 +86,9 @@ export async function generateMetadata({ params }: { params: Promise<{ site: str
     description: article.excerpt,
     keywords: allKeywords,
     authors: [{ name: isJewishSite2 ? 'Solly Marks' : (article.author_name || site.name) }],
-    robots: isNoindex ? 'noindex, nofollow' : 'index, follow',
+    robots: isNoindex
+      ? 'noindex, nofollow'
+      : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
     alternates: { 
       canonical: canonicalUrl,
       types: { 'application/rss+xml': `${BASE}/feed.xml` }
@@ -382,6 +384,40 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
         { '@type': 'ListItem', position: 2, name: article.category || 'Markets', item: `${BASE}/category/${encodeURIComponent((article.category||'Markets').toLowerCase())}` },
         { '@type': 'ListItem', position: 3, name: article.title, item: canonicalUrl },
       ]
+    },
+    // WebSite schema — enables Google sitelinks search + signals site identity to AI engines
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${BASE}/#website`,
+      name: site.name,
+      url: BASE,
+      description: site.description || `${site.name} — authoritative guides and news`,
+      inLanguage: 'en',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/search?site=${siteSlug}&q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+      ...(isJewishSite ? {
+        // Cross-site network schema — tells AI engines these 3 sites are authoritative
+        // sources from the same publisher covering the Jewish/aliyah space
+        sameAs: [
+          'https://aliyatoday.com',
+          'https://jewishnewsnow.com',
+          'https://jewishpropertyreport.com',
+        ],
+        publisher: {
+          '@type': 'Person',
+          name: 'Solly Marks',
+          url: 'https://aliyatoday.com/author/solly-marks',
+          sameAs: [
+            'https://aliyatoday.com',
+            'https://jewishnewsnow.com',
+            'https://jewishpropertyreport.com',
+          ],
+        },
+      } : {}),
     },
   ]
 

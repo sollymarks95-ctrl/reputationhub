@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-
 export const dynamic    = 'force-dynamic'
 export const maxDuration = 300
 const CORS = { 'Access-Control-Allow-Origin': '*' }
@@ -13,6 +12,7 @@ function getDb() {
   )
 }
 
+// ── Within-site internal links ────────────────────────────────────────────────
 function injectInternalLinks(body: string, currentSlug: string, allArticles: any[], domain: string, siteSlug: string): string {
   const candidates = allArticles.filter(a => a.slug !== currentSlug).sort(() => Math.random() - 0.5).slice(0, 20)
   let injectedCount = 0
@@ -23,7 +23,7 @@ function injectInternalLinks(body: string, currentSlug: string, allArticles: any
     const words = candidate.title.toLowerCase().replace(/[^a-z\s]/g,'').split(' ').filter((w:string)=>w.length>4)
     for (const word of words) {
       const url = `https://${domain}/article/${siteSlug}/${candidate.slug}`
-      const rx  = new RegExp(`(?<![">])(\\b${word}\\b)(?![^<]*>)`, 'i')
+      const rx  = new RegExp(`(?<!["">])(\\b${word}\\b)(?![^<]*>)`, 'i')
       if (rx.test(updated) && !updated.includes(url)) {
         updated = updated.replace(rx, `<a href="${url}" title="${candidate.title.replace(/"/g,"'")}">${word}</a>`)
         injectedCount++
@@ -39,6 +39,67 @@ function injectInternalLinks(body: string, currentSlug: string, allArticles: any
   return updated
 }
 
+// ── Cross-site network links ──────────────────────────────────────────────────
+// The 3 Jewish sites link to each other on relevant topics.
+// This builds topical authority across the network and passes link equity
+// between domains — exactly what Google and AI engines use to establish
+// an authoritative publisher cluster.
+const CROSS_NETWORK: Record<string, { slug: string; domain: string; label: string; topics: string[] }[]> = {
+  'aliya-today': [
+    { slug: 'jewish-property-report', domain: 'jewishpropertyreport.com', label: 'Jewish Property Report',
+      topics: ['property','apartment','housing','real estate','rent','buy','neighbourhood','tel aviv','jerusalem','haifa','netanya'] },
+    { slug: 'jewish-news-now', domain: 'jewishnewsnow.com', label: 'Jewish News Now',
+      topics: ['news','community','israel','politics','security','economy','ceasefire','antisemitism'] },
+  ],
+  'jewish-property-report': [
+    { slug: 'aliya-today', domain: 'aliyatoday.com', label: 'AliyaToday',
+      topics: ['aliyah','olim','immigration','moving','absorption','nbn','nefesh','ulpan','sal klita','new immigrant'] },
+    { slug: 'jewish-news-now', domain: 'jewishnewsnow.com', label: 'Jewish News Now',
+      topics: ['news','economy','government','market','regulation','investment','israel'] },
+  ],
+  'jewish-news-now': [
+    { slug: 'aliya-today', domain: 'aliyatoday.com', label: 'AliyaToday',
+      topics: ['aliyah','olim','immigration','moving to israel','make aliyah','new olim'] },
+    { slug: 'jewish-property-report', domain: 'jewishpropertyreport.com', label: 'Jewish Property Report',
+      topics: ['property','apartment','real estate','housing market','investment','tel aviv','jerusalem'] },
+  ],
+}
+
+function injectCrossSiteLinks(
+  body: string,
+  siteSlug: string,
+  crossArticles: Record<string, { slug: string; title: string }[]>
+): string {
+  const peers = CROSS_NETWORK[siteSlug] || []
+  let updated = body
+  let added = 0
+
+  for (const peer of peers) {
+    if (added >= 2) break
+    const peerArts = crossArticles[peer.slug] || []
+    if (peerArts.length === 0) continue
+
+    for (const topic of peer.topics) {
+      if (!body.toLowerCase().includes(topic)) continue
+      const match = peerArts.find(a => a.title.toLowerCase().includes(topic)) || peerArts[0]
+      if (!match) continue
+      const url = `https://${peer.domain}/article/${peer.slug}/${match.slug}`
+      if (updated.includes(url)) continue
+
+      // Insert a natural contextual callout before the last paragraph
+      const callout = `\n<p><em>Further reading:</em> <a href="${url}" title="${match.title}" rel="dofollow">${match.title}</a> — ${peer.label}.</p>`
+      const lastP = updated.lastIndexOf('</p>')
+      updated = lastP > -1
+        ? updated.slice(0, lastP + 4) + callout + updated.slice(lastP + 4)
+        : updated + callout
+      added++
+      break
+    }
+  }
+  return updated
+}
+
+// ── Main handler ──────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   if (searchParams.get('secret') !== process.env.CRON_SECRET)
@@ -48,11 +109,26 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '100')
   let updated = 0
 
-  const { data: sites } = await db.from('news_sites').select('id,slug,name,domain')
-    .eq('is_active',true).eq('is_live',true).eq('noindex',false)
-    .in('slug', ['jewish-news-now','jewish-property-report','aliya-today'])  // Jewish sites only
+  const ACTIVE_SITES = ['jewish-news-now','jewish-property-report','aliya-today']
 
-  for (const site of (sites||[])) {
+  const { data: sites } = await db.from('news_sites').select('id,slug,name,domain')
+    .eq('is_active',true).eq('is_live',true)
+    .in('slug', ACTIVE_SITES)
+
+  // Pre-fetch recent articles from ALL 3 sites for cross-linking
+  const crossArticles: Record<string, { slug: string; title: string }[]> = {}
+  for (const site of (sites || [])) {
+    const { data } = await db.from('news_articles')
+      .select('slug,title')
+      .eq('news_site_id', site.id)
+      .eq('status','published')
+      .order('published_at', { ascending: false })
+      .limit(50)
+    crossArticles[site.slug] = data || []
+  }
+
+  for (const site of (sites || [])) {
+    // Articles not yet internally linked
     const { data: articles } = await db.from('news_articles')
       .select('id,slug,title,body,category')
       .eq('news_site_id', site.id).eq('status','published')
@@ -64,12 +140,36 @@ export async function GET(req: NextRequest) {
       .eq('status','published').limit(300)
 
     for (const art of (articles||[])) {
-      const newBody = injectInternalLinks(art.body||'', art.slug, allArts||[], site.domain, site.slug)
+      // 1. Within-site links
+      let newBody = injectInternalLinks(art.body||'', art.slug, allArts||[], site.domain, site.slug)
+      // 2. Cross-site links to the other 2 Jewish portals
+      newBody = injectCrossSiteLinks(newBody, site.slug, crossArticles)
+
       if (newBody !== art.body) {
         await db.from('news_articles').update({body:newBody}).eq('id',art.id)
         updated++
       }
     }
+
+    // Also update articles that already have internal links but NOT cross-site links
+    // (so existing articles get cross-linked too)
+    const peerDomains = (CROSS_NETWORK[site.slug] || []).map(p => p.domain)
+    for (const peerDomain of peerDomains) {
+      const { data: noCrossLinks } = await db.from('news_articles')
+        .select('id,slug,title,body')
+        .eq('news_site_id', site.id).eq('status','published')
+        .not('body','ilike',`%href="https://${peerDomain}%`)
+        .order('published_at',{ascending:false}).limit(50)
+
+      for (const art of (noCrossLinks||[])) {
+        const newBody = injectCrossSiteLinks(art.body||'', site.slug, crossArticles)
+        if (newBody !== art.body) {
+          await db.from('news_articles').update({body:newBody}).eq('id',art.id)
+          updated++
+        }
+      }
+    }
   }
+
   return NextResponse.json({ ok:true, updated }, { headers: CORS })
 }
