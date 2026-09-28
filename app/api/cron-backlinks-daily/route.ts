@@ -67,6 +67,9 @@ const RSS_PINGS = [
   'https://newsgator.com/Opml/Subscriptions.aspx',
   'https://ping.feedburner.com/v1',
   'https://services.newsgator.com/ngws/xmlrpcping.aspx',
+  // Jewish / Israel niche aggregators
+  'https://www.myjewishlearning.com/ping/',
+  'https://jewishblogsearch.com/ping/',
 ]
 
 async function massRSSPing(sitemapUrl: string, feedUrl: string): Promise<number> {
@@ -190,7 +193,99 @@ async function publishToMedium(article: any, site: any, domain: string, token: s
   }
 }
 
-// ─── Helper: minimal HTML → Markdown ─────────────────────────────────────────
+// ─── LAYER 6: LinkedIn Articles — DA 99, huge authority signal ───────────────
+// Posts article summary to LinkedIn with canonical link back to site.
+// LinkedIn articles with canonical URLs pass full link equity.
+// Setup: https://www.linkedin.com/developers/apps → create app → get access token
+async function publishToLinkedIn(article: any, site: any, domain: string, token: string, orgId: string): Promise<any> {
+  if (!token || !orgId) return {
+    skipped: true,
+    reason: 'No LINKEDIN_ACCESS_TOKEN or LINKEDIN_ORG_ID',
+    setup: 'https://www.linkedin.com/developers/apps — create app, get token',
+    da: 99,
+  }
+
+  const canonical = `https://${domain}/article/${site.slug}/${article.slug}`
+  const excerpt   = (article.excerpt || article.title).slice(0, 200)
+
+  // LinkedIn UGC post with article link
+  const payload = {
+    author: `urn:li:organization:${orgId}`,
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': {
+        shareCommentary: {
+          text: `${article.title}\n\n${excerpt}\n\nRead the full guide →`,
+        },
+        shareMediaCategory: 'ARTICLE',
+        media: [{
+          status: 'READY',
+          description: { text: excerpt },
+          originalUrl: canonical,
+          title: { text: article.title },
+        }],
+      },
+    },
+    visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+  }
+
+  try {
+    const r = await fetch('https://api.linkedin.com/v2/ugcPosts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'X-Restli-Protocol-Version': '2.0.0',
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000),
+    })
+    const d = await r.json()
+    return { status: r.status, id: d.id, canonical, da: 99 }
+  } catch (e: any) {
+    return { status: 0, error: e.message }
+  }
+}
+
+// ─── LAYER 7: Substack Notes — DA 81, growing niche platform ─────────────────
+// Posts a short note with link — Substack DA 81, strong in Jewish/news niches
+async function postToSubstack(article: any, site: any, domain: string, cookie: string): Promise<any> {
+  if (!cookie) return {
+    skipped: true,
+    reason: 'No SUBSTACK_COOKIE set',
+    setup: 'Log into Substack in browser → DevTools → copy connect.sid cookie value',
+    da: 81,
+  }
+
+  const canonical = `https://${domain}/article/${site.slug}/${article.slug}`
+
+  try {
+    const r = await fetch('https://substack.com/api/v1/comment/feed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: `connect.sid=${cookie}`,
+      },
+      body: JSON.stringify({
+        type: 'feed',
+        body: {
+          type: 'doc',
+          content: [{
+            type: 'paragraph',
+            content: [{ type: 'text', text: `${article.title} — ${article.excerpt || ''} ` }, {
+              type: 'text', marks: [{ type: 'link', attrs: { href: canonical } }],
+              text: canonical,
+            }],
+          }],
+        },
+      }),
+      signal: AbortSignal.timeout(15000),
+    })
+    return { status: r.status, canonical, da: 81 }
+  } catch (e: any) {
+    return { status: 0, error: e.message }
+  }
+}
 function htmlToMarkdown(html: string): string {
   return html
     .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '\n## $1\n')
@@ -224,6 +319,9 @@ export async function GET(req: NextRequest) {
   const hashnodePubId    = km.HASHNODE_PUBLICATION_ID || process.env.HASHNODE_PUBLICATION_ID || ''
   const mediumToken      = km.MEDIUM_TOKEN           || process.env.MEDIUM_TOKEN           || ''
   const mediumUserId     = km.MEDIUM_USER_ID         || process.env.MEDIUM_USER_ID         || ''
+  const linkedInToken    = km.LINKEDIN_ACCESS_TOKEN  || process.env.LINKEDIN_ACCESS_TOKEN  || ''
+  const linkedInOrgId    = km.LINKEDIN_ORG_ID        || process.env.LINKEDIN_ORG_ID        || ''
+  const substackCookie   = km.SUBSTACK_COOKIE        || process.env.SUBSTACK_COOKIE        || ''
 
   const { data: sites } = await db
     .from('news_sites').select('id,slug,name,tagline,domain')
@@ -282,6 +380,20 @@ export async function GET(req: NextRequest) {
       siteReport.layers.medium = { skipped: true, setup_url: 'https://medium.com/me/settings → Integration tokens', da: 96 }
     }
 
+    // LAYER 6: LinkedIn (if token + org ID set)
+    if (topArt && linkedInToken && linkedInOrgId) {
+      siteReport.layers.linkedin = await publishToLinkedIn(topArt, site, domain, linkedInToken, linkedInOrgId)
+    } else {
+      siteReport.layers.linkedin = { skipped: true, setup: 'https://www.linkedin.com/developers/apps', da: 99 }
+    }
+
+    // LAYER 7: Substack Notes (if cookie set)
+    if (topArt && substackCookie) {
+      siteReport.layers.substack = await postToSubstack(topArt, site, domain, substackCookie)
+    } else {
+      siteReport.layers.substack = { skipped: true, setup: 'Set SUBSTACK_COOKIE env var', da: 81 }
+    }
+
     // Mark article as syndicated
     if (topArt) {
       const currentTags = topArt.tags || []
@@ -303,9 +415,11 @@ export async function GET(req: NextRequest) {
     hashnode_published: report.sites.filter((s:any) => s.layers.hashnode?.status === 200).length,
     medium_published: report.sites.filter((s:any) => s.layers.medium?.status === 201).length,
     setup_needed: [
-      !devToKey && 'DEV_TO_API_KEY (free at dev.to) — DA 85 backlinks',
-      !hashnodeToken && 'HASHNODE_TOKEN + HASHNODE_PUBLICATION_ID (free) — DA 78 backlinks',
-      !mediumToken && 'MEDIUM_TOKEN + MEDIUM_USER_ID (free) — DA 96 backlinks',
+      !devToKey      && 'DEV_TO_API_KEY — free at dev.to/settings/extensions → DA 85 backlinks',
+      !hashnodeToken && 'HASHNODE_TOKEN + HASHNODE_PUBLICATION_ID — free at hashnode.com → DA 78 backlinks',
+      !mediumToken   && 'MEDIUM_TOKEN + MEDIUM_USER_ID — free at medium.com/me/settings → DA 96 backlinks',
+      !linkedInToken && 'LINKEDIN_ACCESS_TOKEN + LINKEDIN_ORG_ID — linkedin.com/developers → DA 99 backlinks',
+      !substackCookie && 'SUBSTACK_COOKIE — your Substack connect.sid cookie → DA 81 backlinks',
     ].filter(Boolean),
   }
 
