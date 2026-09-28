@@ -45,24 +45,19 @@ export function middleware(request: NextRequest) {
     return res
   }
 
-  // Pass slug as REQUEST header so the page can read it via headers().
-  // NextResponse.rewrite() with { request: { headers } } injects headers
-  // into the rewritten request — this is the only reliable way to pass
-  // data from middleware to a server component.
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-site-slug', portal.slug)
-  requestHeaders.set('x-custom-domain', 'true')
-
   const rewriteUrl = new URL(request.url)
   if (portal.route === 's') {
+    // Encode the site slug as a search param — more reliable than request headers.
+    // The browser URL stays clean (server-side rewrite). Page reads ?_site=slug.
     rewriteUrl.pathname = '/s'
+    rewriteUrl.searchParams.set('_site', portal.slug)
   } else {
     rewriteUrl.pathname = portal.route
       ? `/${portal.route}/${portal.slug}${pathname === '/' ? '' : pathname}`
       : `/${portal.slug}${pathname === '/' ? '' : pathname}`
   }
 
-  return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+  return NextResponse.rewrite(rewriteUrl)
 }
 
 export const config = {
