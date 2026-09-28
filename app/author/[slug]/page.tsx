@@ -2,10 +2,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
-const db = createClient(
+function getDb() { return createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+) }
 
 const DOMAIN_MAP: Record<string,string> = {
   'global-trade-wire':     'https://nex-wire.com',
@@ -53,7 +53,7 @@ const AUTHORS: Record<string, {
 
 async function getSiteFromRequest(): Promise<{ siteSlug: string; domain: string } | null> {
   // Get all active sites to determine which site is serving this request
-  const { data } = await db.from('news_sites').select('slug, domain').eq('status', 'active').limit(50)
+  const { data } = await getDb().from('news_sites').select('slug, domain').eq('status', 'active').limit(50)
   return null // site determined by domain header
 }
 

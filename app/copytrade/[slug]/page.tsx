@@ -5,10 +5,10 @@ import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
-const db = createClient(
+function getDb() { return createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+) }
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

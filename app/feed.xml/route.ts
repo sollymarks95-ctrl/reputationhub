@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const db = createClient(
+function getDb() { return createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+) }
 
 const SITE_META: Record<string, { name: string; domain: string; desc: string; category: string }> = {
   'global-trade-wire':     { name:'Nex-Wire', domain:'nex-wire.com', desc:'Global trade intelligence, market analysis and financial news', category:'Finance' },
@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
   // ── Resolve SearchAPI key ──────────────────────────────────────────────────
   let apiKey = process.env.SEARCHAPI_KEY || process.env.SERPAPI_KEY || ''
   if (!apiKey) {
-    const { data } = await db.from('system_api_keys')
+    const { data } = await getDb().from('system_api_keys')
       .select('key_value')
       .in('key_name', ['SEARCHAPI_KEY', 'SERPAPI_KEY'])
       .eq('is_active', true)
@@ -179,11 +179,11 @@ export async function GET(req: NextRequest) {
   }
 
   // ── Fetch articles (last 7 days) + real search queries in parallel ─────────
-  const { data: siteRow } = await db.from('news_sites').select('id').eq('slug', siteSlug).single()
+  const { data: siteRow } = await getDb().from('news_sites').select('id').eq('slug', siteSlug).single()
   const since7d = new Date(Date.now() - 7 * 86_400_000).toISOString()
 
   const [{ data: articles }, realQueries] = await Promise.all([
-    db.from('news_articles')
+    getDb().from('news_articles')
       .select('id, title, slug, excerpt, body, published_at, category, tags, author_name, views')
       .eq('status', 'published')
       .eq('news_site_id', siteRow?.id)
@@ -208,7 +208,7 @@ export async function GET(req: NextRequest) {
   // Every API call gets a DIFFERENT article — never repeats until the pool is
   // exhausted, then resets. Sent article IDs are stored in feed_sent_articles.
   // We read the sent list, skip those, serve the next best one, then mark it.
-  const { data: sentRows } = await db.from('feed_sent_articles')
+  const { data: sentRows } = await getDb().from('feed_sent_articles')
     .select('article_id')
     .eq('site_slug', siteSlug)
     .order('sent_at', { ascending: false })
@@ -221,7 +221,7 @@ export async function GET(req: NextRequest) {
 
   if (!pick && scored.length > 0) {
     // Pool exhausted — reset and start again from the top
-    await db.from('feed_sent_articles').delete().eq('site_slug', siteSlug)
+    await getDb().from('feed_sent_articles').delete().eq('site_slug', siteSlug)
     pick = scored[0]
   }
 
@@ -229,7 +229,7 @@ export async function GET(req: NextRequest) {
 
   // Mark as sent
   if (pick) {
-    await db.from('feed_sent_articles').insert({
+    await getDb().from('feed_sent_articles').insert({
       site_slug: siteSlug,
       article_id: pick.id,
       article_slug: pick.slug,

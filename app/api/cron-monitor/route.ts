@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const db = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getDb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 const TARGET_PER_DAY = 30
 const SITES = [
@@ -29,7 +31,7 @@ export async function GET(req: NextRequest) {
   const todayStart = new Date(); todayStart.setUTCHours(0, 0, 0, 0)
   const weekStart = new Date(Date.now() - 7 * 86400000)
 
-  const { data: siteRows } = await db.from('news_sites')
+  const { data: siteRows } = await getDb().from('news_sites')
     .select('id, slug')
     .in('slug', SITES.map(s => s.slug))
   const idBySlug: Record<string, string> = {}
@@ -40,13 +42,13 @@ export async function GET(req: NextRequest) {
     if (!siteId) return { domain: s.domain, type: s.type, today: 0, avg7d: 0, target: TARGET_PER_DAY, status: '❓', avgWordCount: 0, error: 'site not found in news_sites table' }
 
     const [{ count: today }, { count: week }, { data: latest }] = await Promise.all([
-      db.from('news_articles').select('id', { count: 'exact', head: true })
+      getDb().from('news_articles').select('id', { count: 'exact', head: true })
         .eq('news_site_id', siteId).eq('status', 'published')
         .gte('published_at', todayStart.toISOString()),
-      db.from('news_articles').select('id', { count: 'exact', head: true })
+      getDb().from('news_articles').select('id', { count: 'exact', head: true })
         .eq('news_site_id', siteId).eq('status', 'published')
         .gte('published_at', weekStart.toISOString()),
-      db.from('news_articles').select('body')
+      getDb().from('news_articles').select('body')
         .eq('news_site_id', siteId).eq('status', 'published')
         .order('published_at', { ascending: false }).limit(1),
     ])

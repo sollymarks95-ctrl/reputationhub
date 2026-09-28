@@ -2,10 +2,10 @@ import { headers } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-const db = createClient(
+function getDb() { return createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+) }
 
 const SITE_ABOUT: Record<string, {
   name: string; domain: string; tagline: string; mission: string;
@@ -62,11 +62,11 @@ export default async function AboutPage() {
   const base = `https://${site.domain}`
 
   // Article count
-  const { count } = await db.from('news_articles')
+  const { count } = await getDb().from('news_articles')
     .select('*', { count:'exact', head:true })
     .eq('status','published')
     .eq('news_site_id',
-      (await db.from('news_sites').select('id').eq('slug', siteSlug).single()).data?.id || ''
+      (await getDb().from('news_sites').select('id').eq('slug', siteSlug).single()).data?.id || ''
     )
 
   const orgSchema = {
