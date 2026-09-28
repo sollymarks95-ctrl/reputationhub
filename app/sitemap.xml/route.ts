@@ -8,24 +8,77 @@ const ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 const REPHUBY_ID = '35579979-ca5e-476f-bd75-9be5910fe29b'
 
-const xe = (s: string) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-const u  = (loc: string, freq: string, pri: string, lm?: string) =>
-  `  <url>\n    <loc>${xe(loc)}</loc>${lm?`\n    <lastmod>${lm}</lastmod>`:''}\n    <changefreq>${freq}</changefreq>\n    <priority>${pri}</priority>\n  </url>`
+const xe = (s: string) => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+
+/** Standard sitemap <url> entry */
+function u(loc: string, freq: string, pri: string, lm?: string) {
+  return `  <url>
+    <loc>${xe(loc)}</loc>${lm ? `\n    <lastmod>${lm}</lastmod>` : ''}
+    <changefreq>${freq}</changefreq>
+    <priority>${pri}</priority>
+  </url>`
+}
+
+/**
+ * Google News sitemap entry — gets new articles indexed within minutes.
+ * Only valid for articles published within the last 2 days.
+ */
+function newsEntry(
+  loc: string,
+  title: string,
+  pubIso: string,
+  pubName: string,
+  category: string,
+  tags: string[] = []
+) {
+  const d = new Date(pubIso)
+  const iso = isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString()
+  const lm  = iso.split('T')[0]
+  const kw  = [category, ...tags].filter(Boolean).slice(0, 10).join(', ')
+  return `  <url>
+    <loc>${xe(loc)}</loc>
+    <lastmod>${lm}</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.9</priority>
+    <news:news>
+      <news:publication>
+        <news:name>${xe(pubName)}</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${iso}</news:publication_date>
+      <news:title>${xe(title)}</news:title>
+      <news:keywords>${xe(kw)}</news:keywords>
+    </news:news>
+  </url>`
+}
 
 const HEADERS = {
   'Content-Type': 'application/xml; charset=utf-8',
-  'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+  'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=86400',
+}
+
+const JEWISH_SITES: Record<string, { name: string; slug: string }> = {
+  'aliyatoday.com':           { name: 'Aliya Today', slug: 'aliya-today' },
+  'jewishnewsnow.com':        { name: 'Jewish News Now', slug: 'jewish-news-now' },
+  'jewishpropertyreport.com': { name: 'Jewish Property Report', slug: 'jewish-property-report' },
 }
 
 export async function GET(req: NextRequest) {
-  const host  = (req.headers.get('host') || '').replace(/^www\./, '').split(':')[0]
+  const host  = (req.headers.get('x-forwarded-host') || req.headers.get('host') || '')
+    .replace(/^www\./, '').replace(/:\d+$/, '')
   const base  = `https://${host}`
   const today = new Date().toISOString().split('T')[0]
-  const db    = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||DBURL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||ANON)
+  const nowMs = Date.now()
+  const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
+
+  const db    = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || DBURL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ANON
+  )
   const empty = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`
 
   try {
-    // ── rephuby.com — blog URL format ───────────────────────────────────────
+    // ── rephuby.com ──────────────────────────────────────────────────────────
     if (host === 'rephuby.com') {
       const entries = [
         u(`${base}/`,                     'daily',  '1.0', today),
@@ -37,49 +90,122 @@ export async function GET(req: NextRequest) {
       const { data: arts } = await db.from('news_articles')
         .select('slug,published_at').eq('news_site_id', REPHUBY_ID)
         .eq('status','published').order('published_at',{ascending:false}).limit(500)
-      for (const a of arts||[]) {
-        if (a.slug) entries.push(u(`${base}/blog/${a.slug}`, 'never', '0.9',
-          new Date(a.published_at).toISOString().split('T')[0]))
+      for (const a of arts || []) {
+        if (a.slug) entries.push(u(
+          `${base}/blog/${a.slug}`, 'never', '0.8',
+          new Date(a.published_at).toISOString().split('T')[0]
+        ))
       }
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>`
-      return new NextResponse(xml, { status:200, headers:HEADERS })
+      const xml = xmlDoc(entries)
+      return new NextResponse(xml, { status: 200, headers: HEADERS })
     }
 
-    // ── All other portals ────────────────────────────────────────────────────
-    const { data: site } = await db.from('news_sites').select('id,slug,noindex').eq('domain',host).single()
-    if (!site) return new NextResponse(empty, { status:200, headers:HEADERS })
-    // ALL sites are now open to indexing — noindex flag ignored for sitemap
+    // ── Jewish portals ───────────────────────────────────────────────────────
+    const jewishCfg = JEWISH_SITES[host]
+    if (jewishCfg) {
+      const { data: site } = await db.from('news_sites')
+        .select('id,slug').eq('domain', host).single()
+
+      const entries: string[] = [
+        u(`${base}/`, 'daily', '1.0', today),
+        u(`${base}/author/solly-marks`, 'monthly', '0.8', today),
+        u(`${base}/about`, 'monthly', '0.7'),
+      ]
+
+      if (site) {
+        const { data: arts } = await db.from('news_articles')
+          .select('slug,title,published_at,updated_at,category,tags')
+          .eq('news_site_id', site.id)
+          .eq('status','published')
+          .order('published_at', { ascending: false })
+          .limit(5000)
+
+        const cats = new Set<string>()
+
+        for (const a of arts || []) {
+          if (!a.slug) continue
+          const loc = `${base}/article/${site.slug}/${a.slug}`
+          const pubMs = new Date(a.published_at || today).getTime()
+          const isRecent = (nowMs - pubMs) < TWO_DAYS_MS
+
+          if (isRecent) {
+            // Google News extension — crawled within minutes
+            entries.push(newsEntry(
+              loc,
+              a.title || '',
+              a.published_at,
+              jewishCfg.name,
+              a.category || 'Israel',
+              a.tags || []
+            ))
+          } else {
+            entries.push(u(
+              loc, 'never', '0.8',
+              new Date(a.updated_at || a.published_at || today).toISOString().split('T')[0]
+            ))
+          }
+
+          if (a.category) cats.add(a.category)
+        }
+
+        // Category hub pages — topical authority signals
+        for (const cat of cats) {
+          entries.push(u(
+            `${base}/article/${site.slug}/category/${encodeURIComponent(cat.toLowerCase())}`,
+            'daily', '0.8', today
+          ))
+        }
+      }
+
+      const xml = xmlDoc(entries, true)
+      return new NextResponse(xml, { status: 200, headers: HEADERS })
+    }
+
+    // ── All other portals (finvexx, nex-wire, etc.) ──────────────────────────
+    const { data: site } = await db.from('news_sites')
+      .select('id,slug,name').eq('domain', host).single()
+    if (!site) return new NextResponse(empty, { status: 200, headers: HEADERS })
 
     const { data: arts } = await db.from('news_articles')
-      .select('slug,published_at,category').eq('news_site_id',site.id)
-      .eq('status','published').order('published_at',{ascending:false}).limit(5000)
+      .select('slug,published_at,updated_at,category')
+      .eq('news_site_id', site.id)
+      .eq('status','published')
+      .order('published_at', { ascending: false })
+      .limit(5000)
 
-    const isJewishSite = ['aliyatoday.com','jewishnewsnow.com','jewishpropertyreport.com'].includes(host)
+    const entries: string[] = [u(`${base}/`, 'daily', '1.0', today)]
+    const cats = new Set<string>()
 
-    const entries = [u(`${base}/`, 'daily', '1.0', today)]
-
-    // Author page — Jewish sites have named author (Solly Marks), helps E-E-A-T
-    if (isJewishSite) {
-      entries.push(u(`${base}/author/solly-marks`, 'monthly', '0.8', today))
-    }
-
-    // About page
-    entries.push(u(`${base}/about`, 'monthly', '0.7'))
-
-    // Category pages — topical hubs for SEO
-    const cats = [...new Set((arts||[]).map((a: any) => a.category).filter(Boolean))]
-    for (const cat of cats) {
-      entries.push(u(`${base}/article/${site.slug}/category/${encodeURIComponent(String(cat).toLowerCase())}`, 'daily', '0.8', today))
-    }
-    for (const a of arts||[]) {
+    for (const a of arts || []) {
       if (!a.slug) continue
-      entries.push(u(`${base}/article/${site.slug}/${a.slug}`, 'never', '0.8',
-        new Date(a.published_at).toISOString().split('T')[0]))
+      entries.push(u(
+        `${base}/article/${site.slug}/${a.slug}`, 'never', '0.8',
+        new Date(a.updated_at || a.published_at || today).toISOString().split('T')[0]
+      ))
+      if (a.category) cats.add(a.category)
     }
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>`
-    return new NextResponse(xml, { status:200, headers:HEADERS })
+    for (const cat of cats) {
+      entries.push(u(
+        `${base}/article/${site.slug}/category/${encodeURIComponent(cat.toLowerCase())}`,
+        'daily', '0.7', today
+      ))
+    }
 
-  } catch {
-    return new NextResponse(empty, { status:200, headers:HEADERS })
+    return new NextResponse(xmlDoc(entries), { status: 200, headers: HEADERS })
+
+  } catch (err) {
+    console.error('[sitemap] error:', err)
+    return new NextResponse(empty, { status: 200, headers: HEADERS })
   }
+}
+
+function xmlDoc(entries: string[], includeNews = false) {
+  const nsNews = includeNews
+    ? '\n        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"'
+    : ''
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${nsNews}
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${entries.join('\n')}
+</urlset>`
 }

@@ -15,8 +15,9 @@ export async function GET(req: NextRequest) {
     .replace(/:\d+$/, '').replace(/^www\./, '')
 
   const sitemap = SITEMAPS[host] || `https://${host}/sitemap.xml`
+  const llmsTxt = `https://${host}/llms.txt`
 
-  // All 4 active sites are fully indexable — no noindex domains remain
+  // All active sites are fully indexable — no noindex domains
   const content = `User-agent: *
 Allow: /
 Disallow: /portal/
@@ -91,6 +92,10 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: ${sitemap}
+
+# AI engine indexing file (llmstxt.org standard)
+# ChatGPT, Perplexity, Claude, Gemini — see full site description here:
+LLMs: ${llmsTxt}
 `
 
   return new Response(content, {
