@@ -1,182 +1,284 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export const maxDuration = 180
+export const maxDuration = 300
+export const dynamic = 'force-dynamic'
 
-const getDb = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gykxxhxsakxhfuutgobb.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
-)
+// ── Database ────────────────────────────────────────────────────────────────
+const DB_URL  = 'https://gykxxhxsakxhfuutgobb.supabase.co'
+const DB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
+function getDb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || DB_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DB_ANON
+  )
+}
 
-const REVIEWER_NAMES = [
-  'James T.','Sarah M.','David K.','Emma L.','Michael R.','Priya S.','Tom H.','Olivia C.',
-  'Marcus W.','Aisha B.','Chris F.','Natalie P.','Ben J.','Fatima A.','Luke D.','Sophie G.',
-  'Raj N.','Claire O.','Aaron Z.','Mia V.','George B.','Hannah K.','Felix R.','Zara A.',
-  'Daniel W.','Chloe M.','Sam P.','Yasmin H.','Jack L.','Isla T.','Noah C.','Grace F.',
+// ── Active sites ─────────────────────────────────────────────────────────────
+const SITES: Record<string, { id: string; domain: string; name: string; author: string }> = {
+  'aliya-today':            { id: '9cfd54a9-5e1c-414c-8fe1-12b779013fca', domain: 'aliyatoday.com',           name: 'AliyaToday',             author: 'Solly Marks' },
+  'jewish-news-now':        { id: '8dc3f4f2-309c-4f3b-98c6-a6d42d037778', domain: 'jewishnewsnow.com',        name: 'Jewish News Now',        author: 'Solly Marks' },
+  'jewish-property-report': { id: '15762338-2746-45ea-95b5-6685ed3c480e', domain: 'jewishpropertyreport.com', name: 'Jewish Property Report', author: 'Solly Marks' },
+}
+
+// ── Review-intent filter ──────────────────────────────────────────────────────
+// Only topics that naturally lend themselves to a review/comparison/best-of
+// article — these are the highest-converting SEO formats.
+const REVIEW_SIGNALS = [
+  'best','top','compare','vs','review','which','recommended','worth it',
+  'guide','how to choose','pros and cons','alternatives','cheapest','cheapest',
+  'rating','ranked','list of','types of','options for',
 ]
 
-function rand<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
-function randInt(min: number, max: number): number { return Math.floor(Math.random() * (max - min + 1)) + min }
+function isReviewTopic(topic: string): boolean {
+  const t = topic.toLowerCase()
+  return REVIEW_SIGNALS.some(s => t.includes(s))
+}
 
-// Protected clients — ONLY positive reviews (4-5 stars)
-// Add client slugs here when they sign up
-const PROTECTED_CLIENTS = new Set(['etoro', 'etoro-eu', 'etoroX'])
+// ── Per-site review topic seeds ───────────────────────────────────────────────
+// Used as fallback if trending_topics table has no review-intent topics today
+const FALLBACK_TOPICS: Record<string, string[]> = {
+  'aliya-today': [
+    'best ulpan programs israel 2026 review',
+    'kupat holim comparison which health fund is best for olim',
+    'best neighbourhoods for english speakers israel 2026',
+    'nefesh bnefesh vs jewish agency which to use',
+    'best israeli banks for new olim compared',
+    'absorption center vs private rental which is better 2026',
+    'best moving companies for aliyah reviewed',
+    'top israeli cities for olim ranked 2026',
+  ],
+  'jewish-news-now': [
+    'best jewish news sources online reviewed 2026',
+    'top jewish community organisations worldwide compared',
+    'best synagogues for english speakers israel reviewed',
+    'top jewish education programs compared 2026',
+  ],
+  'jewish-property-report': [
+    'best areas to buy property in israel 2026 reviewed',
+    'tel aviv vs jerusalem property investment compared',
+    'top real estate agents for foreign buyers israel',
+    'best mortgages for olim compared 2026',
+    'netanya vs haifa vs tel aviv which to invest',
+    'best property developers in israel ranked 2026',
+  ],
+}
 
-// Use Claude to generate fresh, unique AI reviews
-async function generateReviewsForCompany(company: any, count: number): Promise<any[]> {
-  const db = getDb()
-  const { data: _ak } = await db.from('system_api_keys').select('key_value').eq('key_name','ANTHROPIC_API_KEY').single()
-  const ANTH = _ak?.key_value || process.env.ANTHROPIC_API_KEY
-  if (!ANTH) return []
-
-  const isProtected = PROTECTED_CLIENTS.has(company.slug)
+// ── Article generation ────────────────────────────────────────────────────────
+async function generateReviewArticle(
+  siteSlug: string,
+  topic: string,
+  apiKey: string
+): Promise<{ title: string; excerpt: string; body: string; category: string; tags: string[] } | null> {
+  const siteInfo = SITES[siteSlug]
   const today = new Date().toISOString().split('T')[0]
 
-  // Protected clients: 100% positive. Competitors: realistic 60/40 mix
-  const posCount = isProtected
-    ? count                                          // client → all positive
-    : Math.round(count * 0.6)                       // competitor → 60% positive
-  const negCount = count - posCount
+  const prompts: Record<string, string> = {
+    'aliya-today': `You are Solly Marks — AliyaToday.com publisher and experienced oleh. Write a definitive review/comparison guide.
 
-  const protectedNote = isProtected
-    ? '- This is a PREMIUM regulated broker — all reviews should be positive (4-5 stars) reflecting genuine satisfaction'
-    : `- ${posCount} positive (4-5 stars), ${negCount} realistic negative/critical (2-3 stars) about fees, spreads, withdrawals, slow support`
+TOPIC: ${topic}
+DATE: ${today}
 
-  const prompt = `Generate ${count} realistic NEW customer reviews for ${company.name} (${company.category || 'broker'}).
-Regulation: ${company.regulation || 'varies'}
-Description: ${company.description || company.tagline || company.name}
-Date context: ${today}
+MANDATORY STRUCTURE (2,000-2,500 words):
+H1: [Comparison/review headline — keyword first, include 2026]
+OPENING (Quick Verdict — 3 sentences): Give a direct top-pick recommendation immediately with a real reason. Perplexity and ChatGPT pull this as the direct answer.
+H2: Why This Matters for New Olim
+H2: Our Criteria for This Review (3-5 clear criteria you evaluated)
+H2: [Option 1 Name] — Full Review
+  H3: What We Like
+  H3: Drawbacks  
+  H3: Best For
+H2: [Option 2 Name] — Full Review
+  (same structure)
+H2: [Option 3 Name] — Full Review (if applicable)
+H2: Side-by-Side Comparison Table (HTML table: 5+ rows comparing all options across criteria)
+H2: Our Verdict — Which Should You Choose?
+H2: Frequently Asked Questions
+  H3: [Natural question people type into Google]
+  H3: [Cost/price question]
+  H3: [Timing/when question]
+  H3: [What if scenario]
 
-Requirements:
-${protectedNote}
-- Each 80-160 words, first-person, specific trading experiences
-- Mention regulation, platform features, fees naturally
-- Vary personas: experienced trader, beginner, long-term investor, day trader, crypto trader
-- Sound genuinely human — include specific platform details
-- Reference 2026 market conditions where natural
-${!isProtected ? '- Negative reviews should mention: high spreads, withdrawal delays, poor customer service, or platform issues' : ''}
+REQUIREMENTS:
+- Minimum 6 real specific numbers (prices in ₪/$, timelines, ratings, distances)
+- Mention Nefesh BNefesh, Misrad HaKlita, Bituach Leumi, Jewish Agency where relevant
+- Warm practical voice — like advice from a trusted friend who made aliyah recently
+- Every H2 minimum 200 words
+- FAQ answers minimum 80 words each
+- No invented company names — use real well-known options only
+- Internal reference: "As we covered in our aliyah cost breakdown..."
 
-Return ONLY valid JSON array:
-[{"rating":5,"title":"Concise title","body":"Review text here"}]`
+Return ONLY valid JSON (no markdown fences):
+{"title":"Keyword-first headline 60-70 chars with 2026","excerpt":"Under 155 chars with specific recommendation or key fact","body":"<h2>...</h2><p>...</p>...","category":"Guide","tags":["aliyah 2026","israel","guide","review","olim"]}`,
+
+    'jewish-news-now': `You are Solly Marks — JewishNewsNow.com editor. Write an authoritative review/roundup.
+
+TOPIC: ${topic}
+DATE: ${today}
+
+STRUCTURE (1,800-2,200 words):
+H1: [Review/comparison headline — keyword first, 2026]
+OPENING (Quick Answer — 2-3 sentences): Direct answer to what's being reviewed.
+H2: Why We Reviewed This
+H2: How We Evaluated (criteria used)
+H2: [Item 1] — Reviewed
+H2: [Item 2] — Reviewed  
+H2: [Item 3] — Reviewed
+H2: Comparison Table (HTML, 5+ rows)
+H2: Our Recommendation
+H2: FAQ (4 questions, 80+ words each)
+
+Requirements: factual, authoritative, cite real organisations. 5+ specific numbers.
+
+Return ONLY valid JSON:
+{"title":"...","excerpt":"...","body":"...","category":"Review","tags":["jewish news","israel","2026","review"]}`,
+
+    'jewish-property-report': `You are Solly Marks — JewishPropertyReport.com editor. Write a definitive property review/comparison.
+
+TOPIC: ${topic}
+DATE: ${today}
+
+STRUCTURE (2,000-2,500 words):
+H1: [Property comparison headline — keyword first, 2026]
+OPENING (Quick Verdict — 3 sentences): Direct investment/purchase recommendation with real price data.
+H2: Market Overview 2026
+H2: [Location/Option 1] — Full Review
+  H3: Current Prices (real ₪/sqm data)
+  H3: Rental Yields
+  H3: Pros for Jewish Buyers
+  H3: Drawbacks
+H2: [Location/Option 2] — Full Review (same)
+H2: [Location/Option 3] — Full Review (if applicable)
+H2: Investment Comparison Table (HTML, price/yield/demand/growth rows)
+H2: Our Verdict — Where to Buy in 2026
+H2: FAQ for Foreign Buyers (4 questions, 80+ words each)
+
+Requirements: 8+ real price figures in ₪, cite Bank of Israel/CBS data where relevant, practical advice for diaspora buyers.
+
+Return ONLY valid JSON:
+{"title":"...","excerpt":"...","body":"...","category":"Property Review","tags":["israel property","real estate","investment","2026","review"]}`,
+  }
+
+  const prompt = prompts[siteSlug] || prompts['aliya-today']
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTH, 'anthropic-version': '2023-06-01' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001', max_tokens: 2500,
-        messages: [{ role: 'user', content: prompt }]
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }],
       }),
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(60000),
     })
-    if (!res.ok) return []
+    if (!res.ok) return null
     const data = await res.json()
-    const text = data.content?.[0]?.text?.trim() || ''
+    const text = (data.content?.[0]?.text || '').trim()
     const clean = text.replace(/```json\s*/g, '').replace(/```/g, '').trim()
-    return JSON.parse(clean).slice(0, count)
-  } catch { return [] }
+    const parsed = JSON.parse(clean)
+    if (!parsed?.title || !parsed?.body) return null
+    return parsed
+  } catch { return null }
 }
 
+function slugify(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80)
+}
+
+// ── Main handler ──────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
-  // Accept Vercel cron Authorization header OR manual URL secret param
-    const cronSecret = process.env.CRON_SECRET || ''
-  const authHeader = req.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET || ''
+  const auth = req.headers.get('authorization')
   const urlSecret = req.nextUrl.searchParams.get('secret')
-  if (authHeader !== ('Bearer ' + cronSecret) && urlSecret !== cronSecret) {
+  if (cronSecret && auth !== `Bearer ${cronSecret}` && urlSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const db = getDb()
+  const today = new Date().toISOString().split('T')[0]
 
-  // Load all active companies
-  const { data: companies } = await db
-    .from('verivex_companies')
-    .select('slug, name, category, regulation, description, tagline, is_featured')
-    .order('slug')
+  // Get API key
+  const { data: keyRow } = await db.from('system_api_keys').select('key_value').eq('key_name', 'ANTHROPIC_API_KEY').single()
+  const apiKey = keyRow?.key_value || process.env.ANTHROPIC_API_KEY || ''
+  if (!apiKey) return NextResponse.json({ error: 'No API key' }, { status: 500 })
 
-  if (!companies || companies.length === 0) return NextResponse.json({ ok: true, message: 'No companies yet' })
+  const results: Record<string, any> = {}
 
-  // Pick 5 companies to receive reviews today (weighted toward fewer-reviewed)
-  const { data: reviewCounts } = await db
-    .from('verivex_reviews')
-    .select('company_slug')
-    .eq('status', 'approved')
+  for (const [siteSlug, siteInfo] of Object.entries(SITES)) {
+    // 1. Pull review-intent topics from trending_topics (real Google search data)
+    const { data: trending } = await db.from('trending_topics')
+      .select('topic, score, source')
+      .eq('site_slug', siteSlug)
+      .gte('date', today)
+      .order('score', { ascending: false })
+      .limit(50)
 
-  const counts: Record<string, number> = {}
-  for (const co of (companies as any[])) counts[co.slug] = 0
-  for (const r of reviewCounts || []) counts[r.company_slug] = (counts[r.company_slug] || 0) + 1
+    // Filter to review/comparison intent only
+    const reviewTopics = (trending || [])
+      .map((t: any) => t.topic)
+      .filter(isReviewTopic)
 
-  // Weighted random: lower review count = higher chance of being picked
-  const weighted = companies.flatMap(co => {
-    const c = counts[co.slug] || 0
-    const weight = Math.max(1, 20 - Math.floor(c / 5)) // decreases as reviews accumulate
-    return Array(weight).fill(co)
-  })
+    // Fallback to hardcoded seeds if no trending review topics today
+    const topicPool = reviewTopics.length >= 2 ? reviewTopics : FALLBACK_TOPICS[siteSlug] || []
+    if (topicPool.length === 0) { results[siteSlug] = { skipped: 'no topics' }; continue }
 
-  // Pick 5 unique companies (organic, weighted toward fewer-reviewed)
-  const picked: any[] = []
-  const seen = new Set<string>()
-  for (let i = 0; i < 200 && picked.length < 5; i++) {
-    const co = rand(weighted) as any
-    if (!seen.has(co.slug)) { picked.push(co); seen.add(co.slug) }
-  }
+    // 2. Pick 1 topic not already published this week
+    const { data: recentSlugs } = await db.from('news_articles')
+      .select('title')
+      .eq('news_site_id', siteInfo.id)
+      .eq('status', 'published')
+      .gte('published_at', new Date(Date.now() - 7 * 86400000).toISOString())
 
-  // GUARANTEED TRICKLE for actively monitored clients (e.g. eToro) — the
-  // weighted-random pick above naturally starves out any company that
-  // already has a lot of reviews (that is the whole point of the weighting),
-  // so a heavily-seeded monitored client would stop getting new reviews
-  // entirely. Every is_active portal_clients brand gets 1-2 reviews/day
-  // regardless of its existing count, on top of (never instead of) the
-  // organic 5 above.
-  const { data: monitoredClients } = await db
-    .from('portal_clients')
-    .select('brand_slug')
-    .eq('is_active', true)
+    const recentTitles = new Set((recentSlugs || []).map((r: any) => r.title.toLowerCase()))
+    const topic = topicPool.find(t => !recentTitles.has(t.toLowerCase())) || topicPool[0]
 
-  const guaranteed: any[] = []
-  for (const mc of (monitoredClients as any[]) || []) {
-    if (seen.has(mc.brand_slug)) continue // already getting reviews via the organic pick
-    const co = (companies as any[]).find(c => c.slug === mc.brand_slug)
-    if (co) { guaranteed.push(co); seen.add(co.slug) }
-  }
+    // 3. Generate the review article
+    const article = await generateReviewArticle(siteSlug, topic, apiKey)
+    if (!article) { results[siteSlug] = { error: 'generation failed', topic }; continue }
 
-  let totalInserted = 0
-  const results: any[] = []
+    // 4. Insert into news_articles
+    const slug = `${today}-${slugify(article.title)}`
+    const { data: existing } = await db.from('news_articles').select('id').eq('slug', slug).single()
+    if (existing) { results[siteSlug] = { skipped: 'duplicate', slug }; continue }
 
-  const guaranteedSlugs = new Set(guaranteed.map(g => g.slug))
-  for (const company of [...picked, ...guaranteed]) {
-    const reviewsToAdd = guaranteedSlugs.has(company.slug) ? randInt(1, 2) : randInt(2, 4)
-    const reviews = await generateReviewsForCompany(company, reviewsToAdd)
-    if (reviews.length === 0) continue
+    const { error } = await db.from('news_articles').insert({
+      news_site_id: siteInfo.id,
+      title: article.title,
+      slug,
+      excerpt: article.excerpt || '',
+      body: article.body || '',
+      category: article.category || 'Guide',
+      tags: Array.isArray(article.tags) ? article.tags : [],
+      author_name: siteInfo.author,
+      cover_image_url: `https://picsum.photos/seed/${siteSlug}-review-${slug.slice(-8)}/1200/630`,
+      status: 'published',
+      published_at: new Date().toISOString(),
+      is_featured: false,
+      article_type: 'review',
+      ai_generated: true,
+      read_time_minutes: Math.ceil((article.body || '').split(' ').length / 200),
+    })
 
-    const toInsert = reviews.map((r: any, i: number) => ({
-      company_slug: company.slug,
-      company_name: company.name,
-      reviewer_name: rand(REVIEWER_NAMES),
-      rating: Math.max(1, Math.min(5, parseInt(r.rating) || 4)),
-      title: (r.title || 'Review').slice(0, 120),
-      review_text: r.body || '',
-      verified: Math.random() > 0.2,
-      status: 'approved',
-      created_at: new Date(Date.now() - randInt(0, 48) * 3600000).toISOString(),
-    }))
-
-    const { error } = await db.from('verivex_reviews').insert(toInsert)
-    if (!error) {
-      totalInserted += toInsert.length
-      results.push({ company: company.name, added: toInsert.length })
-
-      // trust_score column removed from schema
+    if (error) {
+      results[siteSlug] = { error: error.message, topic }
+    } else {
+      results[siteSlug] = {
+        inserted: 1,
+        topic,
+        title: article.title,
+        slug,
+        source: reviewTopics.length >= 2 ? 'google_trends' : 'fallback_seeds',
+      }
     }
 
-    await new Promise(r => setTimeout(r, 400))
+    // Small gap between sites
+    await new Promise(r => setTimeout(r, 1000))
   }
 
-  return NextResponse.json({
-    ok: true,
-    reviewsAdded: totalInserted,
-    companies: results,
-    totalCompanies: companies.length,
-    totalReviews: (reviewCounts?.length || 0) + totalInserted,
-  })
+  return NextResponse.json({ ok: true, date: today, results })
 }
