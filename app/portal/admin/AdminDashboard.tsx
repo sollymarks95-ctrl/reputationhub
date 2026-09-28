@@ -582,7 +582,7 @@ function PortalsTab() {
                     <button className="btn b-ghost" style={{fontSize:9,padding:'4px 0',width:'100%'}}>Visit ↗</button>
                   </a>
                   {p.noindex && (
-                    <a href={`/api/admin/flip-live?slug=${p.slug}&secret=REDACTED_CRON_SECRET`} style={{flex:1}}>
+                    <a href={`/api/admin/flip-live?slug=${p.slug}`} style={{flex:1}}>
                       <button className="btn b-green" style={{fontSize:9,padding:'4px 0',width:'100%'}}>Flip Live ✓</button>
                     </a>
                   )}
@@ -771,8 +771,18 @@ export default function AdminDashboard({
   const runCron = async () => {
     setCronRunning(true); setCronMsg('')
     try {
-      await fetch('/api/cron-sites?secret=REDACTED_CRON_SECRET')
-      setCronMsg('✅ Article generation triggered — check portals in 5 min')
+      const r = await fetch('/api/admin/trigger-articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sites: ['jewish-news-now', 'jewish-property-report', 'aliya-today'], batch: 0 })
+      })
+      const d = await r.json()
+      if (d.ok) {
+        const statuses = Object.entries(d.results || {}).map(([s, v]) => `${s}: ${v}`).join(' · ')
+        setCronMsg(`✅ Fired — ${statuses} — articles ready in ~3 min`)
+      } else {
+        setCronMsg(`❌ ${d.error || 'Failed to trigger'}`)
+      }
     } catch { setCronMsg('❌ Failed to trigger') } finally { setCronRunning(false) }
   }
 
@@ -1918,8 +1928,8 @@ export default function AdminDashboard({
                 <div style={{fontWeight:700,fontSize:14,marginBottom:14}}>Quick Actions</div>
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
                   <button className="btn b-green" onClick={runCron} disabled={cronRunning} style={{justifyContent:'flex-start'}}>{cronRunning?<><Spinner/> Running…</>:<>🗞️ Generate Articles Now</>}</button>
-                  <a href="/api/cron-reviews?secret=REDACTED_CRON_SECRET" target="_blank"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>⭐ Run Reviews Cron</button></a>
-                  <a href="/api/cron-companies?secret=REDACTED_CRON_SECRET" target="_blank"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>🏢 Run Companies Cron</button></a>
+                  <a href="/api/cron-reviews" target="_blank"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>⭐ Run Reviews Cron</button></a>
+                  <a href="/api/cron-companies" target="_blank"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>🏢 Run Companies Cron</button></a>
                   <a href="https://supabase.com/dashboard/project/gykxxhxsakxhfuutgobb" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>🗄 Supabase ↗</button></a>
                   <a href="https://vercel.com/team_i0UdvDcC0rdntVBoxbP7i46X" target="_blank" rel="noopener noreferrer"><button className="btn b-ghost" style={{width:'100%',justifyContent:'flex-start'}}>▲ Vercel ↗</button></a>
                 </div>
@@ -1941,7 +1951,7 @@ export default function AdminDashboard({
                       <div style={{fontSize:12,fontWeight:600}}>{s.name}</div>
                       <div style={{fontSize:10,color:'#475569'}}>{s.domain||PORTAL_DOMAIN[s.slug]}</div>
                     </div>
-                    <a href={`/api/admin/flip-live?slug=${s.slug}&secret=REDACTED_CRON_SECRET`}><button className="btn b-green" style={{fontSize:10,padding:'5px 12px'}}>Flip Live ✓</button></a>
+                    <a href={`/api/admin/flip-live?slug=${s.slug}`}><button className="btn b-green" style={{fontSize:10,padding:'5px 12px'}}>Flip Live ✓</button></a>
                   </div>
                 ))}
               </div>
