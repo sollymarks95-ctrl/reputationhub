@@ -314,7 +314,7 @@ export async function GET(req: NextRequest) {
   const { data: keys } = await db.from('system_api_keys').select('key_name,key_value').eq('is_active', true)
   const km: Record<string,string> = Object.fromEntries((keys||[]).map((k:any) => [k.key_name, k.key_value]))
 
-  const devToKey         = km.DEV_TO_API_KEY        || process.env.DEV_TO_API_KEY        || ''
+  const devToKey         = km.DEV_TO_API_KEY        || process.env.DEV_TO_API_KEY        || 'vzF7cB3o6Tix2orBsaTyyy6t'
   const hashnodeToken    = km.HASHNODE_TOKEN         || process.env.HASHNODE_TOKEN         || ''
   const hashnodePubId    = km.HASHNODE_PUBLICATION_ID || process.env.HASHNODE_PUBLICATION_ID || ''
   const mediumToken      = km.MEDIUM_TOKEN           || process.env.MEDIUM_TOKEN           || ''
