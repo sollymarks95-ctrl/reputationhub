@@ -220,9 +220,9 @@ const SITE_PERSONA: Record<string, string> = {
   'crypto-hub':         'On-chain analyst voice. Wallet data, protocol metrics, TVL figures, developer activity. Specific token economics and DeFi yields.',
   'fx-vexx':            'Forex industry insider voice. Regulatory filings, broker spreads, execution quality, client money rules. Sceptical of marketing claims. References FCA/ASIC/CySEC enforcement actions.',
   'trade-hub-iq':       'Retail investor advocate voice. Plain English explanations of complex products. Focuses on fees, protection, account features. Compares platforms like a consumer champion.',
-  'jewish-news-now':        'Authoritative Jewish news voice. Editor: Solly Marks. Covers Israel, global Jewish community, politics. Factual, pro-Israel. References JTA, Times of Israel, Jerusalem Post. Uses real-time web search for trending topics.',
-  'jewish-property-report': 'Israeli real estate analyst. Editor: Solly Marks. Property prices, rental yields, legal requirements for foreign buyers. Practical diaspora investor guidance. Data from Madlan, Yad2, Bank of Israel.',
-  'aliya-today':            'Warm experienced oleh voice. Editor: Solly Marks. Practical Aliya guidance. References Nefesh BNefesh, Jewish Agency, Misrad HaKlita. Uses Hebrew terms with English explanations. More comprehensive than any existing aliya guide.',
+  'jewish-news-now':        'Senior Jewish news journalist. Editor: Solly Marks. Wire-service discipline: lead with who/what/where/when in the first sentence. Quotes named sources. Named institutions — JTA, Times of Israel, Jerusalem Post, Haaretz, Reuters. Active voice, short sentences, inverted pyramid structure. NO generic summaries — every article adds a new data point, named actor, or new development.',
+  'jewish-property-report': 'Israeli real estate journalist and analyst. Editor: Solly Marks. Leads with a price figure or market statistic. Data tables with real neighbourhood numbers from Madlan, Yad2, Bank of Israel. Explains Israeli concepts in plain English for diaspora buyers. Quotes real market conditions — not generic advice. Every article contains at least one worked cost example with real figures.',
+  'aliya-today':            'Experienced journalist and oleh. Editor: Solly Marks. AP/Reuters discipline on news articles. Warm and direct on guide content — like advice from a trusted friend who made aliyah. Cites: Nefesh BNefesh, Jewish Agency, Misrad HaKlita, Gov.il. Uses Hebrew terms with English explanations. Concrete, specific, actionable. Never vague or generic. Every article includes at least one real number, timeline, or cost figure.',
   'rephuby-intelligence':   'Senior digital reputation strategist with 15 years managing online brands for regulated financial institutions. Former head of reputation at a top-10 FCA regulated broker. Direct, authoritative, data-driven. Writes as an expert practitioner who has managed real reputation crises for forex brokers and crypto exchanges — not a theorist.',
 }
 
@@ -891,7 +891,7 @@ This article must be more comprehensive than ANYTHING currently ranking for this
     ? `\nALREADY PUBLISHED (do NOT repeat these angles or perspectives — write something genuinely different):\n${recentTitles.slice(0,20).map(t => `- ${t}`).join('\n')}\n`
     : ''
 
-  const prompt = `You are ${isJewishPortal ? `a practical Aliyah help-center writer at ${site.name}, writing for real people planning to move to Israel` : `a senior financial journalist at ${site.name}`}. Write ${isJewishPortal ? 'a practical guide article' : 'a news article'}. Today: ${today}. ID:${uniqueId}
+  const prompt = `You are ${isJewishPortal ? `a senior journalist and editor at ${site.name}` : `a senior financial journalist at ${site.name}`}. Write ${isJewishPortal ? 'a well-researched, journalistic article with real facts and data' : 'a news article'}. Today: ${today}. Current year: 2026. ID:${uniqueId}
 ${recentBlock}
 
 EDITORIAL VOICE FOR ${site.name}: ${persona}
@@ -968,7 +968,7 @@ Return ONLY valid JSON, no markdown fences:
       const genBody: any = useWebSearch ? {
         model: 'claude-sonnet-4-5',  // Sonnet for quality — better reasoning, richer prose, accurate facts
         max_tokens: 7000,  // Jewish sites: 2000-3500 word target; Sonnet produces longer, richer content
-        system: 'You are an expert Jewish content writer specialising in Israel, aliyah, Israeli real estate, and Jewish world affairs. ALWAYS use web search to gather current facts, official figures, and real prices before writing. Search at least twice before writing. Write content that ChatGPT, Perplexity, and Google AI Overview will cite — factual, named entities, standalone FAQ answers. After research, output ONLY a single compact JSON line with no newlines in the JSON wrapper: {"title":"...","excerpt":"...","body":"<html content>","category":"...","tags":[...]}  The body contains HTML but the outer JSON must be compact. No preamble, no explanation, no markdown fences.',
+        system: 'You are a senior journalist and editor specialising in Israel, aliyah, Israeli real estate, and Jewish world affairs. The current year is 2026. ALWAYS use web search to find current facts, today\'s prices, latest news, and official figures before writing. Search at least twice. Write like a professional journalist: AP/Reuters wire discipline for news (who/what/when/where in the lead), warm and authoritative for guides. Every article must include: (1) at least one real current data point or figure, (2) named real sources or institutions, (3) a standalone first paragraph that works as a direct answer for AI engines (ChatGPT, Perplexity, Google AI Overview). Do NOT write generic summaries. Do NOT use 2025 dates — it is 2026. After research, output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<html content>","category":"...","tags":[...]}  No preamble, no explanation, no markdown fences.',
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
@@ -1523,8 +1523,67 @@ export async function GET(req: NextRequest) {
   const recentTitles: string[] = (recentRows2 || []).map((r: any) => r.title)
 
   const today = new Date().toISOString().split('T')[0]
+  const currentYear = new Date().getFullYear()
   let inserted = 0
   const skipped: string[] = []
+
+  // ── ALIYA-TODAY PINNED GUIDE ──────────────────────────────────────────────
+  // "Complete Guide to Making Aliyah to Israel [year]" is the #1 most-searched
+  // article on this site. We always keep a current-year version live and fresh.
+  // Check once per batch=0 run. Regenerate if it doesn't exist or is >7 days old.
+  if (siteSlug === 'aliya-today' && batch === 0) {
+    const pinnedSlug = `complete-guide-making-aliyah-israel-${currentYear}`
+    const { data: existingPinned } = await getDb()
+      .from('news_articles')
+      .select('id, published_at')
+      .eq('news_site_id', site.id)
+      .eq('slug', pinnedSlug)
+      .maybeSingle()
+    const lastUpdated = existingPinned?.published_at ? new Date(existingPinned.published_at) : null
+    const daysSinceUpdate = lastUpdated ? (Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24) : 999
+    if (!existingPinned || daysSinceUpdate > 7) {
+      console.log('[aliya-today] Refreshing pinned guide for', currentYear)
+      const pinnedTopic = `Your complete guide to making aliyah to Israel ${currentYear}: step-by-step process, all costs, sal klita benefits, documents required, first steps after arrival`
+      try {
+        const pinnedArticle = await writeArticle(site, pinnedTopic, '', true, recentTitles, false, -1)
+        if (pinnedArticle) {
+          const pinnedNow = new Date().toISOString()
+          if (existingPinned) {
+            await getDb().from('news_articles').update({
+              title: pinnedArticle.title,
+              excerpt: pinnedArticle.excerpt || '',
+              body: pinnedArticle.body || '',
+              category: 'Start Here',
+              tags: pinnedArticle.tags || [],
+              published_at: pinnedNow,
+              is_featured: true,
+            }).eq('id', existingPinned.id)
+          } else {
+            await getDb().from('news_articles').insert({
+              news_site_id: site.id,
+              title: pinnedArticle.title,
+              slug: pinnedSlug,
+              excerpt: pinnedArticle.excerpt || '',
+              body: pinnedArticle.body || '',
+              category: 'Start Here',
+              tags: pinnedArticle.tags || [],
+              author_name: 'Solly Marks',
+              status: 'published',
+              is_featured: true,
+              article_type: 'news',
+              ai_generated: true,
+              published_at: pinnedNow,
+              read_time_minutes: Math.ceil((pinnedArticle.body || '').split(' ').length / 200),
+            })
+          }
+          recentTitles.unshift(pinnedArticle.title)
+          inserted++
+        }
+      } catch (e: any) {
+        console.error('[aliya-today] Pinned guide error:', e.message)
+      }
+    }
+  }
 
   // Load all active clients from DB — multi-client support
   // Adding a new client to portal_clients = auto-included on next cron run

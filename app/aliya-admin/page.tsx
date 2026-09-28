@@ -20,7 +20,7 @@ function fmt(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'nume
 function fmtDate(d:string){ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) }
 
 export default function AliyaAdmin() {
-  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'|'api'|'linkbuilding'>('overview')
+  const [tab, setTab] = useState<'overview'|'articles'|'posts'|'links'|'analytics'|'api'|'linkbuilding'|'subscribers'>('overview')
   const [auth, setAuth] = useState(false)
   const [pw, setPw] = useState('')
   const [pwErr, setPwErr] = useState(false)
@@ -39,6 +39,8 @@ export default function AliyaAdmin() {
   const [analytics, setAnalytics] = useState<any>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [analyticsDays, setAnalyticsDays] = useState(30)
+  const [subscribers, setSubscribers] = useState<any>({ total:0, by_site:{}, subscribers:[] })
+  const [subsLoading, setSubsLoading] = useState(false)
 
   // Auth
   useEffect(()=>{ if(typeof window!=='undefined'&&sessionStorage.getItem('aliya_admin')==='ok') setAuth(true) },[])
@@ -48,7 +50,7 @@ export default function AliyaAdmin() {
   // Read tab from URL hash on load (e.g. /aliya-admin#linkbuilding)
   useEffect(() => {
     const hash = window.location.hash.replace('#','')
-    const validTabs = ['overview','articles','posts','links','analytics','api','linkbuilding']
+    const validTabs = ['overview','articles','posts','links','analytics','api','linkbuilding','subscribers']
     if (hash && validTabs.includes(hash)) setTab(hash as any)
   }, [])
 
@@ -74,6 +76,25 @@ export default function AliyaAdmin() {
     } finally { setAnalyticsLoading(false) }
   },[])
   useEffect(()=>{ if(auth&&tab==='analytics') loadAnalytics(analyticsDays) },[auth,tab,analyticsDays,loadAnalytics])
+
+  // Subscribers
+  const loadSubscribers = useCallback(async()=>{
+    setSubsLoading(true)
+    try {
+      const r = await fetch('/api/subscribe')
+      const d = await r.json()
+      // Filter to only Jewish sites
+      const jewishSlugs = ['jewish-news-now','jewish-property-report','aliya-today']
+      const allSubs: any[] = d.subscribers || []
+      const jewishSubs = allSubs.filter((s:any) => jewishSlugs.includes(s.site_slug))
+      const by_site: Record<string, any[]> = {}
+      for (const slug of jewishSlugs) {
+        by_site[slug] = jewishSubs.filter((s:any) => s.site_slug === slug)
+      }
+      setSubscribers({ total: jewishSubs.length, by_site, subscribers: jewishSubs })
+    } finally { setSubsLoading(false) }
+  },[])
+  useEffect(()=>{ if(auth&&tab==='subscribers'&&subscribers.total===0&&!subsLoading) loadSubscribers() },[auth,tab,subscribers.total,subsLoading,loadSubscribers])
 
   async function generatePosts(){
     setGenerating(true)
@@ -101,7 +122,7 @@ export default function AliyaAdmin() {
     </div>
   )
 
-  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'},{id:'api' as const,label:'API & RSS',icon:'🔌'},{id:'linkbuilding' as const,label:'Link Building',icon:'🔗'}]
+  const NAV = [{id:'overview' as const,label:'Overview',icon:'📊'},{id:'articles' as const,label:'All Articles',icon:'📝'},{id:'subscribers' as const,label:'Subscribers',icon:'📧'},{id:'posts' as const,label:'FB Post Generator',icon:'📲'},{id:'links' as const,label:'Pinned Links',icon:'📌'},{id:'analytics' as const,label:'Traffic Analytics',icon:'📈'},{id:'api' as const,label:'API & RSS',icon:'🔌'},{id:'linkbuilding' as const,label:'Link Building',icon:'🔗'}]
 
   return (
     <div style={{display:'flex',minHeight:'100vh',fontFamily:'Inter,sans-serif',background:'#f8fafc'}}>
@@ -569,6 +590,94 @@ Ask questions. Share your story. Help each other home. 🕍`}
           <APITab />
         )}
         {tab==='linkbuilding' && <LinkBuildingTab />}
+
+        {/* ── Subscribers Tab ─────────────────────────────────────────────── */}
+        {tab==='subscribers' && (
+          <div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:28}}>
+              <div>
+                <h2 style={{margin:0,fontSize:22,fontWeight:900,color:'#111'}}>📧 Email Subscribers</h2>
+                <p style={{margin:'4px 0 0',color:'#6b7280',fontSize:13}}>All newsletter subscribers across the 3 Jewish portals</p>
+              </div>
+              <button onClick={loadSubscribers} style={{background:'#c47d1a',color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+                🔄 Refresh
+              </button>
+            </div>
+
+            {/* Stat tiles */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:16,marginBottom:28}}>
+              {[
+                {label:'Total Subscribers',val:subscribers.total,icon:'📧',color:'#c47d1a'},
+                {label:'Jewish News Now',val:(subscribers.by_site?.['jewish-news-now']||[]).length,icon:'📰',color:'#1a56b0'},
+                {label:'Jewish Property',val:(subscribers.by_site?.['jewish-property-report']||[]).length,icon:'🏠',color:'#0a7c4e'},
+                {label:'Aliya Today',val:(subscribers.by_site?.['aliya-today']||[]).length,icon:'✈️',color:'#c47d1a'},
+              ].map(t=>(
+                <div key={t.label} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,padding:'18px 20px',boxShadow:'0 1px 3px rgba(0,0,0,.05)'}}>
+                  <div style={{fontSize:24,marginBottom:6}}>{t.icon}</div>
+                  <div style={{fontSize:28,fontWeight:900,color:t.color}}>{t.val}</div>
+                  <div style={{fontSize:12,color:'#6b7280',fontWeight:600,marginTop:2}}>{t.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {subsLoading && <div style={{textAlign:'center',padding:48,color:'#6b7280'}}>⏳ Loading subscribers…</div>}
+
+            {/* Per-site accordion */}
+            {!subsLoading && (['jewish-news-now','jewish-property-report','aliya-today'] as const).map(slug => {
+              const subs = (subscribers.by_site?.[slug] || []) as any[]
+              const siteInfo = SITES.find(s=>s.slug===slug)!
+              return (
+                <div key={slug} style={{background:'#fff',border:`1px solid ${siteInfo.color}22`,borderRadius:12,marginBottom:16,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,.05)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 20px',background:`${siteInfo.color}08`,borderBottom:`1px solid ${siteInfo.color}18`}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:18}}>{siteInfo.icon}</span>
+                      <div>
+                        <div style={{fontWeight:800,fontSize:14,color:'#111'}}>{siteInfo.name}</div>
+                        <div style={{fontSize:11,color:'#6b7280'}}>{siteInfo.domain}</div>
+                      </div>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:12}}>
+                      <span style={{background:`${siteInfo.color}18`,color:siteInfo.color,padding:'4px 14px',borderRadius:20,fontSize:12,fontWeight:700}}>{subs.length} subscriber{subs.length!==1?'s':''}</span>
+                      <button onClick={()=>{
+                        const csv='Email,Source,Country,Date\n'+subs.map((s:any)=>`${s.email},${s.source||''},${s.ip_country||''},${new Date(s.subscribed_at).toLocaleDateString('en-GB')}`).join('\n')
+                        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${slug}-subscribers.csv`;a.click()
+                      }} style={{background:'transparent',border:'1px solid #e2e8f0',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer',color:'#6b7280',fontWeight:600}}>⬇ CSV</button>
+                    </div>
+                  </div>
+                  {subs.length===0 ? (
+                    <div style={{padding:'24px 20px',color:'#9ca3af',fontSize:13,textAlign:'center'}}>No subscribers yet on this site</div>
+                  ) : (
+                    <div style={{overflowX:'auto'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse'}}>
+                        <thead><tr style={{background:'#f8fafc'}}>
+                          {['Email','Source','Country','Subscribed'].map(h=><th key={h} style={{textAlign:'left',padding:'9px 20px',fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'.08em',borderBottom:'1px solid #f1f5f9'}}>{h}</th>)}
+                        </tr></thead>
+                        <tbody>
+                          {subs.map((s:any,i:number)=>(
+                            <tr key={s.id||i} style={{borderBottom:i<subs.length-1?'1px solid #f8fafc':'none'}}>
+                              <td style={{padding:'11px 20px',fontWeight:600,fontSize:13,color:'#111'}}>{s.email}</td>
+                              <td style={{padding:'11px 20px',fontSize:12}}><span style={{background:'#f1f5f9',color:'#475569',padding:'2px 8px',borderRadius:4,fontSize:11}}>{s.source||'footer'}</span></td>
+                              <td style={{padding:'11px 20px',fontSize:12,color:'#6b7280'}}>{s.ip_country||'—'}</td>
+                              <td style={{padding:'11px 20px',fontSize:11,color:'#9ca3af'}}>{new Date(s.subscribed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            {!subsLoading && subscribers.total===0 && (
+              <div style={{textAlign:'center',padding:'60px 20px',color:'#9ca3af'}}>
+                <div style={{fontSize:40,marginBottom:16}}>📭</div>
+                <div style={{fontWeight:700,fontSize:16,marginBottom:8,color:'#475569'}}>No subscribers yet</div>
+                <div style={{fontSize:13}}>Subscribe forms are live on all 3 portals</div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   )

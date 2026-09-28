@@ -37,13 +37,13 @@ function makeSlug(title: string): string {
 
 const ARTICLES: Record<string, { title: string; excerpt: string; content: string; category: string; tags: string[] }> = {
   'jewish-news-now': {
-    title: 'Israel-Gaza Ceasefire Negotiations: Where Things Stand in Late 2025',
+    title: 'Israel-Gaza Ceasefire Negotiations: Where Things Stand in Late 2026',
     excerpt:
       'A detailed look at the latest ceasefire talks between Israel and Hamas, the role of mediators Qatar, Egypt, and the United States, and what a lasting agreement would require.',
     category: 'Middle East',
     tags: ['Israel', 'Gaza', 'Hamas', 'ceasefire', 'Middle East peace'],
     content: `<h2>Quick Answer</h2>
-<p>As of late 2025, Israel-Gaza ceasefire negotiations continue in Doha with Qatar, Egypt, and the United States serving as mediators. The main sticking points remain the release of remaining hostages, the future governance of Gaza, and Israel's insistence on maintaining a security presence in the Philadelphi Corridor along the Gaza-Egypt border.</p>
+<p>As of late 2026, Israel-Gaza ceasefire negotiations continue in Doha with Qatar, Egypt, and the United States serving as mediators. The main sticking points remain the release of remaining hostages, the future governance of Gaza, and Israel's insistence on maintaining a security presence in the Philadelphi Corridor along the Gaza-Egypt border.</p>
 
 <h2>Background: How We Got Here</h2>
 <p>The conflict that began on October 7, 2023 reshaped the entire regional security landscape. Hamas launched a surprise attack on southern Israeli communities, killing approximately 1,200 people and taking around 250 hostages. Israel's military response, Operation Iron Swords, has continued for over two years with devastating consequences for Gaza's civilian population.</p>
@@ -59,7 +59,7 @@ const ARTICLES: Record<string, { title: string; excerpt: string; content: string
 <p>Israel's government under Prime Minister Netanyahu faces internal coalition pressure from far-right ministers who oppose any deal that leaves Hamas intact as a governing entity. Hamas, meanwhile, has demanded a complete Israeli withdrawal from Gaza as a precondition for any lasting agreement.</p>
 
 <h2>The Hostage Situation</h2>
-<p>Of the original 250+ hostages taken on October 7, 2023, an estimated 60–100 are still believed to be held in Gaza as of late 2025. The fate of those hostages — how many are still alive, and under what conditions — remains deeply uncertain. Families of the hostages have maintained constant public pressure on the Israeli government to prioritize their release.</p>
+<p>Of the original 250+ hostages taken on October 7, 2023, an estimated 60–100 are still believed to be held in Gaza as of late 2026. The fate of those hostages — how many are still alive, and under what conditions — remains deeply uncertain. Families of the hostages have maintained constant public pressure on the Israeli government to prioritize their release.</p>
 
 <h2>Regional and International Reactions</h2>
 <p>The United States under the current administration has continued to provide diplomatic support for a negotiated solution while maintaining its security commitments to Israel. Arab states including Saudi Arabia, Jordan, and Egypt have all called for an immediate ceasefire and have expressed concern about regional destabilization.</p>
@@ -95,15 +95,15 @@ const ARTICLES: Record<string, { title: string; excerpt: string; content: string
   },
 
   'jewish-property-report': {
-    title: 'Buying Property in Tel Aviv in 2025: Complete Cost Guide for Olim and Foreign Buyers',
+    title: 'Buying Property in Tel Aviv in 2026: Complete Cost Guide for Olim and Foreign Buyers',
     excerpt:
-      'A step-by-step breakdown of what it costs to buy an apartment in Tel Aviv in 2025 — purchase taxes, legal fees, mortgage rates, and how the rules differ for new immigrants vs. foreign buyers.',
+      'A step-by-step breakdown of what it costs to buy an apartment in Tel Aviv in 2026 — purchase taxes, legal fees, mortgage rates, and how the rules differ for new immigrants vs. foreign buyers.',
     category: 'Property',
     tags: ['Tel Aviv', 'Israel real estate', 'aliyah', 'property tax', 'mortgage Israel'],
     content: `<h2>Quick Answer</h2>
 <p>Buying a ₪3,000,000 apartment in Tel Aviv as a first-time buyer (Israeli resident) costs approximately ₪3,180,000–₪3,250,000 all-in after taxes and fees. New immigrants (olim) receive a purchase tax exemption on the first ₪1,846,960 of the purchase price, saving up to ₪40,000–₪60,000 compared to a regular Israeli buyer.</p>
 
-<h2>Tel Aviv Property Prices: 2025 Overview</h2>
+<h2>Tel Aviv Property Prices: 2026 Overview</h2>
 <p>Tel Aviv remains one of the most expensive real estate markets globally. Average prices by area:</p>
 <table>
   <thead><tr><th>Neighbourhood</th><th>Avg. Price/sqm (₪)</th><th>Typical 3BR Apartment (₪)</th></tr></thead>
@@ -116,7 +116,7 @@ const ARTICLES: Record<string, { title: string; excerpt: string; content: string
   </tbody>
 </table>
 
-<h2>Purchase Tax (Mas Rechisha) — 2025 Rates</h2>
+<h2>Purchase Tax (Mas Rechisha) — 2026 Rates</h2>
 <h3>For Israeli Residents — First Home</h3>
 <table>
   <thead><tr><th>Price Bracket (₪)</th><th>Tax Rate</th></tr></thead>
@@ -151,9 +151,9 @@ const ARTICLES: Record<string, { title: string; excerpt: string; content: string
   <li><strong>Property survey / inspection</strong>: ₪1,500–₪3,000</li>
 </ul>
 
-<h2>Mortgages in Israel: 2025 Rates</h2>
+<h2>Mortgages in Israel: 2026 Rates</h2>
 <p>Israeli mortgages are typically blended products combining fixed-rate (Kvoua), prime-linked (Prime minus spread), and CPI-linked (Tzamud Madad) tranches. Banks are required by Bank of Israel regulation to limit prime-linked exposure to 33% of the total mortgage.</p>
-<p>Indicative 2025 rates (vary by bank and profile):</p>
+<p>Indicative 2026 rates (vary by bank and profile):</p>
 <ul>
   <li><strong>Fixed rate (20 years)</strong>: 4.8%–6.2% annually</li>
   <li><strong>Prime-linked</strong>: Bank of Israel prime (currently ~6%) minus 0.5%–1.5%</li>
@@ -174,13 +174,13 @@ const ARTICLES: Record<string, { title: string; excerpt: string; content: string
   },
 
   'aliya-today': {
-    title: 'Making Aliyah in 2025: The Complete Step-by-Step Guide for English Speakers',
+    title: 'Making Aliyah in 2026: The Complete Step-by-Step Guide for English Speakers',
     excerpt:
-      'Everything you need to know about making aliyah in 2025 — from the initial NBN application to landing in Israel, your rights as a new immigrant, and what to expect in the first 90 days.',
+      'Everything you need to know about making aliyah in 2026 — from the initial NBN application to landing in Israel, your rights as a new immigrant, and what to expect in the first 90 days.',
     category: 'Aliyah Guide',
     tags: ['aliyah', 'Israel immigration', 'NBN', 'nefesh b\'nefesh', 'Israeli citizenship'],
     content: `<h2>Quick Answer</h2>
-<p>To make aliyah in 2025, the primary pathway for English speakers is through the Jewish Agency for Israel (JAFI) together with Nefesh B'Nefesh (NBN) for North American and British applicants. The process takes 3–9 months depending on your documentation readiness, country of origin, and chosen aliyah date. You do not need to already have Israeli citizenship — the Law of Return grants the right to citizenship to eligible Jewish individuals and their family members.</p>
+<p>To make aliyah in 2026, the primary pathway for English speakers is through the Jewish Agency for Israel (JAFI) together with Nefesh B'Nefesh (NBN) for North American and British applicants. The process takes 3–9 months depending on your documentation readiness, country of origin, and chosen aliyah date. You do not need to already have Israeli citizenship — the Law of Return grants the right to citizenship to eligible Jewish individuals and their family members.</p>
 
 <h2>Who Is Eligible to Make Aliyah?</h2>
 <p>Under Israel's Law of Return (1950) and its 1970 amendment, the following are eligible:</p>
