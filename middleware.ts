@@ -45,10 +45,12 @@ export function middleware(request: NextRequest) {
     return res
   }
 
-  // Rewrite homepage + category pages to the site's template route
+  // Rewrite homepage + category pages to the site's template route.
+  // app/s/page.tsx reads site by host header — NOT by slug in the URL —
+  // so we rewrite to /s (the route), NOT /s/aliya-today (which has no page).
   const rewriteUrl = new URL(request.url)
   rewriteUrl.pathname = portal.route
-    ? `/${portal.route}/${portal.slug}${pathname === '/' ? '' : pathname}`
+    ? `/${portal.route}${pathname === '/' ? '' : pathname}`
     : `/${portal.slug}${pathname === '/' ? '' : pathname}`
 
   const res = NextResponse.rewrite(rewriteUrl)
