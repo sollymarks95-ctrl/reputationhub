@@ -38,10 +38,15 @@ function getDb() {
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers()
   const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
+  const siteSlugHeader = headersList.get('x-site-slug') || ''
   const db = getDb()
-  const { data: site } = await db.from('news_sites')
+  // Prefer slug from middleware header (injected via rewrite) — avoids domain mismatch.
+  // Fall back to domain lookup for direct /s access.
+  const q = db.from('news_sites')
     .select('name,description,seo_description,noindex,tagline,template_config,category,slug,domain,primary_color')
-    .eq('domain', host).single()
+  const { data: site } = siteSlugHeader
+    ? await q.eq('slug', siteSlugHeader).single()
+    : await q.eq('domain', host).single()
 
   const siteName  = site?.name || 'Financial Intelligence'
   const tagline   = site?.tagline || site?.template_config?.tagline || site?.description || 'Financial news, analysis and market intelligence'
@@ -108,13 +113,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DynamicSitePage() {
   const headersList = await headers()
   const host = (headersList.get('host') || '').replace(/^www\./, '').split(':')[0]
+  const siteSlugHeader = headersList.get('x-site-slug') || ''
   const db = getDb()
 
-  const { data: site } = await db
-    .from('news_sites')
-    .select('*')
-    .eq('domain', host)
-    .single()
+  const q = db.from('news_sites').select('*')
+  const { data: site } = siteSlugHeader
+    ? await q.eq('slug', siteSlugHeader).single()
+    : await q.eq('domain', host).single()
 
   if (!site) return notFound()
 

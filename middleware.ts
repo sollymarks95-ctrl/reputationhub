@@ -45,10 +45,14 @@ export function middleware(request: NextRequest) {
     return res
   }
 
-  // Rewrite to the site's template route.
-  // For route='s' sites: ALWAYS rewrite to /s — app/s/page.tsx reads the
-  // host header to identify the site. Category/sub-paths also go to /s
-  // (client-side JS handles filtering). Never include slug in path here.
+  // Pass slug as REQUEST header so the page can read it via headers().
+  // NextResponse.rewrite() with { request: { headers } } injects headers
+  // into the rewritten request — this is the only reliable way to pass
+  // data from middleware to a server component.
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-site-slug', portal.slug)
+  requestHeaders.set('x-custom-domain', 'true')
+
   const rewriteUrl = new URL(request.url)
   if (portal.route === 's') {
     rewriteUrl.pathname = '/s'
@@ -58,10 +62,7 @@ export function middleware(request: NextRequest) {
       : `/${portal.slug}${pathname === '/' ? '' : pathname}`
   }
 
-  const res = NextResponse.rewrite(rewriteUrl)
-  res.headers.set('x-custom-domain', 'true')
-  res.headers.set('x-site-slug', portal.slug)
-  return res
+  return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
 }
 
 export const config = {
