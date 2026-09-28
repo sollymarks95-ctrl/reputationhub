@@ -106,7 +106,7 @@ async function publishToDevTo(article: any, site: any, domain: string, apiKey: s
       title:          article.title,
       published:      true,
       body_markdown:  `> *Originally published at [${site.name}](${canonical})*\n\n${bodyMd.slice(0, 3000)}\n\n---\n*Read the full article at [${site.name}](${canonical})*`,
-      tags:           (article.tags || []).slice(0, 4).map((t: string) => t.replace(/\s+/g, '').toLowerCase()),
+      tags:           (article.tags || []).slice(0, 4).map((t: string) => t.replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 30)).filter(Boolean),
       canonical_url:  canonical,
       description:    excerpt,
       series:         site.name,
@@ -394,11 +394,15 @@ export async function GET(req: NextRequest) {
       siteReport.layers.substack = { skipped: true, setup: 'Set SUBSTACK_COOKIE env var', da: 81 }
     }
 
-    // Mark article as syndicated
+    // Mark article as syndicated per platform so it never posts twice
     if (topArt) {
       const currentTags = topArt.tags || []
-      if (!currentTags.includes('syndicated')) {
-        await db.from('news_articles').update({ tags: [...currentTags, 'syndicated'] }).eq('id', topArt.id)
+      const newTags = [...currentTags]
+      if (!newTags.includes('syndicated')) newTags.push('syndicated')
+      if (siteReport.layers.devto?.status === 201 && !newTags.includes('syndicated_devto')) newTags.push('syndicated_devto')
+      if (siteReport.layers.hashnode?.status === 200 && !newTags.includes('syndicated_hashnode')) newTags.push('syndicated_hashnode')
+      if (newTags.length !== currentTags.length) {
+        await db.from('news_articles').update({ tags: newTags }).eq('id', topArt.id)
       }
     }
 
