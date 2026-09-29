@@ -1,0 +1,24 @@
+name: Fix & Publish Articles Now
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-articles.yml'
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Vercel deploy
+        run: sleep 75
+
+      - name: Fix orphaned articles
+        run: |
+          echo "Running fix-articles..."
+          curl -s "https://rephuby.com/api/admin/fix-articles?secret=rephub-cron-2025-secure" | python3 -m json.tool
+
+      - name: Run publish-now for all 3 sites
+        run: |
+          echo "Generating new articles..."
+          curl -s --max-time 290 "https://rephuby.com/api/admin/publish-now?secret=rephub-cron-2025-secure&n=3" | python3 -m json.tool
