@@ -178,20 +178,38 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'ANTHROPIC_API_KEY not found in DB or env' }, { status: 500 })
   }
 
+  // ── Look up REAL site IDs from DB — never rely on hardcoded UUIDs ──────────
+  const slugsToRun = siteFilter
+    ? SITES.filter(s => s.slug === siteFilter).map(s => s.slug)
+    : SITES.map(s => s.slug)
+
+  const { data: dbSites, error: dbErr } = await db
+    .from('news_sites')
+    .select('id,slug,name,is_live,domain')
+    .in('slug', slugsToRun)
+
+  if (dbErr || !dbSites?.length) {
+    return NextResponse.json({ error: `DB lookup failed: ${dbErr?.message || 'no sites found'}`, slugs: slugsToRun }, { status: 500 })
+  }
+
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0)
   const DAILY_CAP = 15
   const report: any[] = []
 
-  const targetSites = siteFilter ? SITES.filter(s => s.slug === siteFilter) : SITES
+  for (const dbSite of dbSites) {
+    // Merge DB row with static config (topics, persona, etc.)
+    const staticCfg = SITES.find(s => s.slug === dbSite.slug)!
+    const site = { ...staticCfg, id: dbSite.id, domain: dbSite.domain || staticCfg.domain }
 
-  for (const site of targetSites) {
-    const siteReport: any = { site: site.slug, inserted: 0, errors: [], articles: [] }
+    const siteReport: any = {
+      site: site.slug,
+      db_id: dbSite.id,  // show real ID so we can verify
+      inserted: 0, errors: [], articles: []
+    }
 
-    // Check is_live
-    const { data: siteRow } = await db.from('news_sites').select('is_live').eq('slug', site.slug).single()
-    if (!siteRow?.is_live) {
-      // Auto-fix
-      await db.from('news_sites').update({ is_live: true }).eq('slug', site.slug)
+    // Auto-fix is_live
+    if (!dbSite.is_live) {
+      await db.from('news_sites').update({ is_live: true }).eq('id', dbSite.id)
       siteReport.fixed_live = true
     }
 
