@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getArticleImage } from '@/app/lib/articleImages'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -157,36 +158,7 @@ OUTPUT — valid JSON only, no markdown fences:
   return JSON.parse(jsonStr)
 }
 
-async function getImage(category: string, slug: string, domain: string): Promise<string> {
-  // Curated working Unsplash photo IDs (source.unsplash.com is deprecated)
-  const PHOTO_POOLS: Record<string, string[]> = {
-    'News': [
-      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&q=80',
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80',
-      'https://images.unsplash.com/photo-1518638150340-f706e86654de?w=1200&q=80',
-      'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1200&q=80',
-      'https://images.unsplash.com/photo-1565118531796-763e5082d113?w=1200&q=80',
-      'https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=1200&q=80',
-    ],
-    'Real Estate': [
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80',
-      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&q=80',
-      'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=1200&q=80',
-      'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80',
-    ],
-    'Aliyah Guides': [
-      'https://images.unsplash.com/photo-1565118531796-763e5082d113?w=1200&q=80',
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80',
-      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&q=80',
-      'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80',
-      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=80',
-    ],
-  }
-  const pool = PHOTO_POOLS[category] || PHOTO_POOLS['News']
-  const idx = Math.floor(Math.random() * pool.length)
-  return pool[idx]
-}
+// Image selection now uses getArticleImage (Openverse + picsum fallback) — unique per article
 
 // ── Main handler ─────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
@@ -275,7 +247,7 @@ export async function GET(req: NextRequest) {
         if (!article) { siteReport.errors.push(`${topic}: no article returned`); continue }
 
         const slug = `${slugify(article.title)}-${Date.now()}`
-        const coverImage = await getImage(article.category, slug, site.domain)
+        const coverImage = await getArticleImage(article.category, slug, site.domain, article.title)
 
         const { error: insertErr } = await db.from('news_articles').insert({
           news_site_id: site.id,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getArticleImage } from '@/app/lib/articleImages'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,11 +102,36 @@ export async function GET(req: NextRequest) {
     })
   }
 
+  // ── Fix broken images (source.unsplash.com is dead since 2022) ────────────
+  const { data: brokenImgArticles } = await db
+    .from('news_articles')
+    .select('id, title, slug, category, cover_image_url')
+    .in('news_site_id', realIds)
+    .or('cover_image_url.like.%source.unsplash.com%,cover_image_url.is.null,cover_image_url.eq.')
+    .limit(50)
+
+  let fixedImages = 0
+  const siteMap = Object.fromEntries(dbSites.map(s => [s.id, s.domain]))
+  for (const a of brokenImgArticles || []) {
+    try {
+      // Find the site domain for this article (we need to look up its site)
+      const { data: artSite } = await db.from('news_articles')
+        .select('news_site_id').eq('id', a.id).single()
+      const domain = artSite ? siteMap[artSite.news_site_id] || 'aliyatoday.com' : 'aliyatoday.com'
+      const newImg = await getArticleImage(a.category || 'News', a.slug || a.id, domain, a.title || '')
+      const { error } = await db.from('news_articles')
+        .update({ cover_image_url: newImg })
+        .eq('id', a.id)
+      if (!error) fixedImages++
+    } catch { /* skip */ }
+  }
+
   return NextResponse.json({
     ok: true,
     orphaned_found: orphaned.length,
     orphaned_fixed: fixedOrphans,
     status_fixed: fixedStatus,
+    images_fixed: fixedImages,
     sites: summary,
   })
 }
