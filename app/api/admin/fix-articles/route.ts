@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   // Real site IDs from DB
   const { data: dbSites } = await db
     .from('news_sites')
-    .select('id, slug, name, domain')
+    .select('id, slug, name, domain, noindex, is_live')
     .in('slug', JEWISH_SLUGS)
 
   if (!dbSites?.length) {
@@ -28,6 +28,18 @@ export async function GET(req: NextRequest) {
   }
 
   const realIds = dbSites.map(s => s.id)
+
+  // ── CRITICAL: ensure all Jewish sites are indexable ───────────────────────
+  // noindex defaults to true in page.tsx — must be explicitly false or Google won't crawl
+  let fixedIndexing = 0
+  for (const s of dbSites) {
+    if (s.noindex !== false || s.is_live !== true) {
+      const { error } = await db.from('news_sites')
+        .update({ noindex: false, is_live: true })
+        .eq('id', s.id)
+      if (!error) fixedIndexing++
+    }
+  }
 
   // Find ALL articles from these sites in any status - last 24h
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -132,6 +144,7 @@ export async function GET(req: NextRequest) {
     orphaned_fixed: fixedOrphans,
     status_fixed: fixedStatus,
     images_fixed: fixedImages,
+    indexing_fixed: fixedIndexing,
     sites: summary,
   })
 }
