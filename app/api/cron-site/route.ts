@@ -283,6 +283,30 @@ const ANGLES_ALIYAH = [
   'Myth-busting angle — a common misconception about this topic, corrected with the real process.',
 ]
 
+// Angles for jewish-news-now — Israel/Jewish news journalism
+const ANGLES_JEWISH_NEWS = [
+  'Lead with the single most important new development — what changed today or this week.',
+  'Reactions angle — how Jewish organizations, Israeli officials, or diaspora communities are responding.',
+  'Historical context angle — how this connects to broader patterns in Jewish or Israeli history.',
+  'Community impact angle — what this means practically for Jewish families in Israel or abroad.',
+  'Comparison angle — how this situation compares to a similar past event or how other countries handle it.',
+  'Data angle — lead with the most striking statistic, poll figure, or official number in the story.',
+  'Stakes angle — what happens next, and why it matters for Israel or world Jewry.',
+  'Human story angle — anchor the news in one real person, community, or institution.',
+]
+
+// Angles for jewish-property-report — Israeli real estate for diaspora buyers
+const ANGLES_PROPERTY = [
+  'Lead with a price figure or market stat that surprises diaspora buyers.',
+  'Step-by-step process angle — exactly what a foreign buyer needs to do, in order.',
+  'Neighborhood deep-dive — granular price data, walk score, community, amenities for one area.',
+  'Full cost breakdown — purchase price plus all taxes, legal fees, agency costs, and hidden charges.',
+  'City comparison — two neighborhoods or cities side by side with real ₪ figures from Madlan/Yad2.',
+  'Investor angle — rental yield, capital appreciation trend, and vacancy rates for a specific area.',
+  'Pitfall angle — what diaspora buyers commonly get wrong and how to avoid it.',
+  'Market timing angle — is now a good or bad time to buy, backed by Bank of Israel or CBS data.',
+]
+
 // Portal-specific article FORMATS — prevents every article looking identical
 // Each portal has distinct structural DNA
 // ─── UPGRADED FORMATS ───────────────────────────────────────────────────────
@@ -854,7 +878,10 @@ async function writeArticle(site: any, topic: string, brandNote: string, isJewis
   const today = new Date().toISOString().split('T')[0]
   const isBrandArticle = brandNote.trim().length > 0
   const persona = SITE_PERSONA[site.slug] || 'Authoritative financial journalist. Factual, data-driven.'
-  const angleSet = isJewishPortal ? ANGLES_ALIYAH : ANGLES
+  const angleSet = site.slug === 'jewish-news-now' ? ANGLES_JEWISH_NEWS
+    : site.slug === 'jewish-property-report' ? ANGLES_PROPERTY
+    : isJewishPortal ? ANGLES_ALIYAH
+    : ANGLES
   const angle   = angleSet[Math.floor(Math.random() * angleSet.length)]
   const format  = SITE_FORMAT[site.slug] || 'FORMAT: Comprehensive analysis. 1,400-1,600 words. H2 sections, comparison table, 4 FAQ questions.'
 
@@ -1130,25 +1157,69 @@ async function discoverFreshTopics(site: any, count: number, isJewishPortal = fa
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{
           role: 'user',
-          content: isJewishPortal
+          content: site.slug === 'aliya-today'
   ? `You are planning today's content for ${site.name}, a practical English-language Aliyah help center — NOT a finance, markets, or politics site. Today: ${today}.
 Search specifically: "${seedTopics.slice(0,4).join('", "')}"
 ${avoidBlock}
 
-Generate exactly ${count} article topics using this mix (if count is less than 10, keep the same proportions):
+Generate exactly ${count} article topics using this mix:
 - Practical long-tail Aliyah guides (documents, process, bureaucracy, money, healthcare, housing)
 - Country-specific Aliyah guides (only if the country isn't already well covered — check the avoid-list above)
-- City, neighborhood, or region guides (only if not already covered)
+- City, neighborhood, or region guides within Israel (only if not already covered)
 - One money, benefits, tax, banking, or checklist topic
 - One family, lifestyle, school, healthcare, army, pet, or retirement topic
-- One narrow FAQ-style topic answering one very specific question
+- One narrow FAQ-style topic answering one very specific Aliyah question
 
 RULES:
-- Every topic must answer a real question a real person considering or making Aliyah would ask Google or an AI assistant.
-- Do not propose a country or city page that only swaps the name of one already covered — each must have a genuinely distinct angle or be a genuinely new country/city.
-- Do not propose a topic that duplicates or closely overlaps the avoid-list above.
-- Do not propose finance/markets/investor-flavored topics (e.g. nothing about "asset allocation," "portfolio risk," "capital flight," "investor-olim," "winners and losers").
-- Prefer topics from this style: "How Long Does Aliyah Take in 2026?", "What Documents Do You Need for Aliyah from the USA?", "Can You Make Aliyah Without Speaking Hebrew?", "How to Choose a Kupat Holim as a New Oleh", "Can You Make Aliyah with a Dog or Cat?"
+- Every topic must answer a real question a real person considering or making Aliyah would ask.
+- Do not propose a country or city page that only swaps the name of one already covered.
+- Do not propose finance/markets/investor-flavored topics.
+- Prefer topics like: "How Long Does Aliyah Take?", "What Documents for Aliyah from the USA?", "How to Choose a Kupat Holim as a New Oleh"
+
+Return ONLY a JSON array of ${count} topic strings, no other text.`
+  : site.slug === 'jewish-news-now'
+  ? `You are planning today's content for ${site.name}, an English-language Jewish and Israel news site. Today: ${today}.
+Search specifically: "${seedTopics.slice(0,4).join('", "')}"
+${avoidBlock}
+
+Generate exactly ${count} timely news article topics covering:
+- Breaking Israel/Middle East news and developments
+- Antisemitism incidents, trends, and community responses
+- Israeli politics, Knesset, government decisions
+- Jewish diaspora community news (USA, UK, France, etc.)
+- Israel-US relations, diplomacy, geopolitics
+- Israeli innovation, tech, economy, startups
+- Jewish culture, religion, holidays, lifecycle events
+
+RULES:
+- Every topic must be something a Jewish or pro-Israel reader would search for RIGHT NOW.
+- Do not propose Aliyah process guides (that's AliyaToday.com's niche).
+- Do not propose Israeli real estate content (that's JewishPropertyReport.com's niche).
+- Do not propose finance/markets/investing topics.
+- Prefer timely news angles: "Israel [event] 2026", "Jewish community responds to [issue]", "[Country] antisemitism report 2026"
+
+Return ONLY a JSON array of ${count} topic strings, no other text.`
+  : site.slug === 'jewish-property-report'
+  ? `You are planning today's content for ${site.name}, an English-language Israeli real estate site for diaspora buyers. Today: ${today}.
+Search specifically: "${seedTopics.slice(0,4).join('", "')}"
+${avoidBlock}
+
+Generate exactly ${count} real estate article topics covering:
+- Israeli property prices by neighborhood/city (Tel Aviv, Jerusalem, Haifa, Netanya, Ra'anana, etc.)
+- Step-by-step guides for foreigners buying property in Israel
+- Israeli property taxes: Mas Rechisha (purchase tax), Mas Shevach (capital gains), Arnona (municipal)
+- Israeli mortgages (mashkanta) for non-residents and olim
+- Israeli real estate law, Tabu (land registry), lawyers, notaries
+- Rental yields, investment returns, buy-to-let in Israel
+- Specific neighborhoods: prices, pros/cons, diaspora buyer activity
+- Tama 38, Pinui Binui urban renewal programs
+
+RULES:
+- Every topic must answer a real question a diaspora Jew considering buying Israeli property would ask.
+- Include real ₪ figures and data where possible.
+- Do not propose Aliyah process guides.
+- Do not propose Israel news content.
+- Do not propose generic finance/investing topics.
 
 Return ONLY a JSON array of ${count} topic strings, no other text.`
   : `Search for what is trending in financial news TODAY (${today}) related to: ${site.shortName} topics — ${seedTopics.join(', ')}.
