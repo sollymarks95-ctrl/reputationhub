@@ -32,6 +32,8 @@ export default function AliyaAdmin() {
   const [artPages, setArtPages] = useState(1)
   const [artLoading, setArtLoading] = useState(false)
   const [artSite, setArtSite] = useState('all')
+  const [genLoading, setGenLoading] = useState(false)
+  const [genResult, setGenResult] = useState<any>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [generating, setGenerating] = useState(false)
   const [tone, setTone] = useState('Warm & Personal')
@@ -95,6 +97,19 @@ export default function AliyaAdmin() {
     } finally { setSubsLoading(false) }
   },[])
   useEffect(()=>{ if(auth&&tab==='subscribers'&&subscribers.total===0&&!subsLoading) loadSubscribers() },[auth,tab,subscribers.total,subsLoading,loadSubscribers])
+
+  async function generateArticlesNow(){
+    setGenLoading(true); setGenResult(null)
+    try {
+      const r = await fetch('/api/admin/fix-site-live?secret=rephub-cron-2025-secure&trigger=1')
+      const d = await r.json()
+      setGenResult(d)
+      // Reload articles list after 3 seconds
+      setTimeout(()=>{ loadArticles(1, artSite); loadStats() }, 3000)
+    } catch(e:any) {
+      setGenResult({ error: e.message })
+    } finally { setGenLoading(false) }
+  }
 
   async function generatePosts(){
     setGenerating(true)
@@ -248,15 +263,42 @@ export default function AliyaAdmin() {
                 <h1 style={{fontSize:24,fontWeight:900,color:'#111',margin:0}}>All Articles</h1>
                 <p style={{color:'#6b7280',fontSize:13,marginTop:4}}>{artTotal} published articles · Page {artPage} of {artPages}</p>
               </div>
-              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
                 {[{v:'all',l:'All Sites'},...SITES.map(s=>({v:s.slug,l:s.icon+' '+s.name}))].map(o=>(
                   <button key={o.v} onClick={()=>{setArtSite(o.v);setArtPage(1)}}
                     style={{padding:'7px 14px',borderRadius:8,border:'1px solid '+(artSite===o.v?'#c47d1a':'#e5e7eb'),background:artSite===o.v?'#c47d1a':'#fff',color:artSite===o.v?'#fff':'#374151',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
                     {o.l}
                   </button>
                 ))}
+                <button onClick={generateArticlesNow} disabled={genLoading}
+                  style={{padding:'8px 16px',borderRadius:8,border:'none',background:genLoading?'#9ca3af':'#16a34a',color:'#fff',fontSize:13,fontWeight:700,cursor:genLoading?'wait':'pointer',fontFamily:'Inter,sans-serif',display:'flex',alignItems:'center',gap:6}}>
+                  {genLoading ? '⏳ Generating…' : '🔄 Generate Articles Now'}
+                </button>
               </div>
             </div>
+            {genResult && (
+              <div style={{marginBottom:16,padding:14,borderRadius:10,background: genResult.error ? '#fef2f2' : '#f0fdf4',border:'1px solid '+(genResult.error?'#fca5a5':'#86efac')}}>
+                {genResult.error ? (
+                  <span style={{color:'#dc2626',fontSize:13}}>❌ Error: {genResult.error}</span>
+                ) : (
+                  <div>
+                    <div style={{fontWeight:700,color:'#15803d',fontSize:13,marginBottom:8}}>✅ Generation triggered!</div>
+                    {genResult.sites?.map((s:any) => (
+                      <div key={s.slug} style={{fontSize:12,color:'#374151',marginBottom:4}}>
+                        <span style={{fontWeight:600}}>{s.name}</span>: {s.was_live ? '✅ was live' : '⚠️ was offline → fixed ✅'} · {s.articles_today} articles today · {s.articles_total} total
+                      </div>
+                    ))}
+                    {genResult.trigger?.map((t:any) => (
+                      <div key={t.slug} style={{fontSize:11,color:'#6b7280',marginTop:2}}>
+                        {t.slug}: {t.result?.inserted !== undefined ? `+${t.result.inserted} new` : t.result?.note || t.result?.error || 'sent'}
+                      </div>
+                    ))}
+                    <div style={{fontSize:11,color:'#6b7280',marginTop:6}}>Articles list will refresh in 3 seconds…</div>
+                  </div>
+                )}
+              </div>
+            )}
+            {!genResult && <div style={{marginBottom:16}}></div>}
             {artLoading ? <div style={{color:'#9ca3af',padding:40,textAlign:'center'}}>Loading...</div> : (
               <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:12,overflow:'hidden'}}>
                 {/* Header row */}
