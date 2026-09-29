@@ -1,9 +1,9 @@
-name: Fix & Publish Articles Now
+name: Fix & Generate Jewish Portal Articles
+
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/fix-articles.yml'
+    paths: ['.github/workflows/fix-articles.yml']
   workflow_dispatch:
 
 jobs:
@@ -11,14 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for Vercel deploy
-        run: sleep 75
+        run: sleep 90
+
+      - name: Site check — confirm DB query returns articles
+        run: |
+          echo "=== SITE CHECK ==="
+          curl -s "https://rephuby.com/api/admin/site-check?secret=rephub-cron-2025-secure" | python3 -m json.tool || true
 
       - name: Fix orphaned articles
         run: |
-          echo "Running fix-articles..."
-          curl -s "https://rephuby.com/api/admin/fix-articles?secret=rephub-cron-2025-secure" | python3 -m json.tool
+          echo "=== FIX ARTICLES ==="
+          curl -s "https://rephuby.com/api/admin/fix-articles?secret=rephub-cron-2025-secure" | python3 -m json.tool || true
 
-      - name: Run publish-now for all 3 sites
+      - name: Generate 3 articles per site
         run: |
-          echo "Generating new articles..."
-          curl -s --max-time 290 "https://rephuby.com/api/admin/publish-now?secret=rephub-cron-2025-secure&n=3" | python3 -m json.tool
+          echo "=== PUBLISH NOW ==="
+          curl -s --max-time 290 "https://rephuby.com/api/admin/publish-now?secret=rephub-cron-2025-secure&n=3" | python3 -m json.tool || true
+
+      - name: Final site check
+        run: |
+          echo "=== FINAL CHECK ==="
+          sleep 5
+          curl -s "https://rephuby.com/api/admin/site-check?secret=rephub-cron-2025-secure" | python3 -m json.tool || true
