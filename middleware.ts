@@ -35,6 +35,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/llms.txt') ||
     pathname.startsWith('/legal/') ||
     pathname.startsWith('/aliya-admin') ||
+    pathname.startsWith('/calculators') ||
+    pathname.startsWith('/guides') ||
     pathname.startsWith('/portal/') ||
     pathname.startsWith('/author/') ||
     pathname.startsWith('/news/') ||
