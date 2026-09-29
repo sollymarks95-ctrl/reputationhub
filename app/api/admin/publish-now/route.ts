@@ -93,18 +93,29 @@ async function generateArticle(
 
   const prompt = `You are: ${site.persona}
 
-Write a complete, publication-ready article for ${site.name} (${site.domain}).
+Write a gripping, deeply reported article for ${site.name} (${site.domain}) that readers will read start to finish.
 
 TOPIC: ${topic}
 
 DO NOT repeat these recent angles:
 ${recentList || '(none yet)'}
 
+WRITING RULES — follow every one:
+1. Open with a SCENE or MOMENT — drop the reader straight into a specific situation, quote, data point, or human detail. No "In recent years..." or "This article explores..." openers. Grab them in the first sentence.
+2. NARRATIVE STRUCTURE — tell a story. Each paragraph must pull the reader to the next. Use: tension, contrast, surprising facts, vivid specifics.
+3. REAL NUMBERS — every major claim needs a figure: prices, percentages, dates, amounts. Named sources (Reuters, JTA, Times of Israel, specific govt ministries, named officials).
+4. NO Q&A FORMAT. No "What is X? X is..." No bullet-list answers. No FAQ structure. Pure editorial prose with <h2> section headers that tease the next revelation, not label topics.
+5. HUMAN ELEMENT — include at least one real person, real institution, or real case study to anchor the story.
+6. LENGTH — 800-1,100 words. Use <h2>, <p> tags. A <ul>/<li> list is OK for data (e.g. cost breakdown, checklist) but must not replace paragraphs.
+7. ENDING — close with consequence or implication, not a summary. What does this mean for the reader going forward?
+
+SEO & AI ENGINE: weave the primary keyword naturally into title, first paragraph, one <h2>, and the closing paragraph. Use related semantic terms throughout.
+
 OUTPUT — valid JSON only, no markdown fences:
 {
-  "title": "60-70 char SEO headline with year if relevant",
-  "excerpt": "One factual sentence, under 155 chars, with a real statistic or key fact",
-  "body": "Full article HTML, 600-900 words. Use <h2>, <p>, <ul>/<li> tags. Include real figures, named sources, and specific details. No fluff.",
+  "title": "Compelling 60-70 char headline — specific, promise-driven, with year if relevant",
+  "excerpt": "One punchy sentence under 155 chars that makes someone click — lead with the most surprising fact or stakes",
+  "body": "Full HTML article following all rules above",
   "category": "${site.category}",
   "tags": ["tag1","tag2","tag3","tag4","tag5"]
 }`
