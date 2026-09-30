@@ -30,7 +30,7 @@ async function claude(prompt: string, system: string): Promise<string> {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type':'application/json','x-api-key':ANTH,'anthropic-version':'2023-06-01' },
-    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:3000, system, messages:[{role:'user',content:prompt}] })
+    body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:2000, system, messages:[{role:'user',content:prompt}] })
   })
   const d = await r.json()
   return d.content?.[0]?.text || ''
@@ -375,7 +375,7 @@ Return ONLY the email.`,
 
   // ── SEND SINGLE EMAIL ────────────────────────────────────────────────────────
   if (action === 'send_email') {
-    const RESEND_KEY = process.env.RESEND_API_KEY || 're_ETLunui3_XkPwMSAR319fD1EErHk6GeoE'
+    const RESEND_KEY = process.env.RESEND_API_KEY
     const { to, subject, text, html, orgName, orgType } = body
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -391,7 +391,7 @@ Return ONLY the email.`,
 
   // ── AUTO-OUTREACH: Send to 10 Jewish orgs ───────────────────────────────────
   if (action === 'auto_outreach') {
-    const RESEND_KEY = process.env.RESEND_API_KEY || 're_ETLunui3_XkPwMSAR319fD1EErHk6GeoE'
+    const RESEND_KEY = process.env.RESEND_API_KEY
 
     const TARGETS = [
       { name: "Nefesh B'Nefesh", type:'Aliyah Organisation', email:'info@nbn.org.il', angle:'As the leading aliyah facilitation org, your olim would benefit from our practical post-arrival guides.' },
@@ -484,7 +484,7 @@ Return ONLY the email.`,
 
   // ── CHECK RESEND KEY STATUS ─────────────────────────────────────────────────
   if (action === 'check_resend') {
-    const key = process.env.RESEND_API_KEY || 're_ETLunui3_XkPwMSAR319fD1EErHk6GeoE'
+    const key = process.env.RESEND_API_KEY
     // Test the key with a dry-run by hitting Resend domains endpoint
     try {
       const r = await fetch('https://api.resend.com/domains', {

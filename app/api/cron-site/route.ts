@@ -980,7 +980,9 @@ Return ONLY valid JSON, no markdown fences:
       // QUALITY MODE: Sonnet for all Jewish portal articles — deep, accurate, AI-optimized content
       // Web search on ALL Jewish articles (news + guides both need current data)
       // Aliya-today guides: web search for current gov figures; news sites: always search
-      const useWebSearch = isJewishPortal && !isRephubySite
+      // Web search on every other article to cut costs (~50% search spend saved).
+      // News site always searches (needs current facts); guides alternate.
+      const useWebSearch = isJewishPortal && !isRephubySite && (site.slug === 'jewish-news-now' || articleIndex % 2 === 0)
       const genHeaders: Record<string,string> = {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC,
@@ -988,17 +990,17 @@ Return ONLY valid JSON, no markdown fences:
         ...(useWebSearch ? { 'anthropic-beta': 'web-search-2025-03-05' } : {})
       }
       const genBody: any = useWebSearch ? {
-        model: 'claude-sonnet-4-5',  // Sonnet for quality — better reasoning, richer prose, accurate facts
-        max_tokens: 7000,  // Jewish sites: 2000-3500 word target; Sonnet produces longer, richer content
-        system: 'You are a senior journalist and editor specialising in Israel, aliyah, Israeli real estate, and Jewish world affairs. The current year is 2026. ALWAYS use web search to find current facts, today\'s prices, latest news, and official figures before writing. Search at least twice. Write like a professional journalist: AP/Reuters wire discipline for news (who/what/when/where in the lead), warm and authoritative for guides. Every article must include: (1) at least one real current data point or figure, (2) named real sources or institutions, (3) a standalone first paragraph that works as a direct answer for AI engines (ChatGPT, Perplexity, Google AI Overview). Do NOT write generic summaries. Do NOT use 2025 dates — it is 2026. After research, output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<html content>","category":"...","tags":[...]}  No preamble, no explanation, no markdown fences.',
+        model: 'claude-haiku-4-5-20251001',  // Haiku+web_search: ~8x cheaper than Sonnet, sufficient for factual SEO articles
+        max_tokens: 3500,  // 1,200-word article ≈ 1,600 tokens; 3,500 is a safe ceiling
+        system: 'You are a senior journalist specialising in Israel, aliyah, Israeli real estate, and Jewish world affairs. Year: 2026. Use web search for current facts and figures. Output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<html>","category":"...","tags":[...]}',
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
-        model: 'claude-sonnet-4-5',  // Sonnet for quality on all articles
-        max_tokens: isPillarArticle || isRephubySite ? 9000 : 6000,
-        system: isJewishPortal ? 'You are an expert content writer specialising in Jewish life, Israel, and aliyah. Respond with ONLY a single compact JSON line — no preamble: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"...","tags":[...]}' : 'You are a financial news writer. Always respond with ONLY valid compact JSON on a SINGLE LINE — no preamble, no explanation, no markdown fences, no newlines inside the JSON. Output must be: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}  The body may contain HTML but the JSON wrapper must be compact single-line.',
+        model: 'claude-haiku-4-5-20251001',  // Haiku for all non-search articles — plenty of quality for SEO content
+        max_tokens: isPillarArticle || isRephubySite ? 5000 : 3500,
+        system: isJewishPortal ? 'You are an expert content writer for Israel, aliyah, and Jewish affairs. Output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"...","tags":[...]}' : 'You are a financial news writer. Output ONLY valid compact JSON on a SINGLE LINE: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}',
         messages: [
-          { role: 'user', content: (isJewishPortal ? prompt.replace(/STEP 1: WEB SEARCH FIRST[\s\S]*?STEP 2:/,'STEP 2:').replace(/Use web search for[^.]+\.\s*/g,'') : prompt) + '\n\nOUTPUT: Single compact JSON line, no newlines in the JSON wrapper. The body field contains HTML but the JSON itself must be one line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Guide","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
+          { role: 'user', content: (isJewishPortal ? prompt.replace(/STEP 1: WEB SEARCH FIRST[\s\S]*?STEP 2:/,'STEP 2:').replace(/Use web search for[^.]+\.\s*/g,'') : prompt) + '\n\nOUTPUT: Single compact JSON line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Guide","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
         ]
       }
       const res = await fetch('https://api.anthropic.com/v1/messages', {

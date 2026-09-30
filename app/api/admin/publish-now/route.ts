@@ -130,13 +130,13 @@ OUTPUT — valid JSON only, no markdown fences:
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 4096,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 3500,
       messages: [{ role: 'user', content: prompt }],
       tools: [{
         type: 'web_search_20250305',
         name: 'web_search',
-        max_uses: 3,
+        max_uses: 2,
       }],
     }),
     signal: AbortSignal.timeout(90000),
