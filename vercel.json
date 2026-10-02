@@ -36,6 +36,9 @@
         },
         "app/api/cron-cannibal/route.ts": {
             "maxDuration": 300
+        },
+        "app/sitemap.xml/route.ts": {
+            "maxDuration": 60
         }
     },
     "crons": [

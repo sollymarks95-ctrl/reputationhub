@@ -64,8 +64,13 @@ const JEWISH_SITES: Record<string, { name: string; slug: string }> = {
 }
 
 export async function GET(req: NextRequest) {
-  const host  = (req.headers.get('x-forwarded-host') || req.headers.get('host') || '')
-    .replace(/^www\./, '').replace(/:\d+$/, '')
+  // x-site-slug is set by middleware (more reliable than x-forwarded-host on Vercel)
+  const siteSlug = req.headers.get('x-site-slug') || ''
+  // derive host from x-forwarded-host, falling back to x-site-slug reverse-lookup
+  const rawHost = req.headers.get('x-forwarded-host') || req.headers.get('host') || ''
+  const host  = rawHost.replace(/^www\./, '').replace(/:\d+$/, '')
+    || Object.entries(JEWISH_SITES).find(([,v]) => v.slug === siteSlug)?.[0]
+    || ''
   const base  = `https://${host}`
   const today = new Date().toISOString().split('T')[0]
   const nowMs = Date.now()
