@@ -7,6 +7,11 @@ export const revalidate = 1800 // 30 min cache
 function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const DOMAIN_MAP: Record<string, { slug: string; base: string; name: string }> = {
+  // ── Jewish portals (active) ──────────────────────────────────────────────────
+  'aliyatoday.com':            { slug:'aliya-today',            base:'https://aliyatoday.com',            name:'Aliya Today' },
+  'jewishnewsnow.com':         { slug:'jewish-news-now',        base:'https://jewishnewsnow.com',         name:'Jewish News Now' },
+  'jewishpropertyreport.com':  { slug:'jewish-property-report', base:'https://jewishpropertyreport.com',  name:'Jewish Property Report' },
+  // ── Finance portals (legacy) ─────────────────────────────────────────────────
   'nex-wire.com':  { slug:'global-trade-wire',  base:'https://nex-wire.com',  name:'Nex-Wire Intelligence' },
   'finvexx.com':   { slug:'finance-terminal',   base:'https://finvexx.com',   name:'Finvexx Markets' },
   'bizplezx.com':  { slug:'business-pulse',     base:'https://bizplezx.com',  name:'Bizplezx Executive' },
@@ -47,7 +52,7 @@ function newsEntry(loc: string, title: string, pubDate: string, pubName: string,
       </news:publication>
       <news:publication_date>${iso}</news:publication_date>
       <news:title>${xe(title)}</news:title>
-      <news:keywords>${xe(category)}, finance, markets</news:keywords>
+      <news:keywords>${xe(category)}</news:keywords>
     </news:news>
   </url>`
 }
