@@ -1532,15 +1532,19 @@ export async function GET(req: NextRequest) {
   const site = CORE_SITES[siteSlug]
   if (!site) return NextResponse.json({ error: `Unknown site: ${siteSlug}` }, { status: 400 })
 
+  const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+
   // LIVE-ONLY GUARD — never generate content for a domain that is not actually
   // live (checked against the real source of truth, news_sites.is_live), so no
   // API spend is wasted on portals nobody can visit. Clean no-op, not an error.
-  const { data: siteLive } = await getDb().from('news_sites').select('is_live').eq('slug', siteSlug).single()
-  if (!siteLive?.is_live) {
+  // EXCEPTION: Jewish portals are always live — auto-fix DB if flag is wrong.
+  const { data: siteLive } = await getDb().from('news_sites').select('is_live,noindex').eq('slug', siteSlug).single()
+  if (isJewishPortal && (!siteLive?.is_live || siteLive?.noindex !== false)) {
+    // Auto-fix: ensure Jewish portals are always live and indexable
+    await getDb().from('news_sites').update({ is_live: true, noindex: false }).eq('slug', siteSlug)
+  } else if (!isJewishPortal && !siteLive?.is_live) {
     return NextResponse.json({ site: siteSlug, batch, inserted: 0, skipped: 0, note: 'site is not live — generation skipped' })
   }
-
-  const isJewishPortal = ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
   const isRephubySite   = siteSlug === 'rephuby-intelligence'
   const BATCH_SIZE = isJewishPortal ? 2 : (isRephubySite ? 3 : 6)  // Jewish:2 quality articles per run (Sonnet), 12 runs/day = 24/day across 3 sites
   const batchStart = batch * BATCH_SIZE
