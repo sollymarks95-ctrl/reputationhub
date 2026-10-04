@@ -52,7 +52,9 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const siteName  = site?.name || 'Financial Intelligence'
   const tagline   = site?.tagline || site?.template_config?.tagline || site?.description || 'Financial news, analysis and market intelligence'
   const canonical = `https://${host}`
-  const noindex   = site?.noindex ?? true
+  // Jewish portals are always indexable — never noindex them regardless of DB value
+  const ALWAYS_INDEX = ['aliya-today','jewish-news-now','jewish-property-report']
+  const noindex   = ALWAYS_INDEX.includes(site?.slug||'') ? false : (site?.noindex ?? true)
 
   // Niche-targeted SEO per site
   const NICHE_KW: Record<string, string> = {

@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret') || req.headers.get('authorization')?.replace('Bearer ','')
   if (secret !== (process.env.CRON_SECRET||'')) return NextResponse.json({ error:'Unauthorized' },{ status:401 })
 
+  const db = getDb()
   const { data: articles } = await db
     .from('news_articles')
     .select('slug, news_site_id, news_sites!inner(slug)')
