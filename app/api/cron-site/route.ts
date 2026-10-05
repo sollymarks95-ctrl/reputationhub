@@ -992,13 +992,13 @@ Return ONLY valid JSON, no markdown fences:
       }
       const genBody: any = useWebSearch ? {
         model: 'claude-haiku-4-5-20251001',  // Haiku+web_search: ~8x cheaper than Sonnet, sufficient for factual SEO articles
-        max_tokens: 3500,  // 1,200-word article ≈ 1,600 tokens; 3,500 is a safe ceiling
+        max_tokens: 5000,  // 1,400-1,800 word article ≈ 1,800-2,400 tokens; 5,000 is safe ceiling for full length
         system: 'You are a senior journalist specialising in Israel, aliyah, Israeli real estate, and Jewish world affairs. Year: 2026. Use web search for current facts and figures. Output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<html>","category":"...","tags":[...]}',
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }],
       } : {
         model: 'claude-haiku-4-5-20251001',  // Haiku for all non-search articles — plenty of quality for SEO content
-        max_tokens: isPillarArticle || isRephubySite ? 5000 : 3500,
+        max_tokens: 5000,  // Always 5,000 — ensures 1,400-1,800 word target is achievable
         system: isJewishPortal ? 'You are an expert content writer for Israel, aliyah, and Jewish affairs. Output ONLY a single compact JSON line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"...","tags":[...]}' : 'You are a financial news writer. Output ONLY valid compact JSON on a SINGLE LINE: {"title":"...","excerpt":"...","body":"...","category":"...","tags":[...]}',
         messages: [
           { role: 'user', content: (isJewishPortal ? prompt.replace(/STEP 1: WEB SEARCH FIRST[\s\S]*?STEP 2:/,'STEP 2:').replace(/Use web search for[^.]+\.\s*/g,'') : prompt) + '\n\nOUTPUT: Single compact JSON line: {"title":"...","excerpt":"...","body":"<h2>...</h2><p>...</p>","category":"Guide","tags":["tag1","tag2","tag3","tag4","tag5"]}' },
@@ -1080,6 +1080,13 @@ Return ONLY valid JSON, no markdown fences:
         } catch(_) {}
       }
       if (!parsed?.title || !parsed?.body || parsed.title === '{') { console.error(`Parse fail attempt ${attempt+1}: ${clean.slice(0,100)}`); continue }
+      // Reject thin content — Google won't index articles under ~700 words
+      const wordCount = (parsed.body as string).replace(/<[^>]+>/g,'').split(/\s+/).filter(Boolean).length
+      const minWords = isPillarArticle ? 1800 : 700
+      if (wordCount < minWords) {
+        console.error(`[writeArticle] Thin content (${wordCount} words < ${minWords} min) attempt=${attempt+1} site=${site.slug||site.domain||'?'} — retrying`)
+        continue
+      }
       // Strip citation artifacts from all fields
       parsed.title   = stripCites(parsed.title)
       parsed.body    = stripCites(parsed.body)

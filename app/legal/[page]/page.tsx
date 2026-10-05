@@ -231,11 +231,13 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
   if (jewishSite) {
     const legal = jewishLegalContent(page, jewishSite)
     if (!legal) return { title: `Legal | ${jewishSite.name}` }
+    const BASE = `https://${host}`
     return {
       title: `${legal.title} | ${jewishSite.name}`,
       description: `${jewishSite.name} ${legal.title}`,
       keywords: 'aliyah, making aliyah, moving to israel, immigration to israel',
-      robots: 'noindex, nofollow',
+      robots: 'index, follow',
+      alternates: { canonical: `${BASE}/legal/${page}` },
       openGraph: { title: `${legal.title} | ${jewishSite.name}`, siteName: jewishSite.name, type: 'website' },
       twitter: { card: 'summary', title: `${legal.title} | ${jewishSite.name}` },
     }
@@ -246,7 +248,8 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
   return {
     title: `${legal.title} | RepHuby Intelligence`,
     description: `RepHuby Intelligence ${legal.title}`,
-    robots: 'noindex, nofollow',
+    robots: 'index, follow',
+    alternates: { canonical: `https://rephuby.com/legal/${page}` },
   }
 }
 

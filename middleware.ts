@@ -22,7 +22,17 @@ export function middleware(request: NextRequest) {
   const pathname = url.pathname
 
   const portal = DOMAIN_MAP[host]
-  if (!portal) return NextResponse.next() // unknown host — pass through
+
+  // Block direct access to /s?_site=... from unknown hosts (e.g. rephuby.com/s?_site=...)
+  // These URLs should never appear in Google's index — only the canonical domain URLs should.
+  if (!portal) {
+    if (pathname === '/s' || pathname.startsWith('/s?')) {
+      const res = NextResponse.next()
+      res.headers.set('X-Robots-Tag', 'noindex, nofollow')
+      return res
+    }
+    return NextResponse.next() // unknown host — pass through
+  }
 
   // Let these paths through without rewriting
   if (

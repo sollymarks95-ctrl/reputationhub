@@ -35,6 +35,28 @@ function getDb() {
   )
 }
 
+// Canonical domain map — used to ensure the correct domain is always set as
+// canonical, even if the page is rendered via the /s?_site=... rewrite path.
+const CANONICAL_DOMAIN: Record<string, string> = {
+  'global-trade-wire':      'https://nex-wire.com',
+  'finance-terminal':       'https://finvexx.com',
+  'business-pulse':         'https://bizplezx.com',
+  'gold-markets-today':     'https://aurexhq.com',
+  'trust-score':            'https://verivex.co',
+  'invest-data':            'https://invexhuby.com',
+  'market-radar':           'https://signalixx.com',
+  'executive-network':      'https://execvex.com',
+  'crypto-hub':             'https://cryptoxos.com',
+  'fx-vexx':                'https://fxvexx.com',
+  'trade-hub-iq':           'https://tradehubiq.com',
+  'aliya-today':            'https://aliyatoday.com',
+  'jewish-news-now':        'https://jewishnewsnow.com',
+  'jewish-property-report': 'https://jewishpropertyreport.com',
+  'copy-trade-iq':          'https://copyvexx.com',
+  'expat-invest-iq':        'https://expatinvestiq.com',
+  'rephuby-intelligence':   'https://rephuby.com',
+}
+
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ _site?: string }> }): Promise<Metadata> {
   const sp = await searchParams
   const siteSlug = sp._site || ''
@@ -51,7 +73,9 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
   const siteName  = site?.name || 'Financial Intelligence'
   const tagline   = site?.tagline || site?.template_config?.tagline || site?.description || 'Financial news, analysis and market intelligence'
-  const canonical = `https://${host}`
+  // Use the site's canonical domain (not current host) to avoid canonical mismatch
+  // when Google discovers the /s?_site=... URL via the middleware rewrite path.
+  const canonical = (site?.slug && CANONICAL_DOMAIN[site.slug]) || `https://${host}`
   // Jewish portals are always indexable — never noindex them regardless of DB value
   const ALWAYS_INDEX = ['aliya-today','jewish-news-now','jewish-property-report']
   const noindex   = ALWAYS_INDEX.includes(site?.slug||'') ? false : (site?.noindex ?? true)

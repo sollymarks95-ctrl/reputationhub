@@ -116,6 +116,9 @@ export async function GET(req: NextRequest) {
         u(`${base}/`, 'daily', '1.0', today),
         u(`${base}/author/solly-marks`, 'monthly', '0.8', today),
         u(`${base}/about`, 'monthly', '0.7'),
+        u(`${base}/legal/privacy`, 'yearly', '0.4'),
+        u(`${base}/legal/terms`, 'yearly', '0.4'),
+        u(`${base}/legal/disclaimer`, 'yearly', '0.4'),
       ]
 
       if (site) {
@@ -155,9 +158,11 @@ export async function GET(req: NextRequest) {
         }
 
         // Category hub pages — topical authority signals
+        // Use hyphens (not %20) to match the category page URL filter
         for (const cat of cats) {
+          const catSlug = cat.toLowerCase().replace(/\s+/g, '-')
           entries.push(u(
-            `${base}/article/${site.slug}/category/${encodeURIComponent(cat.toLowerCase())}`,
+            `${base}/article/${site.slug}/category/${encodeURIComponent(catSlug)}`,
             'daily', '0.8', today
           ))
         }
@@ -169,8 +174,15 @@ export async function GET(req: NextRequest) {
 
     // ── All other portals (finvexx, nex-wire, etc.) ──────────────────────────
     const { data: site } = await db.from('news_sites')
-      .select('id,slug,name').eq('domain', host).single()
+      .select('id,slug,name,noindex').eq('domain', host).single()
     if (!site) return new NextResponse(empty, { status: 200, headers: HEADERS })
+
+    // If this portal is marked noindex in the DB, return a minimal sitemap
+    // (just the homepage) — article URLs are noindex so no point listing them
+    if (site.noindex) {
+      const xml = xmlDoc([u(`${base}/`, 'daily', '1.0', today)])
+      return new NextResponse(xml, { status: 200, headers: HEADERS })
+    }
 
     const { data: arts } = await db.from('news_articles')
       .select('slug,published_at,updated_at,category')
@@ -190,9 +202,11 @@ export async function GET(req: NextRequest) {
       ))
       if (a.category) cats.add(a.category)
     }
+    // Use hyphens (not %20) to match the category page URL filter
     for (const cat of cats) {
+      const catSlug = cat.toLowerCase().replace(/\s+/g, '-')
       entries.push(u(
-        `${base}/article/${site.slug}/category/${encodeURIComponent(cat.toLowerCase())}`,
+        `${base}/article/${site.slug}/category/${encodeURIComponent(catSlug)}`,
         'daily', '0.7', today
       ))
     }
