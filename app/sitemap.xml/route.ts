@@ -107,10 +107,13 @@ export async function GET(req: NextRequest) {
     }
 
     // ── Jewish portals ───────────────────────────────────────────────────────
-    const jewishCfg = JEWISH_SITES[host]
+    const jewishCfg = JEWISH_SITES[host] || Object.values(JEWISH_SITES).find(v => v.slug === siteSlug) || null
     if (jewishCfg) {
-      const { data: site } = await db.from('news_sites')
-        .select('id,slug').eq('domain', host).single()
+      // Look up by slug first (more reliable than domain — domain format in DB may vary)
+      // Fall back to domain lookup for safety
+      const { data: site } = siteSlug
+        ? await db.from('news_sites').select('id,slug').eq('slug', siteSlug).single()
+        : await db.from('news_sites').select('id,slug').eq('domain', host).single()
 
       const entries: string[] = [
         u(`${base}/`, 'daily', '1.0', today),
@@ -173,8 +176,9 @@ export async function GET(req: NextRequest) {
     }
 
     // ── All other portals (finvexx, nex-wire, etc.) ──────────────────────────
-    const { data: site } = await db.from('news_sites')
-      .select('id,slug,name,noindex').eq('domain', host).single()
+    const { data: site } = siteSlug
+      ? await db.from('news_sites').select('id,slug,name,noindex').eq('slug', siteSlug).single()
+      : await db.from('news_sites').select('id,slug,name,noindex').eq('domain', host).single()
     if (!site) return new NextResponse(empty, { status: 200, headers: HEADERS })
 
     // If this portal is marked noindex in the DB, return a minimal sitemap
