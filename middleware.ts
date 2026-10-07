@@ -55,6 +55,16 @@ export function middleware(request: NextRequest) {
   ) {
     const res = NextResponse.next()
     res.headers.set('x-site-slug', portal.slug)
+    // app/article/[site]/[slug]/page.tsx reads this header to decide whether
+    // "Home"/breadcrumb/category/back/tag links should point to "/" (real
+    // custom domain) or fall back to "/news/<slug>" (an internal-only path
+    // that isn't in this site's ROUTE_MAP for any of the 3 Jewish portals).
+    // This header was never being set here, so EVERY article page on all 3
+    // domains linked "Home" etc to /news/<slug> instead of "/" — a dead-end
+    // path that Googlebot was following off of every single article, which
+    // is almost certainly a major contributor to the 404/4xx counts and the
+    // large "Discovered — currently not indexed" count in Search Console.
+    res.headers.set('x-custom-domain', 'true')
     return res
   }
 
@@ -72,6 +82,7 @@ export function middleware(request: NextRequest) {
 
   const res = NextResponse.rewrite(rewriteUrl)
   res.headers.set('x-site-slug', portal.slug)
+  res.headers.set('x-custom-domain', 'true')
   return res
 }
 

@@ -4,6 +4,15 @@ const nextConfig = {
   images: { unoptimized: true },
   async redirects() {
     return [
+      // Clean up the broken "Home" link every article page was generating
+      // (middleware.ts never set x-custom-domain, so homeUrl fell back to
+      // /news/<slug> — a wrong-branded dead-end page, not the real
+      // homepage). Googlebot has likely already crawled/indexed these from
+      // every article's nav; 301 them to "/" so they stop showing up as
+      // separate broken/duplicate pages in Search Console.
+      { source: '/news/aliya-today', destination: '/', permanent: true },
+      { source: '/news/jewish-news-now', destination: '/', permanent: true },
+      { source: '/news/jewish-property-report', destination: '/', permanent: true },
       // duplicate country articles -> canonical country guide (July 2026)
       { source: '/article/aliya-today/2026-07-07-aliyah-from-argentina-to-israel-2026-the-real-currency-and-timeline-breakdown', destination: '/article/aliya-today/2026-07-07-aliyah-from-argentina-to-israel-the-complete-2026-guide', permanent: true },
       { source: '/article/aliya-today/2026-07-02-aliyah-from-australia-to-israel-2026-the-real-24-month-timeline', destination: '/article/aliya-today/2026-07-01-aliyah-from-australia-to-israel-the-complete-2026-guide', permanent: true },
