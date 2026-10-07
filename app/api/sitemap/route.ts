@@ -162,7 +162,7 @@ ${urls.join('\n')}
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=1800, s-maxage=1800',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
     },
   })
 }
