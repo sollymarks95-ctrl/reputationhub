@@ -70,7 +70,9 @@ export function middleware(request: NextRequest) {
       : `/${portal.slug}${pathname === '/' ? '' : pathname}`
   }
 
-  return NextResponse.rewrite(rewriteUrl)
+  const res = NextResponse.rewrite(rewriteUrl)
+  res.headers.set('x-site-slug', portal.slug)
+  return res
 }
 
 export const config = {
