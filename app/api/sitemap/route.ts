@@ -2,9 +2,14 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export const revalidate = 1800 // 30 min cache
+// NOTE: no revalidate — force-dynamic means fresh on every request (no stale cache)
 
-function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
+function getDb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL  || 'https://gykxxhxsakxhfuutgobb.supabase.co',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
+  )
+}
 
 const DOMAIN_MAP: Record<string, { slug: string; base: string; name: string }> = {
   // ── Jewish portals (active) ──────────────────────────────────────────────────
