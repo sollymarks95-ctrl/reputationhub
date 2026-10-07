@@ -8,9 +8,20 @@ const ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
 
 const DOMAIN_MAP: Record<string, string> = {
+  // Jewish portals
   'aliya-today':            'https://aliyatoday.com',
   'jewish-news-now':        'https://jewishnewsnow.com',
   'jewish-property-report': 'https://jewishpropertyreport.com',
+  // Finance portals
+  'global-trade-wire':      'https://nex-wire.com',
+  'finance-terminal':       'https://finvexx.com',
+  'business-pulse':         'https://bizplezx.com',
+  'gold-markets-today':     'https://aurexhq.com',
+  'trust-score':            'https://verivex.co',
+  'invest-data':            'https://invexhuby.com',
+  'market-radar':           'https://signalixx.com',
+  'executive-network':      'https://execvex.com',
+  'crypto-hub':             'https://cryptoxos.com',
 }
 
 const SITEMAPS = Object.values(DOMAIN_MAP).map(d => `${d}/sitemap.xml`)
@@ -46,7 +57,7 @@ export async function GET(req: NextRequest) {
       .eq('news_site_id', site.id)
       .eq('status', 'published')
       .order('published_at', { ascending: false })
-      .limit(1000)
+      .limit(5000)
 
     for (const a of arts || []) {
       if (a.slug) urls.push(`${base}/article/${slug}/${a.slug}`)
