@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CopyVexxHome() {
+  const db = getDb()
   const { data: articles } = await db
     .from('news_articles')
     .select('id, title, slug, excerpt, category, published_at, news_sites!inner(slug)')

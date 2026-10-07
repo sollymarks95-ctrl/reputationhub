@@ -78,6 +78,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ slug: s
   if (!author) notFound()
 
   // Get articles by this author across all sites
+  const db = getDb()
   const { data: articles } = await db
     .from('news_articles')
     .select('id, title, slug, excerpt, published_at, category, news_site_id, news_sites!inner(slug, domain, name)')

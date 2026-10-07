@@ -30,7 +30,6 @@ const PORTAL_ORDER: Record<string, number> = {
   'market-radar':        6,
   'executive-network':   7,
   'crypto-hub':          8,
-  'crypto-hub':          8,
 }
 
 /**

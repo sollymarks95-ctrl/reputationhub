@@ -28,6 +28,7 @@ const REGIONS = [
 ]
 
 export default async function ExpatInvestIQHome({ params }: { params: Promise<{ slug: string }> }) {
+  const db = getDb()
   const { data: articles } = await db
     .from('news_articles')
     .select('id, title, slug, excerpt, category, published_at, news_sites!inner(slug)')
