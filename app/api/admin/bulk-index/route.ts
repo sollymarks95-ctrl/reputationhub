@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
+export const maxDuration = 300
 
 const ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
 const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
@@ -64,28 +64,33 @@ export async function GET(req: NextRequest) {
     total_urls: urls.length,
   }
 
-  // ── IndexNow — submit all URLs to Bing/Yandex/Seznam (instant crawl) ──────
-  // Submit in chunks of 100 to avoid timeout
+  // ── IndexNow — submit per-domain (host must match URLs in the batch) ────────
   const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'rephuby2024'
   let indexNowOk = 0
-  const chunks: string[][] = []
-  for (let i = 0; i < urls.length; i += 100) chunks.push(urls.slice(i, i + 100))
 
-  for (const chunk of chunks) {
-    try {
-      const r = await fetch('https://api.indexnow.org/indexnow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          host: 'aliyatoday.com',
-          key: INDEXNOW_KEY,
-          keyLocation: `https://aliyatoday.com/${INDEXNOW_KEY}.txt`,
-          urlList: chunk,
-        }),
-        signal: AbortSignal.timeout(15000),
-      })
-      if (r.ok || r.status === 202) indexNowOk += chunk.length
-    } catch { /* continue on timeout */ }
+  for (const [slug, base] of Object.entries(DOMAIN_MAP)) {
+    const domainHost = base.replace('https://', '')
+    const domainUrls = urls.filter(u => u.startsWith(base))
+    if (!domainUrls.length) continue
+
+    // Submit in chunks of 100
+    for (let i = 0; i < domainUrls.length; i += 100) {
+      const chunk = domainUrls.slice(i, i + 100)
+      try {
+        const r = await fetch('https://api.indexnow.org/indexnow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            host: domainHost,
+            key: INDEXNOW_KEY,
+            keyLocation: `${base}/${INDEXNOW_KEY}.txt`,
+            urlList: chunk,
+          }),
+          signal: AbortSignal.timeout(15000),
+        })
+        if (r.ok || r.status === 202) indexNowOk += chunk.length
+      } catch { /* continue on timeout */ }
+    }
   }
   results.indexnow = `${indexNowOk}/${urls.length} URLs submitted to IndexNow`
 
