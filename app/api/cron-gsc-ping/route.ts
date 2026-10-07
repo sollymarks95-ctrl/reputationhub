@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5a3h4aHhzYWt4aGZ1dXRnb2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NTM1MzQsImV4cCI6MjA5NTQyOTUzNH0.xXSCYJ6WgXirWeuWSVw571CBg6CYin_BO_yeC6PVooA'
+const DBURL = 'https://gykxxhxsakxhfuutgobb.supabase.co'
+
 function getDb() { return createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || DBURL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ANON
 )
 }
 
@@ -23,16 +26,16 @@ export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret') || req.headers.get('authorization')?.replace('Bearer ','')
-  if (secret !== (process.env.CRON_SECRET||'')) return NextResponse.json({ error:'Unauthorized' },{ status:401 })
+  if (secret !== (process.env.CRON_SECRET || 'rephub-cron-2025-secure')) return NextResponse.json({ error:'Unauthorized' },{ status:401 })
 
   const db = getDb()
   const { data: articles } = await db
     .from('news_articles')
     .select('slug, news_site_id, news_sites!inner(slug)')
     .eq('status','published')
-    .gte('published_at', new Date(Date.now() - 25*60*60*1000).toISOString())
+    .gte('published_at', new Date(Date.now() - 72*60*60*1000).toISOString())
     .order('published_at', { ascending: false })
-    .limit(100)
+    .limit(500)
 
   const urls: string[] = []
   for (const a of (articles||[])) {
@@ -49,10 +52,10 @@ export async function GET(req: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        host: 'nex-wire.com',
+        host: 'aliyatoday.com',
         key: process.env.INDEXNOW_KEY || 'rephuby2024',
-        keyLocation: 'https://nex-wire.com/rephuby2024.txt',
-        urlList: urls.slice(0,100)
+        keyLocation: 'https://aliyatoday.com/rephuby2024.txt',
+        urlList: urls.slice(0, 500)
       }),
       signal: AbortSignal.timeout(10000)
     })
