@@ -43,17 +43,33 @@ function getDb() {
 // both functions call fetchPageData(siteSlug) but React only runs the DB queries
 // ONCE per request. Result is shared, so total = 2 queries instead of 6.
 const fetchPageData = cache(async (siteSlug: string) => {
-  const db = getDb()
-  const { data: site } = await db.from('news_sites').select('*').eq('slug', siteSlug).single()
-  if (!site) return { site: null, articles: [] as any[] }
-  const { data: articles } = await db
-    .from('news_articles')
-    .select('id,title,slug,excerpt,category,author_name,published_at,read_time_minutes,cover_image_url')
-    .eq('news_site_id', site.id)
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
-    .limit(30)
-  return { site, articles: articles || [] }
+  try {
+    const db = getDb()
+    // Hard 8-second timeout — Supabase fetch has no built-in timeout and will
+    // hang indefinitely on a cold start if the connection stalls.
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), 8000)
+    const { data: site, error: siteErr } = await (db
+      .from('news_sites').select('*').eq('slug', siteSlug).single() as any)
+      .abortSignal(ctrl.signal)
+    clearTimeout(t)
+    if (siteErr || !site) return { site: null, articles: [] as any[] }
+
+    const ctrl2 = new AbortController()
+    const t2 = setTimeout(() => ctrl2.abort(), 6000)
+    const { data: articles } = await (db
+      .from('news_articles')
+      .select('id,title,slug,excerpt,category,author_name,published_at,read_time_minutes,cover_image_url')
+      .eq('news_site_id', site.id)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(30) as any)
+      .abortSignal(ctrl2.signal)
+    clearTimeout(t2)
+    return { site, articles: articles || [] }
+  } catch {
+    return { site: null, articles: [] as any[] }
+  }
 })
 
 // Canonical domain map — used to ensure the correct domain is always set as
@@ -158,7 +174,17 @@ export default async function DynamicSitePage({ searchParams }: { searchParams: 
   // React cache — this is the SAME call as generateMetadata, returns cached result
   const { site, articles } = await fetchPageData(siteSlug)
 
-  if (!site) return notFound()
+  // If DB timed out or returned nothing, show a visible fallback rather than
+  // a 404 — confirms the page IS rendering and the issue is DB connectivity.
+  if (!site) {
+    return (
+      <div style={{ fontFamily: 'system-ui,sans-serif', padding: '60px 24px', textAlign: 'center', color: '#333' }}>
+        <h1 style={{ fontSize: 28, marginBottom: 16 }}>Loading…</h1>
+        <p style={{ color: '#666' }}>Content is loading. Please refresh in a moment.</p>
+        <meta httpEquiv="refresh" content="5" />
+      </div>
+    )
+  }
 
   const siteUrl = CANONICAL_DOMAIN[site.slug] || `https://${site.domain}`
   const host = siteUrl.replace('https://', '')
