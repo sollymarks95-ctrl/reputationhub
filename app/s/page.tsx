@@ -131,21 +131,29 @@ export default async function DynamicSitePage(
 
   const { site, articles } = await fetchPageData(siteSlug)
 
-  // DB timed out or returned nothing — render a visible fallback with auto-refresh
-  // so the user sees something and the page auto-retries in 5s
+  // DB timed out server-side — render client-side loader that fetches via API
   if (!site) {
-    const m = SITE_META[siteSlug]
     return (
-      <div style={{ fontFamily: 'Georgia,serif', minHeight: '100vh', background: siteSlug === 'aliya-today' ? '#fff8f0' : '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>
-            {siteSlug === 'aliya-today' ? '✈️' : siteSlug === 'jewish-news-now' ? '✡️' : '🏠'}
+      <>
+        <div id="__site_loader" style={{ fontFamily: 'Georgia,serif', minHeight: '100vh', background: siteSlug === 'aliya-today' ? '#fff8f0' : '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center', padding: '40px 24px' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>✈️</div>
+            <h1 style={{ fontSize: 28, color: '#333', marginBottom: 12 }}>Loading…</h1>
+            <p style={{ color: '#666', fontSize: 16 }}>Fetching content…</p>
           </div>
-          <h1 style={{ fontSize: 28, color: '#333', marginBottom: 12 }}>{m?.name || 'Loading…'}</h1>
-          <p style={{ color: '#666', fontSize: 16 }}>Content loading — refreshing automatically…</p>
-          <meta httpEquiv="refresh" content="4" />
         </div>
-      </div>
+        <script dangerouslySetInnerHTML={{ __html: `
+(function(){
+  fetch('/api/site-data?slug=${siteSlug}')
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d && d.site){ window.location.reload(); }
+      else { setTimeout(function(){ window.location.reload(); }, 3000); }
+    })
+    .catch(function(){ setTimeout(function(){ window.location.reload(); }, 3000); });
+})();
+        ` }} />
+      </>
     )
   }
 
