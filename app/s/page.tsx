@@ -106,7 +106,14 @@ export async function generateMetadata(
     'jewish-property-report': 'israel real estate, buy property in israel, israel apartments, tel aviv property market, invest in israel, israel housing',
   }
 
-  const title = JEWISH.includes(slug) ? `${m.name} — ${m.desc.slice(0,60)} | Solly Marks` : `${m.name} — Financial Intelligence`
+  // Hand-written titles: the old m.desc.slice(0,60) cut mid-word in search results
+  // ("...Step-by-step ad | Solly Marks").
+  const JEWISH_TITLES: Record<string,string> = {
+    'aliya-today':            'AliyaToday — Your Complete Guide to Making Aliyah in 2026',
+    'jewish-news-now':        'Jewish News Now — Breaking Jewish News from Israel & Worldwide',
+    'jewish-property-report': 'Jewish Property Report — Israel Real Estate for Diaspora Buyers',
+  }
+  const title = JEWISH_TITLES[slug] || `${m.name} — Financial Intelligence`
 
   return {
     title: { default: title, template: `%s | ${m.name}` },
