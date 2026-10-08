@@ -119,6 +119,7 @@ export async function GET(req: NextRequest) {
         u(`${base}/`, 'daily', '1.0', today),
         u(`${base}/author/solly-marks`, 'monthly', '0.8', today),
         u(`${base}/about`, 'monthly', '0.7'),
+        u(`${base}/archive`, 'daily', '0.8', today),
         u(`${base}/legal/privacy`, 'yearly', '0.4'),
         u(`${base}/legal/terms`, 'yearly', '0.4'),
         u(`${base}/legal/disclaimer`, 'yearly', '0.4'),

@@ -877,8 +877,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
               <p style={{ fontSize:13, lineHeight:1.7, color:'#475569' }}>{site.tagline || 'Global business intelligence and market analysis.'}</p>
             </div>
             {[
-              { title:'Coverage', links: cats.slice(0,5).map((c: string) => ({ label:c, href:`/${route}/${siteSlug}?category=${encodeURIComponent(c)}` })) },
-              { title:'Company', links:[{label:'About Us',href:'/legal/about'},{label:'Our Team',href:'/legal/about'},{label:'Contact Us',href:'/legal/contact'},{label:'Advertise',href:'/legal/advertise'}] },
+              { title:'Coverage', links: ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+                ? [{label:'All articles',href:'/archive'}, ...cats.slice(0,4).map((c: string) => ({ label:c, href:`/article/${siteSlug}/category/${encodeURIComponent(c.toLowerCase().replace(/\s+/g,'-'))}` }))]
+                : cats.slice(0,5).map((c: string) => ({ label:c, href:`/${route}/${siteSlug}?category=${encodeURIComponent(c)}` })) },
+              { title:'Company', links: ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
+                ? [{label:'About Us',href:'/legal/about'},{label:'Contact Us',href:'/legal/contact'}]
+                : [{label:'About Us',href:'/legal/about'},{label:'Our Team',href:'/legal/about'},{label:'Contact Us',href:'/legal/contact'},{label:'Advertise',href:'/legal/advertise'}] },
               { title:'Legal', links: ['jewish-news-now','jewish-property-report','aliya-today'].includes(siteSlug)
                 ? [{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Disclaimer',href:'/legal/disclaimer'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}]
                 : [{label:'Privacy Policy',href:'/legal/privacy'},{label:'Terms of Use',href:'/legal/terms'},{label:'Risk Warning',href:'/legal/risk-warning'},{label:'Cookie Policy',href:'/legal/cookies'},{label:'Sitemap',href:'/sitemap.xml'}] }

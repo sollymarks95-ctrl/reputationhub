@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
+import { notFound } from 'next/navigation'
 import { JEWISH_SITES, jewishLegalContent } from '@/lib/jewishLegal'
 
 const LEGAL: Record<string, { title: string; content: () => JSX.Element }> = {
@@ -270,17 +271,9 @@ export default async function LegalPage({ params }: { params: Promise<{ page: st
       { slug:'contact', label:'Contact' },
     ]
 
-    if (!legal) {
-      return (
-        <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'sans-serif', display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <div style={{ textAlign:'center', padding:40 }}>
-            <div style={{ fontSize:48, marginBottom:16 }}>📄</div>
-            <h1 style={{ fontSize:24, fontWeight:900, marginBottom:12 }}>Page Not Found</h1>
-            <Link href="/legal/about" style={{ color:'#3b82f6' }}>Go to About Us →</Link>
-          </div>
-        </div>
-      )
-    }
+    // Real 404 status — this branch used to render a "Page Not Found" message
+    // with HTTP 200 (soft 404), e.g. for /legal/advertise linked from every article.
+    if (!legal) notFound()
 
     return (
       <div style={{ minHeight:'100vh', background:'#f3f4f6', fontFamily:'sans-serif' }}>

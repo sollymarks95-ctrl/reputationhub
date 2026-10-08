@@ -268,6 +268,7 @@ function JewishNewsNow({ site, articles }: { site: any; articles: any[] }) {
       <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontFamily: 'Georgia', marginBottom: 6 }}>JEWISH NEWS NOW</div>
       <div style={{ fontSize: 11, marginBottom: 12 }}>The Jewish World, Today</div>
       <div style={{ fontSize: 11, display: 'flex', justifyContent: 'center', gap: 20 }}>
+        <a href="/archive" style={{ color: '#999' }}>All articles</a>
         <a href="/legal/privacy" style={{ color: '#999' }}>Privacy</a>
         <a href="/legal/terms" style={{ color: '#999' }}>Terms</a>
       </div>
@@ -434,6 +435,7 @@ function JewishPropertyReport({ site, articles }: { site: any; articles: any[] }
           </div>
           <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
             {cats.slice(1, 5).map(c => <a key={c} href={`/?cat=${c}`} style={{ color: '#888' }}>{c}</a>)}
+            <a href="/archive" style={{ color: '#888' }}>All articles</a>
             <a href="/legal/privacy" style={{ color: '#888' }}>Privacy</a>
           </div>
         </div>
@@ -763,6 +765,7 @@ function AliyaToday({ site, articles }: { site: any; articles: any[] }) {
             </div>
             <div>
               {cats.slice(5).map(c => <div key={c} style={{ marginBottom: 6 }}><a href={`/?cat=${c}`} style={{ color: '#777' }}>{c}</a></div>)}
+              <div style={{ marginBottom: 6 }}><a href="/archive" style={{ color: '#777' }}>All articles</a></div>
               <div><a href="/legal/privacy" style={{ color: '#777' }}>Privacy</a></div>
             </div>
           </div>
