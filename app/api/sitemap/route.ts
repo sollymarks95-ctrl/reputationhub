@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isRedirectedSlug } from '@/app/lib/redirected-slugs'
 
 // NOTE: no revalidate — force-dynamic means fresh on every request (no stale cache)
 
@@ -32,6 +33,8 @@ const DOMAIN_MAP: Record<string, { slug: string; base: string; name: string }> =
 }
 
 const CLIENT_SLUGS = ['etoro']
+// Jewish portals — no finance-client FAQ pages in their sitemap
+const JEWISH_SLUGS = new Set(['aliya-today', 'jewish-news-now', 'jewish-property-report'])
 
 function xe(s: string) {
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
@@ -83,9 +86,11 @@ export async function GET(req: NextRequest) {
     // 1. HOMEPAGE
     urls.push(urlEntry(`${base}/`, today, '1.0', 'daily'))
 
-    // 2. FAQ PAGES — SEO/AI only, not in nav
-    for (const c of CLIENT_SLUGS) {
-      urls.push(urlEntry(`${base}/faq/${c}`, today, '0.9', 'weekly'))
+    // 2. FAQ PAGES — finance portals only (not Jewish portals — wrong content)
+    if (!JEWISH_SLUGS.has(siteSlug)) {
+      for (const c of CLIENT_SLUGS) {
+        urls.push(urlEntry(`${base}/faq/${c}`, today, '0.9', 'weekly'))
+      }
     }
 
     // 3. VERIVEX: review pages per company (verivex.co/reviews/[slug])
@@ -98,6 +103,12 @@ export async function GET(req: NextRequest) {
 
     // 3. SEARCH PAGE
     urls.push(urlEntry(`${base}/search`, today, '0.5', 'monthly'))
+
+    // 4. STATIC PAGES — about + author (real Next.js pages, return 200)
+    if (JEWISH_SLUGS.has(siteSlug)) {
+      urls.push(urlEntry(`${base}/about`, today, '0.4', 'monthly'))
+      urls.push(urlEntry(`${base}/author/solly-marks`, today, '0.4', 'monthly'))
+    }
 
     if (site) {
       // 4. ALL ARTICLES — with Google News extension for fast indexing
@@ -112,6 +123,10 @@ export async function GET(req: NextRequest) {
       const allCategories = new Set<string>()
 
       for (const a of articles || []) {
+        // Skip articles that are 301-redirected in next.config.mjs — Google
+        // flags sitemap URLs that return a redirect as "Page with redirect"
+        if (isRedirectedSlug(siteSlug, a.slug)) continue
+
         const articleUrl = `${base}/article/${siteSlug}/${a.slug}`
         // Use Google News format for recent articles (last 2 days), standard for older
         const pubDate = new Date(a.published_at || today)
@@ -127,9 +142,10 @@ export async function GET(req: NextRequest) {
         ;(a.tags || []).forEach((t: string) => { /* tags used for cross-linking */ })
       }
 
-      // 5. CATEGORY PAGES — one URL per unique category
+      // 5. CATEGORY PAGES — canonical path /article/{site}/category/{slug}
       for (const cat of allCategories) {
-        urls.push(urlEntry(`${base}/?category=${encodeURIComponent(cat)}`, today, '0.6', 'daily'))
+        const catSlug = encodeURIComponent(cat.toLowerCase().replace(/\s+/g, '-'))
+        urls.push(urlEntry(`${base}/article/${siteSlug}/category/${catSlug}`, today, '0.6', 'daily'))
       }
 
       // 6. CLIENT BRAND ARTICLE PAGES — specifically articles mentioning the client
