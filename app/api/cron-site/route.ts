@@ -1492,11 +1492,19 @@ Required structure:
       } catch { /* non-critical */ }
     }
 
-    // IndexNow — ping Bing/Google immediately on publish (sub-second indexing latency)
+    // IndexNow — ping Bing/Yandex immediately on publish
     try {
       const articleUrl = `https://${site.domain}/article/${siteSlug}/${slug}`
       const indexNowKey = process.env.INDEXNOW_KEY || 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'
       await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`, {
+        method: 'GET', signal: AbortSignal.timeout(3000)
+      }).catch(() => {})
+    } catch {}
+
+    // Google sitemap ping — tells Googlebot new content exists right now
+    try {
+      const sitemapUrl = `https://${site.domain}/sitemap.xml`
+      await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`, {
         method: 'GET', signal: AbortSignal.timeout(3000)
       }).catch(() => {})
     } catch {}

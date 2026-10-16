@@ -119,7 +119,11 @@ export async function generateMetadata(
     title: { default: title, template: `%s | ${m.name}` },
     description: m.desc,
     robots: noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1',
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      // RSS feed link — tells Google to subscribe and crawl new articles faster
+      types: { 'application/rss+xml': `${canonical}/feed.xml` },
+    },
     keywords: NICHE_KW[slug] || `${m.name}, financial news, market intelligence`,
     authors: [{ name: JEWISH.includes(slug) ? 'Solly Marks' : m.name, url: canonical }],
     openGraph: { title, description: m.desc, url: canonical, siteName: m.name, type: 'website', locale: 'en_US' },
