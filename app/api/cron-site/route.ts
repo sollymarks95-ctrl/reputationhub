@@ -1080,9 +1080,10 @@ Return ONLY valid JSON, no markdown fences:
         } catch(_) {}
       }
       if (!parsed?.title || !parsed?.body || parsed.title === '{') { console.error(`Parse fail attempt ${attempt+1}: ${clean.slice(0,100)}`); continue }
-      // Reject thin content — Google won't index articles under ~700 words
+      // Reject thin content — Google won't index articles under ~700 words (finance)
+      // or ~1,200 words (Jewish portals, which target longer-form editorial content)
       const wordCount = (parsed.body as string).replace(/<[^>]+>/g,'').split(/\s+/).filter(Boolean).length
-      const minWords = isPillarArticle ? 1800 : 700
+      const minWords = isPillarArticle ? 1800 : isJewishPortal ? 1200 : 700
       if (wordCount < minWords) {
         console.error(`[writeArticle] Thin content (${wordCount} words < ${minWords} min) attempt=${attempt+1} site=${site.slug||site.domain||'?'} — retrying`)
         continue
