@@ -22,15 +22,15 @@ export async function GET(req: NextRequest) {
   const dry = searchParams.get('dry') !== '0'
   // threshold param — articles below this word count are flagged (default 900)
   const threshold = parseInt(searchParams.get('threshold') || '900', 10)
+  // site param — filter to one site slug (optional). Omit to audit ALL sites.
+  const siteFilter = searchParams.get('site') || null
 
-  const JEWISH_SLUGS = ['jewish-news-now', 'jewish-property-report', 'aliya-today']
+  let sitesQuery = db.from('news_sites').select('id, slug, name')
+  if (siteFilter) sitesQuery = sitesQuery.eq('slug', siteFilter)
 
-  const { data: sites } = await db
-    .from('news_sites')
-    .select('id, slug, name')
-    .in('slug', JEWISH_SLUGS)
+  const { data: sites } = await sitesQuery
 
-  if (!sites?.length) return NextResponse.json({ error: 'No Jewish sites found' })
+  if (!sites?.length) return NextResponse.json({ error: 'No sites found' })
 
   const results: Record<string, { site: string; total: number; thin: number; thinArticles: { slug: string; words: number; title: string }[] }> = {}
   let totalThin = 0
