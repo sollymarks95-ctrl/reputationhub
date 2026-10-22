@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isRedirectedSlug } from '@/app/lib/redirected-slugs'
 
 export const dynamic = 'force-dynamic'
 export const runtime  = 'nodejs'
@@ -137,6 +138,9 @@ export async function GET(req: NextRequest) {
 
         for (const a of arts || []) {
           if (!a.slug) continue
+          // Skip articles whose slugs are 301-redirected in next.config.mjs —
+          // Google flags sitemap URLs that return a redirect as "Page with redirect"
+          if (isRedirectedSlug(site.slug, a.slug)) continue
           const loc = `${base}/article/${site.slug}/${a.slug}`
           const pubMs = new Date(a.published_at || today).getTime()
           const isRecent = (nowMs - pubMs) < TWO_DAYS_MS
