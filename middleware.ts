@@ -48,6 +48,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/calculators') ||
     pathname.startsWith('/guides') ||
     pathname.startsWith('/portal/') ||
+    pathname.startsWith('/about') ||
     pathname.startsWith('/author/') ||
     pathname.startsWith('/archive') ||
     pathname.startsWith('/news/') ||

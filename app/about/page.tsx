@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 function getDb() { return createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 ) }
 
 const SITE_ABOUT: Record<string, {
@@ -43,12 +43,17 @@ const ABOUT_ICON_MAP: Record<string,string> = {
 export async function generateMetadata() {
   const headersList = await headers()
   const host = (headersList.get('host') || '').replace(':3000','').replace('www.','')
-  const siteEntry = Object.entries(SITE_ABOUT).find(([,s]) => s.domain.replace('www.','') === host)
+  const siteSlug = headersList.get('x-site-slug') || ''
+  const siteEntry = siteSlug
+    ? Object.entries(SITE_ABOUT).find(([k]) => k === siteSlug)
+    : Object.entries(SITE_ABOUT).find(([,s]) => s.domain.replace('www.','') === host)
   const site = siteEntry?.[1] || SITE_ABOUT['global-trade-wire']
   const slug = siteEntry?.[0] || 'global-trade-wire'
+  const base = `https://${site.domain}`
   return {
     title: `About ${site.name} — ${site.tagline}`,
     description: site.mission.slice(0, 155),
+    alternates: { canonical: `${base}/about` },
     icons: { icon: ABOUT_ICON_MAP[slug] || '/icon-rephuby.svg' },
     openGraph: { title: `About ${site.name}`, description: site.mission.slice(0,155), type: 'website' }
   }
