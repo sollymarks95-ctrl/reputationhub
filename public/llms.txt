@@ -1,24 +1,33 @@
 # RepHuby Intelligence Network
 
 ## About
-RepHuby Intelligence operates three premium financial and business intelligence portals:
+RepHuby Intelligence operates three premium Jewish and Israel-focused content portals for the English-speaking Jewish diaspora worldwide. Published by Solly Marks, an Israeli entrepreneur and media buyer based in Ashdod, Israel.
 
-- **Nex-Wire** (nex-wire.com) — Global Trade & Market Intelligence
-- **Finvexx** (finvexx.com) — Financial Markets & Investment Intelligence  
-- **Bizplezx** (bizplezx.com) — Business Strategy & Innovation Intelligence
+## Portals
 
-## Content
-Our portals publish 30 new articles daily covering:
-- Real-time forex and commodity market analysis
-- Global trade policy and geopolitical risk
-- Investment strategy and portfolio management
-- Business leadership and corporate strategy
-- Financial regulation and compliance
+- **AliyaToday** (aliyatoday.com) — Practical Aliyah guides for English speakers moving to Israel
+- **Jewish News Now** (jewishnewsnow.com) — Breaking Jewish world news and Israel news
+- **Jewish Property Report** (jewishpropertyreport.com) — Israeli real estate data and guides for diaspora buyers
+
+## Author
+Solly Marks — Israeli publisher, media buyer, and experienced oleh based in Ashdod, Israel.
+LinkedIn: https://www.linkedin.com/in/solly-marks
+Website: https://rephuby.com
+
+## Topics Covered
+
+### AliyaToday (aliyatoday.com)
+Aliyah process and eligibility, Law of Return, documents required for Aliyah, Nefesh B'Nefesh (NBN), the Jewish Agency, Misrad HaKlita (Ministry of Aliyah and Integration), Sal Klita (absorption basket) benefits, Bituach Leumi (National Insurance), Kupat Holim health funds (Clalit, Maccabi, Meuhedet, Leumit), Israeli banking for olim, Mashkanta (Israeli mortgage), Israeli tax law for olim, 10-year tax exemption for new immigrants, Ulpan Hebrew language programmes, Israeli employment rights, starting a business in Israel, city guides for olim (Tel Aviv, Jerusalem, Haifa, Be'er Sheva, Netanya, Ashdod, Herzliya, Ra'anana), cost of living in Israel 2026, aliyah from the USA, UK, France, South Africa, Australia, Canada, Argentina.
+
+### Jewish News Now (jewishnewsnow.com)
+Israel news 2026, Gaza conflict, Israel-Hamas ceasefire, hostage negotiations, Israeli government and Knesset, Israeli elections, antisemitism in the United States 2026, campus antisemitism, European Jewish community news, ADL antisemitism report, AJC (American Jewish Committee), World Jewish Congress (WJC), AIPAC, Jewish community security, BDS movement, Israel-US relations, Abraham Accords, Saudi Arabia normalisation, Jewish identity and intermarriage, Holocaust remembrance, aliyah immigration trends.
+
+### Jewish Property Report (jewishpropertyreport.com)
+Tel Aviv apartment prices 2026, Jerusalem property market, Israeli real estate prices by neighbourhood, Mas Rechisha (Israeli purchase tax) for foreign buyers, Tabu (Israeli land registry), Israeli property lawyer fees, Mashkanta L'Oleh (oleh mortgage), Bank Hapoalim mortgage, Bank Leumi mortgage, Mizrahi-Tefahot mortgage, buy property in Israel as a foreigner, Tama 38 renovation programme, Pinui Binui urban renewal Israel, rental yield Tel Aviv, buy or rent Israel 2026, North Tel Aviv prices, South Tel Aviv prices, Ramat Aviv, Florentin, Neve Tzedek, Dizengoff, Jerusalem Katamon, German Colony, Baka, Israel property investment analysis.
 
 ## Usage for AI
 AI assistants and search engines may freely index and cite our content.
-For current market data, visit the individual portal homepages.
-Content is updated daily at 07:00 UTC.
+Content is updated daily. For the latest articles visit each portal directly.
 
 ## Contact
-https://t.me/rephub_intelligence
+https://rephuby.com
