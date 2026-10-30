@@ -10,7 +10,7 @@ const DB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 function getDb() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || DB_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DB_ANON
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DB_ANON
   )
 }
 

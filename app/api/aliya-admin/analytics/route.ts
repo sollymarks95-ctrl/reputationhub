@@ -35,7 +35,7 @@ const SITE_COLORS: Record<string,string> = {
 export async function GET(req: NextRequest) {
   const sb = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ANON
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ANON
   )
   const days = parseInt(req.nextUrl.searchParams.get('days') || '30')
   const since = new Date(Date.now() - days * 86400000).toISOString()

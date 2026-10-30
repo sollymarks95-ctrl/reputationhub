@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export const maxDuration = 300
 
-function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 const IMG_PROMPTS: Record<string, string> = {
   'Trade': 'global shipping port cargo containers cranes maritime industrial',

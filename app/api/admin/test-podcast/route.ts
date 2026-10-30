@@ -4,7 +4,7 @@ import { getSiteConfig, pickGuestVoice } from '@/app/lib/podcast-config'
 
 export const maxDuration = 300
 
-function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 async function getKey(name: string) {
   if (process.env[name]) return process.env[name]!
   const { data } = await getDb().from('system_api_keys').select('key_value').eq('key_name', name).eq('is_active', true).single()

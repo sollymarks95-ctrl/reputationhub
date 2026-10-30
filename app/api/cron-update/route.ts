@@ -21,7 +21,7 @@ export const maxDuration = 300
 const ANTHROPIC = process.env.ANTHROPIC_API_KEY!
 
 // Service role key bypasses RLS
-function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
+function getDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||'') }
 
 // Hardcoded core portals (always run, never removed)
 const CORE_SITES = [

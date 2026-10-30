@@ -194,7 +194,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ site: 
   const { createClient } = await import('@supabase/supabase-js')
   const sb = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const tags = article.tags || []
   const bodyLowerFull = (article.body||'').toLowerCase()
